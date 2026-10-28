@@ -435,14 +435,6 @@ html.kb .xbtn{display:none}
 .rolebar{align-self:center;background:var(--ink);color:#fff;border:2.5px solid #fff;border-radius:999px;padding:5px 16px;font-family:var(--font-display);font-size:16px;text-align:center;box-shadow:0 3px 0 rgba(0,0,0,.35)}
 .rolebar.opponent{background:var(--red)}.rolebar.explainer{background:var(--yellow);color:var(--ink);border-color:var(--ink)}.rolebar.guesser{background:var(--green);color:var(--ink);border-color:var(--ink)}
 html.kb .rolebar{display:none}
-.msg .qa{display:block;margin-top:6px;font-family:var(--font-display);font-weight:400;font-size:14px;border-radius:999px;padding:1px 10px;border:2px solid var(--ink);width:max-content}
-.msg .qa.yes{background:var(--green)}.msg .qa.no{background:var(--red);color:#fff}.msg .qa.kinda{background:var(--yellow)}.msg .qa.hot{background:var(--orange)}.msg .qa.wait{background:#fff;color:var(--soft);border-style:dashed}
-.msg.ask .b{background:#fff}.msg.ask .b::before{content:"❓ "}
-.answers{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;animation:pop .3s both}
-.abtn{border:var(--o);border-radius:14px;box-shadow:var(--sh);padding:12px 2px;font-family:var(--font-display);font-size:17px;white-space:nowrap;color:var(--ink);transition:transform .06s}
-.abtn:active{transform:translateY(4px);box-shadow:0 1px 0 var(--ink)}
-.abtn.yes{background:var(--green)}.abtn.no{background:var(--red);color:#fff}.abtn.kinda{background:var(--yellow)}.abtn.hot{background:var(--orange)}
-html.kb .abtn{padding:8px 4px;font-size:16px;box-shadow:var(--sh-sm)}
 </style>
 </head>
 <body>
@@ -465,7 +457,6 @@ const DEFAULTS = {turnsPerTeam:5,turnSeconds:60,trapSeconds:20,difficulty:'all',
 const T = {CORRECT:2200,TRAP:5000,SKIP:1100,SUMMARY:6000,PREP:1500,MAX_HISTORY:12};
 
 // ---------- נרמול והתאמה (דטרמיניסטי) ----------
-const ANS={yes:'כן',no:'לא',kinda:'בערך',hot:'חם מאוד!'};
 // האם הביטוי m מופיע כמילים שלמות בתוך n (מותרת אות שימוש אחת בתחילה: ו/ה/ב/ל/כ/מ/ש)
 function hasPhrase(n,m){if(!n||!m)return false;const a=n.split(' '),b=m.split(' ');
   for(let i=0;i+b.length<=a.length;i++){if(b.every((w,j)=>{const x=a[i+j];return x===w||(j===0&&x.length===w.length+1&&'והבלכמש'.includes(x[0])&&x.slice(1)===w);}))return true;}return false;}
@@ -486,7 +477,7 @@ function shuffle(a){a=[...a];for(let i=a.length-1;i>0;i--){const j=Math.floor(Ma
 function uid(n=8){const s='ABCDEFGHJKLMNPQRSTUVWXYZ23456789';let o='';const b=crypto.getRandomValues(new Uint8Array(n));for(const x of b)o+=s[x%s.length];return o;}
 function newState(code,mode){return{code,mode,phase:'LOBBY',players:[],settings:{...DEFAULTS},score:{A:0,B:0},correctTotal:{A:0,B:0},trapsTotal:{A:0,B:0},
   activeTeam:'A',turnIndex:0,explainerId:null,cursor:{A:0,B:0},skipsLeft:0,guesses:[],seen:[],deck:[],cardId:null,traps:[],cardResolved:false,cardResult:null,
-  turnSummary:null,gameOver:null,turnStats:{correct:0,traps:0,points:0},phaseEndsAt:null,turnRemainingMs:0,explainStartedAt:0,clues:[],asks:[],v:0};}
+  turnSummary:null,gameOver:null,turnStats:{correct:0,traps:0,points:0},phaseEndsAt:null,turnRemainingMs:0,explainStartedAt:0,clues:[],v:0};}
 const E = {
   team:(S,t)=>S.players.filter(p=>p.team===t),
   totalTurns:S=>S.settings.turnsPerTeam*2,
@@ -511,9 +502,11 @@ const E = {
   beginTurn(S){S.turnSummary=null;S.cardResult=null;S.guesses=[];S.seen=[];S.skipsLeft=S.settings.maxSkips;S.turnRemainingMs=S.settings.turnSeconds*1000;S.turnStats={correct:0,traps:0,points:0};
     for(const p of S.players)p.turnCorrect=0;
     const m=E.team(S,S.activeTeam).filter(p=>p.connected||S.mode!=='online');if(!m.length){E.finishGame(S);return;}
-    S.explainerId=m[S.cursor[S.activeTeam]%m.length].id;S.cursor[S.activeTeam]++;E.nextCard(S);},
+    // קבוצה עם מחשב: המחשב תמיד מסביר, ובני האדם תמיד מנחשים (בלי להקליד רמזים)
+    const bots=m.filter(p=>isBot(p.id));const pool=bots.length&&bots.length<m.length?bots:m;
+    S.explainerId=pool[S.cursor[S.activeTeam]%pool.length].id;S.cursor[S.activeTeam]++;E.nextCard(S);},
   nextCard(S){if(S.turnRemainingMs<=0){E.endTurn(S);return;}if(!S.deck.length)S.deck=shuffle([...CARDS.keys()]);
-    S.cardId=S.deck.pop();S.cardAt=Date.now();S.traps=[];S.cardResolved=false;S.cardResult=null;S.clues=[];S.asks=[];
+    S.cardId=S.deck.pop();S.cardAt=Date.now();S.traps=[];S.cardResolved=false;S.cardResult=null;S.clues=[];
     // מצב מקומי: הטלפון עובר ליריבים רק לפני הקלף הראשון בתור; בקלפים הבאים המוקשים נבחרים אוטומטית
     if(S.mode==='local'&&S.turnRemainingMs<S.settings.turnSeconds*1000){const c=CARDS.get(S.cardId);S.traps=shuffle(c.options).slice(0,3);E.startExplaining(S);return;}
     E.setPhase(S,'TRAP_SELECTION',S.settings.trapSeconds*1000);},
@@ -529,9 +522,7 @@ const E = {
     if(mine&&!S.cardResolved){const p=S.players.find(x=>x.id===playerId);const other=S.activeTeam==='A'?'B':'A';S.score[S.activeTeam]-=2;S.score[other]+=1;
       E.resolve(S,{kind:'trap',word:mine,playerName:p?p.name:'',delta:{[S.activeTeam]:-2,[other]:1}});if(p)p.stats.traps++;S.trapsTotal[S.activeTeam]++;S.turnStats.traps++;S.turnStats.points-=2;E.setPhase(S,'CARD_RESULT',T.TRAP);return;}
     S.v++;},
-  ask(S,playerId,text){const p=S.players.find(x=>x.id===playerId);if(S.phase!=='EXPLAINING'||!p||p.team!==S.activeTeam||playerId===S.explainerId||S.cardResolved)return;
-    const t=String(text).trim().slice(0,120);if(!t)return;S.asks=S.asks||[];S.asks.push({id:uid(6),by:playerId,text:t,at:Date.now(),answer:null});if(S.asks.length>20)S.asks.shift();S.v++;},
-  answer(S,playerId,qid,val){if(S.phase!=='EXPLAINING'||playerId!==S.explainerId||!ANS[val])return;const q=(S.asks||[]).find(x=>x.id===qid);if(!q||q.answer)return;q.answer=val;q.answeredAt=Date.now();S.v++;},
+
   startExplaining(S){S.explainStartedAt=Date.now();E.setPhase(S,'EXPLAINING',S.turnRemainingMs);},
   freeze(S){if(S.phase==='EXPLAINING')S.turnRemainingMs=Math.max(0,S.turnRemainingMs-(Date.now()-S.explainStartedAt));},
   guess(S,playerId,text,guessId){const p=S.players.find(x=>x.id===playerId);const c=E.card(S);
@@ -653,7 +644,6 @@ function handleAction(a){const S=A.S;if(!S)return;
     case 'skip':E.skip(S,a.from);break;
     case 'begin_explaining':if(S.phase==='TURN_PREPARATION'&&S.mode!=='online')E.startExplaining(S);break;
     case 'clue':E.clue(S,a.from,a.text);break;
-    case 'answer':E.answer(S,a.from,a.id,a.value);break;
     case 'rematch':if(isHostAct(S,a))E.rematch(S);break;}};
   const before=S.cardResult;
   if(A.mode!=='online'){run();if(S.cardResult&&S.cardResult!==before)fx(S.cardResult.kind);return;}
@@ -697,7 +687,7 @@ const BOTS={partner:{id:'bot-a',name:'השותף שלך',avatar:'🤖',team:'A'}
 function createAI(){A.mode='ai';A.isHost=true;A.me={id:'local-host',name:'',avatar:''};const S=newState('AI','ai');A.S=S;A.bot={busy:{},lastClueAt:0,lastGuessedClue:0};startLocalLoop();startBotLoop();render();}
 function aiStart(){const S=A.S;const humans=S.players.filter(p=>!isBot(p.id));if(!humans.length)return toast('הוסיפו לפחות שחקן אחד');
   for(const p of humans)p.team='A';S.players=S.players.filter(p=>!isBot(p.id));
-  if(humans.length<2)E.addPlayer(S,BOTS.partner);
+  E.addPlayer(S,BOTS.partner); // השותף-מחשב תמיד מסביר לכם
   E.addPlayer(S,BOTS.b1);E.addPlayer(S,BOTS.b2);
   for(const p of S.players){const b=Object.values(BOTS).find(x=>x.id===p.id);if(b)p.team=b.team;}
   apply(S=>E.startGame(S));}
@@ -721,34 +711,19 @@ async function botThink(){const S=A.S;if(!S||!A.sample||(A.mode==='online'&&!A.i
     try{const t=await botClue(c,S.traps,S.clues.map(x=>x.text),S.guesses.filter(g=>g.at>(S.clues[0]?S.clues[0].at-1:0)).map(g=>g.text));
       if(A.S&&A.S.phase==='EXPLAINING'&&A.S.cardId===cardId&&A.S.clues.length===n)apply(S=>E.clue(S,S.explainerId,t));}
     catch(e){botFailed(e);}finally{b.busy.clue=false;}}
-  // מנחש-בוט: אחרי כל רמז או תשובה מחליט אם לנחש או לשאול שאלת כן/לא
+  // מנחש-בוט: מגיב לרמז חדש
   const guesser=E.team(S,S.activeTeam).find(p=>isBot(p.id)&&p.id!==S.explainerId);
-  if(guesser&&!b.busy.guess&&!S.cardResolved&&Date.now()>(b.failUntil||0)){const asks=S.asks||[];if(asks.some(q=>!q.answer))return; // מחכים לתשובה
-    const lastInput=Math.max(S.clues.length?S.clues.at(-1).at:0,...asks.map(q=>q.answeredAt||0));
-    if(!lastInput&&Date.now()-Math.max(S.cardAt||0,S.explainStartedAt||0)<2500)return; // נותנים למסביר רגע להתחיל
-    if(lastInput!==b.lastInput){b.lastInput=lastInput;b.moves=0;}if(b.moves>=2)return; // עד שני מהלכים בלי מידע חדש
-    const key=S.cardId+':'+lastInput+':'+S.guesses.length+':'+asks.length;if(key===b.lastMoveKey)return;
-    b.busy.guess=true;b.lastMoveKey=key;b.moves++;const cardId=S.cardId;
-    try{await new Promise(r=>setTimeout(r,600));const from=S.cardAt||0;
-      const mv=await botMove(c.category,S.clues.map(x=>x.text),asks.filter(q=>q.answer).map(q=>({q:q.text,a:ANS[q.answer]})),S.guesses.filter(g=>g.at>=from).map(g=>g.text));
-      if(A.S&&A.S.phase==='EXPLAINING'&&A.S.cardId===cardId&&!A.S.cardResolved){if(mv.guess)apply(S=>E.guess(S,guesser.id,mv.guess,uid(10)));else if(mv.ask)apply(S=>E.ask(S,guesser.id,mv.ask));}}
-    catch(e){botFailed(e);b.lastMoveKey=null;b.moves--;b.failUntil=Date.now()+5000;}finally{b.busy.guess=false;}}}
-async function botMove(category,clues,qa,wrong){const r=await A.sample.json(`אתה מנחש במשחק הניחושים ״מוקש!״ בעברית. השותף שלך מסביר לך מילה או שם, בלי לומר אותם. הקטגוריה: ${category}.
-${clues.length?'הרמזים שלו, לפי הסדר: '+clues.map(x=>'״'+x+'״').join(' | ')+'.':'עדיין אין רמזים.'}
-${qa.length?'שאלות כן/לא ששאלת והתשובות שלו: '+qa.map(x=>`״${x.q}״ – ${x.a}`).join(' | ')+'.':''}
-${wrong.length?'ניחושים שכבר נפסלו (אל תחזור עליהם): '+wrong.join(', ')+'.':''}
-חשוב על כל המידע יחד, כמו שחקן חכם שמכיר היטב את התרבות הישראלית. אם יש לך ניחוש סביר — נחש. אחרת שאל שאלת כן/לא אחת, קצרה (עד 7 מילים), שתצמצם הכי הרבה אפשרויות.
-השב ב-JSON בלבד, באחת הצורות: {"guess":"..."} או {"ask":"..."}`,SAMPLE_OPTS);
-  const v=r&&typeof r==='object'?r:{};const cl=x=>String(x||'').trim().replace(/^["״']+|["״']+$/g,'').slice(0,80);
-  if(v.guess){const g=cl(v.guess).replace(/[^\u05D0-\u05EA0-9a-zA-Z\s'״׳"-]/g,'').trim();if(g)return{guess:g};}
-  if(v.ask){const q=cl(v.ask);if(q)return{ask:q};}throw new Error('bad move');}
+  if(guesser&&S.clues.length&&!b.busy.guess&&!S.cardResolved&&Date.now()>(b.failUntil||0)){const last=S.clues.at(-1);if(last.at===b.lastGuessedClue)return;b.busy.guess=true;b.lastGuessedClue=last.at;const cardId=S.cardId;
+    try{await new Promise(r=>setTimeout(r,900));const from=S.cardAt||0;const g=await botGuess(c.category,S.clues.map(x=>x.text),S.guesses.filter(x=>x.at>=from).map(x=>x.text));
+      if(g&&A.S&&A.S.phase==='EXPLAINING'&&A.S.cardId===cardId)apply(S=>E.guess(S,guesser.id,g,uid(10)));}
+    catch(e){botFailed(e);b.lastGuessedClue=0;b.failUntil=Date.now()+5000;}finally{b.busy.guess=false;}}}
 const SAMPLE_OPTS={modelTier:'quick',cache:false};
 function botFailed(e){console.warn('bot',e);const now=Date.now();if(now-(A.botErrAt||0)>20000){A.botErrAt=now;toast('המחשב לא מצליח לענות כרגע — נסו שוב בעוד רגע');}}
 async function botPickTraps(c){const r=await A.sample.json(`אתה משחק ״מוקש!״ — משחק ניחוש מילים בעברית. קבוצה יריבה צריכה לנחש את המילה ״${c.target}״ (קטגוריה: ${c.category}). בחר מתוך הרשימה הבאה בדיוק 3 מילים שמנחש עלול לומר בטעות במקום המילה הנכונה (הכי דומות/מבלבלות): ${JSON.stringify(c.options)}. השב אך ורק במערך JSON של 3 מחרוזות מתוך הרשימה, בלי טקסט נוסף.`,SAMPLE_OPTS);
   const words=(Array.isArray(r)?r:[]).filter(w=>c.options.includes(w));if(words.length!==3)throw new Error('bad traps');return words;}
 async function botClue(c,traps,prev,guesses){const r=await A.sample(`אתה המסביר במשחק ״מוקש!״ בעברית. המילה שהקבוצה שלך צריכה לנחש: ״${c.target}״ (קטגוריה: ${c.category}). חוקים: אסור לומר את המילה, חלק ממנה, הטיה שלה או תרגום שלה. המוקשים — מילים שאם המנחש יאמר אותן הקבוצה תיענש, אז נסה להרחיק אותו מהן: ${traps.join(', ')}. ${prev.length?'רמזים שכבר נתת: '+prev.map(x=>'״'+x+'״').join(', ')+'. ':''}${guesses.length?'ניחושים שגויים עד כה: '+guesses.join(', ')+' — תגיד במה הם טועים. ':''}כתוב רמז חדש אחד בלבד, קצר (עד 14 מילים), בעברית מדוברת, בלי הקדמה ובלי מרכאות.`,SAMPLE_OPTS);
   let t=String(r.text||'').trim().split('\n')[0].replace(/^["״']+|["״']+$/g,'');const bad=[c.target,...c.aliases].map(normalize);if(bad.some(b=>normalize(t).includes(b)))t='אממ… משהו שקשור ל'+c.category;return t.slice(0,160);}
-async function botGuess(category,clues,prevGuesses){const r=await A.sample(`אתה מנחש במשחק ״מוקש!״ בעברית. קטגוריה: ${category}. הרמזים של המסביר, לפי הסדר: ${clues.map(x=>'״'+x+'״').join(' | ')}. ${prevGuesses.length?'ניחושים קודמים שהיו שגויים (אל תחזור עליהם): '+prevGuesses.join(', ')+'. ':''}השב במילה אחת או שתיים בלבד — הניחוש הכי סביר — בלי הסבר ובלי סימני פיסוק.`,SAMPLE_OPTS);
+async function botGuess(category,clues,prevGuesses){const r=await A.sample(`אתה מנחש במשחק ״מוקש!״ בעברית, ומכיר היטב את התרבות הישראלית. קטגוריה: ${category}. הרמזים של המסביר, לפי הסדר: ${clues.map(x=>'״'+x+'״').join(' | ')}. ${prevGuesses.length?'ניחושים קודמים שהיו שגויים (אל תחזור עליהם): '+prevGuesses.join(', ')+'. ':''}חשוב על כל הרמזים יחד. השב בניחוש הכי סביר בלבד (מילה או שם, עד שלוש מילים), בלי הסבר ובלי סימני פיסוק.`,SAMPLE_OPTS);
   const g=String(r.text||'').trim().split('\n')[0].replace(/[^\u05D0-\u05EA0-9a-zA-Z\s'״׳]/g,'').trim();return g.split(/\s+/).slice(0,3).join(' ');}
 
 // ---------- אפקטים ----------
@@ -875,7 +850,7 @@ function vLobby(S){if(S.mode==='ai')return vLobbyAI(S);const me=playerById(S,myI
   return `<div class="screen">${head}${codeRow}${hostHint}${pending}<div class="xs" style="color:#7db3ff;font-weight:700">שחקנים (${S.players.length}/12)</div>${team('A',tA)}${team('B',tB)}${A.isHost&&S.players.length>=3?`<button class="btn ghost" style="align-self:center" onclick="act({type:'shuffle'})">🔀 ערבבו את הקבוצות</button>`:''}${botHint}${addLocal}${mine}<div class="col" style="margin-top:auto">${start}${vSettings(S)}${note}</div></div>`;}
 function vLobbyAI(S){const humans=S.players.filter(p=>!isBot(p.id));
   return `<div class="screen"><header class="row between"><button class="btn ghost" style="width:auto;padding:8px" onclick="leaveRoom()">‹ יציאה</button><div class="bold" style="font-size:18px">מול המחשב</div>${musicBtn('hdrm')}</header>
-    <div class="teamcard A"><div class="th"><span>אתם</span><span class="xs">${humans.length}${humans.length<2?' + 🤖':''}</span></div><div class="plist">${humans.map(p=>`<div class="p">${avBtn(p,'lg')}<span class="n">${h(p.name)}</span><button class="xs muted" onclick="apply(S=>E.removePlayer(S,'${p.id}'))">✕</button></div>`).join('')}${humans.length<2?`<div class="p">${av('🤖','lg')}<span class="n">השותף שלך</span><span class="tag">מחשב</span></div>`:''}</div></div>
+    <div class="teamcard A"><div class="th"><span>אתם</span><span class="xs">${humans.length} + 🤖</span></div><div class="plist">${humans.map(p=>`<div class="p">${avBtn(p,'lg')}<span class="n">${h(p.name)}</span><button class="xs muted" onclick="apply(S=>E.removePlayer(S,'${p.id}'))">✕</button></div>`).join('')}<div class="p">${av('🤖','lg')}<span class="n">השותף שלך</span><span class="tag">מסביר</span></div></div></div>
     ${vAddPlayer(S)}
     <div class="teamcard B"><div class="th"><span>המחשב</span><span class="xs">2</span></div><div class="plist"><div class="p">${av('🧠','lg')}<span class="n">מחשב 1</span></div><div class="p">${av('🤖','lg')}<span class="n">מחשב 2</span></div></div></div>
     ${vSettings(S)}<div class="col" style="margin-top:auto"><button class="btn primary big" onclick="aiStart()" ${humans.length?'':'disabled'}>▶ התחל משחק</button></div></div>`;}
@@ -935,15 +910,13 @@ function vExplainer(S,c){const live=S.phase==='EXPLAINING';const local=S.mode===
     <div class="wordcard"><div class="l">המילה שלך:</div><div class="target">${h(c?c.target:'')}</div></div>
     <div class="col" style="gap:6px"><div class="sublabel"><span>מוקשים — אסור שינחשו אותם</span></div>${trapHtml}</div>
     <div class="row ctrl"><div class="pill kb-hide"><span class="wave ${live?'':'off'}"><i></i><i></i><i></i><i></i><i></i><i></i><i></i></span><span>${live?'מסבירים — הזמן רץ':'ממתינים למוקשים'}</span></div><button class="btn info" ${!live||S.skipsLeft<=0?'disabled':''} onclick="act({type:'skip',from:'${S.explainerId}'})">${ic('skip',20)} דלג (${S.skipsLeft})</button></div>
-    ${ai?vChat(S,'clue',E.team(S,S.activeTeam).some(p=>isBot(p.id)&&p.id!==S.explainerId)?'השותף-מחשב יתחיל לשאול. אפשר גם לכתוב רמז 👇':'כתבו רמז ראשון לשותף 👇')+vAnswerBar(S,live)+vClueBar(S,live):`<div class="grow"><div class="label" style="margin-bottom:6px">ניחושים אחרונים</div>${vGuesses(S,3)}</div>${local?vLocalGuessBar(S,live):''}`}</div>`;}
+    ${ai?vChat(S,'clue','כתבו רמז ראשון לשותף 👇')+vClueBar(S,live):`<div class="grow"><div class="label" style="margin-bottom:6px">ניחושים אחרונים</div>${vGuesses(S,3)}</div>${local?vLocalGuessBar(S,live):''}`}</div>`;}
 // רמזים וניחושים של הקלף הנוכחי כשיחה אחת, לפי סדר הזמן
 function vChat(S,mine,emptyText){const ex=playerById(S,S.explainerId);const from=S.cardAt||0;const lastClue=S.clues.length?S.clues.at(-1):null;
-  const items=[...S.clues.map(c=>({k:'clue',at:c.at,text:c.text,by:ex?ex.name:'',cur:c===lastClue})),...S.guesses.filter(g=>g.at>=from).map(g=>({k:'guess',at:g.at,text:g.text,by:g.playerName,result:g.result})),...(S.asks||[]).map(q=>{const p=playerById(S,q.by);return{k:'guess ask',at:q.at,text:q.text,by:p?p.name:'',answer:q.answer};})].sort((x,y)=>x.at-y.at);
+  const items=[...S.clues.map(c=>({k:'clue',at:c.at,text:c.text,by:ex?ex.name:'',cur:c===lastClue})),...S.guesses.filter(g=>g.at>=from).map(g=>({k:'guess',at:g.at,text:g.text,by:g.playerName,result:g.result}))].sort((x,y)=>x.at-y.at);
   if(!items.length)return `<div class="chat grow"><div class="empty">${emptyText}</div></div>`;
-  return `<div class="chat grow" data-autoscroll>${items.map((m,i)=>`<div class="msg ${m.k}${m.k===mine?'':' them'}${m.result?' '+m.result:''}${m.cur?' cur':''}${i===items.length-1?' last':''}"><span class="au">${h(m.by)}</span><div class="b">${h(m.text)}${m.k==='guess ask'?`<span class="qa ${m.answer||'wait'}">${m.answer?ANS[m.answer]:'מחכה לתשובה…'}</span>`:''}</div></div>`).join('')}</div>`;}
-function vAnswerBar(S,live){const q=(S.asks||[]).find(x=>!x.answer);if(!live||!q)return '';
-  return `<div class="answers">${Object.entries(ANS).map(([k,l])=>`<button class="abtn ${k}" onclick="act({type:'answer',id:'${q.id}',value:'${k}',from:A.S.explainerId})">${l}</button>`).join('')}</div>`;}
-function vClueBar(S,live){return `<form class="chatbar" onsubmit="event.preventDefault();submitClue(this)"><input class="input" name="c" maxlength="160" autocomplete="off" autocorrect="off" enterkeyhint="send" ${live?'':'disabled'} placeholder="${live?(VOICE.on?'מקשיב… אמרו רמז':(S.asks||[]).some(x=>!x.answer)?'או כתבו רמז…':'כתבו או אמרו רמז…'):'ממתינים…'}" data-autofocus>${micBtn('c',live)}<button class="btn primary" ${live?'':'disabled'}>שלח</button></form>`;}
+  return `<div class="chat grow" data-autoscroll>${items.map((m,i)=>`<div class="msg ${m.k}${m.k===mine?'':' them'}${m.result?' '+m.result:''}${m.cur?' cur':''}${i===items.length-1?' last':''}"><span class="au">${h(m.by)}</span><div class="b">${h(m.text)}</div></div>`).join('')}</div>`;}
+function vClueBar(S,live){return `<form class="chatbar" onsubmit="event.preventDefault();submitClue(this)"><input class="input" name="c" maxlength="160" autocomplete="off" autocorrect="off" enterkeyhint="send" ${live?'':'disabled'} placeholder="${live?(VOICE.on?'מקשיב… אמרו רמז':'כתבו או אמרו רמז…'):'ממתינים…'}" data-autofocus>${micBtn('c',live)}<button class="btn primary" ${live?'':'disabled'}>שלח</button></form>`;}
 function submitClue(form){const t=form.c.value.trim();if(!t)return;form.c.value='';act({type:'clue',text:t,from:A.S.explainerId});if(!VOICE.on)form.c.focus();}
 function vLocalGuessBar(S,live){const gs=E.team(S,S.activeTeam).filter(p=>p.id!==S.explainerId);if(!gs.find(p=>p.id===A.localActor))A.localActor=gs[0].id;
   return `<div class="col"><div class="who">${gs.map(p=>`<button class="${A.localActor===p.id?'on':''}" onclick="A.localActor='${p.id}';render()">${av(p.avatar,'')}${h(p.name)}</button>`).join('')}</div>
