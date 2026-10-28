@@ -421,6 +421,12 @@ html.kb .screen{gap:8px;padding:10px 12px}
 .dots i.on{width:32px;background:var(--yellow)}
 .plist .add.bot{flex-direction:column;gap:0;font-size:12px;background:var(--yellow);border:3px solid var(--ink);box-shadow:var(--sh-sm)}
 .plist .add.bot small{font-size:10px;font-weight:800;line-height:1}
+.stile .mates{display:flex;justify-content:center;margin-top:5px;padding-inline-start:6px}
+.stile .mates .m{width:24px;height:24px;border-radius:50%;overflow:hidden;border:2px solid var(--ink);background:#fff;margin-inline-start:-6px;display:inline-flex;align-items:center;justify-content:center}
+.stile .mates .m img{width:100%;height:100%;object-fit:cover;object-position:top}.stile .mates .m .cav img{width:62%;height:62%}.stile .mates .m .ic{width:14px;height:14px}
+.stile .mates .m.ex{box-shadow:0 0 0 2px var(--yellow);z-index:1}
+.stile .mnames{font-size:10px;font-weight:700;margin-top:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%}
+html.kb .stile .mates,html.kb .stile .mnames{display:none}
 </style>
 </head>
 <body>
@@ -661,8 +667,8 @@ function aiStart(){const S=A.S;const humans=S.players.filter(p=>!isBot(p.id));if
   for(const p of S.players){const b=Object.values(BOTS).find(x=>x.id===p.id);if(b)p.team=b.team;}
   apply(S=>E.startGame(S));}
 function hasBots(S){return S.players.some(p=>isBot(p.id));}
-// הקבוצה שבתור משחקת עם רמזים בכתב (כשיש בה מחשב, הוא לא שומע דיבור)
-function typedClues(S){return S.mode==='ai'||E.team(S,S.activeTeam).some(p=>isBot(p.id));}
+// רמזים בכתב: מול המחשב, באונליין (כל אחד בטלפון שלו, אולי במקום אחר) וכשיש מחשב בקבוצה שבתור
+function typedClues(S){return S.mode==='ai'||S.mode==='online'||E.team(S,S.activeTeam).some(p=>isBot(p.id));}
 function canAddBot(S,t){const ps=E.team(S,t);return !!A.sample&&S.phase==='LOBBY'&&(S.mode==='local'||A.isHost)&&ps.length<2&&!ps.some(p=>isBot(p.id))&&S.players.length<12;}
 function addBot(t){apply(S=>{if(!canAddBot(S,t))return;const id='bot-'+t.toLowerCase()+uid(4);E.addPlayer(S,{id,name:'מחשב',avatar:t==='A'?'🤖':'🧠'});const p=S.players.find(x=>x.id===id);p.team=t;p.ready=true;});}
 function addBotsBoth(){['A','B'].forEach(t=>{if(A.S&&canAddBot(A.S,t))addBot(t);});}
@@ -844,7 +850,7 @@ function vSettings(S){const s=S.settings;const host=A.isHost;const set=p=>`act({
     ${open?r('תורות לכל קבוצה',s.turnsPerTeam,set({turnsPerTeam:s.turnsPerTeam-1}),set({turnsPerTeam:s.turnsPerTeam+1}))+r('שניות לתור',s.turnSeconds,set({turnSeconds:s.turnSeconds-15}),set({turnSeconds:s.turnSeconds+15}))+r('שניות לבחירת מוקשים',s.trapSeconds,set({trapSeconds:s.trapSeconds-5}),set({trapSeconds:s.trapSeconds+5}))+r('רמת קושי',dl,set({difficulty:order[(i+3)%4]}),set({difficulty:order[(i+1)%4]})):''}</div>`;}
 function vRing(S,live){return `<div class="bombclock"><img src="${ASSETS.bomb}" alt=""><div class="t">${live?'–':fmt(S.turnRemainingMs)}</div></div>`;}
 // לוח תוצאות + פתיל בוער: הטיימר הוא פתיל שנשרף לאורך המסך, והשניות על הפצצה עצמה
-function vHud(S){const tile=t=>`<div class="stile ${t} ${S.activeTeam===t?'active':''}"><div class="n">${S.score[t]}</div><div class="l">${TEAM_NAME[t]}</div></div>`;
+function vHud(S){const tile=t=>{const ps=E.team(S,t);return `<div class="stile ${t} ${S.activeTeam===t?'active':''}"><div class="n">${S.score[t]}</div><div class="l">${TEAM_NAME[t]}</div>${ps.length?`<div class="mates">${ps.slice(0,6).map(p=>`<span class="m${p.id===S.explainerId&&S.activeTeam===t?' ex':''}">${avInner(p.avatar)}</span>`).join('')}</div><div class="mnames">${ps.map(p=>h(p.name)).join(' · ')}</div>`:''}</div>`;};
   const live=S.phaseEndsAt&&(S.phase==='EXPLAINING'||S.phase==='TRAP_SELECTION');const total=S.phase==='TRAP_SELECTION'?S.settings.trapSeconds*1000:S.settings.turnSeconds*1000;
   const p=Math.max(0,Math.min(1,live?(S.phaseEndsAt-Date.now())/total:(S.turnRemainingMs||0)/(S.settings.turnSeconds*1000))).toFixed(4);
   return `<div class="hudwrap ${live?'live':'idle'}" style="--p:${p}" ${live?`data-timer data-ends="${S.phaseEndsAt}" data-total="${total}" data-danger="${S.phase==='TRAP_SELECTION'?5000:10000}"`:''}><div class="hud">${tile('A')}<div class="ringwrap">${vRing(S,live)}${musicBtn('mbtn')}</div>${tile('B')}</div><div class="fuse" aria-hidden="true"><i class="rope l"></i><i class="rope r"></i><i class="spark l"></i><i class="spark r"></i></div></div>`;}
