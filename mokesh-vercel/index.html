@@ -330,6 +330,28 @@ html.kb .fuse{height:8px;margin:5px 4px 0}html.kb .fuse .rope{border-width:2px;b
 .screen.center{gap:24px}
 @media (max-height:700px){.screen{gap:12px;padding:14px}.screen.center{gap:16px}}
 html.kb .screen{gap:8px;padding:10px 12px}
+/* ניחוש נכון: נטרול */
+.overlay.correct{background:#12C46A}
+.glow{position:absolute;left:50%;top:30%;width:520px;height:520px;margin:-260px;border-radius:50%;background:radial-gradient(circle,rgba(255,255,255,.55),rgba(255,255,255,0) 60%);animation:glow 1.2s .3s ease-out both;pointer-events:none}
+@keyframes glow{from{transform:scale(.2);opacity:0}30%{opacity:1}to{transform:scale(1.2);opacity:.35}}
+.defuse{position:relative;width:150px;height:150px;animation:drop .45s cubic-bezier(.3,1.5,.6,1) both}
+.dbomb{width:100%;height:100%;object-fit:contain;filter:drop-shadow(0 6px 0 rgba(21,16,43,.6));animation:relief .5s .35s ease-in-out both,snip .01s .3s both}
+@keyframes snip{to{clip-path:polygon(0 0,55% 0,55% 30%,64% 33%,76% 40%,88% 50%,100% 62%,100% 100%,0 100%)}}
+.snuff{position:absolute;top:2%;right:6%;width:44px;height:44px;border-radius:50%;background:radial-gradient(circle,rgba(255,255,255,.95),rgba(220,220,230,.6) 45%,transparent 70%);animation:snuff .7s .3s ease-out both}
+.cut{position:absolute;top:14%;right:22%;width:34px;height:4px;background:#fff;border-radius:2px;transform:rotate(-40deg) scaleX(0);box-shadow:0 0 8px #fff;animation:cut .2s .25s ease-out both}
+.check{position:absolute;bottom:2px;left:-6px;width:58px;height:58px;border-radius:50%;background:var(--lime);border:var(--o);box-shadow:var(--sh);display:flex;align-items:center;justify-content:center;font-size:34px;font-weight:900;color:var(--ink);animation:stamp .4s .45s cubic-bezier(.2,1.6,.4,1) both}
+@keyframes drop{from{transform:translateY(-60px) scale(.6);opacity:0}to{transform:none;opacity:1}}
+@keyframes relief{0%,100%{transform:none}30%{transform:scale(1.08,.92) translateY(6px)}60%{transform:scale(.96,1.05) translateY(-8px)}}
+@keyframes snuff{from{transform:scale(.2);opacity:0}30%{opacity:1}to{transform:translate(18px,-40px) scale(2.2);opacity:0}}
+@keyframes cut{from{transform:rotate(-40deg) scaleX(0);opacity:1}70%{transform:rotate(-40deg) scaleX(1);opacity:1}to{transform:rotate(-40deg) scaleX(1.2);opacity:0}}
+@keyframes stamp{from{transform:scale(2.4) rotate(-20deg);opacity:0}to{transform:rotate(-8deg);opacity:1}}
+.confetti{position:absolute;left:50%;top:24%;width:10px;height:16px;background:var(--c);border:2px solid var(--ink);border-radius:2px;opacity:0;animation-name:confetti;animation-timing-function:cubic-bezier(.15,.55,.45,1);animation-fill-mode:both;pointer-events:none}
+.confetti.round{width:12px;height:12px;border-radius:50%}
+@keyframes confetti{0%{transform:translate(-50%,-50%) scale(.4);opacity:1}35%{transform:translate(-50%,-50%) translate(var(--x),var(--y)) rotate(calc(var(--r)*.4));opacity:1}100%{transform:translate(-50%,-50%) translate(calc(var(--x)*1.35),calc(var(--y) + 620px)) rotate(var(--r));opacity:.9}}
+.bigword{font-family:var(--font-display);font-size:46px;line-height:1.05;color:#fff;text-shadow:0 4px 0 var(--ink);-webkit-text-stroke:2px var(--ink);paint-order:stroke fill}
+.rise.ok{animation-delay:.55s}
+.deltas:has(.d:only-child){grid-template-columns:1fr;max-width:170px}
+@media (prefers-reduced-motion:reduce){.glow,.defuse,.dbomb,.snuff,.cut,.check,.confetti{animation:none}.confetti,.snuff,.cut{display:none}}
 </style>
 </head>
 <body>
@@ -606,7 +628,9 @@ function beep(kind){try{audioCtx=audioCtx||new (window.AudioContext||window.webk
     const g=ctx.createGain();g.gain.setValueAtTime(.95,t);g.gain.exponentialRampToValueAtTime(.001,t+len);src.connect(lp).connect(g).connect(ctx.destination);src.start(t);
     const o=ctx.createOscillator(),og=ctx.createGain();o.type='sine';o.frequency.setValueAtTime(120,t);o.frequency.exponentialRampToValueAtTime(28,t+.6);og.gain.setValueAtTime(1,t);og.gain.exponentialRampToValueAtTime(.001,t+.7);o.connect(og).connect(ctx.destination);o.start(t);o.stop(t+.75);
     for(let k=0;k<6;k++){const c=ctx.createBufferSource();c.buffer=buf;const hp=ctx.createBiquadFilter();hp.type='highpass';hp.frequency.value=3000;const cg=ctx.createGain(),ct=t+.15+k*.09+Math.random()*.05;cg.gain.setValueAtTime(.25,ct);cg.gain.exponentialRampToValueAtTime(.001,ct+.05);c.connect(hp).connect(cg).connect(ctx.destination);c.start(ct,Math.random()*.5,.06);}}
-  else{[660,880].forEach((f,i)=>{const o=ctx.createOscillator();o.type='triangle';o.frequency.value=f;const g=ctx.createGain();g.gain.setValueAtTime(.0001,t+i*.1);g.gain.exponentialRampToValueAtTime(.3,t+i*.1+.02);g.gain.exponentialRampToValueAtTime(.0001,t+i*.1+.18);o.connect(g).connect(ctx.destination);o.start(t+i*.1);o.stop(t+i*.1+.2);});}}catch(e){}}
+  else{const nb=ctx.createBuffer(1,ctx.sampleRate*.08,ctx.sampleRate),nd=nb.getChannelData(0);for(let i=0;i<nd.length;i++)nd[i]=(Math.random()*2-1)*(1-i/nd.length);
+    const sn=ctx.createBufferSource();sn.buffer=nb;const hp=ctx.createBiquadFilter();hp.type='highpass';hp.frequency.value=2500;const sg=ctx.createGain();sg.gain.value=.35;sn.connect(hp).connect(sg).connect(ctx.destination);sn.start(t);
+    [523,659,784,1047,1319].forEach((f,i)=>{const at=t+.18+i*.075,o=ctx.createOscillator();o.type=i===4?'sine':'triangle';o.frequency.value=f;const g=ctx.createGain();g.gain.setValueAtTime(.0001,at);g.gain.exponentialRampToValueAtTime(i===4?.22:.28,at+.015);g.gain.exponentialRampToValueAtTime(.0001,at+(i===4?.6:.2));o.connect(g).connect(ctx.destination);o.start(at);o.stop(at+.65);});}}catch(e){}}
 
 // ---------- רינדור ----------
 const h=s=>String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
@@ -776,7 +800,13 @@ function vOverlay(r){if(r.kind==='skip')return `<div class="overlay skip"><div c
   const deltas=`<div class="deltas">${['A','B'].filter(t=>d[t]).map(t=>`<div class="d ${d[t]>0?'pos':'neg'}"><div class="n">${d[t]>0?'+'+d[t]:d[t]}</div><div class="xs" style="color:#fff">${TEAM_NAME[t]}</div></div>`).join('')}</div>`;
   const next=canNext?`<button class="btn primary big" style="max-width:320px" onclick="A.S.phaseEndsAt=Date.now()-1;E.tick(A.S);if(A.mode==='online')hostWrite();render()">הקלף הבא ${ic('play',20)}</button>`:'';
   if(trap)return `<div class="overlay trap quake">${vBlast()}<div class="col tc" style="align-items:center;gap:16px;position:relative;width:100%"><img class="boom bump" src="${ASSETS.boom}" alt="בום!"><div class="col rise" style="align-items:center;gap:16px;width:100%"><div class="tag">נפלתם על מוקש!</div><div class="said">${p?av(p.avatar,''):''}${h(r.playerName||'')} אמר/ה: <b>${h(r.word)}</b></div>${deltas}${next}</div></div></div>`;
-  return `<div class="overlay correct"><div class="col tc pop" style="align-items:center;gap:14px;width:100%"><div style="color:#fff">${ic('target',96)}</div><div class="tag">נכון!</div><div class="said">${p?av(p.avatar,''):''}${h(r.playerName||'')} קלע/ה: <b style="color:#0f7a3f">${h(r.word)}</b></div>${deltas}${next}</div></div>`;}
+  return `<div class="overlay correct">${vCheer()}<div class="col tc" style="align-items:center;gap:16px;position:relative;width:100%"><div class="defuse"><img class="dbomb" src="${ASSETS.bomb}" alt=""><i class="snuff"></i><i class="cut"></i><span class="check">✓</span></div>
+    <div class="col rise ok" style="align-items:center;gap:14px;width:100%"><div class="tag">נכון! הפצצה נוטרלה</div><div class="bigword">${h(r.word)}</div><div class="said">${p?av(p.avatar,''):''}${h(r.playerName||'')} קלע/ה</div>${deltas}${next}</div></div></div>`;}
+// ניחוש נכון: הפתיל נכבה, הפצצה מנוטרלת, וקונפטי מתפוצץ ונופל
+function vCheer(){const C=['var(--yellow)','var(--cyan)','var(--pink)','var(--lime)','#fff','var(--orange)'];let c='';
+  for(let i=0;i<34;i++){const a=(i/34)*Math.PI*2+(i%3)*.2,d=120+(i*47)%140,x=Math.round(Math.cos(a)*d),y=Math.round(-Math.abs(Math.sin(a))*d*1.2-40),r=(i%2?1:-1)*(360+(i*61)%400),t=(1.6+(i%5)*.18).toFixed(2),dl=(.28+(i%4)*.03).toFixed(2);
+    c+=`<i class="confetti${i%3===0?' round':''}" style="--x:${x}px;--y:${y}px;--r:${r}deg;--c:${C[i%6]};animation-duration:${t}s;animation-delay:${dl}s"></i>`;}
+  return `<i class="glow"></i>${c}`;}
 // הפיצוץ: הבזק, גלי הדף, עשן ורסיסים שעפים לכל הכיוונים (ערכים קבועים לפי אינדקס, כדי שרינדור חוזר לא יזיז אותם)
 function vBlast(){const C=['var(--ink)','var(--yellow)','var(--orange)','#fff','#3A3442'];let deb='';
   for(let i=0;i<22;i++){const a=i*16.4+(i%3)*9,d=150+(i*53)%130,sz=7+(i*7)%12,t=(.75+(i%4)*.12).toFixed(2);deb+=`<i class="debris${i%5===0?' tape':''}" style="--a:${a}deg;--d:${d}px;--s:${sz}px;--c:${C[i%5]};--t:${t}s"></i>`;}
