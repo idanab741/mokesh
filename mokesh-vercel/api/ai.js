@@ -1,11 +1,11 @@
-// מוקש! — פונקציית שרת ל-Vercel: מפעילה את ״המחשב״ (Claude) בלי לחשוף את המפתח לדפדפן.
+// מוקש! — פונקציית שרת ל-Vercel: מפעילה את ״המחשב״ בלי לחשוף את המפתח לדפדפן.
 // הגדירו ב-Vercel: ANTHROPIC_API_KEY (חובה), ANTHROPIC_MODEL (אופציונלי).
 const MODEL = process.env.ANTHROPIC_MODEL || 'claude-haiku-5-5';
 
 export default async function handler(req, res) {
   res.setHeader('Cache-Control', 'no-store');
   const key = process.env.ANTHROPIC_API_KEY;
-  if (req.method === 'GET') return res.status(200).json({ ok: !!key, model: MODEL });
+  if (req.method === 'GET') return res.status(200).json({ ok: !!key });
   if (req.method !== 'POST') return res.status(405).json({ error: 'method' });
   if (!key) return res.status(503).json({ error: 'ANTHROPIC_API_KEY missing' });
 
