@@ -252,6 +252,18 @@ html.kb .ctrl{justify-content:flex-end}html.kb .ctrl .btn{padding:6px 12px;font-
 html.kb .bigq{font-size:22px}
 html.kb .msg .b{padding:6px 12px;font-size:16px}html.kb .msg.clue.cur .b{font-size:19px}
 .wintitle{font-family:var(--font-display);font-size:42px;line-height:1.1;color:#fff;text-shadow:0 3px 0 var(--ink)}.wintitle.tA{color:var(--cyan)}.wintitle.tB{color:var(--pink)}
+.avrow{display:flex;gap:10px;overflow-x:auto;padding:6px 4px 10px;margin:0 -4px;scroll-snap-type:x proximity;-webkit-overflow-scrolling:touch}
+.avrow button{flex:none;width:54px;height:54px;border-radius:50%;overflow:hidden;padding:0;border:var(--o);background:#fff;scroll-snap-align:center;transition:transform .12s}
+.avrow button img{width:100%;height:100%;object-fit:cover;object-position:top}
+.avrow button.used{opacity:.45}
+.avrow button.on{opacity:1;transform:scale(1.1) rotate(-4deg);box-shadow:0 0 0 4px var(--yellow),0 3px 0 4px var(--ink)}
+.addp .row .av.lg{width:50px;height:50px;flex:none}
+.avbtn{position:relative;padding:0;border-radius:50%;display:inline-flex}
+.avbtn .edit{position:absolute;bottom:-3px;left:-3px;width:24px;height:24px;border-radius:50%;background:var(--yellow);border:2.5px solid var(--ink);display:flex;align-items:center;justify-content:center;font-size:12px;color:var(--ink);font-weight:800}
+.avbtn:active{transform:scale(.94)}
+.sheet-bg{position:fixed;inset:0;z-index:45;background:rgba(21,16,43,.55);display:flex;align-items:flex-end;justify-content:center;padding:12px}
+.sheet{width:100%;max-width:34rem;background:var(--paper);color:var(--ink);border:var(--o);border-radius:24px;box-shadow:var(--sh);padding:16px 16px 20px;display:flex;flex-direction:column;gap:14px;margin-bottom:env(safe-area-inset-bottom,0px)}
+.sheet .btn.ghost{color:var(--ink)}
 </style>
 </head>
 <body>
@@ -436,6 +448,7 @@ function handleAction(a){const S=A.S;if(!S)return;
     case 'leave':E.removePlayer(S,a.from);break;
     case 'switch_team':E.switchTeam(S,a.from,a.team);break;
     case 'ready':E.setReady(S,a.from,a.ready);break;
+    case 'avatar':{const p=S.players.find(x=>x.id===a.from);if(p&&S.phase==='LOBBY'&&AVATARS.includes(a.avatar))p.avatar=a.avatar;break;}
     case 'settings':if(isHostAct(S,a))E.updateSettings(S,a.settings);break;
     case 'start':if(isHostAct(S,a))E.startGame(S);break;
     case 'select_traps':E.selectTraps(S,a.from,a.words);break;
@@ -475,7 +488,7 @@ function startHostLoop(){clearInterval(A.hostT);A.hostT=setInterval(()=>{if(!A.i
   for(const p of A.S.players)if(!p.isHost&&p.connected&&Date.now()-(p.lastSeen||0)>90000){p.connected=false;changed=true;}
   if(changed){hostWrite();render();}},250);}
 function leaveRoom(){clearInterval(A.botT);if(A.mode==='online'&&A.S&&!A.isHost)sendAction(A.S.code,{type:'leave'});A.unsub.forEach(u=>u());A.unsub=[];clearInterval(A.hostT);clearInterval(A.presenceT);
-  localStorage.removeItem('mokesh.session');A.S=null;A.mode=null;A.isHost=false;A.homeMode='menu';render();}
+  localStorage.removeItem('mokesh.session');A.newAv=null;A.avPick=null;A.S=null;A.mode=null;A.isHost=false;A.homeMode='menu';render();}
 
 // ---------- מצב מקומי (העבר את הטלפון) ----------
 function startLocalLoop(){clearInterval(A.hostT);A.hostT=setInterval(()=>{if(A.mode==='online'||!A.S)return;if(E.tick(A.S)){if(A.S.cardResult&&A.S.phase==='CARD_RESULT')fx(A.S.cardResult.kind);render();}},250);}
@@ -541,12 +554,14 @@ function render(){const S=A.S;let html='';
     case 'TURN_PREPARATION':html=S.mode!=='online'&&!S.phaseEndsAt?vLocalPrep(S):vWait(S,'מתכוננים לתור הבא…');break;
     default:html=vGame(S);}
   if(S&&S.phase==='CARD_RESULT'&&S.cardResult)html+=vOverlay(S.cardResult);
+  if(S&&A.avPick)html+=vAvPick(S);
   if(A.toast)html+=`<div class="toast pop" role="alert">${h(A.toast)}</div>`;
   const ae=document.activeElement;const keep=ae&&ae.tagName==='INPUT'&&app.contains(ae)?{key:ae.name||ae.id,value:ae.value,sel:ae.selectionStart}:null;
   const tpl=document.createElement('div');tpl.innerHTML=html;morph(app,tpl);
   if(keep){if(!app.contains(ae)&&keep.key){const el=app.querySelector(`input[name="${keep.key}"],input[id="${keep.key}"]`);if(el){el.value=keep.value;el.focus();try{el.setSelectionRange(keep.sel,keep.sel);}catch(e){}}}}
   else{const inp=app.querySelector('[data-autofocus]');if(inp&&!VOICE.on&&!('ontouchstart' in window))inp.focus();}
   app.querySelectorAll('[data-autoscroll]').forEach(el=>{el.scrollTop=el.scrollHeight;});
+  app.querySelectorAll('.avrow').forEach(r=>{const on=r.querySelector('.on');if(!on)return;const rr=r.getBoundingClientRect(),o=on.getBoundingClientRect();if(o.left<rr.left||o.right>rr.right)r.scrollLeft+=(o.left+o.width/2)-(rr.left+rr.width/2);});
   if(VOICE.on){const vi=app.querySelector(`input[name="${VOICE.field}"]`);if(!vi||vi.disabled)stopVoice(true);else vi.classList.add('listening');}
   tickTimers();}
 // עדכון ה-DOM במקום החלפה מלאה: שדה הקלדה פעיל נשאר אותו אלמנט, כך שהמקלדת לא נסגרת ולא קופצת בכל עדכון
@@ -597,23 +612,34 @@ function vHome(){const c=A.chosen;const m=A.homeMode;
 function vLobby(S){if(S.mode==='ai')return vLobbyAI(S);const me=playerById(S,myId());const local=S.mode==='local';const tA=E.team(S,'A'),tB=E.team(S,'B');const can=tA.length>=2&&tB.length>=2;
   const link=location.origin+location.pathname+'?room='+S.code;
   const team=(t,ps)=>`<div class="teamcard ${t}"><div class="th"><span>${TEAM_NAME[t]}</span><span class="xs">${ps.length}</span></div><div class="plist">
-    ${ps.map(p=>`<div class="p">${p.isHost&&!local?`<span class="crown" style="color:var(--amber)">${ic('crown',18)}</span>`:''}${av(p.avatar,'lg',!p.connected)}<span class="n">${h(p.name)}</span>${p.ready?'<span class="tag" style="color:#7cf0ad">מוכן ✓</span>':!p.connected?'<span class="tag">מנותק</span>':''}
+    ${ps.map(p=>`<div class="p">${p.isHost&&!local?`<span class="crown" style="color:var(--amber)">${ic('crown',18)}</span>`:''}${local||p.id===myId()?avBtn(p,'lg',!p.connected):av(p.avatar,'lg',!p.connected)}<span class="n">${h(p.name)}</span>${p.ready?'<span class="tag" style="color:#7cf0ad">מוכן ✓</span>':!p.connected?'<span class="tag">מנותק</span>':''}
       ${local?`<span class="row" style="gap:2px"><button class="xs muted" onclick="act({type:'switch_team',from:'${p.id}'})">↔</button><button class="xs muted" onclick="apply(S=>E.removePlayer(S,'${p.id}'))">✕</button></span>`:''}</div>`).join('')}
     <button class="add" onclick="${local?'document.getElementById(\'lname\').focus()':`shareRoom('${h(link)}','${S.code}')`}" title="${local?'הוסף שחקן':'הזמן חבר'}">+</button></div></div>`;
   const head=`<div class="hdr"><button onclick="leaveRoom()">${ic('back',22)}</button><div class="t">${local?'מכשיר אחד':'חדר משחק'}</div><div class="row" style="gap:6px">${musicBtn('')}<button onclick="A.homeMode='how';leaveRoom()" title="איך משחקים">${ic('help',22)}</button></div></div>`;
   const codeRow=local?'':`<div class="row between"><button class="codebox" onclick="shareRoom('${h(link)}','${S.code}',true)" title="העתק">${S.code} ${ic('copy',18)}</button><button class="btn info" style="width:auto" onclick="shareRoom('${h(link)}','${S.code}')">${ic('share',20)} שתף קישור</button></div>`;
-  const addLocal=local?`<div class="row"><input class="input" id="lname" maxlength="16" placeholder="שם שחקן" onkeydown="if(event.key==='Enter')addLocalPlayer()"><button class="btn info" style="width:auto;white-space:nowrap" onclick="addLocalPlayer()">הוסף</button></div>`:'';
+  const addLocal=local?vAddPlayer(S):'';
   const mine=!local&&me?`<div class="row"><button class="btn secondary" onclick="act({type:'switch_team'})">עבור ל${me.team==='A'?'קבוצה ב׳':'קבוצה א׳'}</button><button class="btn ${me.ready?'ok':'secondary'}" onclick="act({type:'ready',ready:${!me.ready}})">${me.ready?'מוכן ✓':'אני מוכן'}</button></div>`:'';
   const start=A.isHost?`<button class="btn primary big" onclick="act({type:'start'})" ${can?'':'disabled'}>${ic('play',22)} ${can?'התחל משחק':'ממתינים לשחקנים'}</button>`:`<div class="tc small muted pulse">ממתינים שמנהל החדר יתחיל…</div>`;
   const note=!local?`<div class="banner">אין שיחה קולית מובנית בגרסה זו — שחקו באותו חדר או עם שיחה מקבילה.</div>`:'';
   return `<div class="screen">${head}${codeRow}<div class="xs" style="color:#7db3ff;font-weight:700">שחקנים (${S.players.length}/12)</div>${team('A',tA)}${team('B',tB)}${addLocal}${mine}<div class="col" style="margin-top:auto">${start}${vSettings(S)}${note}</div></div>`;}
 function vLobbyAI(S){const humans=S.players.filter(p=>!isBot(p.id));
   return `<div class="screen"><header class="row between"><button class="btn ghost" style="width:auto;padding:8px" onclick="leaveRoom()">‹ יציאה</button><div class="bold" style="font-size:18px">מול המחשב</div>${musicBtn('hdrm')}</header>
-    <div class="teamcard A"><div class="th"><span>אתם</span><span class="xs">${humans.length}${humans.length<2?' + 🤖':''}</span></div><div class="plist">${humans.map(p=>`<div class="p">${av(p.avatar,'lg')}<span class="n">${h(p.name)}</span><button class="xs muted" onclick="apply(S=>E.removePlayer(S,'${p.id}'))">✕</button></div>`).join('')}${humans.length<2?`<div class="p">${av('🤖','lg')}<span class="n">השותף שלך</span><span class="tag">מחשב</span></div>`:''}</div></div>
-    <div class="card col" style="gap:8px"><div class="row"><input class="input" id="lname" maxlength="16" placeholder="שם שחקן" onkeydown="if(event.key==='Enter')addLocalPlayer()"><button class="btn info" style="width:auto;white-space:nowrap" onclick="addLocalPlayer()">הוסף</button></div></div>
+    <div class="teamcard A"><div class="th"><span>אתם</span><span class="xs">${humans.length}${humans.length<2?' + 🤖':''}</span></div><div class="plist">${humans.map(p=>`<div class="p">${avBtn(p,'lg')}<span class="n">${h(p.name)}</span><button class="xs muted" onclick="apply(S=>E.removePlayer(S,'${p.id}'))">✕</button></div>`).join('')}${humans.length<2?`<div class="p">${av('🤖','lg')}<span class="n">השותף שלך</span><span class="tag">מחשב</span></div>`:''}</div></div>
+    ${vAddPlayer(S)}
     <div class="teamcard B"><div class="th"><span>המחשב</span><span class="xs">2</span></div><div class="plist"><div class="p">${av('🧠','lg')}<span class="n">מחשב 1</span></div><div class="p">${av('🤖','lg')}<span class="n">מחשב 2</span></div></div></div>
     ${vSettings(S)}<div class="col" style="margin-top:auto"><button class="btn primary big" onclick="aiStart()" ${humans.length?'':'disabled'}>▶ התחל משחק</button></div></div>`;}
-function addLocalPlayer(){const i=document.getElementById('lname');const n=(i.value||'').trim();if(!n)return;apply(S=>E.addPlayer(S,{id:'p'+uid(5),name:n,avatar:AVATARS[S.players.length%AVATARS.length]}));}
+function addLocalPlayer(){const i=document.getElementById('lname');const n=(i.value||'').trim();if(!n)return;const avatar=A.newAv||freeAvatar(A.S);A.newAv=null;i.value='';apply(S=>E.addPlayer(S,{id:'p'+uid(5),name:n,avatar}));}
+function freeAvatar(S){const used=new Set(S.players.map(p=>p.avatar));const pref=A.chosen&&A.chosen.avatar;return pref&&!used.has(pref)?pref:AVATARS.find(a=>!used.has(a))||AVATARS[0];}
+// הוספת שחקן: קודם בוחרים אווטאר, אחר כך שם
+function vAddPlayer(S){if(!A.newAv)A.newAv=freeAvatar(S);const used=new Set(S.players.map(p=>p.avatar));
+  return `<div class="card col addp" style="gap:10px"><div class="bold">שחקן חדש: בחרו אווטאר ושם</div><div class="avrow">${AVATARS.map(a=>`<button type="button" class="${a===A.newAv?'on':''}${used.has(a)?' used':''}" onclick="A.newAv='${a}';render()" aria-label="אווטאר">${avInner(a)}</button>`).join('')}</div>
+    <div class="row"><span class="av lg">${avInner(A.newAv)}</span><input class="input" id="lname" maxlength="16" placeholder="שם שחקן" onkeydown="if(event.key==='Enter')addLocalPlayer()"><button class="btn info" style="width:auto;white-space:nowrap" onclick="addLocalPlayer()">הוסף</button></div></div>`;}
+// לחיצה על אווטאר בלובי פותחת בחירה מחדש
+function avBtn(p,size,off){return `<button type="button" class="avbtn" onclick="A.avPick='${p.id}';render()" aria-label="החלפת אווטאר">${av(p.avatar,size,off)}<span class="edit">✎</span></button>`;}
+function vAvPick(S){const p=playerById(S,A.avPick);if(!p||S.phase!=='LOBBY'){A.avPick=null;return '';}
+  return `<div class="sheet-bg" onclick="A.avPick=null;render()"><div class="sheet pop" onclick="event.stopPropagation()"><div class="row between"><div class="black" style="font-size:22px">האווטאר של ${h(p.name)}</div><button class="btn ghost" onclick="A.avPick=null;render()">סגור</button></div>
+    <div class="avgrid">${AVATARS.map(a=>`<button class="${a===p.avatar?'on':''}" onclick="pickAvatar('${p.id}','${a}')">${avInner(a)}</button>`).join('')}</div></div></div>`;}
+function pickAvatar(id,a){A.avPick=null;if(A.mode==='online'){A.me.avatar=a;A.chosen.avatar=a;saveProfile();act({type:'avatar',avatar:a});}else act({type:'avatar',from:id,avatar:a});render();}
 async function shareRoom(link,code,copyOnly){const data={title:'מוקש!',text:'בואו לשחק מוקש! קוד חדר: '+code,url:link};try{if(navigator.share&&!copyOnly)await navigator.share(data);else{await navigator.clipboard.writeText(copyOnly?code:link);toast(copyOnly?'הקוד הועתק':'הקישור הועתק');}}catch(e){}}
 function vSettings(S){const s=S.settings;const host=A.isHost;const set=p=>`act({type:'settings',settings:${JSON.stringify(p).replace(/"/g,'&quot;')}})`;
   const r=(l,v,dec,inc)=>`<div class="r"><span class="small muted">${l}</span><div class="row">${host?`<button onclick="${dec}">−</button>`:''}<span class="v">${v}</span>${host?`<button onclick="${inc}">+</button>`:''}</div></div>`;
