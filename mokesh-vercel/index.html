@@ -1356,12 +1356,16 @@ function stopVoice(silent){VOICE.want=false;VOICE.on=false;const r=VOICE.rec;VOI
 (function(){const vv=window.visualViewport,root=document.documentElement;let maxH=0,lastW=0;
   function fit(){const H=vv?vv.height:window.innerHeight,top=vv?vv.offsetTop:0,W=window.innerWidth;
     if(W!==lastW){lastW=W;maxH=0;}maxH=Math.max(maxH,H);
-    root.style.setProperty('--vh',H+'px');root.style.setProperty('--vt',top+'px');
-    const ae=document.activeElement;root.classList.toggle('kb',!!ae&&(ae.tagName==='INPUT'||ae.tagName==='TEXTAREA')&&H<maxH-120);
+    // מתכווצים לגובה הנראה רק כשהמקלדת באמת פתוחה. אחרת — מסך מלא: אחרי חלון שיתוף / חזרה מאפליקציה אחרת
+    // אייפון לפעמים משאיר את visualViewport קטן בלי לעדכן, והמסך נתקע בחצי גובה
+    const ae=document.activeElement;const typing=!!ae&&(ae.tagName==='INPUT'||ae.tagName==='TEXTAREA');const kb=typing&&H<Math.max(maxH,window.innerHeight)-120;
+    if(kb){root.style.setProperty('--vh',H+'px');root.style.setProperty('--vt',top+'px');}else{root.style.removeProperty('--vh');root.style.removeProperty('--vt');}
+    root.classList.toggle('kb',kb);
     app.querySelectorAll('[data-autoscroll]').forEach(el=>{el.scrollTop=el.scrollHeight;});}
   if(vv){vv.addEventListener('resize',fit);vv.addEventListener('scroll',fit);}
   window.addEventListener('resize',fit);
-  document.addEventListener('focusin',()=>setTimeout(fit,60));document.addEventListener('focusout',()=>setTimeout(fit,60));fit();})();
+  document.addEventListener('focusin',()=>setTimeout(fit,60));document.addEventListener('focusout',()=>{setTimeout(fit,60);setTimeout(fit,400);});
+  document.addEventListener('visibilitychange',()=>{if(!document.hidden){fit();setTimeout(fit,300);}});window.addEventListener('pageshow',fit);window.addEventListener('focus',()=>setTimeout(fit,100));fit();})();
 try{const old=JSON.parse(localStorage.getItem('mokesh.session')||'null');if(A.joinCode&&(!old||old.code!==A.joinCode))A.homeMode='join';else if(!localStorage.getItem('mokesh.intro'))A.homeMode='intro';}catch(e){}
 // חזרה לאפליקציה (אחרי וואטסאפ / נעילת מסך): iOS מקפיא את הדף ברקע וחיבור ה-Realtime נופל,
 // אז מתחברים מחדש ומעבדים מיד את כל מי שניסה להצטרף בינתיים
