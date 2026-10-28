@@ -517,7 +517,7 @@ const E = {
   nextCard(S){if(S.turnRemainingMs<=0){E.endTurn(S);return;}if(!S.deck.length)S.deck=shuffle([...CARDS.keys()]);
     S.cardId=S.deck.pop();S.cardAt=Date.now();S.traps=[];S.cardResolved=false;S.cardResult=null;S.clues=[];
     // מצב מקומי: הטלפון עובר ליריבים רק לפני הקלף הראשון בתור; בקלפים הבאים המוקשים נבחרים אוטומטית
-    if((S.mode==='local'||S.mode==='ai')&&S.turnRemainingMs<S.settings.turnSeconds*1000){const c=CARDS.get(S.cardId);S.traps=shuffle(c.options).slice(0,3);E.startExplaining(S);return;}
+    if(S.mode==='local'&&S.turnRemainingMs<S.settings.turnSeconds*1000){const c=CARDS.get(S.cardId);S.traps=shuffle(c.options).slice(0,3);E.startExplaining(S);return;}
     E.setPhase(S,'TRAP_SELECTION',S.settings.trapSeconds*1000);},
   selectTraps(S,playerId,words){const p=S.players.find(x=>x.id===playerId);const c=E.card(S);if(S.phase!=='TRAP_SELECTION'||!c)throw new Error('לא זה הזמן לטמון מוקשים');
     if(!p||p.team===S.activeTeam)throw new Error('רק הקבוצה היריבה טומנת מוקשים');const u=[...new Set(words)];if(u.length!==3)throw new Error('צריך לבחור בדיוק 3 מוקשים');
