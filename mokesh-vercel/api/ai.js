@@ -3,6 +3,16 @@
 const MODEL = process.env.ANTHROPIC_MODEL || 'claude-opus-5-5';
 const HAIKU = /haiku/.test(MODEL);
 
+// הגנה מניצול: רק מהאתר עצמו, הנחיות קצרות, ותקרת בקשות לכל כתובת (בתוך אותו מופע שרת)
+const HITS = new Map();
+function limited(ip) {
+  const now = Date.now(), win = 10 * 60 * 1000, max = 40;
+  const arr = (HITS.get(ip) || []).filter((t) => now - t < win);
+  arr.push(now); HITS.set(ip, arr);
+  if (HITS.size > 5000) HITS.clear();
+  return arr.length > max;
+}
+
 export default async function handler(req, res) {
   res.setHeader('Cache-Control', 'no-store');
   const key = process.env.ANTHROPIC_API_KEY;
@@ -10,8 +20,14 @@ export default async function handler(req, res) {
   if (req.method !== 'POST') return res.status(405).json({ error: 'method' });
   if (!key) return res.status(503).json({ error: 'ANTHROPIC_API_KEY missing' });
 
+  const origin = req.headers.origin || req.headers.referer || '';
+  const host = req.headers['x-forwarded-host'] || req.headers.host || '';
+  if (origin && !origin.includes(host)) return res.status(403).json({ error: 'origin' });
+  const ip = String(req.headers['x-forwarded-for'] || req.socket?.remoteAddress || '').split(',')[0].trim();
+  if (limited(ip)) return res.status(429).json({ error: 'rate' });
+
   const { prompt, json } = req.body || {};
-  if (typeof prompt !== 'string' || prompt.length > 4000) return res.status(400).json({ error: 'bad prompt' });
+  if (typeof prompt !== 'string' || prompt.length > 1500 || !prompt.includes('מוקש')) return res.status(400).json({ error: 'bad prompt' });
 
   const r = await fetch('https://api.anthropic.com/v1/messages', {
     method: 'POST',
@@ -29,7 +45,7 @@ export default async function handler(req, res) {
   if (!r.ok) {
     const detail = await r.text();
     console.error('anthropic error', r.status, detail.slice(0, 500));
-    return res.status(502).json({ error: 'anthropic ' + r.status, detail });
+    return res.status(502).json({ error: 'anthropic ' + r.status });
   }
   const data = await r.json();
   if (data.stop_reason === 'refusal') return res.status(502).json({ error: 'refusal' });
