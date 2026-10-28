@@ -10,3 +10,10 @@ alter publication supabase_realtime add table public.mokesh_rooms;
 alter publication supabase_realtime add table public.mokesh_inbox;
 create or replace function public.mokesh_cleanup() returns void language sql security definer as $$ delete from public.mokesh_rooms where updated_at < now() - interval '6 hours'; $$;
 grant execute on function public.mokesh_cleanup() to anon;
+
+-- ===== פרופילים, חברים והזמנות (הופעל דרך migration בשם mokesh_profiles_friends) =====
+-- mokesh_profiles(id = auth.users.id, name, avatar, friend_code ייחודי, stats jsonb, last_seen)
+-- mokesh_friends(a < b, status pending/accepted, requested_by) — רק שני הצדדים רואים/מוחקים
+-- mokesh_invites(from_id, to_id, room) — שליחה רק לחבר מאושר
+-- פונקציות: mokesh_add_friend(code), mokesh_accept_friend(uuid), mokesh_record_game(won, correct, traps, mvp)
+-- חדרים: נוספו מדיניות גישה ל-authenticated (משתמשים מחוברים), לא רק ל-anon
