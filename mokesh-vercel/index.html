@@ -449,6 +449,8 @@ html.kb .cbtn:not(.inline){display:none}
 .tabs{display:grid;grid-template-columns:1fr 1fr;gap:6px}.tabs button{border:var(--o);border-radius:12px;padding:7px;font-weight:800;background:#fff;color:var(--ink)}.tabs button.on{background:var(--yellow);box-shadow:var(--sh-sm)}
 .msg.pending .b{opacity:.65;border-style:dashed}
 .awaybar{position:fixed;left:12px;right:12px;top:calc(env(safe-area-inset-top,0px) + 8px);z-index:46;background:var(--yellow);color:var(--ink);border:var(--o);border-radius:14px;box-shadow:var(--sh);padding:10px 14px;font-weight:800;font-size:14px;text-align:center}
+.msg.typing .b{background:rgba(255,255,255,.85);border-style:dashed;color:var(--soft)}
+.msg.typing .caret{display:inline-block;width:2px;height:1em;background:var(--ink);margin-inline-start:2px;vertical-align:middle;animation:blink .8s steps(2,jump-none) infinite}
 </style>
 </head>
 <body>
@@ -698,8 +700,9 @@ function subscribeRoom(code){A.unsub.forEach(u=>u());A.unsub=[];
   const applyState=(S)=>{if(!S)return;if(A.isHost&&A.S&&S.v<=A.S.v)return;const prev=A.S;A.S=S;chatNotify(prev,S);if(prev&&prev.cardResult!==S.cardResult&&S.cardResult&&S.phase==='CARD_RESULT')fx(S.cardResult.kind);render();};
   const ch=sb.channel('room-'+code)
     .on('postgres_changes',{event:'*',schema:'public',table:'mokesh_rooms',filter:'code=eq.'+code},(payload)=>{if(payload.eventType==='DELETE'){leaveRoom();toast('החדר נסגר');return;}applyState(payload.new&&payload.new.state);})
+    .on('broadcast',{event:'typing'},({payload})=>{if(!payload||payload.id===myId())return;A.typing=A.typing||{};A.typing[payload.id]={...payload,rx:Date.now()};render();})
     .subscribe();
-  A.unsub.push(()=>sb.removeChannel(ch));
+  A.roomCh=ch;A.unsub.push(()=>{sb.removeChannel(ch);if(A.roomCh===ch)A.roomCh=null;});
   if(A.isHost){
     const take=(row)=>{if(!row||A.processed.has(row.id))return;A.processed.add(row.id);handleAction(JSON.parse(JSON.stringify(row.action)));dbDeleteInbox(row.id);};
     const chi=sb.channel('inbox-'+code).on('postgres_changes',{event:'INSERT',schema:'public',table:'mokesh_inbox',filter:'code=eq.'+code},(payload)=>take(payload.new)).subscribe();
@@ -984,8 +987,9 @@ function vChat(S,mine,emptyText){const ex=playerById(S,S.explainerId);const from
   if(A.pending)A.pending=A.pending.filter(q=>!seen.has(q.id)&&q.cardId===S.cardId&&Date.now()-q.at<30000);
   const items=[...S.clues.map(c=>({k:'clue',at:c.at,text:c.text,by:ex?ex.name:'',cur:c===lastClue,mine:online?c.by===me:mine==='clue'})),...S.guesses.filter(g=>g.at>=from).map(g=>({k:'guess',at:g.at,text:g.text,by:g.playerName,result:g.result,mine:online?g.playerId===me:mine==='guess'})),
     ...(online?(A.pending||[]).map(q=>({k:'guess pending',at:Date.now(),text:q.text,by:'אתם · '+(Date.now()-q.at>6000?'⚠️ ממתין לטלפון של מנהל/ת החדר':'שולח…'),mine:true})):[])].sort((x,y)=>x.at-y.at);
-  if(!items.length)return `<div class="chat grow"><div class="empty">${emptyText}</div></div>`;
-  return `<div class="chat grow" data-autoscroll>${items.map((m,i)=>`<div class="msg ${m.k}${m.mine?'':' them'}${m.result?' '+m.result:''}${m.cur?' cur':''}${i===items.length-1?' last':''}"><span class="au">${h(m.by)}</span><div class="b">${h(m.text)}</div></div>`).join('')}</div>`;}
+  const typ=online?liveTyping(S).map(t=>`<div class="msg them typing"><span class="au">✍️ ${h(t.name)} מקליד/ה…</span><div class="b">${h(t.text)}<i class="caret"></i></div></div>`).join(''):'';
+  if(!items.length)return `<div class="chat grow" data-autoscroll>${typ||`<div class="empty">${emptyText}</div>`}</div>`;
+  return `<div class="chat grow" data-autoscroll>${items.map((m,i)=>`<div class="msg ${m.k}${m.mine?'':' them'}${m.result?' '+m.result:''}${m.cur?' cur':''}${i===items.length-1?' last':''}"><span class="au">${h(m.by)}</span><div class="b">${h(m.text)}</div></div>`).join('')}${typ}</div>`;}
 function vClueBar(S,live){return `<form class="chatbar" onsubmit="event.preventDefault();submitClue(this)"><input class="input" name="c" maxlength="160" autocomplete="off" autocorrect="off" enterkeyhint="send" ${live?'':'disabled'} placeholder="${live?(VOICE.on?'מקשיב… אמרו רמז':'כתבו או אמרו רמז…'):'ממתינים…'}" data-autofocus>${micBtn('c',live)}<button class="btn primary" ${live?'':'disabled'}>שלח</button></form>`;}
 function submitClue(form){const t=form.c.value.trim();if(!t)return;form.c.value='';act({type:'clue',text:t,from:A.S.explainerId});if(!VOICE.on)form.c.focus();}
 function vLocalGuessBar(S,live){const gs=E.team(S,S.activeTeam).filter(p=>p.id!==S.explainerId&&!isBot(p.id));if(!gs.length)return '';if(!gs.find(p=>p.id===A.localActor))A.localActor=gs[0].id;
@@ -993,14 +997,21 @@ function vLocalGuessBar(S,live){const gs=E.team(S,S.activeTeam).filter(p=>p.id!=
     <form class="row" onsubmit="event.preventDefault();submitGuess(this)"><input class="input" name="g" maxlength="60" autocomplete="off" ${live?'':'disabled'} placeholder="${live?'מה הם ניחשו?':'ממתינים…'}" data-autofocus><button class="btn primary" style="width:auto" ${live?'':'disabled'}>שלח</button></form></div>`;}
 function vGuesser(S){const live=S.phase==='EXPLAINING';const ex=playerById(S,S.explainerId);if(typedClues(S)){const hs=humansOn(S,S.activeTeam).filter(p=>p.id!==S.explainerId);if(hs.length&&!hs.find(p=>p.id===A.localActor))A.localActor=hs[0].id;}
   const exRow=`<div class="row kb-hide" style="justify-content:center;gap:12px">${ex?av(ex.avatar,'lg'):''}<div><div class="bold" style="font-size:16px">${ex?h(ex.name)+' מסביר/ה עכשיו':''}</div><span class="wave ${live?'':'off'}"><i></i><i></i><i></i><i></i><i></i><i></i><i></i></span></div></div>`;
-  const form=`<form class="chatbar" onsubmit="event.preventDefault();submitGuess(this)"><input class="input" name="g" style="font-size:19px" maxlength="60" autocomplete="off" autocorrect="off" enterkeyhint="send" ${live?'':'disabled'} placeholder="${live?(VOICE.on?'מקשיב… אמרו ניחוש':'הקלד ניחוש…'):'ממתינים…'}" data-autofocus>${typedClues(S)?micBtn('g',live):''}<button class="btn info" style="width:58px;padding:0" ${live?'':'disabled'} aria-label="שלח">${ic('send',24)}</button></form>`;
+  const form=`<form class="chatbar" onsubmit="event.preventDefault();submitGuess(this)"><input class="input" name="g" style="font-size:19px" maxlength="60" autocomplete="off" autocorrect="off" enterkeyhint="send" oninput="typingSend(this.value)" ${live?'':'disabled'} placeholder="${live?(VOICE.on?'מקשיב… אמרו ניחוש':'הקלד ניחוש…'):'ממתינים…'}" data-autofocus>${typedClues(S)?micBtn('g',live):''}<button class="btn info" style="width:58px;padding:0" ${live?'':'disabled'} aria-label="שלח">${ic('send',24)}</button></form>`;
   if(typedClues(S))return `<div class="screen lock" style="gap:12px">${vHud(S)}${vRoleBar(S)}${exRow}${vChat(S,'guess',live?'חושב על רמז…':S.phase==='TRAP_SELECTION'?trapperLine(S):'רגע…')}${form}</div>`;
   return `<div class="screen lock" style="gap:12px">${vHud(S)}${exRow}
     <div class="bigq">${live?'מה המילה?':S.phase==='TRAP_SELECTION'?trapperLine(S):'רגע…'}</div>${form}
     ${SR?`<div class="tc kb-hide"><button type="button" class="mic ${VOICE.on?'rec':''}" ${live?'':'disabled'} onclick="toggleVoice('g')" aria-label="ניחוש בקול">${ic('mic',40)}</button><div class="small muted" style="margin-top:10px">${VOICE.on?'מקשיב… אמרו ניחוש, לחצו שוב לעצירה':'לחצו כדי לנחש בקול'}</div></div>`:''}
     <div class="grow"><div class="label" style="margin-bottom:6px">ניחושים אחרונים</div>${vGuesses(S,5)}</div></div>`;}
 function vClues(S){return vChat(S,'clue','חושב על רמז…');}
-function submitGuess(form){const t=form.g.value.trim();if(!t)return;form.g.value='';const id=uid(10);if(A.mode==='online'&&!A.isHost&&A.S){A.pending=(A.pending||[]).concat([{id,text:t,at:Date.now(),cardId:A.S.cardId}]);}act({type:'guess',text:t,guessId:id});if(!VOICE.on)form.g.focus();render();}
+// הקלדה חיה: מה שחברי הקבוצה מקלידים בתיבת הניחוש מופיע אצל כולם בזמן אמת
+function typingSend(text){if(A.mode!=='online'||!A.roomCh||!A.S)return;const me=playerById(A.S,myId());if(!me)return;A.typeDraft=text;const now=Date.now();
+  const go=()=>{A.typeLast=Date.now();clearTimeout(A.typeT);A.typeT=null;try{A.roomCh.send({type:'broadcast',event:'typing',payload:{id:me.id,name:me.name,team:me.team,text:String(A.typeDraft||'').slice(0,60),cardId:A.S.cardId}});}catch(e){}};
+  if(!text||now-(A.typeLast||0)>250)go();else if(!A.typeT)A.typeT=setTimeout(go,250);}
+function liveTyping(S){const me=playerById(S,myId());if(!me||!A.typing)return [];const now=Date.now();
+  return Object.values(A.typing).filter(t=>t.text&&t.team===me.team&&t.cardId===S.cardId&&now-t.rx<6000);}
+setInterval(()=>{if(A.typing&&Object.values(A.typing).some(t=>t.text&&Date.now()-t.rx>=6000)){for(const k in A.typing)if(Date.now()-A.typing[k].rx>=6000)delete A.typing[k];render();}},1500);
+function submitGuess(form){typingSend('');const t=form.g.value.trim();if(!t)return;form.g.value='';const id=uid(10);if(A.mode==='online'&&!A.isHost&&A.S){A.pending=(A.pending||[]).concat([{id,text:t,at:Date.now(),cardId:A.S.cardId}]);}act({type:'guess',text:t,guessId:id});if(!VOICE.on)form.g.focus();render();}
 function vOpponent(S,c){return `<div class="screen lock">${vHeader(S)}${vRoleBar(S)}<div class="card tc"><div class="xs muted">הם מנסים לנחש</div><div class="black" style="font-size:40px;line-height:1.1">${h(c?c.target:'')}</div><div class="row" style="justify-content:center;flex-wrap:wrap;gap:6px;margin-top:8px">${S.traps.map(t=>`<span class="chip danger">${h(t)}</span>`).join('')}</div></div>
     ${typedClues(S)?`<div class="label">הרמזים והניחושים ${TG.of(S.activeTeam)}</div>${vClues(S)}`:`<div class="grow"><div class="label" style="margin-bottom:6px">הניחושים שלהם</div>${vGuesses(S,8)}</div>`}<div class="banner">${S.mode==='ai'?'המחשב בתור — אתם צופים ומקווים שייפול על מוקש':'אתם צופים. הניחושים שלכם לא נספרים בתור הזה.'}</div></div>`;}
 function vLocalPrep(S){const ex=playerById(S,S.explainerId);
