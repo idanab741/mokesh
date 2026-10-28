@@ -599,7 +599,10 @@ async function initRuntime(){
   try{if(window.supabase&&SUPABASE_URL.startsWith('http')){sb=window.supabase.createClient(SUPABASE_URL,SUPABASE_ANON,{realtime:{params:{eventsPerSecond:20}}});A.uid=localStorage.getItem('mokesh.uid')||('u'+uid(10));localStorage.setItem('mokesh.uid',A.uid);A.dbReady=true;}}catch(e){console.error(e);}
   if(!A.dbReady)A.dbMissing=true;
   try{const r=await fetch('/api/ai');const d=r.ok?await r.json():null;A.sample=d&&d.ok?makeSample():null;}catch(e){A.sample=null;}
-  try{const s=JSON.parse(localStorage.getItem('mokesh.session')||'null');if(s&&A.dbReady&&!A.S){A.me={id:A.uid,name:s.name,avatar:s.avatar};await joinOnline(s.code,s.isHost,true);}}catch(e){}
+  // חזרה אוטומטית לחדר האחרון (למשל אחרי רענון), אלא אם נכנסו מקישור לחדר אחר: אז הקישור החדש מנצח
+  try{let s=JSON.parse(localStorage.getItem('mokesh.session')||'null');
+    if(s&&A.joinCode&&s.code!==A.joinCode){if(A.dbReady&&!s.isHost)dbAddInbox(s.code,{type:'leave',from:A.uid,at:Date.now()}).catch(()=>{});localStorage.removeItem('mokesh.session');s=null;A.homeMode='join';}
+    if(s&&A.dbReady&&!A.S){A.me={id:A.uid,name:s.name,avatar:s.avatar};await joinOnline(s.code,s.isHost,true);}}catch(e){}
   render();
 }
 async function hostWrite(){if(!A.isHost||!A.S)return;A.S.v++;const body=JSON.parse(JSON.stringify(A.S));body.updatedAt=Date.now();try{await dbSetRoom(A.S.code,body);}catch(e){console.error(e);toast('שמירת המצב נכשלה');}}
@@ -1061,7 +1064,7 @@ function stopVoice(silent){VOICE.want=false;VOICE.on=false;const r=VOICE.rec;VOI
   if(vv){vv.addEventListener('resize',fit);vv.addEventListener('scroll',fit);}
   window.addEventListener('resize',fit);
   document.addEventListener('focusin',()=>setTimeout(fit,60));document.addEventListener('focusout',()=>setTimeout(fit,60));fit();})();
-try{if(A.joinCode&&!localStorage.getItem('mokesh.session'))A.homeMode='join';else if(!localStorage.getItem('mokesh.intro'))A.homeMode='intro';}catch(e){}
+try{const old=JSON.parse(localStorage.getItem('mokesh.session')||'null');if(A.joinCode&&(!old||old.code!==A.joinCode))A.homeMode='join';else if(!localStorage.getItem('mokesh.intro'))A.homeMode='intro';}catch(e){}
 // חזרה לאפליקציה (אחרי וואטסאפ / נעילת מסך): iOS מקפיא את הדף ברקע וחיבור ה-Realtime נופל,
 // אז מתחברים מחדש ומעבדים מיד את כל מי שניסה להצטרף בינתיים
 function onReturn(){if(document.hidden||A.mode!=='online'||!A.S||!sb)return;const now=Date.now();if(now-(A.lastResync||0)<1500)return;A.lastResync=now;subscribeRoom(A.S.code);}
