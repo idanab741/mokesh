@@ -25,8 +25,8 @@ html,body{height:100%;margin:0;overflow:hidden}
 *,*::before,*::after{box-sizing:border-box}
 body{background:var(--bg);color:#fff;font-family:var(--font-body);font-weight:500;-webkit-font-smoothing:antialiased;overscroll-behavior:none;position:relative;-webkit-tap-highlight-color:transparent}
 /* קרני שמש + נקודות הדפסה */
-body::before{content:"";position:fixed;inset:-40%;z-index:-1;background:repeating-conic-gradient(from 0deg at 50% 50%,rgba(255,255,255,.075) 0 8deg,transparent 8deg 16deg);animation:spin 120s linear infinite}
-body::after{content:"";position:fixed;inset:0;z-index:-1;background:radial-gradient(rgba(10,10,60,.22) 1.3px,transparent 1.7px) 0 0/13px 13px,radial-gradient(ellipse at 50% 30%,transparent 0 40%,rgba(14,18,140,.55) 100%);pointer-events:none}
+body::before{content:"";position:fixed;inset:0;z-index:-1;background:linear-gradient(rgba(255,255,255,.14) 1.5px,transparent 1.5px) -1px -1px/112px 112px,linear-gradient(90deg,rgba(255,255,255,.14) 1.5px,transparent 1.5px) -1px -1px/112px 112px,linear-gradient(rgba(255,255,255,.055) 1px,transparent 1px) -1px -1px/28px 28px,linear-gradient(90deg,rgba(255,255,255,.055) 1px,transparent 1px) -1px -1px/28px 28px}
+body::after{content:"";position:fixed;inset:0;z-index:-1;background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='336' height='336'%3E%3Cg stroke='white' stroke-opacity='.2' stroke-width='3' stroke-linecap='round' fill='none'%3E%3Cpath d='M52 60l14 14M66 60l-14 14M250 150l14 14M264 150l-14 14M140 270l14 14M154 270l-14 14M300 300l10 10M310 300l-10 10'/%3E%3Ccircle cx='257' cy='157' r='24' stroke-dasharray='5 7'/%3E%3Ccircle cx='59' cy='67' r='18' stroke-dasharray='4 7'/%3E%3Cpath d='M59 67C120 130 180 60 257 157S190 260 147 277' stroke-dasharray='1 10' stroke-width='3.5'/%3E%3C/g%3E%3C/svg%3E") 0 0/336px 336px,radial-gradient(ellipse at 50% 30%,transparent 0 40%,rgba(14,18,140,.55) 100%);pointer-events:none}
 button{font:inherit;cursor:pointer;touch-action:manipulation;border:0;color:inherit;background:none;-webkit-user-select:none;user-select:none}
 input{font:inherit;color:inherit}
 button:focus-visible,input:focus-visible{outline:3px solid var(--yellow);outline-offset:3px}
@@ -124,7 +124,7 @@ html.kb #app{padding-bottom:0}
 .ring.hot .fgc{stroke:var(--red)}.ring.hot .t{color:#FF8478}.ring.hot{animation:throb .5s ease-in-out infinite alternate}
 .ring.idle .fgc{stroke:rgba(255,255,255,.3)}.ring.idle .t{color:rgba(255,255,255,.6)}
 .ringwrap{position:relative}
-.mbtn{position:absolute;bottom:-12px;left:50%;transform:translateX(-50%);width:32px;height:32px;border-radius:50%;background:var(--yellow);border:2.5px solid var(--ink);display:flex;align-items:center;justify-content:center;color:var(--ink);box-shadow:0 2px 0 var(--ink)}
+.mbtn{position:absolute;bottom:2px;left:-8px;width:32px;height:32px;border-radius:50%;background:var(--yellow);border:2.5px solid var(--ink);display:flex;align-items:center;justify-content:center;color:var(--ink);box-shadow:0 2px 0 var(--ink)}
 html.kb .mbtn{display:none}
 
 /* כרטיס המילה */
@@ -264,6 +264,43 @@ html.kb .msg .b{padding:6px 12px;font-size:16px}html.kb .msg.clue.cur .b{font-si
 .sheet-bg{position:fixed;inset:0;z-index:45;background:rgba(21,16,43,.55);display:flex;align-items:flex-end;justify-content:center;padding:12px}
 .sheet{width:100%;max-width:34rem;background:var(--paper);color:var(--ink);border:var(--o);border-radius:24px;box-shadow:var(--sh);padding:16px 16px 20px;display:flex;flex-direction:column;gap:14px;margin-bottom:env(safe-area-inset-bottom,0px)}
 .sheet .btn.ghost{color:var(--ink)}
+.hudwrap{display:flex;flex-direction:column}
+.bombclock{position:relative;width:104px;height:100px;margin-top:-6px}
+.bombclock img{width:100%;height:100%;object-fit:contain;filter:drop-shadow(0 4px 0 var(--ink))}
+.bombclock .t{position:absolute;left:4%;right:14%;top:34%;bottom:6%;display:flex;align-items:center;justify-content:center;direction:ltr;font-family:var(--font-display);font-size:21px;color:var(--yellow);text-shadow:0 0 8px rgba(255,210,63,.85);font-variant-numeric:tabular-nums}
+.hudwrap.idle .bombclock .t{color:rgba(255,255,255,.75);text-shadow:none}
+.hudwrap.hot .bombclock{animation:wiggle .18s ease-in-out infinite alternate}.hudwrap.hot .bombclock .t{color:#FF6A5E;text-shadow:0 0 10px rgba(255,59,48,.95)}
+@keyframes wiggle{from{transform:rotate(-5deg) scale(1.02)}to{transform:rotate(5deg) scale(1.06)}}
+.fuse{position:relative;height:12px;margin:10px 6px 2px;border-radius:99px;background:repeating-linear-gradient(90deg,rgba(21,16,43,.45) 0 5px,transparent 5px 10px) center/100% 3px no-repeat}
+.fuse .rope{position:absolute;top:0;bottom:0;width:calc(var(--p,1)*50% + 6px);border-radius:99px;border:2.5px solid var(--ink);background:repeating-linear-gradient(-55deg,#F1CE86 0 5px,#B9843C 5px 10px);box-shadow:0 3px 0 var(--ink);transition:width .1s linear}
+.fuse .rope.r{left:calc(50% - 6px)}.fuse .rope.l{right:calc(50% - 6px)}
+.fuse .spark{position:absolute;top:50%;width:22px;height:22px;margin-top:-11px;border-radius:50%;background:radial-gradient(circle,#fff 0 18%,#FFE066 32%,#FF8A1F 55%,rgba(255,59,48,0) 72%)}
+.fuse .spark.r{left:calc(50% + var(--p,1)*50% - 11px);transition:left .1s linear}.fuse .spark.l{right:calc(50% + var(--p,1)*50% - 11px);transition:right .1s linear}
+.fuse .spark{animation:spark .12s ease-in-out infinite alternate}
+.fuse .spark::before,.fuse .spark::after{content:"";position:absolute;inset:-6px;border-radius:50%;background:radial-gradient(circle at 20% 30%,#FFE066 0 2px,transparent 3px),radial-gradient(circle at 80% 20%,#fff 0 1.5px,transparent 2.5px),radial-gradient(circle at 70% 85%,#FF8A1F 0 2px,transparent 3px),radial-gradient(circle at 15% 80%,#fff 0 1.5px,transparent 2.5px);animation:spin .5s linear infinite}
+.fuse .spark::after{inset:-10px;animation-duration:.8s;animation-direction:reverse;opacity:.8}
+.hudwrap.idle .fuse .spark{display:none}
+.hudwrap.hot .fuse .spark{transform:scale(1.35)}
+@keyframes spark{from{transform:scale(.85)}to{transform:scale(1.15)}}
+/* מוקשים: לוחית מתכת כהה, מסגרת סרט אזהרה ונורה אדומה מהבהבת */
+.trapgrid .trap,.opts button.on{position:relative;color:#fff;border:5px solid transparent;border-radius:14px;background:linear-gradient(180deg,#34303F,#1C1924) padding-box,repeating-linear-gradient(135deg,var(--yellow) 0 7px,var(--ink) 7px 14px) border-box;box-shadow:0 0 0 2.5px var(--ink),0 5px 0 2.5px var(--ink);text-shadow:none}
+.trapgrid .trap::before,.opts button.on::before{content:"";position:absolute;top:4px;left:5px;width:8px;height:8px;border-radius:50%;background:#FF3B30;box-shadow:0 0 6px 2px rgba(255,59,48,.85);animation:blink 1s steps(2,jump-none) infinite}
+.trapgrid .trap{padding:10px 6px}
+.opts button.on{transform:rotate(-2deg) scale(1.03)}.opts button.on::after{content:none}
+.opts button:not(.on){background:radial-gradient(rgba(21,16,43,.1) 1px,transparent 1.6px) 0 0/9px 9px,var(--paper)}
+@keyframes blink{0%{opacity:1}100%{opacity:.25}}
+/* סרט אזהרה */
+.sublabel{background:repeating-linear-gradient(135deg,var(--yellow) 0 10px,var(--ink) 10px 20px);border:2.5px solid var(--ink);border-radius:6px;padding:3px;text-shadow:none;transform:rotate(-1deg);box-shadow:var(--sh-sm)}
+.sublabel span{display:inline-block;background:var(--yellow);color:var(--ink);padding:0 12px;border-radius:4px;font-size:14px}
+.tape{margin:6px -48px 0;transform:rotate(-3deg);background:var(--yellow);border-block:3px solid var(--ink);overflow:hidden;white-space:nowrap;box-shadow:0 5px 0 rgba(21,16,43,.55);direction:rtl}
+.tape div{display:inline-block;font-family:var(--font-display);font-size:16px;color:var(--ink);padding:5px 0;animation:marquee 22s linear infinite}
+@keyframes marquee{from{transform:translateX(0)}to{transform:translateX(50%)}}
+/* חותמת "סודי" על כרטיס המילה */
+.wordcard::after{content:"סודי";position:absolute;top:10px;left:12px;font-family:var(--font-display);font-size:15px;color:#D7261E;border:2.5px solid #D7261E;border-radius:6px;padding:0 7px;transform:rotate(-14deg);opacity:.9}
+html.kb .wordcard::after{display:none}
+html.kb .bombclock{width:56px;height:54px;margin-top:-2px}html.kb .bombclock .t{font-size:12px}
+html.kb .fuse{height:8px;margin:5px 4px 0}html.kb .fuse .rope{border-width:2px;box-shadow:0 2px 0 var(--ink)}
+@media (prefers-reduced-motion:reduce){.tape div,.fuse .spark,.fuse .spark::before,.fuse .spark::after,.hudwrap.hot .bombclock,.trapgrid .trap::before,.opts button.on::before{animation:none}}
 </style>
 </head>
 <body>
@@ -608,7 +645,7 @@ function vHome(){const c=A.chosen;const m=A.homeMode;
       <p style="margin:0"><b style="color:var(--ok)">המנחשים</b> מקלידים ניחושים. נכון: +2. מוקש: −2 לקבוצה ו-+1 ליריבים.</p>
       <p style="margin:0">60 שניות לתור, 5 תורות לכל קבוצה. הניקוד הגבוה מנצח.</p>
       <button class="btn ghost" onclick="A.homeMode='menu';render()">הבנתי</button></div>`;
-  return `<div class="screen center" style="gap:22px;position:relative">${m==='menu'?`<button class="topbtn" onclick="A.homeMode='settings';render()">${ic('gear',20)}</button>`:''}${musicBtn('topbtn r')}<header class="tc"><img class="logo pop" src="${ASSETS.logo}" alt="מוקש!"><p class="tagline" style="margin:12px auto 0;max-width:310px">משחק הניחושים שבו כל טעות תעלה לכם בפיצוץ!</p></header>${body}</div>`;}
+  return `<div class="screen center" style="gap:22px;position:relative">${m==='menu'?`<button class="topbtn" onclick="A.homeMode='settings';render()">${ic('gear',20)}</button>`:''}${musicBtn('topbtn r')}<header class="tc"><img class="logo pop" src="${ASSETS.logo}" alt="מוקש!"><p class="tagline" style="margin:12px auto 0;max-width:310px">משחק הניחושים שבו כל טעות תעלה לכם בפיצוץ!</p></header>${body}${m==='menu'?`<div class="tape" aria-hidden="true"><div>${'זהירות! שטח ממוקש ✕ '.repeat(10)}</div></div>`:''}</div>`;}
 function vLobby(S){if(S.mode==='ai')return vLobbyAI(S);const me=playerById(S,myId());const local=S.mode==='local';const tA=E.team(S,'A'),tB=E.team(S,'B');const can=tA.length>=2&&tB.length>=2;
   const link=location.origin+location.pathname+'?room='+S.code;
   const team=(t,ps)=>`<div class="teamcard ${t}"><div class="th"><span>${TEAM_NAME[t]}</span><span class="xs">${ps.length}</span></div><div class="plist">
@@ -647,11 +684,12 @@ function vSettings(S){const s=S.settings;const host=A.isHost;const set=p=>`act({
   const open=!!A.settingsOpen;
   return `<div class="settings"><button class="sum" onclick="A.settingsOpen=!A.settingsOpen;render()">${ic('gear',20)}<span>הגדרות משחק</span><span class="s">${s.turnsPerTeam} תורות · ${s.turnSeconds} שניות · ${dl}</span><span class="muted">${open?'▴':'▾'}</span></button>
     ${open?r('תורות לכל קבוצה',s.turnsPerTeam,set({turnsPerTeam:s.turnsPerTeam-1}),set({turnsPerTeam:s.turnsPerTeam+1}))+r('שניות לתור',s.turnSeconds,set({turnSeconds:s.turnSeconds-15}),set({turnSeconds:s.turnSeconds+15}))+r('שניות לבחירת מוקשים',s.trapSeconds,set({trapSeconds:s.trapSeconds-5}),set({trapSeconds:s.trapSeconds+5}))+r('רמת קושי',dl,set({difficulty:order[(i+3)%4]}),set({difficulty:order[(i+1)%4]})):''}</div>`;}
-function vRing(S){const live=S.phaseEndsAt&&(S.phase==='EXPLAINING'||S.phase==='TRAP_SELECTION');const total=S.phase==='TRAP_SELECTION'?S.settings.trapSeconds*1000:S.settings.turnSeconds*1000;
-  const C=2*Math.PI*42;
-  return `<div class="ring ${live?'':'idle'}" ${live?`data-timer data-ends="${S.phaseEndsAt}" data-total="${total}" data-danger="${S.phase==='TRAP_SELECTION'?5000:10000}"`:''}><svg viewBox="0 0 100 100"><circle class="bgc" cx="50" cy="50" r="42"/><circle class="fgc" cx="50" cy="50" r="42" stroke-dasharray="${C}" stroke-dashoffset="${live?0:C}"/></svg><div class="t">${live?'–':fmt(S.turnRemainingMs)}</div></div>`;}
+function vRing(S,live){return `<div class="bombclock"><img src="${ASSETS.bomb}" alt=""><div class="t">${live?'–':fmt(S.turnRemainingMs)}</div></div>`;}
+// לוח תוצאות + פתיל בוער: הטיימר הוא פתיל שנשרף לאורך המסך, והשניות על הפצצה עצמה
 function vHud(S){const tile=t=>`<div class="stile ${t} ${S.activeTeam===t?'active':''}"><div class="n">${S.score[t]}</div><div class="l">${TEAM_NAME[t]}</div></div>`;
-  return `<div class="hud">${tile('A')}<div class="ringwrap">${vRing(S)}${musicBtn('mbtn')}</div>${tile('B')}</div>`;}
+  const live=S.phaseEndsAt&&(S.phase==='EXPLAINING'||S.phase==='TRAP_SELECTION');const total=S.phase==='TRAP_SELECTION'?S.settings.trapSeconds*1000:S.settings.turnSeconds*1000;
+  const p=Math.max(0,Math.min(1,live?(S.phaseEndsAt-Date.now())/total:(S.turnRemainingMs||0)/(S.settings.turnSeconds*1000))).toFixed(4);
+  return `<div class="hudwrap ${live?'live':'idle'}" style="--p:${p}" ${live?`data-timer data-ends="${S.phaseEndsAt}" data-total="${total}" data-danger="${S.phase==='TRAP_SELECTION'?5000:10000}"`:''}><div class="hud">${tile('A')}<div class="ringwrap">${vRing(S,live)}${musicBtn('mbtn')}</div>${tile('B')}</div><div class="fuse" aria-hidden="true"><i class="rope l"></i><i class="rope r"></i><i class="spark l"></i><i class="spark r"></i></div></div>`;}
 function vHeader(S){const ex=playerById(S,S.explainerId);
   return `<div class="col" style="gap:10px">${vHud(S)}<div class="row between xs muted"><span>תור ${Math.min(S.turnIndex+1,E.totalTurns(S))} מתוך ${E.totalTurns(S)}</span><span class="row" style="gap:6px">${ex?av(ex.avatar,''):''}<span>${ex?h(ex.name)+' מסביר/ה':''}</span></span></div></div>`;}
 function vScore(S){return vHud(S);}
@@ -674,7 +712,7 @@ function vExplainer(S,c){const live=S.phase==='EXPLAINING';const local=S.mode===
   const trapHtml=S.traps.length?`<div class="trapgrid">${S.traps.map(t=>`<div class="trap">${h(t)}</div>`).join('')}</div>`:'<div class="small muted pulse tc">היריבים בוחרים מוקשים…</div>';
   return `<div class="screen lock">${vHud(S)}
     <div class="wordcard"><div class="l">המילה שלך:</div><div class="target">${h(c?c.target:'')}</div></div>
-    <div class="col" style="gap:6px"><div class="sublabel">💣 מוקשים — אסור שינחשו אותם</div>${trapHtml}</div>
+    <div class="col" style="gap:6px"><div class="sublabel"><span>מוקשים — אסור שינחשו אותם</span></div>${trapHtml}</div>
     <div class="row ctrl"><div class="pill kb-hide"><span class="wave ${live?'':'off'}"><i></i><i></i><i></i><i></i><i></i><i></i><i></i></span><span>${live?'מסבירים — הזמן רץ':'ממתינים למוקשים'}</span></div><button class="btn info" ${!live||S.skipsLeft<=0?'disabled':''} onclick="act({type:'skip',from:'${S.explainerId}'})">${ic('skip',20)} דלג (${S.skipsLeft})</button></div>
     ${ai?vChat(S,'clue','כתבו רמז ראשון לשותף 👇')+vClueBar(S,live):`<div class="grow"><div class="label" style="margin-bottom:6px">ניחושים אחרונים</div>${vGuesses(S,3)}</div>${local?vLocalGuessBar(S,live):''}`}</div>`;}
 // רמזים וניחושים של הקלף הנוכחי כשיחה אחת, לפי סדר הזמן
@@ -724,7 +762,7 @@ async function shareResult(){const g=A.S.gameOver;const text=`מוקש! 💥 ${T
 
 // טיימרים: מעדכנים רק את הטבעת, בלי רינדור מלא
 function tickTimers(){document.querySelectorAll('[data-timer]').forEach(el=>{const ends=+el.dataset.ends,total=+el.dataset.total,danger=+el.dataset.danger;const ms=Math.max(0,ends-Date.now());
-  el.querySelector('.t').textContent=fmt(ms);const C=2*Math.PI*42;el.querySelector('.fgc').style.strokeDashoffset=C*(1-(total?Math.min(1,ms/total):0));el.classList.toggle('hot',ms<=danger);});}
+  const t=el.querySelector('.t');if(t)t.textContent=fmt(ms);el.style.setProperty('--p',(total?Math.min(1,ms/total):0).toFixed(4));el.classList.toggle('hot',ms<=danger);});}
 setInterval(tickTimers,100);
 // ---------- מוזיקה: לופ קצבי שנוצר ב-WebAudio (בלי קבצים), מאיץ בשניות האחרונות ----------
 const MUSIC={on:(()=>{try{return localStorage.getItem('mokesh.music')!=='0';}catch(e){return true;}})(),master:null,timer:null,step:0,next:0,level:-1,noise:null};
