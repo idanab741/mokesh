@@ -444,6 +444,9 @@ html.kb .rolebar{display:none}
 html.kb .cbtn:not(.inline){display:none}
 .roomchat{max-height:80vh}.roomchat .rc{min-height:180px;max-height:46vh;background:var(--bg);border-radius:14px;border:var(--o);padding:10px 8px}
 .opts.watch button{opacity:1}
+.opts button .vc{position:absolute;top:-10px;right:-8px;min-width:24px;height:24px;border-radius:999px;background:var(--yellow);color:var(--ink);border:2.5px solid var(--ink);font-family:var(--font-display);font-size:14px;display:flex;align-items:center;justify-content:center;padding:0 5px;text-shadow:none}
+.vav{display:inline-flex;width:24px;height:24px;border-radius:50%;overflow:hidden;border:2px solid var(--ink);margin-inline-start:-4px;opacity:.45;vertical-align:middle;background:#fff}.vav img{width:100%;height:100%;object-fit:cover}.vav.ok{opacity:1;box-shadow:0 0 0 2px var(--green)}
+.tabs{display:grid;grid-template-columns:1fr 1fr;gap:6px}.tabs button{border:var(--o);border-radius:12px;padding:7px;font-weight:800;background:#fff;color:var(--ink)}.tabs button.on{background:var(--yellow);box-shadow:var(--sh-sm)}
 </style>
 </head>
 <body>
@@ -524,15 +527,25 @@ const E = {
     S.cardId=S.deck.pop();S.cardAt=Date.now();S.traps=[];S.cardResolved=false;S.cardResult=null;S.clues=[];
     // מצב מקומי: הטלפון עובר ליריבים רק לפני הקלף הראשון בתור; בקלפים הבאים המוקשים נבחרים אוטומטית
     if(S.mode==='local'&&S.turnRemainingMs<S.settings.turnSeconds*1000){const c=CARDS.get(S.cardId);S.traps=shuffle(c.options).slice(0,3);E.startExplaining(S);return;}
-    // אונליין: שחקן אחד מהיריבים (בסבב) טומן את המוקשים לקלף הזה, ושאר הקבוצה שלו רואה את הבחירה בזמן אמת
-    S.trapDraft=[];S.trapperId=null;{const opp=S.activeTeam==='A'?'B':'A';const hs=E.team(S,opp).filter(p=>!isBot(p.id)&&(p.connected||S.mode!=='online'));
-      if(S.mode==='online'&&hs.length){S.trapCursor=S.trapCursor||{A:0,B:0};S.trapperId=hs[S.trapCursor[opp]%hs.length].id;S.trapCursor[opp]++;}}
+    // אונליין: כל היריבים מצביעים (כל אחד 3 מילים); 3 המילים עם הכי הרבה קולות הן המוקשים, ותיקו הולך לסבב הכרעה
+    S.trapVotes={};S.trapLocked={};S.runoff=null;
     E.setPhase(S,'TRAP_SELECTION',S.settings.trapSeconds*1000);},
-  trapDraft(S,playerId,words){const c=E.card(S);if(S.phase!=='TRAP_SELECTION'||!c||playerId!==S.trapperId)return;S.trapDraft=[...new Set(words)].filter(w=>c.options.includes(w)).slice(0,3);S.v++;},
-  say(S,playerId,text){const p=S.players.find(x=>x.id===playerId);const t=String(text||'').trim().slice(0,200);if(!p||!t)return;S.chat=S.chat||[];S.chat.push({id:uid(6),by:playerId,name:p.name,text:t,at:Date.now()});if(S.chat.length>40)S.chat.shift();S.v++;},
+  trapVoters(S){const opp=S.activeTeam==='A'?'B':'A';return E.team(S,opp).filter(p=>!isBot(p.id)&&p.connected);},
+  trapVote(S,playerId,words){const c=E.card(S);const p=S.players.find(x=>x.id===playerId);if(S.phase!=='TRAP_SELECTION'||!c||!p||p.team===S.activeTeam||isBot(playerId))return;
+    const pool=S.runoff?S.runoff.words:c.options;const need=S.runoff?S.runoff.need:3;S.trapVotes=S.trapVotes||{};S.trapLocked=S.trapLocked||{};
+    if(S.trapLocked[playerId])return;S.trapVotes[playerId]=[...new Set(words)].filter(w=>pool.includes(w)).slice(0,need);S.v++;},
+  trapLock(S,playerId){if(S.phase!=='TRAP_SELECTION')return;const need=S.runoff?S.runoff.need:3;const v=(S.trapVotes||{})[playerId]||[];if(v.length!==need)return;
+    S.trapLocked=S.trapLocked||{};S.trapLocked[playerId]=true;S.v++;const voters=E.trapVoters(S);if(voters.length&&voters.every(x=>S.trapLocked[x.id]))E.tallyTraps(S,false);},
+  // ספירה: מילים מעל קו החיתוך נכנסות; תיקו על הקו = סבב הכרעה רק בין המילים שבתיקו (בכפייה/בסיבוב שלישי — הגרלה)
+  tallyTraps(S,force){const c=E.card(S);if(!c||S.phase!=='TRAP_SELECTION')return;const ro=S.runoff;const pool=ro?ro.words:c.options;const fixed=ro?ro.fixed:[];const need=3-fixed.length;
+    const cnt={};pool.forEach(w=>cnt[w]=0);Object.values(S.trapVotes||{}).forEach(ws=>ws.forEach(w=>{if(w in cnt)cnt[w]++;}));
+    const sorted=[...pool].sort((x,y)=>cnt[y]-cnt[x]);const cut=cnt[sorted[need-1]];const above=sorted.filter(w=>cnt[w]>cut);const tied=sorted.filter(w=>cnt[w]===cut);
+    let chosen=null;if(above.length+tied.length<=need)chosen=[...above,...tied];else if(force||cut===0||(ro&&ro.round>=2))chosen=[...above,...shuffle(tied).slice(0,need-above.length)];
+    if(chosen){S.traps=[...fixed,...chosen].slice(0,3);S.runoff=null;S.trapVotes={};S.trapLocked={};E.afterTraps(S);return;}
+    S.runoff={fixed:[...fixed,...above],words:tied,need:need-above.length,round:(ro?ro.round:0)+1};S.trapVotes={};S.trapLocked={};E.setPhase(S,'TRAP_SELECTION',12000);},
+  say(S,playerId,text,scope){const p=S.players.find(x=>x.id===playerId);const t=String(text||'').trim().slice(0,200);if(!p||!t)return;S.chat=S.chat||[];S.chat.push({id:uid(6),by:playerId,name:p.name,text:t,at:Date.now(),...(scope==='team'?{team:p.team}:{})});if(S.chat.length>40)S.chat.shift();S.v++;},
   selectTraps(S,playerId,words){const p=S.players.find(x=>x.id===playerId);const c=E.card(S);if(S.phase!=='TRAP_SELECTION'||!c)throw new Error('לא זה הזמן לטמון מוקשים');
-    if(!p||p.team===S.activeTeam)throw new Error('רק הקבוצה היריבה טומנת מוקשים');
-    if(S.mode==='online'&&S.trapperId&&playerId!==S.trapperId&&!isBot(playerId)){const t=S.players.find(x=>x.id===S.trapperId);throw new Error(`${t?t.name:'שחקן אחר'} בוחר/ת את המוקשים בקלף הזה`);}const u=[...new Set(words)];if(u.length!==3)throw new Error('צריך לבחור בדיוק 3 מוקשים');
+    if(!p||p.team===S.activeTeam)throw new Error('רק הקבוצה היריבה טומנת מוקשים');const u=[...new Set(words)];if(u.length!==3)throw new Error('צריך לבחור בדיוק 3 מוקשים');
     for(const w of u)if(!c.options.includes(w))throw new Error('מוקש לא מתוך הרשימה');S.traps=u;E.afterTraps(S);},
   autoPickTraps(S){const c=E.card(S);if(!c)return;S.traps=shuffle(c.options).slice(0,3);E.afterTraps(S);},
   afterTraps(S){if(S.mode==='local'||(S.mode==='ai'&&!isBot(S.explainerId))){E.setPhase(S,'TURN_PREPARATION',null);}else E.startExplaining(S);},
@@ -572,7 +585,7 @@ const E = {
   setPhase(S,phase,ms){S.phase=phase;S.phaseEndsAt=ms==null?null:Date.now()+ms;S.v++;},
   // קריאה תקופתית ע״י המארח — מבצעת מעברים שתלויים בזמן
   tick(S){if(!S.phaseEndsAt||Date.now()<S.phaseEndsAt)return false;
-    switch(S.phase){case 'TRAP_SELECTION':E.autoPickTraps(S);break;case 'EXPLAINING':E.endTurn(S);break;case 'CARD_RESULT':E.nextCard(S);break;
+    switch(S.phase){case 'TRAP_SELECTION':if(S.mode==='online')E.tallyTraps(S,true);else E.autoPickTraps(S);break;case 'EXPLAINING':E.endTurn(S);break;case 'CARD_RESULT':E.nextCard(S);break;
       case 'TURN_SUMMARY':E.advanceTurn(S);break;case 'TURN_PREPARATION':E.beginTurn(S);break;default:return false;}return true;},
   roleOf(S,id){const p=S.players.find(x=>x.id===id);if(!p)return 'spectator';if(S.phase==='LOBBY'||S.phase==='GAME_OVER')return p.isHost?'host':'lobby';
     if(p.id===S.explainerId)return 'explainer';if(p.team===S.activeTeam)return 'guesser';return 'opponent';},
@@ -669,8 +682,9 @@ function handleAction(a){const S=A.S;if(!S)return;
     case 'skip':E.skip(S,a.from);break;
     case 'begin_explaining':if(S.phase==='TURN_PREPARATION'&&S.mode!=='online')E.startExplaining(S);break;
     case 'clue':E.clue(S,a.from,a.text);break;
-    case 'trap_draft':E.trapDraft(S,a.from,a.words||[]);break;
-    case 'say':{E.say(S,a.from,a.text);const m=(S.chat||[]).at(-1);if(m&&a.from!==A.uid&&!A.roomChat&&A.mode==='online')toast(`💬 ${m.name}: ${m.text}`);break;}
+    case 'trap_vote':E.trapVote(S,a.from,a.words||[]);break;
+    case 'trap_lock':E.trapLock(S,a.from);break;
+    case 'say':{E.say(S,a.from,a.text,a.scope);const m=(S.chat||[]).at(-1);if(m&&a.from!==A.uid&&!A.roomChat&&A.mode==='online'&&canSee(S,m))toast(`💬 ${m.team?'(קבוצה) ':''}${m.name}: ${m.text}`);break;}
     case 'rematch':if(isHostAct(S,a))E.rematch(S);break;}};
   const before=S.cardResult;
   if(A.mode!=='online'){run();if(S.cardResult&&S.cardResult!==before)fx(S.cardResult.kind);return;}
@@ -912,11 +926,11 @@ function vSettings(S){const s=S.settings;const host=A.isHost;const set=p=>`act({
     ${open?r('תורות לכל קבוצה',s.turnsPerTeam,set({turnsPerTeam:s.turnsPerTeam-1}),set({turnsPerTeam:s.turnsPerTeam+1}))+r('שניות לתור',s.turnSeconds,set({turnSeconds:s.turnSeconds-15}),set({turnSeconds:s.turnSeconds+15}))+r('שניות לבחירת מוקשים',s.trapSeconds,set({trapSeconds:s.trapSeconds-5}),set({trapSeconds:s.trapSeconds+5}))+r('רמת קושי',dl,set({difficulty:order[(i+3)%4]}),set({difficulty:order[(i+1)%4]})):''}</div>`;}
 function vRing(S,live){return `<div class="bombclock"><img src="${ASSETS.bomb}" alt=""><div class="t">${live?'–':fmt(S.turnRemainingMs)}</div></div>`;}
 // לוח תוצאות + פתיל בוער: הטיימר הוא פתיל שנשרף לאורך המסך, והשניות על הפצצה עצמה
-function trapperLine(S){const t=S.trapperId&&playerById(S,S.trapperId);return t?`${h(t.name)} מהיריבים טומן/ת לכם מוקשים…`:'היריבים טומנים מוקשים…';}
+function trapperLine(S){return S.mode==='online'&&S.runoff?'היריבים בסבב הכרעה על המוקשים…':S.mode==='online'?'היריבים מצביעים על מוקשים לכם…':'היריבים טומנים מוקשים…';}
 function myTeam(S){if(S.mode==='local')return null;const me=playerById(S,myId());return me?me.team:null;}
 // שורה קצרה שאומרת לכל שחקן מה התפקיד שלו עכשיו
 function vRoleBar(S){if(S.mode==='local')return '';const mt=myTeam(S);if(!mt)return '';const r=role(S);const at=TEAM_NAME[S.activeTeam];const ex=playerById(S,S.explainerId);
-  const txt=r==='opponent'?(S.phase==='TRAP_SELECTION'?(S.mode==='online'&&S.trapperId===myId()?`תורך לטמון מוקשים ${TG.to(S.activeTeam)}!`:isAIgame()?`טמנו מוקשים ${TG.to(S.activeTeam)}!`:`אתם ב${TEAM_NAME[mt]} · טמנו מוקשים ${TG.to(S.activeTeam)}!`):`התור ${TG.of(S.activeTeam)} · אתם צופים`):r==='explainer'?'אתם מסבירים לקבוצה שלכם':r==='guesser'?`אתם מנחשים · ${ex?h(ex.name):''} מסביר/ה`:'';
+  const txt=r==='opponent'?(S.phase==='TRAP_SELECTION'?(isAIgame()?`טמנו מוקשים ${TG.to(S.activeTeam)}!`:`אתם ב${TEAM_NAME[mt]} · טמנו מוקשים ${TG.to(S.activeTeam)}!`):`התור ${TG.of(S.activeTeam)} · אתם צופים`):r==='explainer'?'אתם מסבירים לקבוצה שלכם':r==='guesser'?`אתם מנחשים · ${ex?h(ex.name):''} מסביר/ה`:'';
   return txt?`<div class="rolebar ${r}">${txt}</div>`:'';}
 function vHud(S){const mt=myTeam(S);const tile=t=>{const ps=E.team(S,t);return `<div class="stile ${t} ${S.activeTeam===t?'active':''} ${mt===t?'mine':''}">${mt===t?'<span class="me">אתם</span>':''}<div class="n">${S.score[t]}</div><div class="l">${TEAM_NAME[t]}</div>${ps.length?`<div class="mates">${ps.slice(0,6).map(p=>`<span class="m${p.id===S.explainerId&&S.activeTeam===t?' ex':''}">${avInner(p.avatar)}</span>`).join('')}</div><div class="mnames">${ps.map(p=>h(p.name)).join(' · ')}</div>`:''}</div>`;};
   const live=S.phaseEndsAt&&(S.phase==='EXPLAINING'||S.phase==='TRAP_SELECTION');const total=S.phase==='TRAP_SELECTION'?S.settings.trapSeconds*1000:S.settings.turnSeconds*1000;
@@ -933,17 +947,24 @@ function vGame(S){const r=role(S);const c=E.card(S);
   if(S.phase==='TRAP_SELECTION'){if(r==='opponent')return vTraps(S,c);if(r==='explainer')return vExplainer(S,c);if(r==='guesser')return vGuesser(S);return vWait(S,'היריבים טומנים מוקשים…');}
   if(r==='explainer')return vExplainer(S,c);if(r==='guesser')return vGuesser(S);if(r==='opponent')return vOpponent(S,c);return vWait(S,'צופים במשחק');}
 function vTraps(S,c){if(!A.trapCard||A.trapCard!==S.cardId){A.trapCard=S.cardId;A.trapPick=[];A.trapSent=false;}const local=S.mode==='local';
-  const tp=S.mode==='online'&&S.trapperId?playerById(S,S.trapperId):null;const watching=!!tp&&tp.id!==myId();const pick=watching?(S.trapDraft||[]):A.trapPick;
-  if(watching)return `<div class="screen lock">${vHeader(S)}<div class="rolebar opponent">${h(tp.name)} טומן/ת מוקשים ${TG.to(S.activeTeam)} · אתם רואים בזמן אמת</div>
-    <div class="explain-head"><img class="bombimg" src="${ASSETS.bomb}" alt=""><div><div class="xs muted">${TG.needs(S.activeTeam)} · ${h(c.category)}</div><div class="black" style="font-size:30px;line-height:1.1">${h(c.target)}</div></div></div>
-    <div class="opts watch">${c.options.map(w=>`<button class="${pick.includes(w)?'on':''}" disabled>${h(w)}</button>`).join('')}</div>
-    <div class="tc small" style="color:#fff;margin-top:auto">${av(tp.avatar,'')} ${h(tp.name)} בחר/ה ${pick.length}/3</div></div>`;
+  if(S.mode==='online')return vTrapVote(S,c);const pick=A.trapPick;
   return `<div class="screen lock">${vHeader(S)}${vRoleBar(S)}${local?`<div class="banner warn">העבירו את הטלפון ל${TEAM_NAME[S.activeTeam==='A'?'B':'A']} (היריבים)</div>`:''}
     <div class="explain-head"><img class="bombimg" src="${ASSETS.bomb}" alt=""><div><div class="xs muted">${TG.needs(S.activeTeam)} · ${h(c.category)}</div><div class="black" style="font-size:30px;line-height:1.1">${h(c.target)}</div></div></div>
     <p class="tc small muted" style="margin:0">בחרו <b style="color:var(--danger)">3 מוקשים</b> — מילים שהמנחשים עלולים לומר בטעות</p>
     <div class="opts">${c.options.map(w=>`<button class="${pick.includes(w)?'on':''}" ${A.trapSent?'disabled':''} onclick="toggleTrap('${h(w)}')">${h(w)}</button>`).join('')}</div>
     <div style="margin-top:auto"><button class="btn danger big" ${pick.length!==3||A.trapSent?'disabled':''} onclick="sendTraps()"><img src="${ASSETS.bomb}" style="width:28px;height:28px" alt=""> ${A.trapSent?'המוקשים נטמנו':`טמון מוקשים (${pick.length}/3)`}</button></div></div>`;}
-function toggleTrap(w){const p=A.trapPick;A.trapPick=p.includes(w)?p.filter(x=>x!==w):p.length<3?[...p,w]:p;if(A.mode==='online'&&A.S&&A.S.trapperId===myId())act({type:'trap_draft',words:A.trapPick});render();}
+function toggleTrap(w){const S=A.S;const max=S&&S.runoff?S.runoff.need:3;const p=A.trapPick;A.trapPick=p.includes(w)?p.filter(x=>x!==w):p.length<max?[...p,w]:p;if(A.mode==='online'&&S)act({type:'trap_vote',words:A.trapPick});render();}
+function vTrapVote(S,c){const ro=S.runoff;const key=S.cardId+':'+(ro?ro.round:0);if(A.voteKey!==key){A.voteKey=key;A.trapPick=[];}
+  const me=myId();const need=ro?ro.need:3;const pool=ro?ro.words:c.options;const votes=S.trapVotes||{};const locked=!!(S.trapLocked||{})[me];
+  const cnt={};pool.forEach(w=>cnt[w]=0);Object.values(votes).forEach(ws=>ws.forEach(w=>{if(w in cnt)cnt[w]++;}));
+  const voters=E.trapVoters(S);const done=voters.filter(v=>(S.trapLocked||{})[v.id]).length;const mine=locked?(votes[me]||[]):A.trapPick;
+  return `<div class="screen lock">${vHeader(S)}<div class="rolebar opponent">${ro?`תיקו! בחרו עוד ${need===1?'מילה אחת':need+' מילים'}`:`מצביעים על מוקשים ${TG.to(S.activeTeam)}`}</div>
+    <div class="explain-head"><img class="bombimg" src="${ASSETS.bomb}" alt=""><div><div class="xs muted">${TG.needs(S.activeTeam)} · ${h(c.category)}</div><div class="black" style="font-size:30px;line-height:1.1">${h(c.target)}</div></div></div>
+    ${ro&&ro.fixed.length?`<div class="tc small" style="color:#fff">כבר מוקשים: ${ro.fixed.map(w=>`<span class="chip danger">${h(w)}</span>`).join(' ')}</div>`:''}
+    <p class="tc small" style="margin:0;color:#fff">${ro?'רק המילים שבתיקו נשארו. הרוב קובע.':'כל אחד בוחר 3 · המילים עם הכי הרבה קולות הופכות למוקשים'}</p>
+    <div class="opts">${pool.map(w=>`<button class="${mine.includes(w)?'on':''}" ${locked?'disabled':''} onclick="toggleTrap('${h(w)}')">${h(w)}${cnt[w]?`<span class="vc">${cnt[w]}</span>`:''}</button>`).join('')}</div>
+    <div class="col" style="margin-top:auto;gap:8px"><div class="tc small" style="color:#fff">נעלו ${done}/${voters.length} ${voters.map(v=>`<span class="vav ${(S.trapLocked||{})[v.id]?'ok':''}">${avInner(v.avatar)}</span>`).join('')}</div>
+    <button class="btn danger big" ${mine.length!==need||locked?'disabled':''} onclick="act({type:'trap_lock'})"><img src="${ASSETS.bomb}" style="width:28px;height:28px" alt=""> ${locked?'נעלתם — מחכים לשאר':`נעלתי את הבחירה (${mine.length}/${need})`}</button></div></div>`;}
 function sendTraps(){const S=A.S;A.trapSent=true;const from=S.mode!=='online'?E.team(S,S.activeTeam==='A'?'B':'A')[0].id:myId();act({type:'select_traps',words:A.trapPick,from});render();}
 function vExplainer(S,c){const live=S.phase==='EXPLAINING';const local=S.mode==='local';const ai=typedClues(S);
   const trapHtml=S.traps.length?`<div class="trapgrid">${S.traps.map(t=>`<div class="trap">${h(t)}</div>`).join('')}</div>`:`<div class="small muted pulse tc" style="color:#fff">${trapperLine(S)}</div>`;
@@ -1002,12 +1023,15 @@ function vBlast(){const C=['var(--ink)','var(--yellow)','var(--orange)','#fff','
   return `<div class="flash"></div><div class="scorch"></div>${smoke}<i class="shock"></i><i class="shock s2"></i>${deb}`;}
 // תפריט: יציאה / סגירת החדר לכולם (למארח, עם אישור)
 // צ׳אט החדר: כל המשתתפים, משתי הקבוצות
-function chatNotify(prev,S){const a=(prev&&prev.chat||[]).length,b=(S.chat||[]);if(b.length>a&&!A.roomChat){const m=b.at(-1);if(m.by!==myId())toast(`💬 ${m.name}: ${m.text}`);}}
-function chatBtn(S){if(S.mode!=='online')return '';const n=(S.chat||[]).length-(A.chatSeen||0);return `<button type="button" class="cbtn" onclick="A.roomChat=1;A.chatSeen=(A.S.chat||[]).length;render()" aria-label="צ׳אט">💬${n>0?`<span class="badge">${n}</span>`:''}</button>`;}
-function vRoomChat(S){A.chatSeen=(S.chat||[]).length;const me=myId();const items=(S.chat||[]);
-  return `<div class="sheet-bg" onclick="A.roomChat=0;render()"><div class="sheet pop roomchat" onclick="event.stopPropagation()"><div class="row between"><div class="black" style="font-size:22px">💬 צ׳אט החדר</div><button class="btn ghost" onclick="A.roomChat=0;render()">סגור</button></div>
-    <div class="chat rc" data-autoscroll>${items.length?items.map(m=>{const p=playerById(S,m.by);return `<div class="msg${m.by===me?'':' them'}"><span class="au">${h(m.name)}${p?` · ${TEAM_NAME[p.team]}`:''}</span><div class="b">${h(m.text)}</div></div>`;}).join(''):'<div class="empty">עדיין אין הודעות. תגידו שלום 👋</div>'}</div>
-    <form class="chatbar" onsubmit="event.preventDefault();const i=this.say;const t=i.value.trim();if(t){act({type:'say',text:t});i.value='';}"><input class="input" name="say" maxlength="200" autocomplete="off" enterkeyhint="send" placeholder="כתבו לכולם…"><button class="btn primary">שלח</button></form></div></div>`;}
+function canSee(S,m){if(!m.team)return true;const me=playerById(S,myId());return !!me&&me.team===m.team;}
+function visibleChat(S){return (S.chat||[]).filter(m=>canSee(S,m));}
+function chatNotify(prev,S){const a=(prev&&prev.chat||[]).length,b=(S.chat||[]);if(b.length>a&&!A.roomChat){const m=b.at(-1);if(m.by!==myId()&&canSee(S,m))toast(`💬 ${m.team?'(קבוצה) ':''}${m.name}: ${m.text}`);}}
+function chatBtn(S){if(S.mode!=='online')return '';const n=visibleChat(S).length-(A.chatSeen||0);return `<button type="button" class="cbtn" onclick="A.roomChat=1;render()" aria-label="צ׳אט">💬${n>0?`<span class="badge">${n}</span>`:''}</button>`;}
+function vRoomChat(S){A.chatSeen=visibleChat(S).length;const me=myId();const tab=A.chatTab||'all';const my=playerById(S,me);const items=visibleChat(S).filter(m=>tab==='team'?!!m.team:!m.team);
+  return `<div class="sheet-bg" onclick="A.roomChat=0;render()"><div class="sheet pop roomchat" onclick="event.stopPropagation()"><div class="row between"><div class="black" style="font-size:22px">💬 צ׳אט</div><button class="btn ghost" onclick="A.roomChat=0;render()">סגור</button></div>
+    <div class="tabs"><button class="${tab==='all'?'on':''}" onclick="A.chatTab='all';render()">כולם</button><button class="${tab==='team'?'on':''}" onclick="A.chatTab='team';render()">הקבוצה שלי${my?` (${TEAM_NAME[my.team]})`:''}</button></div>
+    <div class="chat rc" data-autoscroll>${items.length?items.map(m=>{const p=playerById(S,m.by);return `<div class="msg${m.by===me?'':' them'}"><span class="au">${h(m.name)}${p?` · ${TEAM_NAME[p.team]}`:''}</span><div class="b">${h(m.text)}</div></div>`;}).join(''):`<div class="empty">${tab==='team'?'רק חברי הקבוצה שלכם רואים כאן. תתאמו מוקשים 🤫':'עדיין אין הודעות. תגידו שלום 👋'}</div>`}</div>
+    <form class="chatbar" onsubmit="event.preventDefault();const i=this.say;const t=i.value.trim();if(t){act({type:'say',text:t,scope:A.chatTab||'all'});i.value='';}"><input class="input" name="say" maxlength="200" autocomplete="off" enterkeyhint="send" placeholder="${tab==='team'?'כתבו לקבוצה…':'כתבו לכולם…'}"><button class="btn primary">שלח</button></form></div></div>`;}
 function vMenu(S){const host=A.mode==='online'&&A.isHost;const confirm=A.menu===2;
   const body=confirm?`<div class="black" style="font-size:24px">לסגור את החדר לכולם?</div><div class="small isub">כל השחקנים ייצאו מהמשחק, והחדר יימחק.</div>
       <button class="btn danger big" onclick="closeRoom()">כן, סגור את החדר</button><button class="btn" onclick="A.menu=1;render()">לא, חזרה</button>`
