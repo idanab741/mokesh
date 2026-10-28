@@ -593,7 +593,7 @@ function vHome(){const c=A.chosen;const m=A.homeMode;
       <p style="margin:0"><b style="color:var(--ok)">המנחשים</b> מקלידים ניחושים. נכון: +2. מוקש: −2 לקבוצה ו-+1 ליריבים.</p>
       <p style="margin:0">60 שניות לתור, 5 תורות לכל קבוצה. הניקוד הגבוה מנצח.</p>
       <button class="btn ghost" onclick="A.homeMode='menu';render()">הבנתי</button></div>`;
-  return `<div class="screen center" style="gap:22px;position:relative">${m==='menu'?`<button class="topbtn" onclick="A.homeMode='settings';render()">${ic('gear',20)}</button>`:''}${musicBtn('topbtn r')}<header class="tc"><img class="logo pop" src="${ASSETS.logo}" alt="מוקש!"><p class="tagline" style="margin:12px auto 0;max-width:260px">משחק הניחושים שבו כל טעות מתפוצצת</p></header>${body}</div>`;}
+  return `<div class="screen center" style="gap:22px;position:relative">${m==='menu'?`<button class="topbtn" onclick="A.homeMode='settings';render()">${ic('gear',20)}</button>`:''}${musicBtn('topbtn r')}<header class="tc"><img class="logo pop" src="${ASSETS.logo}" alt="מוקש!"><p class="tagline" style="margin:12px auto 0;max-width:310px">משחק הניחושים שבו כל טעות תעלה לכם בפיצוץ!</p></header>${body}</div>`;}
 function vLobby(S){if(S.mode==='ai')return vLobbyAI(S);const me=playerById(S,myId());const local=S.mode==='local';const tA=E.team(S,'A'),tB=E.team(S,'B');const can=tA.length>=2&&tB.length>=2;
   const link=location.origin+location.pathname+'?room='+S.code;
   const team=(t,ps)=>`<div class="teamcard ${t}"><div class="th"><span>${TEAM_NAME[t]}</span><span class="xs">${ps.length}</span></div><div class="plist">
