@@ -598,7 +598,7 @@ function act(a){ // פעולה שלי (מארח או אורח)
   sendAction(A.S.code,a);}
 function handleAction(a){const S=A.S;if(!S)return;
   const run=()=>{switch(a.type){
-    case 'join':E.addPlayer(S,{id:a.from,name:a.name,avatar:a.avatar});break;
+    case 'join':{const isNew=!S.players.find(x=>x.id===a.from);E.addPlayer(S,{id:a.from,name:a.name,avatar:a.avatar});if(isNew&&A.mode==='online'&&a.from!==A.uid)toast(`${(a.name||'שחקן').trim()} הצטרף/ה!`);break;}
     case 'presence':{const p=S.players.find(x=>x.id===a.from);if(p){p.connected=true;p.lastSeen=Date.now();}break;}
     case 'leave':E.removePlayer(S,a.from);break;
     case 'switch_team':E.switchTeam(S,a.from,a.team);break;
@@ -629,7 +629,7 @@ function subscribeRoom(code){A.unsub.forEach(u=>u());A.unsub=[];
     const chi=sb.channel('inbox-'+code).on('postgres_changes',{event:'INSERT',schema:'public',table:'mokesh_inbox',filter:'code=eq.'+code},(payload)=>take(payload.new)).subscribe();
     A.unsub.push(()=>sb.removeChannel(chi));
     dbPendingInbox(code).then(rows=>rows.forEach(take));
-  }
+  }else dbGetRoom(code).then(applyState,()=>{});
   // גיבוי ל-Realtime: סקירה כל 3 שניות
   clearInterval(A.pollT);A.pollT=setInterval(async()=>{if(!A.S||A.mode!=='online')return;try{
     if(A.isHost){(await dbPendingInbox(code)).forEach(row=>{if(!A.processed.has(row.id)){A.processed.add(row.id);handleAction(JSON.parse(JSON.stringify(row.action)));dbDeleteInbox(row.id);}});}
@@ -801,8 +801,10 @@ function vLobby(S){if(S.mode==='ai')return vLobbyAI(S);const me=playerById(S,myI
   const addLocal=local?vAddPlayer(S):'';
   const mine=!local&&me?`<div class="row"><button class="btn secondary" onclick="act({type:'switch_team'})">עבור ל${me.team==='A'?'קבוצה ב׳':'קבוצה א׳'}</button><button class="btn ${me.ready?'ok':'secondary'}" onclick="act({type:'ready',ready:${!me.ready}})">${me.ready?'מוכן ✓':'אני מוכן'}</button></div>`:'';
   const start=A.isHost?`<button class="btn primary big" onclick="act({type:'start'})" ${can?'':'disabled'}>${ic('play',22)} ${can?'התחל משחק':'ממתינים לשחקנים'}</button>`:`<div class="tc small muted pulse">ממתינים שמנהל החדר יתחיל…</div>`;
+  const hostHint=!local&&A.isHost&&S.players.length<2?`<div class="banner warn">שלחו לחברים את הקישור ותחזרו לכאן. החברים מצטרפים כשהמשחק פתוח אצלכם.</div>`:'';
+  const pending=!local&&!me?`<div class="card tc col" style="gap:6px"><div class="bold pulse">מצטרפים לחדר…</div><div class="small muted">הבקשה נשלחה. תופיעו ברשימה ברגע שהטלפון של מנהל/ת החדר יהיה פתוח במשחק.</div></div>`:'';
   const note=!local?`<div class="banner">אין שיחה קולית מובנית בגרסה זו — שחקו באותו חדר או עם שיחה מקבילה.</div>`:'';
-  return `<div class="screen">${head}${codeRow}<div class="xs" style="color:#7db3ff;font-weight:700">שחקנים (${S.players.length}/12)</div>${team('A',tA)}${team('B',tB)}${addLocal}${mine}<div class="col" style="margin-top:auto">${start}${vSettings(S)}${note}</div></div>`;}
+  return `<div class="screen">${head}${codeRow}${hostHint}${pending}<div class="xs" style="color:#7db3ff;font-weight:700">שחקנים (${S.players.length}/12)</div>${team('A',tA)}${team('B',tB)}${addLocal}${mine}<div class="col" style="margin-top:auto">${start}${vSettings(S)}${note}</div></div>`;}
 function vLobbyAI(S){const humans=S.players.filter(p=>!isBot(p.id));
   return `<div class="screen"><header class="row between"><button class="btn ghost" style="width:auto;padding:8px" onclick="leaveRoom()">‹ יציאה</button><div class="bold" style="font-size:18px">מול המחשב</div>${musicBtn('hdrm')}</header>
     <div class="teamcard A"><div class="th"><span>אתם</span><span class="xs">${humans.length}${humans.length<2?' + 🤖':''}</span></div><div class="plist">${humans.map(p=>`<div class="p">${avBtn(p,'lg')}<span class="n">${h(p.name)}</span><button class="xs muted" onclick="apply(S=>E.removePlayer(S,'${p.id}'))">✕</button></div>`).join('')}${humans.length<2?`<div class="p">${av('🤖','lg')}<span class="n">השותף שלך</span><span class="tag">מחשב</span></div>`:''}</div></div>
@@ -821,7 +823,9 @@ function vAvPick(S){const p=playerById(S,A.avPick);if(!p||S.phase!=='LOBBY'){A.a
   return `<div class="sheet-bg" onclick="A.avPick=null;render()"><div class="sheet pop" onclick="event.stopPropagation()"><div class="row between"><div class="black" style="font-size:22px">האווטאר של ${h(p.name)}</div><button class="btn ghost" onclick="A.avPick=null;render()">סגור</button></div>
     <div class="avgrid">${AVATARS.map(a=>`<button class="${a===p.avatar?'on':''}" onclick="pickAvatar('${p.id}','${a}')">${avInner(a)}</button>`).join('')}</div></div></div>`;}
 function pickAvatar(id,a){A.avPick=null;if(A.mode==='online'){A.me.avatar=a;A.chosen.avatar=a;saveProfile();act({type:'avatar',avatar:a});}else act({type:'avatar',from:id,avatar:a});render();}
-async function shareRoom(link,code,copyOnly){const data={title:'מוקש!',text:'בואו לשחק מוקש! קוד חדר: '+code,url:link};try{if(navigator.share&&!copyOnly)await navigator.share(data);else{await navigator.clipboard.writeText(copyOnly?code:link);toast(copyOnly?'הקוד הועתק':'הקישור הועתק');}}catch(e){}}
+async function shareRoom(link,code,copyOnly){const data={title:'מוקש!',text:'בואו לשחק מוקש! קוד חדר: '+code,url:link};
+  const copy=async()=>{try{await navigator.clipboard.writeText(copyOnly?code:link);toast(copyOnly?'הקוד הועתק':'הקישור הועתק — הדביקו אותו לחברים');}catch(e){toast('קוד החדר: '+code);}};
+  if(navigator.share&&!copyOnly){try{await navigator.share(data);}catch(e){if(e&&e.name!=='AbortError')await copy();}}else await copy();}
 function vSettings(S){const s=S.settings;const host=A.isHost;const set=p=>`act({type:'settings',settings:${JSON.stringify(p).replace(/"/g,'&quot;')}})`;
   const r=(l,v,dec,inc)=>`<div class="r"><span class="small muted">${l}</span><div class="row">${host?`<button onclick="${dec}">−</button>`:''}<span class="v">${v}</span>${host?`<button onclick="${inc}">+</button>`:''}</div></div>`;
   const dl={all:'קלאסי',1:'קל',2:'בינוני',3:'קשה'}[s.difficulty];const order=['all',1,2,3];const i=order.indexOf(s.difficulty);
@@ -988,7 +992,11 @@ function stopVoice(silent){VOICE.want=false;VOICE.on=false;const r=VOICE.rec;VOI
   if(vv){vv.addEventListener('resize',fit);vv.addEventListener('scroll',fit);}
   window.addEventListener('resize',fit);
   document.addEventListener('focusin',()=>setTimeout(fit,60));document.addEventListener('focusout',()=>setTimeout(fit,60));fit();})();
-try{if(!localStorage.getItem('mokesh.intro')&&!/[?&]room=/.test(location.search))A.homeMode='intro';}catch(e){}
+try{if(A.joinCode&&!localStorage.getItem('mokesh.session'))A.homeMode='join';else if(!localStorage.getItem('mokesh.intro'))A.homeMode='intro';}catch(e){}
+// חזרה לאפליקציה (אחרי וואטסאפ / נעילת מסך): iOS מקפיא את הדף ברקע וחיבור ה-Realtime נופל,
+// אז מתחברים מחדש ומעבדים מיד את כל מי שניסה להצטרף בינתיים
+function onReturn(){if(document.hidden||A.mode!=='online'||!A.S||!sb)return;const now=Date.now();if(now-(A.lastResync||0)<1500)return;A.lastResync=now;subscribeRoom(A.S.code);}
+document.addEventListener('visibilitychange',onReturn);window.addEventListener('pageshow',onReturn);window.addEventListener('focus',onReturn);
 render();initRuntime();
 </script>
 </body>
