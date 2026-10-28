@@ -229,6 +229,8 @@ html.kb .mbtn{display:none}
 .overlay .tag{background:var(--yellow);color:var(--ink);font-family:var(--font-display);font-size:30px;padding:6px 20px;border-radius:14px;transform:rotate(-3deg);border:var(--o);box-shadow:var(--sh)}
 .overlay .said{background:#fff;color:var(--ink);border-radius:var(--r-md);padding:9px 16px;font-weight:800;font-size:18px;display:inline-flex;gap:8px;align-items:center;border:var(--o);box-shadow:var(--sh)}
 .overlay .said b{color:var(--red)}
+.overlay .reveal{background:var(--ink);color:#fff;border-radius:var(--r-md);padding:9px 18px;font-weight:800;font-size:19px;border:3px solid #fff;box-shadow:var(--sh)}.overlay .reveal b{color:var(--yellow);font-family:var(--font-display);font-size:24px}
+html[data-ov=trap],html[data-ov=trap] body{background:var(--red)}html[data-ov=correct],html[data-ov=correct] body{background:#12C46A}html[data-ov=skip],html[data-ov=skip] body{background:var(--ink)}
 .overlay.correct .said b{color:#0B7A3F!important}
 .overlay .ic{color:#fff;filter:drop-shadow(0 4px 0 var(--ink))}
 .deltas{display:grid;grid-template-columns:1fr 1fr;gap:10px;width:100%;max-width:320px}
@@ -595,7 +597,7 @@ const E = {
       if(S.sudden&&S.sudden.res[t]==null)S.sudden.res[t]=ms;}
     else{S.streak=0;if(m>1)tags.push('✖️2 סיבוב אחרון');S.score[t]-=2*m;S.score[o]+=m;d={[t]:-2*m,[o]:m};if(p)p.stats.traps++;S.trapsTotal[t]++;S.turnStats.traps++;S.turnStats.points-=2*m;}
     return {delta:d,tags};},
-  award(S,kind,p,word){const r=E.points(S,kind,p,Date.now()-(S.cardLiveAt||Date.now()));E.resolve(S,{kind,word,playerName:p?p.name:'',delta:r.delta,tags:r.tags});E.setPhase(S,'CARD_RESULT',kind==='correct'?T.CORRECT:T.TRAP);},
+  award(S,kind,p,word){const r=E.points(S,kind,p,Date.now()-(S.cardLiveAt||Date.now()));const c=E.card(S);E.resolve(S,{kind,word,target:c?c.target:'',playerName:p?p.name:'',delta:r.delta,tags:r.tags});E.setPhase(S,'CARD_RESULT',kind==='correct'?T.CORRECT:T.TRAP);},
   // מרוץ: הקבוצה הראשונה שמגיעה ליעד מנצחת (לא במוות פתאומי)
   checkTarget(S){const g=S.settings.target;if(!g||S.sudden)return false;const w=['A','B'].find(t=>S.score[t]>=g);if(!w)return false;E.finishGame(S,w,'target');return true;},
   // תור מדומה של קבוצת המחשב: אותם חוקים ואותו ניקוד, בלי לחכות
@@ -969,6 +971,7 @@ function render(){const S=A.S;let html='';if(S&&S.phase==='GAME_OVER')recordGame
     case 'TURN_PREPARATION':html=S.mode!=='online'&&!S.phaseEndsAt?vLocalPrep(S):vWait(S,`התור הבא: ${TEAM_NAME[S.activeTeam]} · מיד נדע מי מסביר`);break;
     default:html=vGame(S);}
   if(S&&S.phase==='CARD_RESULT'&&S.cardResult)html+=vOverlay(S.cardResult);
+  {const ov=S&&S.phase==='CARD_RESULT'&&S.cardResult?S.cardResult.kind:'';if((document.documentElement.dataset.ov||'')!==ov)document.documentElement.dataset.ov=ov;}
   if(S&&hostAway(S)&&S.phase!=='LOBBY'){const host=S.players.find(p=>p.isHost);html+=`<div class="awaybar">⏸️ המשחק מושהה: הטלפון של ${h(host?host.name:'מנהל/ת החדר')} לא מחובר. ממתינים שיחזור למשחק…</div>`;}
   if(S&&A.avPick)html+=vAvPick(S);
   if(S&&A.menu)html+=vMenu(S);
@@ -1197,7 +1200,7 @@ function vOverlay(r){// דילוג: הקלף נזרק מהמסך בקווי מה
   const trap=r.kind==='trap';const d=r.delta||{};const S=A.S;const p=S&&S.players.find(x=>x.name===r.playerName);const canNext=A.mode!=='online'||A.isHost;
   const deltas=`<div class="deltas">${['A','B'].filter(t=>d[t]).map(t=>`<div class="d ${d[t]>0?'pos':'neg'}"><div class="n">${d[t]>0?'+'+d[t]:d[t]}</div><div class="xs" style="color:#fff">${TEAM_NAME[t]}</div></div>`).join('')}</div>${(r.tags||[]).length?`<div class="btags">${r.tags.map(x=>`<span>${h(x)}</span>`).join('')}</div>`:''}`;
   const next=canNext?`<button class="btn primary big" style="max-width:320px" onclick="A.S.phaseEndsAt=Date.now()-1;E.tick(A.S);if(A.mode==='online')hostWrite();render()">הקלף הבא ${ic('play',20)}</button>`:'';
-  if(trap)return `<div class="overlay trap quake">${vBlast()}<div class="col tc" style="align-items:center;gap:16px;position:relative;width:100%"><img class="boom bump" src="${ASSETS.boom}" alt="בום!"><div class="col rise" style="align-items:center;gap:16px;width:100%"><div class="tag">נפלתם על מוקש!</div><div class="said">${p?av(p.avatar,''):''}${h(r.playerName||'')} אמר/ה: <b>${h(r.word)}</b></div>${deltas}${next}</div></div></div>`;
+  if(trap)return `<div class="overlay trap quake">${vBlast()}<div class="col tc" style="align-items:center;gap:16px;position:relative;width:100%"><img class="boom bump" src="${ASSETS.boom}" alt="בום!"><div class="col rise" style="align-items:center;gap:16px;width:100%"><div class="tag">נפלתם על מוקש!</div><div class="said">${p?av(p.avatar,''):''}${h(r.playerName||'')} אמר/ה: <b>${h(r.word)}</b></div>${r.target?`<div class="reveal">המילה הייתה: <b>${h(r.target)}</b></div>`:''}${deltas}${next}</div></div></div>`;
   return `<div class="overlay correct">${vCheer()}<div class="col tc" style="align-items:center;gap:16px;position:relative;width:100%"><div class="defuse"><img class="dbomb" src="${ASSETS.bomb}" alt=""><i class="snuff"></i><i class="cut"></i><span class="check">✓</span></div>
     <div class="col rise ok" style="align-items:center;gap:14px;width:100%"><div class="tag">נכון! הפצצה נוטרלה</div><div class="bigword">${h(r.word)}</div><div class="said">${p?av(p.avatar,''):''}${h(r.playerName||'')} קלע/ה</div>${deltas}${next}</div></div></div>`;}
 // ניחוש נכון: הפתיל נכבה, הפצצה מנוטרלת, וקונפטי מתפוצץ ונופל
