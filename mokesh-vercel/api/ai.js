@@ -16,13 +16,21 @@ export default async function handler(req, res) {
     method: 'POST',
     headers: { 'content-type': 'application/json', 'x-api-key': key, 'anthropic-version': '2023-06-01' },
     body: JSON.stringify({
-      model: MODEL, max_tokens: 120, temperature: 0.9,
+      // בלי temperature: המודלים הנוכחיים מחזירים עליו 400. התשובות כאן הן מילה או משפט, ולכן:
+      // ב-Haiku מכבים חשיבה (מותר עד effort high), ובמודלים שלא מאפשרים לכבות אותה מורידים effort.
+      model: MODEL,
+      ...(/haiku/.test(MODEL) ? { max_tokens: 300, thinking: { type: 'disabled' } } : { max_tokens: 2000, output_config: { effort: 'low' } }),
       system: json ? 'השב אך ורק ב-JSON תקין, בלי טקסט נוסף ובלי גדרות קוד.' : 'אתה שחקן במשחק מסיבות בעברית. ענה קצר, בלי הקדמות.',
       messages: [{ role: 'user', content: prompt }],
     }),
   });
-  if (!r.ok) return res.status(502).json({ error: 'anthropic ' + r.status, detail: await r.text() });
+  if (!r.ok) {
+    const detail = await r.text();
+    console.error('anthropic error', r.status, detail.slice(0, 500));
+    return res.status(502).json({ error: 'anthropic ' + r.status, detail });
+  }
   const data = await r.json();
+  if (data.stop_reason === 'refusal') return res.status(502).json({ error: 'refusal' });
   const text = (data.content || []).filter((b) => b.type === 'text').map((b) => b.text).join('').trim();
   if (!json) return res.status(200).json({ text });
   try { return res.status(200).json({ value: JSON.parse(text.replace(/```json|```/g, '').trim()) }); }
