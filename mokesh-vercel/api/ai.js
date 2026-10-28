@@ -1,6 +1,7 @@
 // מוקש! — פונקציית שרת ל-Vercel: מפעילה את ״המחשב״ בלי לחשוף את המפתח לדפדפן.
 // הגדירו ב-Vercel: ANTHROPIC_API_KEY (חובה), ANTHROPIC_MODEL (אופציונלי).
-const MODEL = process.env.ANTHROPIC_MODEL || 'claude-haiku-5-5';
+const MODEL = process.env.ANTHROPIC_MODEL || 'claude-opus-5-5';
+const HAIKU = /haiku/.test(MODEL);
 
 export default async function handler(req, res) {
   res.setHeader('Cache-Control', 'no-store');
@@ -14,12 +15,13 @@ export default async function handler(req, res) {
 
   const r = await fetch('https://api.anthropic.com/v1/messages', {
     method: 'POST',
-    headers: { 'content-type': 'application/json', 'x-api-key': key, 'anthropic-version': '2023-06-01' },
+    headers: { 'content-type': 'application/json', 'x-api-key': key, 'anthropic-version': '2023-06-01', ...(HAIKU ? {} : { 'anthropic-beta': 'server-side-fallback-2026-07-01' }) },
     body: JSON.stringify({
       // בלי temperature: המודלים הנוכחיים מחזירים עליו 400. התשובות כאן הן מילה או משפט, ולכן:
       // ב-Haiku מכבים חשיבה (מותר עד effort high), ובמודלים שלא מאפשרים לכבות אותה מורידים effort.
       model: MODEL,
-      ...(/haiku/.test(MODEL) ? { max_tokens: 300, thinking: { type: 'disabled' } } : { max_tokens: 2000, output_config: { effort: 'low' } }),
+      // אם המודל מסרב (מסווגי בטיחות), השרת עובר אוטומטית למודל גיבוי
+      ...(HAIKU ? { max_tokens: 300, thinking: { type: 'disabled' } } : { max_tokens: 2000, output_config: { effort: 'low' }, fallbacks: 'default' }),
       system: json ? 'השב אך ורק ב-JSON תקין, בלי טקסט נוסף ובלי גדרות קוד.' : 'אתה שחקן במשחק מסיבות בעברית. ענה קצר, בלי הקדמות.',
       messages: [{ role: 'user', content: prompt }],
     }),
