@@ -370,6 +370,13 @@ html.kb .screen{gap:8px;padding:10px 12px}
 .ihead{display:grid;grid-template-columns:64px 1fr 64px;align-items:center}.ihead .btn{justify-self:end}.ihead .ipage{justify-self:start}
 .intro{gap:12px}.ifoot{position:sticky;bottom:0;z-index:2;margin:0 -18px -20px;padding:22px 18px 16px;background:linear-gradient(180deg,rgba(43,59,255,0),var(--bg) 38%)}
 @media (max-height:760px){.ilogo{width:min(40vw,150px)!important}.itext{font-size:15px}.ihero .wordcard .target{font-size:34px}}.ibody{gap:14px!important}.ihero .wordcard{padding:8px 14px 10px}.ihero .wordcard .target{font-size:42px}.ihero{gap:12px;padding-top:2px}.intro .card{padding:14px 16px}
+.iex{position:relative;background:rgba(21,16,43,.35);border:2.5px dashed rgba(255,255,255,.5);border-radius:var(--r-md);padding:16px 12px 12px}
+.iex-tag{position:absolute;top:-12px;right:14px;background:#fff;color:var(--ink);border:2.5px solid var(--ink);border-radius:999px;padding:0 10px;font-size:13px;font-weight:800}
+.iex-row{display:flex;gap:10px;align-items:stretch}
+.iex-word{flex:none;width:88px;background:var(--yellow);color:var(--ink);border:var(--o);border-radius:12px;box-shadow:var(--sh-sm);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;transform:rotate(-2deg)}
+.iex-word b{font-family:var(--font-display);font-weight:400;font-size:21px}
+.iex-mines{flex:1;display:flex;flex-direction:column;gap:5px;min-width:0}.iex-word .xs{font-weight:800}.iex-mines>.xs{font-weight:800;color:#fff}
+.iex .trapgrid{gap:6px}.iex .trapgrid .trap{font-size:14px;padding:6px 2px;border-width:4px}
 .ilogo{width:min(50vw,190px);justify-self:center;display:block;filter:drop-shadow(0 6px 0 rgba(21,16,43,.55))}
 .ipage{font-family:var(--font-display);font-size:16px;color:#fff;background:var(--ink);border-radius:999px;padding:2px 12px}
 .ihero{position:relative;padding:8px 6px 0;display:flex;flex-direction:column;gap:14px}
@@ -744,8 +751,8 @@ function vHome(){const c=A.chosen;const m=A.homeMode;if(m==='how'||m==='intro')r
 // שני עמודי הסבר: מה זה מוקש, וניקוד + דרכי משחק. מוצגים בכניסה הראשונה ומ"איך משחקים?"
 function vIntro(){const pg=A.introPage||0;const last=pg===1;
   const step=(n,t,d)=>`<div class="istep"><span class="num">${n}</span><div><div class="bold">${t}</div><div class="small isub">${d}</div></div></div>`;
-  const p1=`<div class="ihero"><div class="wordcard"><div class="l">המילה הסודית:</div><div class="target">פלאפל</div></div><div class="trapgrid"><div class="trap">חומוס</div><div class="trap">פיתה</div><div class="trap">שווארמה</div></div></div>
-    <h1 class="ititle">מה זה מוקש?</h1><p class="itext">משחק ניחושים לקבוצות: מסבירים מילה בלי להגיד אותה, והקבוצה צריכה לנחש. רק שהיריבים טומנים מוקשים בדרך.</p>
+  const p1=`<h1 class="ititle">מה זה מוקש?</h1><p class="itext">משחק ניחושים לקבוצות: מסבירים מילה בלי להגיד אותה, והקבוצה צריכה לנחש. רק שהיריבים טומנים מוקשים בדרך.</p>
+    <div class="iex"><span class="iex-tag">לדוגמה</span><div class="iex-row"><div class="iex-word"><span class="xs">המילה</span><b>פלאפל</b></div><div class="iex-mines"><span class="xs">מוקשים</span><div class="trapgrid"><div class="trap">חומוס</div><div class="trap">פיתה</div><div class="trap">שווארמה</div></div></div></div></div>
     <div class="card col" style="gap:14px">${step(1,'היריבים טומנים מוקשים','הם רואים את המילה ובוחרים 3 מילים קרובות שאסור לנחש.')}${step(2,'המסביר מסביר','בלי להגיד את המילה, ונגד הפתיל הבוער.')}${step(3,'הקבוצה מנחשת','ניחוש נכון מנטרל את הפצצה. ניחשתם מוקש? בום!')}</div>`;
   const row=(cls,big,t,d)=>`<div class="srow"><span class="schip ${cls}">${big}</span><div><div class="bold">${t}</div><div class="small isub">${d}</div></div></div>`;
   const mode=(cls,icon,t,d)=>`<div class="imode ${cls}">${ic(icon,26)}<div class="bold">${t}</div><div class="xs">${d}</div></div>`;
