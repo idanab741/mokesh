@@ -258,6 +258,12 @@ i.dot{display:inline-block;width:9px;height:9px;border-radius:50%;background:#2E
 .invbar .x{background:none;border:0;font-size:18px;cursor:pointer;color:var(--soft)}
 .skipq{align-self:center;background:#fff;color:var(--ink)}
 .cardprev{width:150px;align-self:center;border-radius:14px;border:var(--o);box-shadow:var(--sh);transform:rotate(-3deg);cursor:pointer}
+.btn.quick{background:linear-gradient(90deg,var(--pink),var(--orange));color:#fff;text-shadow:0 2px 0 rgba(21,16,43,.45)}
+.qm .radar{position:relative;width:120px;height:120px;margin:4px auto;display:grid;place-items:center}.qm .radar img{width:84px;animation:bump 1.2s ease-in-out infinite}
+.qm .radar:before,.qm .radar:after{content:'';position:absolute;inset:0;border-radius:50%;border:4px solid var(--pink);animation:qping 1.8s ease-out infinite}.qm .radar:after{animation-delay:.9s}
+@keyframes qping{0%{transform:scale(.5);opacity:1}100%{transform:scale(1.35);opacity:0}}
+.qslots{display:flex;gap:6px;justify-content:center}.qslots span{width:42px;height:42px;border-radius:50%;border:3px dashed rgba(21,16,43,.3);display:grid;place-items:center;font-size:20px;overflow:hidden}.qslots span.on{border:3px solid var(--ink);background:#fff}.qslots span img{width:100%;height:100%;object-fit:cover}
+.msg .au .mod{background:none;border:0;padding:0 3px;font-size:13px;cursor:pointer;opacity:.7}
 .hudnote{margin:6px auto 0;width:max-content;max-width:100%;font-size:13px;font-weight:800;color:#fff;background:rgba(21,16,43,.35);border-radius:999px;padding:3px 12px}.hudnote.hot{background:var(--orange);color:var(--ink)}
 .btags{display:flex;flex-wrap:wrap;gap:6px;justify-content:center}.btags span{background:var(--yellow);color:var(--ink);font-weight:800;font-size:14px;border-radius:999px;padding:4px 12px;border:var(--o)}
 .deltas .d.neg .n{color:var(--red)}.deltas .d.pos .n{color:#0B9A4E}
@@ -576,14 +582,14 @@ const E = {
     let chosen=null;if(above.length+tied.length<=need)chosen=[...above,...tied];else if(force||cut===0||(ro&&ro.round>=2))chosen=[...above,...shuffle(tied).slice(0,need-above.length)];
     if(chosen){S.traps=[...fixed,...chosen].slice(0,3);S.runoff=null;S.trapVotes={};S.trapLocked={};E.afterTraps(S);return;}
     S.runoff={fixed:[...fixed,...above],words:tied,need:need-above.length,round:(ro?ro.round:0)+1};S.trapVotes={};S.trapLocked={};E.setPhase(S,'TRAP_SELECTION',15000);},
-  say(S,playerId,text,scope){const p=S.players.find(x=>x.id===playerId);const t=String(text||'').trim().slice(0,200);if(!p||!t)return;S.chat=S.chat||[];S.chat.push({id:uid(6),by:playerId,name:p.name,text:t,at:Date.now(),...(scope==='team'?{team:p.team}:{})});if(S.chat.length>40)S.chat.shift();S.v++;},
+  say(S,playerId,text,scope){const p=S.players.find(x=>x.id===playerId);const t=pubText(S,String(text||'').trim().slice(0,200));if(!p||!t)return;S.chat=S.chat||[];S.chat.push({id:uid(6),by:playerId,name:p.name,text:t,at:Date.now(),...(scope==='team'?{team:p.team}:{})});if(S.chat.length>40)S.chat.shift();S.v++;},
   selectTraps(S,playerId,words){const p=S.players.find(x=>x.id===playerId);const c=E.card(S);if(S.phase!=='TRAP_SELECTION'||!c)throw new Error('לא זה הזמן לטמון מוקשים');
     if(!p||p.team===S.activeTeam)throw new Error('רק הקבוצה היריבה טומנת מוקשים');const u=[...new Set(words)];if(u.length!==3)throw new Error('צריך לבחור בדיוק 3 מוקשים');
     for(const w of u)if(!c.options.includes(w))throw new Error('מוקש לא מתוך הרשימה');S.traps=u;E.afterTraps(S);},
   autoPickTraps(S){const c=E.card(S);if(!c)return;S.traps=shuffle(c.options).slice(0,3);E.afterTraps(S);},
   afterTraps(S){if(S.mode==='local'||(S.mode==='ai'&&!isBot(S.explainerId)&&S.turnRemainingMs>=S.settings.turnSeconds*1000)){E.setPhase(S,'TURN_PREPARATION',null);}else E.startExplaining(S);},
   clue(S,playerId,text){if(S.phase!=='EXPLAINING'||playerId!==S.explainerId)throw new Error('רק המסביר נותן רמזים');const c=E.card(S);const t=String(text).trim().slice(0,160);if(!t)return;
-    const bad=[c.target,...c.aliases].map(normalize);const n=normalize(t);if(bad.some(b=>b.length<=3?hasPhrase(n,b):n.includes(b)))throw new Error('אסור לומר את המילה עצמה!');S.clues.push({by:playerId,text:t,at:Date.now()});if(S.clues.length>20)S.clues.shift();
+    const bad=[c.target,...c.aliases].map(normalize);const n=normalize(t);if(bad.some(b=>b.length<=3?hasPhrase(n,b):n.includes(b)))throw new Error('אסור לומר את המילה עצמה!');S.clues.push({by:playerId,text:pubText(S,t),at:Date.now()});if(S.clues.length>20)S.clues.shift();
     // המסביר כתב מוקש ברמז = עלה על מוקש
     const mine=S.traps.find(w=>hasPhrase(n,normalize(w)));
     if(mine&&!S.cardResolved){E.award(S,'trap',S.players.find(x=>x.id===playerId),mine);return;}
@@ -621,7 +627,7 @@ const E = {
     const o=matchGuess(clean,c,S.traps);let result='miss';
     if(o.kind==='correct'){result='correct';E.award(S,'correct',p,c.target);}
     else if(o.kind==='trap'){result='trap';E.award(S,'trap',p,o.word);}
-    S.guesses.push({id:guessId,playerId,playerName:p.name,text:clean,result,at:now,cardId:S.cardId,t:S.phaseEndsAt?Math.max(0,S.phaseEndsAt-now):0});if(S.guesses.length>T.MAX_HISTORY)S.guesses.shift();
+    S.guesses.push({id:guessId,playerId,playerName:p.name,text:pubText(S,clean),result,at:now,cardId:S.cardId,t:S.phaseEndsAt?Math.max(0,S.phaseEndsAt-now):0});if(S.guesses.length>T.MAX_HISTORY)S.guesses.shift();
     if(result==='miss')S.v++;
     return result;},
   skip(S,playerId){const pl=S.players.find(x=>x.id===playerId);const botEx=isBot(S.explainerId)&&pl&&pl.team===S.activeTeam&&!isBot(playerId);if(playerId!==S.explainerId&&!botEx)throw new Error('רק המסביר יכול לדלג');const c=E.card(S);if(S.phase!=='EXPLAINING'||!c||S.cardResolved)throw new Error('אי אפשר לדלג עכשיו');
@@ -980,6 +986,54 @@ function vFriendsSheet(){const fs=A.friends||[];const inc=fs.filter(f=>f.incomin
 function vSheet(){const body=A.sheet==='login'||!A.user?vLoginSheet():A.sheet==='profile'?vProfileSheet():vFriendsSheet();
   return `<div class="sheet-bg" onclick="A.sheet=null;render()"><div class="sheet pop acct" onclick="event.stopPropagation()">${body}</div></div>`;}
 function vInviteBar(){const iv=A.inviteBar;return `<div class="invbar pop"><span class="avw">${avInner(iv.avatar)}</span><div class="col" style="gap:0;flex:1"><b>${h(iv.name)} מזמין/ה אותך למשחק!</b><span class="xs">חדר ${h(iv.room)}</span></div><button class="btn primary sm" onclick="acceptInvite()">הצטרפות</button><button class="x" onclick="A.inviteBar=null;render()" aria-label="סגירה">✕</button></div>`;}
+// ---------- משחק מהיר עם אנשים מהרשת: תור המתנה בשרת, 2 קבוצות של 3, החסרים מושלמים במחשב ----------
+const QM_WAIT=40;
+// סינון קללות (בחדרים ציבוריים): מילה שמתחילה באחת מהמילים האלה הופכת לכוכביות
+const BAD_WORDS=['זונה','זונות','שרמוטה','שרמוטות','שרמוט','כוס','כוסית','כוסאמק','כוסעמק','כוסאמא','כוסומו','זין','זיין','מזדיין','מזדיינת','תזדיין','תזדייני','זיון','מניאק','מניאקית','חרא','חארה','בנזונה','קוקסינל','מפגר','מפגרת','מטומטם','מטומטמת','נאצי','סקס','פורנו','fuck','fucking','fucker','shit','bitch','cunt','dick','pussy','asshole','nigger','nigga','faggot','whore','slut','porn'];
+const BADN=BAD_WORDS.map(w=>normalize(w));
+function cleanWords(t){return String(t||'').replace(/[א-תa-zA-Z']+/g,w=>{const n=normalize(w).replace(/\s/g,'');const vs=[n,n.replace(/^[והבלמשכ]{1,2}/,'')];
+  return vs.some(v=>BADN.some(b=>v===b||(b.length>=4&&v.startsWith(b))))?'*'.repeat(Math.min(Math.max(w.length,3),6)):w;});}
+const pubText=(S,t)=>S&&S.public?cleanWords(t):t;
+try{A.muted=new Set(JSON.parse(localStorage.getItem('mokesh.muted')||'[]'));}catch(e){A.muted=new Set();}
+function saveMuted(){try{localStorage.setItem('mokesh.muted',JSON.stringify([...A.muted].slice(-200)));}catch(e){}}
+function muteToggle(id){if(!okId(id))return;A.muted.has(id)?A.muted.delete(id):A.muted.add(id);saveMuted();toast(A.muted.has(id)?'השחקן הושתק — לא תראו את ההודעות שלו':'ההשתקה בוטלה');render();}
+async function reportPlayer(id){const S=A.S;const p=S&&playerById(S,id);if(!p||!okId(id))return;
+  try{await sb.from('mokesh_reports').insert({reporter:myId(),target:id,target_name:p.name,room:S.code,reason:(S.chat||[]).filter(m=>m.by===id).slice(-3).map(m=>m.text).join(' | ').slice(0,300)});}catch(e){}
+  A.muted.add(id);saveMuted();toast('תודה! הדיווח נשלח והשחקן הושתק');render();}
+async function quickMatch(){if(!A.dbReady)return toast('מצב אונליין לא זמין כרגע');if(!(A.chosen.name||'').trim()){A.homeMode='quick';render();return;}
+  qmStop(false);A.qm={since:Date.now(),waiting:1,err:0};A.homeMode='queue';render();qmPoll();A.qmT=setInterval(qmPoll,2000);A.qmT2=setInterval(()=>{if(A.qm&&A.homeMode==='queue'&&!A.S)render();},1000);}
+async function qmPoll(){const q=A.qm;if(!q||q.busy)return;q.busy=true;
+  try{const {data,error}=await sb.rpc('mokesh_match',{p_id:A.uid,p_name:(A.chosen.name||'').trim().slice(0,16),p_avatar:A.chosen.avatar});if(error)throw error;if(A.qm!==q)return;
+    if(data&&data.room){qmStop(false);await qmEnter(data);return;}
+    if(data&&data.error)throw new Error(data.error);
+    if(data){q.waiting=data.waiting||1;if(data.since&&data.now)q.since=Date.now()-(new Date(data.now)-new Date(data.since));q.err=0;render();}}
+  catch(e){console.warn('qm',e);q.err++;if(q.err>=4&&A.qm===q){qmStop(true);A.homeMode='menu';render();toast('החיפוש נכשל — נסו שוב בעוד רגע');}}
+  finally{q.busy=false;}}
+function qmStop(unq){clearInterval(A.qmT);clearInterval(A.qmT2);A.qmT=A.qmT2=null;if(unq&&sb)sb.rpc('mokesh_unqueue',{p_id:A.uid}).then(()=>{},()=>{});A.qm=null;}
+function qmCancel(){qmStop(true);A.homeMode='menu';render();}
+async function qmEnter(d){const mem=(Array.isArray(d.members)?d.members:[]).filter(m=>m&&okId(m.id)).slice(0,6);sb.rpc('mokesh_unqueue',{p_id:A.uid}).then(()=>{},()=>{});
+  if(mem.length<=1){toast('לא נמצאו עוד שחקנים כרגע — משחקים מול המחשב 🤖');createAI();apply(S=>E.addPlayer(S,{id:A.uid,name:A.chosen.name,avatar:A.chosen.avatar}));aiStart();return;}
+  if(d.host)await createPublicRoom(String(d.room),mem);else await joinPublic(String(d.room));}
+async function createPublicRoom(code,mem){if(!/^[A-Z0-9]{6}$/.test(code))return;A.me={id:A.uid,name:A.chosen.name,avatar:A.chosen.avatar};A.isHost=true;A.mode='online';
+  const S=newState(code,'online');S.public=true;
+  mem.forEach((m,i)=>{E.addPlayer(S,{id:m.id,name:cleanWords(m.name),avatar:AVATARS.includes(m.avatar)?m.avatar:AVATARS[0]});const p=S.players.at(-1);p.team=i%2?'B':'A';p.connected=true;p.lastSeen=Date.now();});
+  let k=1;for(const t of ['A','B'])while(E.team(S,t).length<3){E.addPlayer(S,{id:'bot-'+t.toLowerCase()+uid(4),name:'מחשב '+k,avatar:k%2?'🤖':'🧠'});S.players.at(-1).team=t;k++;}
+  S.players.forEach(p=>p.isHost=p.id===A.uid);A.S=S;
+  try{await dbSetRoom(code,JSON.parse(JSON.stringify(S)));}catch(e){console.error(e);A.S=null;A.mode=null;A.homeMode='menu';render();return toast('לא ניתן ליצור את החדר');}
+  localStorage.setItem('mokesh.session',JSON.stringify({code,isHost:true,name:A.me.name,avatar:A.me.avatar}));
+  subscribeRoom(code);startHostLoop();render();
+  // רגע להתארגן (שכולם יתחברו) ואז המשחק מתחיל לבד
+  setTimeout(()=>{if(A.S&&A.S.code===code&&A.S.phase==='LOBBY')apply(S=>E.startGame(S));},3500);}
+async function joinPublic(code){A.homeMode='queue';A.qmJoining=true;render();
+  for(let i=0;i<20;i++){let st=null;try{st=await dbGetRoom(code);}catch(e){}if(st&&st.players&&st.players.some(p=>p.id===A.uid)){A.qmJoining=false;await joinOnline(code);return;}await new Promise(r=>setTimeout(r,1000));}
+  A.qmJoining=false;toast('החדר לא נפתח — מחפשים שוב');quickMatch();}
+function vQueue(){const q=A.qm;const left=q?Math.max(0,QM_WAIT-Math.floor((Date.now()-q.since)/1000)):0;const w=q?Math.min(6,q.waiting||1):1;
+  return `<div class="card col tc qm" style="gap:14px"><div class="radar"><img src="${ASSETS.bomb}" alt=""></div>
+    <div class="black" style="font-size:26px">${A.qmJoining?'נמצאה קבוצה! מצטרפים…':'מחפשים שחקנים…'}</div>
+    ${A.qmJoining?'':`<div class="qslots">${Array.from({length:6},(_,i)=>`<span class="${i<w?'on':''}">${i===0?avInner(A.chosen.avatar):i<w?'👤':''}</span>`).join('')}</div>
+    <div class="small"><b>${w}</b> מתוך 6 שחקנים · 2 קבוצות של 3</div>
+    <div class="xs isub">${left>0?`אם לא יגיעו מספיק — בעוד <b>${left}</b> שניות נשלים את החסרים במחשב`:'מתחילים עם מי שיש…'}</div>`}
+    <button class="btn ghost" onclick="qmCancel()">ביטול</button></div>`;}
 function render(){const S=A.S;let html='';if(S&&S.phase==='GAME_OVER')recordGame(S);
   if(!S)html=vHome();
   else switch(S.phase){
@@ -1031,9 +1085,12 @@ function vHome(){const c=A.chosen;const m=A.homeMode;if(m==='how'||m==='intro')r
   if(m==='menu')body=`<div class="col" style="gap:12px">
       <button class="btn primary big" onclick="A.homeMode='create';render()">${ic('users',24)} צור משחק</button>
       <button class="btn info big" onclick="A.homeMode='join';render()">${ic('join',24)} הצטרף למשחק</button>
+      <button class="btn quick big" onclick="quickMatch()">⚡ משחק מהיר עם אנשים מהרשת</button>
       <div class="tiles"><button onclick="A.homeMode='how';A.introPage=0;render()">${ic('book',28)}איך משחקים?</button><button onclick="A.homeMode='ai';render()">${ic('robot',28)}מול המחשב</button><button onclick="A.homeMode='local';render()">${ic('phone',28)}מכשיר אחד</button></div>
       ${A.dbMissing?'<div class="banner warn">מצב אונליין לא זמין כרגע. ״מכשיר אחד״ עובד תמיד.</div>':''}
     </div>`;
+  else if(m==='queue')body=vQueue();
+  else if(m==='quick')body=form+`<button class="btn quick big" onclick="quickMatch()" ${!c.name.trim()?'disabled':''}>⚡ חפשו לי שחקנים</button><button class="btn ghost" onclick="A.homeMode='menu';render()">חזרה</button></div>`;
   else if(m==='create')body=form+`<button class="btn primary big" onclick="createOnline()" ${!c.name.trim()?'disabled':''}>פתח חדר</button><button class="btn ghost" onclick="A.homeMode='menu';render()">חזרה</button></div>`;
   else if(m==='join')body=form+`<label class="col" style="gap:4px"><span class="small muted">קוד חדר</span><input class="input" name="code" style="text-align:center;letter-spacing:.3em;font-size:24px;text-transform:uppercase" dir="ltr" maxlength="6" placeholder="ABC123" value="${h(A.joinCode)}" oninput="A.joinCode=this.value.toUpperCase()"></label>
       <button class="btn info big" onclick="joinOnline(A.joinCode)" ${!c.name.trim()?'disabled':''}>הצטרף</button><button class="btn ghost" onclick="A.homeMode='menu';render()">חזרה</button></div>`;
@@ -1177,7 +1234,7 @@ function vChat(S,mine,emptyText){const ex=playerById(S,S.explainerId);const from
   if(A.pending)A.pending=A.pending.filter(q=>!seen.has(q.id)&&q.cardId===S.cardId&&Date.now()-q.at<30000);
   const items=[...S.clues.map(c=>({k:'clue',at:c.at,text:c.text,by:ex?ex.name:'',cur:c===lastClue,mine:online?c.by===me:mine==='clue'})),...S.guesses.filter(g=>g.at>=from).map(g=>({k:'guess',at:g.at,text:g.text,by:g.playerName,result:g.result,mine:online?g.playerId===me:mine==='guess'})),
     ...(online?(A.pending||[]).map(q=>({k:'guess pending',at:Date.now(),text:q.text,by:'אתם · '+(Date.now()-q.at>6000?'⚠️ ממתין לטלפון של מנהל/ת החדר':'שולח…'),mine:true})):[])].sort((x,y)=>x.at-y.at);
-  const typ=online?liveTyping(S).map(t=>`<div class="msg them typing"><span class="au">✍️ ${h(t.name)} מקליד/ה…</span><div class="b">${h(t.text)}<i class="caret"></i></div></div>`).join(''):'';
+  const typ=online?liveTyping(S).map(t=>`<div class="msg them typing"><span class="au">✍️ ${h(t.name)} מקליד/ה…</span><div class="b">${h(pubText(S,t.text))}<i class="caret"></i></div></div>`).join(''):'';
   if(!items.length)return `<div class="chat grow" data-autoscroll>${typ||`<div class="empty">${emptyText}</div>`}</div>`;
   return `<div class="chat grow" data-autoscroll>${items.map((m,i)=>`<div class="msg ${m.k}${m.mine?'':' them'}${m.result?' '+m.result:''}${m.cur?' cur':''}${i===items.length-1?' last':''}"><span class="au">${h(m.by)}</span><div class="b">${h(m.text)}</div></div>`).join('')}${typ}</div>`;}
 function vClueBar(S,live){return `<form class="chatbar" onsubmit="event.preventDefault();submitClue(this)"><input class="input" name="c" maxlength="160" autocomplete="off" autocorrect="off" enterkeyhint="send" ${live?'':'disabled'} placeholder="${live?(VOICE.on?'מקשיב… אמרו רמז':'כתבו או אמרו רמז…'):'ממתינים…'}" data-autofocus>${micBtn('c',live)}<button class="btn primary" ${live?'':'disabled'}>שלח</button></form>`;}
@@ -1234,13 +1291,13 @@ function vBlast(){const C=['var(--ink)','var(--yellow)','var(--orange)','#fff','
 // תפריט: יציאה / סגירת החדר לכולם (למארח, עם אישור)
 // צ׳אט החדר: כל המשתתפים, משתי הקבוצות
 function canSee(S,m){if(!m.team)return true;const me=playerById(S,myId());return !!me&&me.team===m.team;}
-function visibleChat(S){return (S.chat||[]).filter(m=>canSee(S,m));}
+function visibleChat(S){return (S.chat||[]).filter(m=>canSee(S,m)&&!(A.muted&&A.muted.has(m.by)));}
 function chatNotify(prev,S){const a=(prev&&prev.chat||[]).length,b=(S.chat||[]);if(b.length>a&&!A.roomChat){const m=b.at(-1);if(m.by!==myId()&&canSee(S,m))toast(`💬 ${m.team?'(קבוצה) ':''}${m.name}: ${m.text}`);}}
 function chatBtn(S){if(S.mode!=='online')return '';const n=visibleChat(S).length-(A.chatSeen||0);return `<button type="button" class="cbtn" onclick="A.roomChat=1;render()" aria-label="צ׳אט">💬${n>0?`<span class="badge">${n}</span>`:''}</button>`;}
 function vRoomChat(S){A.chatSeen=visibleChat(S).length;const me=myId();const tab=A.chatTab||'all';const my=playerById(S,me);const items=visibleChat(S).filter(m=>tab==='team'?!!m.team:!m.team);
   return `<div class="sheet-bg" onclick="A.roomChat=0;render()"><div class="sheet pop roomchat" onclick="event.stopPropagation()"><div class="row between"><div class="black" style="font-size:22px">💬 צ׳אט</div><button class="btn ghost" onclick="A.roomChat=0;render()">סגור</button></div>
     <div class="tabs"><button class="${tab==='all'?'on':''}" onclick="A.chatTab='all';render()">כולם</button><button class="${tab==='team'?'on':''}" onclick="A.chatTab='team';render()">הקבוצה שלי${my?` (${TEAM_NAME[my.team]})`:''}</button></div>
-    <div class="chat rc" data-autoscroll>${items.length?items.map(m=>{const p=playerById(S,m.by);return `<div class="msg${m.by===me?'':' them'}"><span class="au">${h(m.name)}${p?` · ${TEAM_NAME[p.team]}`:''}</span><div class="b">${h(m.text)}</div></div>`;}).join(''):`<div class="empty">${tab==='team'?'רק חברי הקבוצה שלכם רואים כאן. תתאמו מוקשים 🤫':'עדיין אין הודעות. תגידו שלום 👋'}</div>`}</div>
+    <div class="chat rc" data-autoscroll>${items.length?items.map(m=>{const p=playerById(S,m.by);return `<div class="msg${m.by===me?'':' them'}"><span class="au">${h(m.name)}${p?` · ${TEAM_NAME[p.team]}`:''}${S.public&&m.by!==me&&okId(m.by)&&!isBot(m.by)?`<button class="mod" onclick="muteToggle('${m.by}')" title="השתק">🔇</button><button class="mod" onclick="reportPlayer('${m.by}')" title="דווח">🚩</button>`:''}</span><div class="b">${h(m.text)}</div></div>`;}).join(''):`<div class="empty">${tab==='team'?'רק חברי הקבוצה שלכם רואים כאן. תתאמו מוקשים 🤫':'עדיין אין הודעות. תגידו שלום 👋'}</div>`}</div>
     <form class="chatbar" onsubmit="event.preventDefault();const i=this.say;const t=i.value.trim();if(t){act({type:'say',text:t,scope:A.chatTab||'all'});i.value='';}"><input class="input" name="say" maxlength="200" autocomplete="off" enterkeyhint="send" placeholder="${tab==='team'?'כתבו לקבוצה…':'כתבו לכולם…'}"><button class="btn primary">שלח</button></form></div></div>`;}
 function vMenu(S){const host=A.mode==='online'&&A.isHost;const confirm=A.menu===2;
   const body=confirm?`<div class="black" style="font-size:24px">לסגור את החדר לכולם?</div><div class="small isub">כל השחקנים ייצאו מהמשחק, והחדר יימחק.</div>
@@ -1385,6 +1442,7 @@ try{const old=JSON.parse(localStorage.getItem('mokesh.session')||'null');if(A.jo
 // חזרה לאפליקציה (אחרי וואטסאפ / נעילת מסך): iOS מקפיא את הדף ברקע וחיבור ה-Realtime נופל,
 // אז מתחברים מחדש ומעבדים מיד את כל מי שניסה להצטרף בינתיים
 function onReturn(){if(document.hidden||A.mode!=='online'||!A.S||!sb)return;const now=Date.now();if(now-(A.lastResync||0)<1500)return;A.lastResync=now;subscribeRoom(A.S.code);}
+window.addEventListener('pagehide',()=>{if(A.qm)qmStop(true);});
 document.addEventListener('visibilitychange',onReturn);window.addEventListener('pageshow',onReturn);window.addEventListener('focus',onReturn);
 render();initRuntime();
 </script>
