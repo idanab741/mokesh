@@ -699,14 +699,15 @@ async function botThink(){const S=A.S;if(!S||!A.sample||(A.mode==='online'&&!A.i
   if(isBot(S.explainerId)&&!b.busy.clue&&(S.clues.length===0||Date.now()-S.clues.at(-1).at>6000)){b.busy.clue=true;const cardId=S.cardId,n=S.clues.length;
     try{const t=await botClue(c,S.traps,S.clues.map(x=>x.text),S.guesses.filter(g=>g.at>(S.clues[0]?S.clues[0].at-1:0)).map(g=>g.text));
       if(A.S&&A.S.phase==='EXPLAINING'&&A.S.cardId===cardId&&A.S.clues.length===n)apply(S=>E.clue(S,S.explainerId,t));}
-    catch(e){console.warn('clue',e);}finally{b.busy.clue=false;}}
+    catch(e){botFailed(e);}finally{b.busy.clue=false;}}
   // מנחש-בוט: מגיב לרמז חדש
   const guesser=E.team(S,S.activeTeam).find(p=>isBot(p.id)&&p.id!==S.explainerId);
   if(guesser&&S.clues.length&&!b.busy.guess&&!S.cardResolved){const last=S.clues.at(-1);if(last.at===b.lastGuessedClue)return;b.busy.guess=true;b.lastGuessedClue=last.at;const cardId=S.cardId;
     try{await new Promise(r=>setTimeout(r,900));const g=await botGuess(c.category,S.clues.map(x=>x.text),S.guesses.map(x=>x.text));
       if(g&&A.S&&A.S.phase==='EXPLAINING'&&A.S.cardId===cardId)apply(S=>E.guess(S,guesser.id,g,uid(10)));}
-    catch(e){console.warn('guess',e);}finally{b.busy.guess=false;}}}
+    catch(e){botFailed(e);b.lastGuessedClue=0;}finally{b.busy.guess=false;}}}
 const SAMPLE_OPTS={modelTier:'quick',cache:false};
+function botFailed(e){console.warn('bot',e);const now=Date.now();if(now-(A.botErrAt||0)>20000){A.botErrAt=now;toast('המחשב לא מצליח לענות כרגע — נסו שוב בעוד רגע');}}
 async function botPickTraps(c){const r=await A.sample.json(`אתה משחק ״מוקש!״ — משחק ניחוש מילים בעברית. קבוצה יריבה צריכה לנחש את המילה ״${c.target}״ (קטגוריה: ${c.category}). בחר מתוך הרשימה הבאה בדיוק 3 מילים שמנחש עלול לומר בטעות במקום המילה הנכונה (הכי דומות/מבלבלות): ${JSON.stringify(c.options)}. השב אך ורק במערך JSON של 3 מחרוזות מתוך הרשימה, בלי טקסט נוסף.`,SAMPLE_OPTS);
   const words=(Array.isArray(r)?r:[]).filter(w=>c.options.includes(w));if(words.length!==3)throw new Error('bad traps');return words;}
 async function botClue(c,traps,prev,guesses){const r=await A.sample(`אתה המסביר במשחק ״מוקש!״ בעברית. המילה שהקבוצה שלך צריכה לנחש: ״${c.target}״ (קטגוריה: ${c.category}). חוקים: אסור לומר את המילה, חלק ממנה, הטיה שלה או תרגום שלה. המוקשים — מילים שאם המנחש יאמר אותן הקבוצה תיענש, אז נסה להרחיק אותו מהן: ${traps.join(', ')}. ${prev.length?'רמזים שכבר נתת: '+prev.map(x=>'״'+x+'״').join(', ')+'. ':''}${guesses.length?'ניחושים שגויים עד כה: '+guesses.join(', ')+' — תגיד במה הם טועים. ':''}כתוב רמז חדש אחד בלבד, קצר (עד 14 מילים), בעברית מדוברת, בלי הקדמה ובלי מרכאות.`,SAMPLE_OPTS);
