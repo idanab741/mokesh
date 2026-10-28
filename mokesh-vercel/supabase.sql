@@ -17,3 +17,4 @@ grant execute on function public.mokesh_cleanup() to anon;
 -- mokesh_invites(from_id, to_id, room) — שליחה רק לחבר מאושר
 -- פונקציות: mokesh_add_friend(code), mokesh_accept_friend(uuid), mokesh_record_game(won, correct, traps, mvp)
 -- חדרים: נוספו מדיניות גישה ל-authenticated (משתמשים מחוברים), לא רק ל-anon
+-- אבטחה (migration mokesh_profiles_lock_columns): משתמש מעדכן רק name/avatar/last_seen; סטטיסטיקות רק דרך mokesh_record_game
