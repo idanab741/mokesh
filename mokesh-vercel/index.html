@@ -457,11 +457,11 @@ const ICONS={music:'<path d="M9 18V5l11-2v13"/><circle cx="6" cy="18" r="3"/><ci
 function ic(n,size=22,cls=''){return `<svg class="ic ${cls}" width="${size}" height="${size}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${ICONS[n]||''}</svg>`;}
 const TEAM_NAME_BASE={A:'קבוצה א׳',B:'קבוצה ב׳'};
 // צורות דקדוקיות לשמות הקבוצות: במצב מול המחשב הקבוצות הן "אתם" ו"המחשב", ואי אפשר להדביק להן "של"/"ל"
-const isAIgame=()=>!!(A&&A.S&&A.S.mode==='ai');
+const isAIgame=()=>!!(A&&A.S&&(A.S.mode==='ai'||A.S.vsBots));
 const TG={of:t=>isAIgame()?(t==='A'?'שלכם':'של המחשב'):'של '+TEAM_NAME_BASE[t],
   to:t=>isAIgame()?(t==='A'?'לכם':'למחשב'):'ל'+TEAM_NAME_BASE[t],
   won:t=>isAIgame()?(t==='A'?'ניצחתם!':'המחשב ניצח!'):TEAM_NAME_BASE[t]+' ניצחה!',
-  needs:t=>isAIgame()?(t==='A'?'אתם צריכים לנחש':'המחשב צריך לנחש'):TEAM_NAME_BASE[t]+' צריכה לנחש'};const TEAM_NAME=new Proxy({},{get:(_,t)=>A&&A.S&&A.S.mode==='ai'?(t==='A'?'אתם':'המחשב'):TEAM_NAME_BASE[t]});
+  needs:t=>isAIgame()?(t==='A'?'אתם צריכים לנחש':'המחשב צריך לנחש'):TEAM_NAME_BASE[t]+' צריכה לנחש'};const TEAM_NAME=new Proxy({},{get:(_,t)=>A&&A.S&&(A.S.mode==='ai'||A.S.vsBots)?(t==='A'?'אתם':'המחשב'):TEAM_NAME_BASE[t]});
 const DEFAULTS = {turnsPerTeam:5,turnSeconds:60,trapSeconds:20,difficulty:'all',maxSkips:2};
 const T = {CORRECT:2200,TRAP:5000,SKIP:1100,SUMMARY:6000,PREP:1500,MAX_HISTORY:12};
 
@@ -640,8 +640,9 @@ function handleAction(a){const S=A.S;if(!S)return;
     case 'join':{if(a.at&&Date.now()-a.at>10*60*1000)break; // בקשה ישנה (למשל מלפני שהמארח חזר) — מתעלמים
       const nm=(a.name||'').trim();const dup=S.phase==='LOBBY'&&nm&&S.players.find(x=>x.id!==a.from&&!x.isHost&&!isBot(x.id)&&x.name.trim()===nm);
       if(dup){dup.id=a.from;dup.avatar=a.avatar||dup.avatar;dup.connected=true;dup.lastSeen=Date.now();dup.ready=false;break;} // אותו שם = אותו אדם שהצטרף שוב (דפדפן אחר)
-      const isNew=!S.players.find(x=>x.id===a.from);E.addPlayer(S,{id:a.from,name:a.name,avatar:a.avatar});if(isNew&&A.mode==='online'&&a.from!==A.uid)toast(`${nm||'שחקן'} הצטרף/ה!`);break;}
+      const isNew=!S.players.find(x=>x.id===a.from);E.addPlayer(S,{id:a.from,name:a.name,avatar:a.avatar});if(S.vsBots){const np=S.players.find(x=>x.id===a.from);if(np)np.team='A';}if(isNew&&A.mode==='online'&&a.from!==A.uid)toast(`${nm||'שחקן'} הצטרף/ה!`);break;}
     case 'move':if(isHostAct(S,a))E.switchTeam(S,a.target);break;
+    case 'vsbots':if(isHostAct(S,a)&&S.phase==='LOBBY')setVsBots(S,!a.off);break;
     case 'kick':if(isHostAct(S,a)){const t=S.players.find(x=>x.id===a.target);if(t&&!t.isHost)E.removePlayer(S,a.target);}break;
     case 'shuffle':if(isHostAct(S,a)&&S.phase==='LOBBY'){const ps=shuffle([...S.players]);ps.forEach((x,i)=>{x.team=i%2?'B':'A';x.ready=false;});}break;
     case 'presence':{const p=S.players.find(x=>x.id===a.from);if(p){p.connected=true;p.lastSeen=Date.now();}break;}
@@ -708,6 +709,11 @@ function hasBots(S){return S.players.some(p=>isBot(p.id));}
 function typedClues(S){return S.mode==='ai'||S.mode==='online'||E.team(S,S.activeTeam).some(p=>isBot(p.id));}
 function canAddBot(S,t){const ps=E.team(S,t);return !!A.sample&&S.phase==='LOBBY'&&(S.mode==='local'||A.isHost)&&ps.length<2&&!ps.some(p=>isBot(p.id))&&S.players.length<12;}
 function addBot(t){apply(S=>{if(!canAddBot(S,t))return;const id='bot-'+t.toLowerCase()+uid(4);E.addPlayer(S,{id,name:'מחשב',avatar:t==='A'?'🤖':'🧠'});const p=S.players.find(x=>x.id===id);p.team=t;p.ready=true;});}
+// אונליין: כל החברים בקבוצה אחת נגד קבוצת מחשב. השותף-מחשב מסביר לכם, ושני מחשבים ביריבה
+function setVsBots(S,on){S.players=S.players.filter(p=>!isBot(p.id));S.vsBots=!!on;
+  if(on){S.players.forEach(p=>{p.team='A';p.ready=false;});
+    [['bot-a'+uid(4),'השותף-מחשב','🤖','A'],['bot-b'+uid(4),'מחשב 1','🧠','B'],['bot-b'+uid(4),'מחשב 2','🤖','B']].forEach(([id,name,avatar,team])=>{E.addPlayer(S,{id,name,avatar});const p=S.players.find(x=>x.id===id);p.team=team;p.ready=true;});}
+  else shuffle([...S.players]).forEach((p,i)=>{p.team=i%2?'B':'A';});}
 function addBotsBoth(){['A','B'].forEach(t=>{if(A.S&&canAddBot(A.S,t))addBot(t);});}
 function humansOn(S,t){return E.team(S,t).filter(p=>!isBot(p.id));}
 function startBotLoop(){A.bot=A.bot||{busy:{},lastClueAt:0,lastGuessedClue:0};clearInterval(A.botT);A.botT=setInterval(botThink,700);}
@@ -847,19 +853,21 @@ function vLobby(S){if(S.mode==='ai')return vLobbyAI(S);const me=playerById(S,myI
   const link=location.origin+location.pathname+'?room='+S.code;
   const team=(t,ps)=>`<div class="teamcard ${t}"><div class="th"><span>${TEAM_NAME[t]}</span><span class="xs">${ps.length}</span></div><div class="plist">
     ${ps.map(p=>`<div class="p">${p.isHost&&!local?`<span class="crown" style="color:var(--amber)">${ic('crown',18)}</span>`:''}${!isBot(p.id)&&(local||p.id===myId())?avBtn(p,'lg',!p.connected):av(p.avatar,'lg',!p.connected)}<span class="n">${h(p.name)}</span>${isBot(p.id)?`${!local&&A.isHost?`<button class="xs muted" onclick="apply(S=>E.removePlayer(S,'${p.id}'))">✕</button>`:''}`:p.ready?'<span class="tag" style="color:#12A85A">מוכן ✓</span>':!p.connected?'<span class="tag">מנותק</span>':''}
-      ${local?`<span class="row" style="gap:2px"><button class="xs muted" onclick="act({type:'switch_team',from:'${p.id}'})">↔</button><button class="xs muted" onclick="apply(S=>E.removePlayer(S,'${p.id}'))">✕</button></span>`:A.isHost&&!p.isHost&&!isBot(p.id)?`<span class="row" style="gap:2px"><button class="xs muted" title="העבר קבוצה" onclick="act({type:'move',target:'${p.id}'})">↔</button><button class="xs muted" title="הוצא מהחדר" onclick="act({type:'kick',target:'${p.id}'})">✕</button></span>`:''}</div>`).join('')}
-    <button class="add" onclick="${local?'document.getElementById(\'lname\').focus()':`shareRoom('${h(link)}','${S.code}')`}" title="${local?'הוסף שחקן':'הזמן חבר'}">+</button>${canAddBot(S,t)?`<button class="add bot" onclick="addBot('${t}')" title="הוסף מחשב לקבוצה">${ic('robot',24)}<small>מחשב</small></button>`:''}</div></div>`;
+      ${local?`<span class="row" style="gap:2px"><button class="xs muted" onclick="act({type:'switch_team',from:'${p.id}'})">↔</button><button class="xs muted" onclick="apply(S=>E.removePlayer(S,'${p.id}'))">✕</button></span>`:A.isHost&&!p.isHost&&!isBot(p.id)?`<span class="row" style="gap:2px">${S.vsBots?'':`<button class="xs muted" title="העבר קבוצה" onclick="act({type:'move',target:'${p.id}'})">↔</button>`}<button class="xs muted" title="הוצא מהחדר" onclick="act({type:'kick',target:'${p.id}'})">✕</button></span>`:''}</div>`).join('')}
+    ${S.vsBots&&t==='B'?'':`<button class="add" onclick="${local?'document.getElementById(\'lname\').focus()':`shareRoom('${h(link)}','${S.code}')`}" title="${local?'הוסף שחקן':'הזמן חבר'}">+</button>`}${canAddBot(S,t)&&!S.vsBots?`<button class="add bot" onclick="addBot('${t}')" title="הוסף מחשב לקבוצה">${ic('robot',24)}<small>מחשב</small></button>`:''}</div></div>`;
   const head=`<div class="hdr"><button onclick="${!local&&A.isHost?'A.menu=1;render()':'leaveRoom()'}">${ic('back',22)}</button><div class="t">${local?'מכשיר אחד':'חדר משחק'}</div><div class="row" style="gap:6px">${musicBtn('')}<button onclick="A.homeMode='how';A.introPage=0;leaveRoom()" title="איך משחקים">${ic('help',22)}</button></div></div>`;
   const codeRow=local?'':`<div class="row between"><button class="codebox" onclick="shareRoom('${h(link)}','${S.code}',true)" title="העתק">${S.code} ${ic('copy',18)}</button><button class="btn info" style="width:auto" onclick="shareRoom('${h(link)}','${S.code}')">${ic('share',20)} שתף קישור</button></div>`;
   const addLocal=local?vAddPlayer(S):'';
   const mine=!local&&me?`<div class="row"><button class="btn secondary" onclick="act({type:'switch_team'})">עבור ל${me.team==='A'?'קבוצה ב׳':'קבוצה א׳'}</button><button class="btn ${me.ready?'ok':'secondary'}" onclick="act({type:'ready',ready:${!me.ready}})">${me.ready?'מוכן ✓':'אני מוכן'}</button></div>`:'';
   const start=A.isHost?`<button class="btn primary big" onclick="act({type:'start'})" ${can?'':'disabled'}>${ic('play',22)} ${can?'התחל משחק':'ממתינים לשחקנים'}</button>`:`<div class="tc small muted pulse">ממתינים שמנהל החדר יתחיל…</div>`;
   const humans=S.players.filter(p=>!isBot(p.id)).length;
-  const botHint=humans===2&&!can&&(canAddBot(S,'A')||canAddBot(S,'B'))?`<div class="card col tc" style="gap:10px"><div class="bold">רק שניים? המחשב מצטרף</div><div class="small muted">כל אחד מקבל שותף-מחשב לקבוצה: אתם מסבירים לו בכתב, הוא מסביר לכם, והיריב טומן מוקשים.</div><button class="btn primary" onclick="addBotsBoth()">${ic('robot',22)} הוסף מחשב לכל קבוצה</button></div>`:'';
+  const vsCard=!local&&A.isHost&&A.sample?(S.vsBots?`<div class="card col tc" style="gap:8px"><div class="bold">🤖 כולכם נגד המחשב</div><div class="small muted">השותף-מחשב מסביר לכם ואתם מנחשים. בתור של המחשב אתם טומנים לו מוקשים.</div><button class="btn ghost" style="align-self:center" onclick="act({type:'vsbots',off:true})">חזרה לשתי קבוצות של חברים</button></div>`
+    :`<button class="btn" onclick="act({type:'vsbots'})">${ic('robot',22)} כולנו נגד המחשב</button>`):'';
+  const botHint=!S.vsBots&&humans===2&&!can&&(canAddBot(S,'A')||canAddBot(S,'B'))?`<div class="card col tc" style="gap:10px"><div class="bold">רק שניים? המחשב מצטרף</div><div class="small muted">כל אחד מקבל שותף-מחשב לקבוצה: אתם מסבירים לו בכתב, הוא מסביר לכם, והיריב טומן מוקשים.</div><button class="btn primary" onclick="addBotsBoth()">${ic('robot',22)} הוסף מחשב לכל קבוצה</button></div>`:'';
   const hostHint=!local&&A.isHost&&S.players.length<2?`<div class="banner warn">שלחו לחברים את הקישור ותחזרו לכאן. החברים מצטרפים כשהמשחק פתוח אצלכם.</div>`:'';
   const pending=!local&&!me?`<div class="card tc col" style="gap:6px"><div class="bold pulse">מצטרפים לחדר…</div><div class="small muted">הבקשה נשלחה. תופיעו ברשימה ברגע שהטלפון של מנהל/ת החדר יהיה פתוח במשחק.</div></div>`:'';
   const note=!local?`<div class="banner">אין שיחה קולית מובנית בגרסה זו — שחקו באותו חדר או עם שיחה מקבילה.</div>`:'';
-  return `<div class="screen">${head}${codeRow}${hostHint}${pending}<div class="xs" style="color:#7db3ff;font-weight:700">שחקנים (${S.players.length}/12)</div>${team('A',tA)}${team('B',tB)}${A.isHost&&S.players.length>=3?`<button class="btn ghost" style="align-self:center" onclick="act({type:'shuffle'})">🔀 ערבבו את הקבוצות</button>`:''}${botHint}${addLocal}${mine}<div class="col" style="margin-top:auto">${start}${vSettings(S)}${note}</div></div>`;}
+  return `<div class="screen">${head}${codeRow}${hostHint}${pending}<div class="xs" style="color:#7db3ff;font-weight:700">שחקנים (${S.players.length}/12)</div>${team('A',tA)}${team('B',tB)}${vsCard}${A.isHost&&S.players.length>=3&&!S.vsBots?`<button class="btn ghost" style="align-self:center" onclick="act({type:'shuffle'})">🔀 ערבבו את הקבוצות</button>`:''}${botHint}${addLocal}${mine}<div class="col" style="margin-top:auto">${start}${vSettings(S)}${note}</div></div>`;}
 function vLobbyAI(S){const humans=S.players.filter(p=>!isBot(p.id));
   return `<div class="screen"><header class="row between"><button class="btn ghost" style="width:auto;padding:8px" onclick="leaveRoom()">‹ יציאה</button><div class="bold" style="font-size:18px">מול המחשב</div>${musicBtn('hdrm')}</header>
     <div class="teamcard A"><div class="th"><span>אתם</span><span class="xs">${humans.length} + 🤖</span></div><div class="plist">${humans.map(p=>`<div class="p">${avBtn(p,'lg')}<span class="n">${h(p.name)}</span><button class="xs muted" onclick="apply(S=>E.removePlayer(S,'${p.id}'))">✕</button></div>`).join('')}<div class="p">${av('🤖','lg')}<span class="n">השותף שלך</span><span class="tag">מסביר</span></div></div></div>
