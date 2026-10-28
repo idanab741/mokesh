@@ -235,6 +235,24 @@ html.kb .mbtn{display:none}
 .deltas .d{border-radius:var(--r-md);padding:8px;text-align:center;color:var(--ink);border:var(--o);background:#fff;box-shadow:var(--sh)}
 .deltas .d .xs{color:var(--ink)!important;font-weight:800}
 .deltas .d .n{font-family:var(--font-display);font-size:44px;line-height:1}
+.acctbar{display:flex;align-items:center;gap:10px;width:100%;background:#fff;color:var(--ink);border:var(--o);border-radius:var(--r-md);box-shadow:var(--sh);padding:10px 12px;font:inherit;cursor:pointer;text-align:right}
+.acctbar .ai{font-size:26px}.acctbar .xs{color:var(--soft)}.acctbar>svg{margin-inline-start:auto;transform:scaleX(-1)}
+.acctbar.on{padding:6px;cursor:default}.acctbar .me{display:flex;align-items:center;gap:10px;flex:1;background:none;border:0;font:inherit;color:inherit;cursor:pointer;padding:4px}
+.avw{width:42px;height:42px;border-radius:50%;overflow:hidden;flex:none;border:2px solid var(--ink);display:grid;place-items:center;background:#fff}.avw img{width:100%;height:100%;object-fit:cover}.avw>span{width:100%;height:100%}
+.acctbar .fr{position:relative;background:var(--cyan);border:var(--o);border-radius:999px;font:inherit;font-weight:800;padding:8px 14px;color:var(--ink);cursor:pointer;display:flex;align-items:center;gap:6px}
+.badge{position:absolute;top:-8px;left:-6px;background:var(--red);color:#fff;border-radius:999px;font-size:12px;min-width:20px;height:20px;display:grid;place-items:center;border:2px solid var(--ink)}
+i.dot{display:inline-block;width:9px;height:9px;border-radius:50%;background:#2EE88A;border:1.5px solid var(--ink);vertical-align:middle}
+.sheet.acct{max-height:88vh;overflow-y:auto}
+.gbtn{background:#fff;color:var(--ink);display:flex;align-items:center;justify-content:center;gap:10px}.abtn{background:#000;color:#fff}
+.ordiv{display:flex;align-items:center;gap:10px;color:var(--soft);font-size:13px}.ordiv:before,.ordiv:after{content:'';flex:1;height:2px;background:rgba(21,16,43,.12)}
+.stts{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}.stt{background:#fff;border:var(--o);border-radius:14px;padding:8px 4px;text-align:center;display:flex;flex-direction:column}.stt b{font-family:var(--font-display);font-size:26px;line-height:1.1}.stt span{font-size:12px;color:var(--soft);font-weight:700}
+.fcode{background:var(--yellow);border:var(--o);border-radius:16px;padding:12px;display:flex;flex-direction:column;gap:6px;align-items:center}.fcode .code{font-family:var(--font-display);font-size:34px;letter-spacing:.2em}
+.flist{display:flex;flex-direction:column;gap:8px}.frow{background:#fff;border:var(--o);border-radius:14px;overflow:hidden}
+.fhead{display:flex;align-items:center;gap:10px;width:100%;background:none;border:0;font:inherit;color:inherit;padding:8px 10px;cursor:pointer}
+.btn.sm{width:auto;padding:6px 12px;font-size:14px;min-height:0}
+.cmp{padding:4px 12px 10px;display:flex;flex-direction:column;gap:4px}.cmph,.cmpr{display:grid;grid-template-columns:1fr 2fr 1fr;text-align:center;align-items:center}.cmph{font-size:12px;font-weight:800;color:var(--soft)}.cmpr span{font-size:13px;color:var(--soft)}.cmpr b{font-family:var(--font-display);font-size:20px}.cmpr b.win{color:#0B9A4E}
+.invbar{position:fixed;top:12px;left:12px;right:12px;z-index:60;max-width:32rem;margin:0 auto;display:flex;align-items:center;gap:10px;background:#fff;color:var(--ink);border:var(--o);border-radius:18px;box-shadow:var(--sh);padding:10px}
+.invbar .x{background:none;border:0;font-size:18px;cursor:pointer;color:var(--soft)}
 .hudnote{margin:6px auto 0;width:max-content;max-width:100%;font-size:13px;font-weight:800;color:#fff;background:rgba(21,16,43,.35);border-radius:999px;padding:3px 12px}.hudnote.hot{background:var(--orange);color:var(--ink)}
 .btags{display:flex;flex-wrap:wrap;gap:6px;justify-content:center}.btags span{background:var(--yellow);color:var(--ink);font-weight:800;font-size:14px;border-radius:999px;padding:4px 12px;border:var(--o)}
 .deltas .d.neg .n{color:var(--red)}.deltas .d.pos .n{color:#0B9A4E}
@@ -521,7 +539,7 @@ const E = {
   startGame(S){if(S.phase!=='LOBBY')throw new Error('המשחק כבר התחיל');if(E.team(S,'A').length<2||E.team(S,'B').length<2)throw new Error('צריך לפחות 2 שחקנים בכל קבוצה');
     E.reset(S);E.beginTurn(S);},
   rematch(S){if(S.phase!=='GAME_OVER')return;E.reset(S);S.phase='LOBBY';S.phaseEndsAt=null;for(const p of S.players)p.ready=false;},
-  reset(S){S.sudden=null;S.streak=0;S.score={A:0,B:0};S.correctTotal={A:0,B:0};S.trapsTotal={A:0,B:0};S.turnIndex=0;S.activeTeam='A';S.cursor={A:0,B:0};S.gameOver=null;S.turnSummary=null;S.cardResult=null;S.cardId=null;S.traps=[];
+  reset(S){S.gameId=uid(6);S.sudden=null;S.streak=0;S.score={A:0,B:0};S.correctTotal={A:0,B:0};S.trapsTotal={A:0,B:0};S.turnIndex=0;S.activeTeam='A';S.cursor={A:0,B:0};S.gameOver=null;S.turnSummary=null;S.cardResult=null;S.cardId=null;S.traps=[];
     for(const p of S.players){p.stats={correct:0,traps:0};p.turnCorrect=0;}
     const pool=[...CARDS.values()].filter(c=>S.settings.difficulty==='all'||c.difficulty===S.settings.difficulty);S.deck=shuffle(pool.length?pool:[...CARDS.values()]).map(c=>c.id);},
   beginTurn(S){S.turnSummary=null;S.turnWords=[];S.cardResult=null;S.guesses=[];S.seen=[];S.skipsLeft=S.settings.maxSkips;S.turnRemainingMs=S.settings.turnSeconds*1000;S.turnStats={correct:0,traps:0,points:0};
@@ -637,11 +655,12 @@ const A = {
   trapPick:[],trapSent:false,
   toast:null,toastT:null,
   chosen:JSON.parse(localStorage.getItem('mokesh.profile')||'null')||{name:'',avatar:AVATARS[Math.floor(Math.random()*AVATARS.length)]},
+  pendingFriend:(new URLSearchParams(location.search).get('f')||'').toUpperCase().slice(0,6)||null,
   homeMode:'menu',joinCode:(new URLSearchParams(location.search).get('room')||'').toUpperCase()||((location.hash||'').replace('#','').match(/^[A-Z0-9]{6}$/)?location.hash.slice(1):''),
 };
 function toast(msg){A.toast=msg;clearTimeout(A.toastT);A.toastT=setTimeout(()=>{A.toast=null;render();},3200);render();}
 function myId(){return A.me&&A.me.id;}
-function saveProfile(){try{localStorage.setItem('mokesh.profile',JSON.stringify(A.chosen));}catch(e){}}
+function saveProfile(){try{localStorage.setItem('mokesh.profile',JSON.stringify(A.chosen));}catch(e){}syncProf();}
 
 // ---------- אונליין: Supabase (Realtime) ----------
 const SUPABASE_URL='https://jsuajuhciuskruztjijx.supabase.co';
@@ -656,7 +675,9 @@ function makeSample(){const call=async(body)=>{const r=await fetch('/api/ai',{me
   const f=async(prompt)=>call({prompt});f.json=async(prompt)=>(await call({prompt,json:true})).value;return f;}
 async function initRuntime(){
   try{if(window.supabase&&SUPABASE_URL.startsWith('http')){sb=window.supabase.createClient(SUPABASE_URL,SUPABASE_ANON,{realtime:{params:{eventsPerSecond:20}}});A.uid=localStorage.getItem('mokesh.uid')||('u'+uid(10));localStorage.setItem('mokesh.uid',A.uid);A.dbReady=true;}}catch(e){console.error(e);}
-  if(!A.dbReady)A.dbMissing=true;
+  if(!A.dbReady)A.dbMissing=true;else await authInit();
+  // קישור חבר (?f=קוד): מחובר — נוסף מיד; אורח — מתבקש להתחבר קודם
+  if(A.pendingFriend){try{const u=new URL(location.href);u.searchParams.delete('f');history.replaceState(null,'',u.pathname+u.search+u.hash);}catch(e){}if(A.user){const c=A.pendingFriend;A.pendingFriend=null;addFriend(c);}else if(A.dbReady)A.sheet='login';}
   try{const r=await fetch('/api/ai');const d=r.ok?await r.json():null;A.sample=d&&d.ok?makeSample():null;}catch(e){A.sample=null;}
   // חזרה אוטומטית לחדר האחרון (למשל אחרי רענון), אלא אם נכנסו מקישור לחדר אחר: אז הקישור החדש מנצח
   try{let s=JSON.parse(localStorage.getItem('mokesh.session')||'null');
@@ -840,7 +861,105 @@ const h=s=>String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','
 const app=document.getElementById('app');
 function avInner(a){if(a&&ASSETS[a])return `<img src="${ASSETS[a]}" alt="">`;if(a&&AV_COLORS[a])return `<span class="cav" style="background:${AV_COLORS[a]}"><img src="${ASSETS.bomb}" alt=""></span>`;if(a==='🤖'||a==='🧠')return `<span class="cav" style="background:${a==='🧠'?'#A855F7':'#3B82F6'}">${ic('robot',22)}</span>`;return `<span class="cav" style="background:#4C2A9E">${ic('users',20)}</span>`;}
 function av(a,cls='',off=false){return `<span class="av ${cls} ${off?'off':''}">${avInner(a)}</span>`;}
-function render(){const S=A.S;let html='';
+// ---------- חשבון: כניסה (Google / מייל / אורח), פרופיל קבוע, חברים, הזמנות וסטטיסטיקות ----------
+const AUTH={apple:false}; // Apple יופעל אחרי שהמפתחות יוגדרו ב-Supabase
+const ONLINE_MS=90000;
+async function authInit(){if(!sb||!sb.auth)return;
+  sb.auth.onAuthStateChange((ev,session)=>{const u=session&&session.user||null;if((u&&u.id)!==(A.user&&A.user.id)){A.user=u;onUser();}});
+  try{const {data}=await sb.auth.getSession();A.user=data&&data.session?data.session.user:null;if(A.user)await onUser();}catch(e){console.warn('auth',e);}}
+// מחובר: מזהה השחקן במשחקים הוא מזהה החשבון, והשם/האווטאר נטענים מהפרופיל
+async function onUser(){if(!A.user){A.prof=null;A.friends=[];A.invites=[];stopSocial();render();return;}
+  if(!A.S){A.uid=A.user.id;}
+  try{let {data:p}=await sb.from('mokesh_profiles').select('*').eq('id',A.user.id).maybeSingle();
+    if(!p){const md=A.user.user_metadata||{};const nm=((A.chosen.name||md.full_name||md.name||'').trim()||'שחקן').slice(0,16);
+      const r=await sb.from('mokesh_profiles').insert({id:A.user.id,name:nm,avatar:A.chosen.avatar||AVATARS[0]}).select().single();p=r.data;}
+    if(p){A.prof=p;A.chosen={name:p.name,avatar:p.avatar};try{localStorage.setItem('mokesh.profile',JSON.stringify(A.chosen));}catch(e){}}}catch(e){console.warn('profile',e);}
+  if(A.sheet==='login')A.sheet=null;startSocial();
+  if(A.pendingFriend){const c=A.pendingFriend;A.pendingFriend=null;addFriend(c);}
+  render();}
+let profT=null;
+function syncProf(){if(!A.prof||!sb)return;clearTimeout(profT);profT=setTimeout(()=>{const n=(A.chosen.name||'').trim().slice(0,16);if(!n)return;
+  sb.from('mokesh_profiles').update({name:n,avatar:A.chosen.avatar}).eq('id',A.prof.id).then(()=>{A.prof.name=n;A.prof.avatar=A.chosen.avatar;});},700);}
+function startSocial(){stopSocial();if(!A.user)return;heartbeat();loadFriends();A.socialT=setInterval(()=>{heartbeat();loadFriends();},45000);
+  try{A.socialCh=sb.channel('mokesh-social-'+A.user.id)
+    .on('postgres_changes',{event:'INSERT',schema:'public',table:'mokesh_invites',filter:'to_id=eq.'+A.user.id},p=>onInvite(p.new))
+    .on('postgres_changes',{event:'*',schema:'public',table:'mokesh_friends'},()=>loadFriends()).subscribe();}catch(e){}}
+function stopSocial(){clearInterval(A.socialT);if(A.socialCh){try{sb.removeChannel(A.socialCh);}catch(e){}A.socialCh=null;}}
+function heartbeat(){if(A.prof&&!document.hidden)sb.from('mokesh_profiles').update({last_seen:new Date().toISOString()}).eq('id',A.prof.id).then(()=>{});}
+async function loadFriends(){if(!A.user)return;const me=A.user.id;
+  try{const {data:rows}=await sb.from('mokesh_friends').select('*');const ids=(rows||[]).map(r=>r.a===me?r.b:r.a);let profs=[];
+    if(ids.length){const r=await sb.from('mokesh_profiles').select('id,name,avatar,stats,last_seen,friend_code').in('id',ids);profs=r.data||[];}
+    A.friends=(rows||[]).map(r=>{const id=r.a===me?r.b:r.a;return{...(profs.find(p=>p.id===id)||{id,name:'?',avatar:AVATARS[0],stats:{}}),status:r.status,incoming:r.status==='pending'&&r.requested_by!==me};})
+      .sort((x,y)=>(isOnline(y)-isOnline(x))||String(x.name).localeCompare(String(y.name),'he'));
+    const {data:me2}=await sb.from('mokesh_profiles').select('stats').eq('id',me).maybeSingle();if(me2&&A.prof)A.prof.stats=me2.stats;
+    render();}catch(e){console.warn('friends',e);}}
+const isOnline=f=>f&&f.last_seen&&Date.now()-new Date(f.last_seen).getTime()<ONLINE_MS?1:0;
+async function signInGoogle(){try{const {error}=await sb.auth.signInWithOAuth({provider:'google',options:{redirectTo:location.origin+location.pathname+location.search}});if(error)throw error;}catch(e){toast('הכניסה עם Google לא הצליחה: '+(e.message||e));}}
+async function signInApple(){try{const {error}=await sb.auth.signInWithOAuth({provider:'apple',options:{redirectTo:location.origin+location.pathname+location.search}});if(error)throw error;}catch(e){toast('הכניסה עם Apple לא הצליחה');}}
+async function sendEmailCode(){const em=(A.loginEmail||'').trim();if(!/^\S+@\S+\.\S+$/.test(em))return toast('כתובת מייל לא תקינה');A.loginBusy=true;render();
+  try{const {error}=await sb.auth.signInWithOtp({email:em,options:{emailRedirectTo:location.origin+location.pathname+location.search}});if(error)throw error;A.otpSent=true;}catch(e){toast('לא הצלחנו לשלוח מייל: '+(e.message||e));}A.loginBusy=false;render();}
+async function verifyEmailCode(){const t=(A.loginCode||'').replace(/\D/g,'');if(t.length<6)return toast('הקוד צריך להיות 6 ספרות');A.loginBusy=true;render();
+  try{const {error}=await sb.auth.verifyOtp({email:(A.loginEmail||'').trim(),token:t,type:'email'});if(error)throw error;toast('נכנסת! 🎉');}catch(e){toast('הקוד לא נכון או שפג תוקפו');}A.loginBusy=false;render();}
+async function signOut(){try{await sb.auth.signOut();}catch(e){}A.user=null;A.prof=null;A.friends=[];stopSocial();A.uid=localStorage.getItem('mokesh.uid')||A.uid;A.sheet=null;render();}
+async function addFriend(code){code=String(code||'').trim().toUpperCase();if(!code)return;if(!A.user){A.pendingFriend=code;A.sheet='login';render();return;}
+  try{const {data,error}=await sb.rpc('mokesh_add_friend',{p_code:code});if(error)throw error;
+    toast({requested:'בקשת חברות נשלחה ✉️',accepted:'אתם חברים עכשיו! 🎉',already:'אתם כבר חברים',pending:'כבר שלחת בקשה, מחכים שיאשרו',not_found:'לא מצאנו קוד כזה',self:'זה הקוד שלך 🙂'}[data]||'משהו השתבש');A.friendCode='';loadFriends();}catch(e){toast('לא הצלחנו להוסיף חבר');}}
+async function acceptFriend(id){try{await sb.rpc('mokesh_accept_friend',{p_other:id});toast('אתם חברים עכשיו! 🎉');}catch(e){}loadFriends();}
+async function removeFriend(id){const me=A.user.id;const [a,b]=me<id?[me,id]:[id,me];try{await sb.from('mokesh_friends').delete().eq('a',a).eq('b',b);}catch(e){}A.openFriend=null;loadFriends();}
+async function inviteFriend(id){const S=A.S;if(!S||A.mode!=='online')return toast('קודם פתחו חדר אונליין');
+  try{const {error}=await sb.from('mokesh_invites').insert({from_id:A.user.id,to_id:id,room:S.code});if(error)throw error;const f=A.friends.find(x=>x.id===id);toast('ההזמנה נשלחה ל'+(f?f.name:'חבר'));A.invited=Object.assign(A.invited||{},{[id]:S.code});render();}catch(e){toast('לא הצלחנו לשלוח הזמנה');}}
+function onInvite(row){if(!row)return;if(A.S&&A.S.code===row.room)return;const f=(A.friends||[]).find(x=>x.id===row.from_id);A.inviteBar={room:row.room,name:f?f.name:'חבר',avatar:f?f.avatar:AVATARS[0]};try{beep('correct');navigator.vibrate&&navigator.vibrate([60,40,60]);}catch(e){}render();}
+async function acceptInvite(){const iv=A.inviteBar;A.inviteBar=null;if(!iv)return;if(A.S)leaveRoom();A.joinCode=iv.room;if(!(A.chosen.name||'').trim()){A.homeMode='join';render();return;}joinOnline(iv.room);}
+function friendLink(){return location.origin+location.pathname+'?f='+(A.prof?A.prof.friend_code:'');}
+async function shareFriendCode(){const link=friendLink();const data={title:'מוקש!',text:'בוא/י נהיה חברים במוקש! הקוד שלי: '+A.prof.friend_code,url:link};
+  try{if(navigator.share){await navigator.share(data);return;}}catch(e){if(e&&e.name==='AbortError')return;}try{await navigator.clipboard.writeText(link);toast('הקישור הועתק');}catch(e){toast(link);}}
+// סטטיסטיקות: בסוף כל משחק אונליין (או מול המחשב עם שחקן אחד) נרשמת התוצאה פעם אחת לחשבון
+function recordGame(S){if(!A.user||!S||S.phase!=='GAME_OVER'||!S.gameOver)return;let p=S.players.find(x=>x.id===A.user.id);
+  if(!p&&S.mode==='ai'){const hs=S.players.filter(x=>!isBot(x.id));if(hs.length===1)p=hs[0];}if(!p)return;
+  const key=(S.code||'ai')+':'+(S.gameId||'')+':'+S.gameOver.score.A+'-'+S.gameOver.score.B;let done=[];try{done=JSON.parse(localStorage.getItem('mokesh.recorded')||'[]');}catch(e){}if(done.includes(key))return;
+  done=[key,...done].slice(0,30);try{localStorage.setItem('mokesh.recorded',JSON.stringify(done));}catch(e){}
+  const g=S.gameOver;sb.rpc('mokesh_record_game',{p_won:g.winner===p.team,p_correct:p.stats.correct||0,p_traps:p.stats.traps||0,p_mvp:!!(g.mvp&&g.mvp.name===p.name)}).then(()=>loadFriends());}
+// ---------- מסכי חשבון ----------
+function statTiles(st){st=st||{};const g=st.games||0,w=st.wins||0;const t=(n,l)=>`<div class="stt"><b>${n}</b><span>${l}</span></div>`;
+  return `<div class="stts">${t(g,'משחקים')}${t(w,'ניצחונות')}${t(g?Math.round(w*100/g)+'%':'—','אחוז ניצחון')}${t(st.correct||0,'ניחושים נכונים')}${t(st.traps||0,'מוקשים')}${t(st.mvp||0,'MVP')}</div>`;}
+function vAccountBar(){if(!sb||!sb.auth)return '';if(!A.user)return `<button class="acctbar" onclick="A.sheet='login';render()"><span class="ai">👤</span><span class="col" style="gap:0;text-align:right"><b>התחברות</b><span class="xs">פרופיל קבוע, חברים וסטטיסטיקות</span></span>${ic('back',18)}</button>`;
+  const inc=(A.friends||[]).filter(f=>f.incoming).length,on=(A.friends||[]).filter(f=>f.status==='accepted'&&isOnline(f)).length;
+  return `<div class="acctbar on"><button class="me" onclick="A.sheet='profile';render()"><span class="avw">${avInner(A.chosen.avatar)}</span><span class="col" style="gap:0;text-align:right"><b>${h(A.chosen.name||'שחקן')}</b><span class="xs">הפרופיל שלי</span></span></button><button class="fr" onclick="A.sheet='friends';render()">👥 חברים${on?` <i class="dot"></i>${on}`:''}${inc?`<span class="badge">${inc}</span>`:''}</button></div>`;}
+function vLoginSheet(){const busy=A.loginBusy?'disabled':'';
+  return `<div class="black" style="font-size:24px">כניסה למוקש!</div><div class="small isub">עם חשבון: הפרופיל, החברים והסטטיסטיקות נשמרים בכל מכשיר.</div>
+    <button class="btn big gbtn" onclick="signInGoogle()" ${busy}><svg width="22" height="22" viewBox="0 0 48 48" aria-hidden="true"><path fill="#EA4335" d="M24 9.5c3.5 0 6.6 1.2 9 3.5l6.7-6.7C35.6 2.4 30.2 0 24 0 14.6 0 6.6 5.4 2.6 13.2l7.8 6.1C12.3 13.6 17.7 9.5 24 9.5z"/><path fill="#4285F4" d="M46.5 24.5c0-1.6-.1-3.1-.4-4.5H24v9h12.7c-.6 3-2.3 5.5-4.8 7.2l7.5 5.8c4.4-4 7.1-10 7.1-17.5z"/><path fill="#FBBC05" d="M10.4 28.7c-.5-1.4-.8-3-.8-4.7s.3-3.3.8-4.7l-7.8-6.1C1 16.5 0 20.1 0 24s1 7.5 2.6 10.8l7.8-6.1z"/><path fill="#34A853" d="M24 48c6.5 0 11.9-2.1 15.9-5.8l-7.5-5.8c-2.1 1.4-4.8 2.3-8.4 2.3-6.3 0-11.7-4.1-13.6-9.8l-7.8 6.1C6.6 42.6 14.6 48 24 48z"/></svg> המשך עם Google</button>
+    ${AUTH.apple?`<button class="btn big abtn" onclick="signInApple()" ${busy}> המשך עם Apple</button>`:''}
+    <div class="ordiv"><span>או במייל</span></div>
+    ${A.otpSent?`<div class="small" style="line-height:1.5">שלחנו מייל ל-<b dir="ltr">${h(A.loginEmail)}</b>. לחצו על הקישור במייל, או הקלידו כאן את הקוד אם קיבלתם קוד:</div>
+      <input class="input" name="otp" inputmode="numeric" autocomplete="one-time-code" dir="ltr" maxlength="8" placeholder="123456" style="text-align:center;letter-spacing:.3em;font-size:22px" value="${h(A.loginCode||'')}" oninput="A.loginCode=this.value">
+      <button class="btn primary big" onclick="verifyEmailCode()" ${busy}>כניסה</button><button class="btn ghost" onclick="A.otpSent=false;render()">מייל אחר</button>`
+    :`<input class="input" name="email" type="email" dir="ltr" autocomplete="email" placeholder="name@gmail.com" value="${h(A.loginEmail||'')}" oninput="A.loginEmail=this.value">
+      <button class="btn info big" onclick="sendEmailCode()" ${busy}>שלחו לי קישור כניסה</button>`}
+    <button class="btn ghost" onclick="A.sheet=null;A.pendingFriend=null;render()">המשך כאורח</button>`;}
+function vProfileSheet(){const p=A.prof;if(!p)return vLoginSheet();const c=A.chosen;
+  return `<div class="row between"><div class="black" style="font-size:24px">הפרופיל שלי</div><button class="btn ghost" style="width:auto" onclick="A.sheet=null;render()">סגור</button></div>
+    <label class="col" style="gap:4px"><span class="small isub">הכינוי שלך</span><input class="input" name="pname" maxlength="16" value="${h(c.name)}" oninput="A.chosen.name=this.value;saveProfile()"></label>
+    <div class="avgrid">${AVATARS.map(a=>`<button class="${a===c.avatar?'on':''}" onclick="A.chosen.avatar='${a}';saveProfile();render()">${avInner(a)}</button>`).join('')}</div>
+    ${statTiles(p.stats)}
+    <div class="fcode"><div class="xs isub">קוד החבר שלך</div><div class="code" dir="ltr">${h(p.friend_code)}</div><button class="btn info" onclick="shareFriendCode()">${ic('share',20)} שלחו לחברים</button></div>
+    <button class="btn ghost" onclick="signOut()">התנתקות</button>`;}
+function vFriendsSheet(){const fs=A.friends||[];const inc=fs.filter(f=>f.incoming),out=fs.filter(f=>f.status==='pending'&&!f.incoming),acc=fs.filter(f=>f.status==='accepted');const inRoom=A.S&&A.mode==='online'&&A.S.phase==='LOBBY';const me=A.prof||{};
+  const row=f=>{const open=A.openFriend===f.id;const st=f.stats||{};const on=isOnline(f);
+    return `<div class="frow ${open?'open':''}"><button class="fhead" onclick="A.openFriend=${open?'null':`'${f.id}'`};render()"><span class="avw">${avInner(f.avatar)}</span><span class="col" style="gap:0;text-align:right;flex:1"><b>${h(f.name)}</b><span class="xs isub">${on?'<i class="dot"></i> מחובר/ת עכשיו':`${st.wins||0} ניצחונות · ${st.games||0} משחקים`}</span></span>
+      ${inRoom?(A.invited&&A.invited[f.id]===A.S.code?'<span class="chip ok">הוזמן</span>':`<span class="btn primary sm" onclick="event.stopPropagation();inviteFriend('${f.id}')">הזמן לחדר</span>`):''}</button>
+      ${open?`<div class="cmp"><div class="cmph"><span>אני</span><span></span><span>${h(f.name)}</span></div>${[['games','משחקים'],['wins','ניצחונות'],['correct','ניחושים נכונים'],['traps','מוקשים'],['mvp','MVP']].map(([k,l])=>{const a=(me.stats||{})[k]||0,b=st[k]||0;const better=k==='traps'?a<b:a>b;const worse=k==='traps'?a>b:a<b;return `<div class="cmpr"><b class="${better?'win':''}">${a}</b><span>${l}</span><b class="${worse?'win':''}">${b}</b></div>`;}).join('')}
+        <button class="btn ghost sm" onclick="removeFriend('${f.id}')">הסרה מהחברים</button></div>`:''}</div>`;};
+  return `<div class="row between"><div class="black" style="font-size:24px">חברים</div><button class="btn ghost" style="width:auto" onclick="A.sheet=null;render()">סגור</button></div>
+    ${!inRoom&&acc.length?'<div class="xs isub">כדי להזמין חבר: פתחו חדר אונליין ולחצו שם על ״הזמן חברים״.</div>':''}
+    <div class="row" style="gap:8px"><input class="input" name="fcode" dir="ltr" maxlength="6" placeholder="קוד חבר" style="text-align:center;letter-spacing:.2em;text-transform:uppercase" value="${h(A.friendCode||'')}" oninput="A.friendCode=this.value.toUpperCase()"><button class="btn info" style="width:auto" onclick="addFriend(A.friendCode)">הוסף</button></div>
+    ${inc.length?`<div class="xs bold">בקשות חברות</div>${inc.map(f=>`<div class="frow"><div class="fhead"><span class="avw">${avInner(f.avatar)}</span><b style="flex:1;text-align:right">${h(f.name)}</b><span class="btn primary sm" onclick="acceptFriend('${f.id}')">אישור</span><span class="btn ghost sm" onclick="removeFriend('${f.id}')">דחייה</span></div></div>`).join('')}`:''}
+    <div class="flist">${acc.length?acc.map(row).join(''):`<div class="small isub tc" style="padding:12px 0">עוד אין חברים. שלחו לחברים את קוד החבר שלכם (${h(me.friend_code||'')}) או הקלידו את שלהם למעלה.</div>`}</div>
+    ${out.length?`<div class="xs isub">ממתינים לאישור: ${out.map(f=>h(f.name)).join(', ')}</div>`:''}
+    <button class="btn info" onclick="shareFriendCode()">${ic('share',20)} שלחו את קוד החבר שלי</button>`;}
+function vSheet(){const body=A.sheet==='login'||!A.user?vLoginSheet():A.sheet==='profile'?vProfileSheet():vFriendsSheet();
+  return `<div class="sheet-bg" onclick="A.sheet=null;render()"><div class="sheet pop acct" onclick="event.stopPropagation()">${body}</div></div>`;}
+function vInviteBar(){const iv=A.inviteBar;return `<div class="invbar pop"><span class="avw">${avInner(iv.avatar)}</span><div class="col" style="gap:0;flex:1"><b>${h(iv.name)} מזמין/ה אותך למשחק!</b><span class="xs">חדר ${h(iv.room)}</span></div><button class="btn primary sm" onclick="acceptInvite()">הצטרפות</button><button class="x" onclick="A.inviteBar=null;render()" aria-label="סגירה">✕</button></div>`;}
+function render(){const S=A.S;let html='';if(S&&S.phase==='GAME_OVER')recordGame(S);
   if(!S)html=vHome();
   else switch(S.phase){
     case 'LOBBY':html=vLobby(S);break;
@@ -853,6 +972,8 @@ function render(){const S=A.S;let html='';
   if(S&&A.avPick)html+=vAvPick(S);
   if(S&&A.menu)html+=vMenu(S);
   if(S&&A.roomChat&&S.mode==='online')html+=vRoomChat(S);
+  if(A.sheet)html+=vSheet();
+  if(A.inviteBar)html+=vInviteBar();
   if(A.toast)html+=`<div class="toast pop" role="alert">${h(A.toast)}</div>`;
   const ae=document.activeElement;const keep=ae&&ae.tagName==='INPUT'&&app.contains(ae)?{key:ae.name||ae.id,value:ae.value,sel:ae.selectionStart}:null;
   const tpl=document.createElement('div');tpl.innerHTML=html;morph(app,tpl);
@@ -885,7 +1006,7 @@ function vHome(){const c=A.chosen;const m=A.homeMode;if(m==='how'||m==='intro')r
     <label class="col" style="gap:4px"><span class="small muted">הכינוי שלך</span><input class="input" name="nick" data-autofocus maxlength="16" placeholder="למשל: דנה" value="${h(c.name)}" oninput="A.chosen.name=this.value;saveProfile()"></label>
     <div class="col" style="gap:4px"><span class="small muted">אווטאר</span><div class="avgrid">${AVATARS.map(a=>`<button class="${a===c.avatar?'on':''}" onclick="A.chosen.avatar='${a}';saveProfile();render()">${avInner(a)}</button>`).join('')}</div></div>`;
   let body='';
-  if(m==='menu')body=`<div class="col" style="gap:12px">
+  if(m==='menu')body=`<div class="col" style="gap:12px">${vAccountBar()}
       <button class="btn primary big" onclick="A.homeMode='create';render()">${ic('users',24)} צור משחק</button>
       <button class="btn info big" onclick="A.homeMode='join';render()">${ic('join',24)} הצטרף למשחק</button>
       <div class="tiles"><button onclick="A.homeMode='how';A.introPage=0;render()">${ic('book',28)}איך משחקים?</button><button onclick="A.homeMode='ai';render()">${ic('robot',28)}מול המחשב</button><button onclick="A.homeMode='local';render()">${ic('phone',28)}מכשיר אחד</button></div>
@@ -901,10 +1022,10 @@ function vHome(){const c=A.chosen;const m=A.homeMode;if(m==='how'||m==='intro')r
   else if(m==='settings')body=`<div class="card col"><div class="bold row">${ic('gear',22)} הגדרות</div><p class="small muted" style="margin:0;line-height:1.5">הגדרות המשחק (תורות, זמן, קושי) נקבעות בחדר המשחק על ידי מנהל החדר. הכינוי והאווטאר שלך נשמרים במכשיר.</p><button class="btn ghost" onclick="A.homeMode='menu';render()">חזרה</button></div>`;
   else body=`<div class="card col small" style="line-height:1.6">
       <p style="margin:0"><b class="tA">שתי קבוצות.</b> בכל תור קבוצה אחת מסבירה ומנחשת, והשנייה טומנת מוקשים.</p>
-      <p style="margin:0"><b style="color:var(--danger)">היריבים</b> רואים את מילת היעד ובוחרים 3 מילים דומות שיהפכו למוקשים — 20 שניות.</p>
+      <p style="margin:0"><b style="color:var(--danger)">היריבים</b> רואים את מילת היעד ובוחרים 3 מילים דומות שיהפכו למוקשים — 25 שניות.</p>
       <p style="margin:0"><b style="color:var(--amber2)">המסביר</b> רואה את המילה ואת המוקשים, ומסביר בלי לומר אותה.</p>
-      <p style="margin:0"><b style="color:var(--ok)">המנחשים</b> מקלידים ניחושים. נכון: +2. מוקש: −2 לקבוצה ו-+1 ליריבים.</p>
-      <p style="margin:0">60 שניות לתור, 5 תורות לכל קבוצה. הניקוד הגבוה מנצח.</p>
+      <p style="margin:0"><b style="color:var(--ok)">המנחשים</b> מקלידים ניחושים. נכון: +2, ובונוס +1 על ניחוש ב-10 שניות ועל כל רצף של 3. מוקש: −2 לקבוצה ו-+1 ליריבים.</p>
+      <p style="margin:0">הראשונים ל-20 נקודות מנצחים. אם אף קבוצה לא הגיעה אחרי 5 תורות — התור האחרון כפול, ותיקו מוכרע במוות פתאומי.</p>
       <button class="btn ghost" onclick="A.homeMode='menu';render()">הבנתי</button></div>`;
   return `<div class="screen center" style="gap:22px;position:relative">${m==='menu'?`<button class="topbtn" onclick="A.homeMode='settings';render()">${ic('gear',20)}</button>`:''}${musicBtn('topbtn r')}<header class="tc"><img class="logo pop" src="${ASSETS.logo}" alt="מוקש!"><p class="tagline" style="margin:12px auto 0;max-width:310px">משחק הניחושים שבו כל טעות תעלה לכם בפיצוץ!</p></header>${body}${m==='menu'?`<div class="tape" aria-hidden="true"><div>${'זהירות! שטח ממוקש ✕ '.repeat(10)}</div></div>`:''}</div>`;}
 // שני עמודי הסבר: מה זה מוקש, וניקוד + דרכי משחק. מוצגים בכניסה הראשונה ומ"איך משחקים?"
@@ -916,7 +1037,7 @@ function vIntro(){const pg=A.introPage||0;const last=pg===1;
   const row=(cls,big,t,d)=>`<div class="srow"><span class="schip ${cls}">${big}</span><div><div class="bold">${t}</div><div class="small isub">${d}</div></div></div>`;
   const mode=(cls,icon,t,d)=>`<div class="imode ${cls}">${ic(icon,26)}<div class="bold">${t}</div><div class="xs">${d}</div></div>`;
   const p2=`<h1 class="ititle">ניקוד ודרכי משחק</h1>
-    <div class="card col" style="gap:14px">${row('ok','+2','ניחוש נכון','לקבוצה שניחשה')}${row('bad','−2','עליתם על מוקש','והיריבים מקבלים +1')}${row('skip','⏭','דילוג','2 דילוגים בכל תור, בלי ניקוד')}<div class="small isub tc" style="border-top:2px dashed rgba(21,16,43,.2);padding-top:12px">60 שניות לתור · 5 תורות לכל קבוצה · הניקוד הגבוה מנצח</div></div>
+    <div class="card col" style="gap:14px">${row('ok','+2','ניחוש נכון','לקבוצה שניחשה')}${row('bad','−2','עליתם על מוקש','והיריבים מקבלים +1')}${row('ok','+1','בונוס','ניחוש ב-10 שניות, וכל רצף של 3')}${row('skip','⏭','דילוג','2 דילוגים בכל תור, בלי ניקוד')}<div class="small isub tc" style="border-top:2px dashed rgba(21,16,43,.2);padding-top:12px">🏁 הראשונים ל-20 מנצחים · אחרי 5 תורות: התור האחרון כפול · תיקו = מוות פתאומי</div></div>
     <div class="imodes">${mode('m1','join','אונליין','כל אחד מהטלפון שלו, עם קוד חדר')}${mode('m2','phone','מכשיר אחד','טלפון אחד שעובר בין כולם')}${mode('m3','robot','מול המחשב','אתם נגד המחשב')}</div>`;
   return `<div class="screen intro" ontouchstart="A.tx=event.touches[0].clientX" ontouchend="introSwipe(event)">
     <div class="ihead"><span class="ipage">${pg+1}/2</span><img class="ilogo pop" src="${ASSETS.logo}" alt="מוקש!"><button class="btn ghost" onclick="introDone()">דלג</button></div>
@@ -933,7 +1054,7 @@ function vLobby(S){if(S.mode==='ai')return vLobbyAI(S);const me=playerById(S,myI
       ${local?`<span class="row" style="gap:2px"><button class="xs muted" onclick="act({type:'switch_team',from:'${p.id}'})">↔</button><button class="xs muted" onclick="apply(S=>E.removePlayer(S,'${p.id}'))">✕</button></span>`:A.isHost&&!p.isHost&&!isBot(p.id)?`<span class="row" style="gap:2px">${S.vsBots?'':`<button class="xs muted" title="העבר קבוצה" onclick="act({type:'move',target:'${p.id}'})">↔</button>`}<button class="xs muted" title="הוצא מהחדר" onclick="act({type:'kick',target:'${p.id}'})">✕</button></span>`:''}</div>`).join('')}
     ${S.vsBots&&t==='B'?'':`<button class="add" onclick="${local?'document.getElementById(\'lname\').focus()':`shareRoom('${h(link)}','${S.code}')`}" title="${local?'הוסף שחקן':'הזמן חבר'}">+</button>`}${canAddBot(S,t)&&!S.vsBots?`<button class="add bot" onclick="addBot('${t}')" title="הוסף מחשב לקבוצה">${ic('robot',24)}<small>מחשב</small></button>`:''}</div></div>`;
   const head=`<div class="hdr"><button onclick="${!local&&A.isHost?'A.menu=1;render()':'leaveRoom()'}">${ic('back',22)}</button><div class="t">${local?'מכשיר אחד':'חדר משחק'}</div><div class="row" style="gap:6px">${local?musicBtn(''):chatBtn(S).replace('class="cbtn"','class="cbtn inline"')}<button onclick="A.homeMode='how';A.introPage=0;leaveRoom()" title="איך משחקים">${ic('help',22)}</button></div></div>`;
-  const codeRow=local?'':`<div class="row between"><button class="codebox" onclick="shareRoom('${h(link)}','${S.code}',true)" title="העתק">${S.code} ${ic('copy',18)}</button><button class="btn info" style="width:auto" onclick="shareRoom('${h(link)}','${S.code}')">${ic('share',20)} שתף קישור</button></div>`;
+  const codeRow=local?'':`<div class="row between"><button class="codebox" onclick="shareRoom('${h(link)}','${S.code}',true)" title="העתק">${S.code} ${ic('copy',18)}</button><button class="btn info" style="width:auto" onclick="shareRoom('${h(link)}','${S.code}')">${ic('share',20)} שתף קישור</button></div>${A.user?`<button class="btn" onclick="A.sheet='friends';render()">👥 הזמן חברים${(A.friends||[]).some(f=>f.status==='accepted'&&isOnline(f))?` <i class="dot"></i> ${(A.friends||[]).filter(f=>f.status==='accepted'&&isOnline(f)).length} מחוברים`:''}</button>`:''}`;
   const addLocal=local?vAddPlayer(S):'';
   const mine=!local&&me?`<div class="row"><button class="btn secondary" onclick="act({type:'switch_team'})">עבור ל${me.team==='A'?'קבוצה ב׳':'קבוצה א׳'}</button><button class="btn ${me.ready?'ok':'secondary'}" onclick="act({type:'ready',ready:${!me.ready}})">${me.ready?'מוכן ✓':'אני מוכן'}</button></div>`:'';
   const start=A.isHost?`<button class="btn primary big" onclick="act({type:'start'})" ${can?'':'disabled'}>${ic('play',22)} ${can?'התחל משחק':'ממתינים לשחקנים'}</button>`:`<div class="tc small muted pulse">ממתינים שמנהל החדר יתחיל…</div>`;
