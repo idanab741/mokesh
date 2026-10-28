@@ -352,6 +352,19 @@ html.kb .screen{gap:8px;padding:10px 12px}
 .rise.ok{animation-delay:.55s}
 .deltas:has(.d:only-child){grid-template-columns:1fr;max-width:170px}
 @media (prefers-reduced-motion:reduce){.glow,.defuse,.dbomb,.snuff,.cut,.check,.confetti{animation:none}.confetti,.snuff,.cut{display:none}}
+/* דילוג */
+.overlay.skip{background:var(--ink)}
+.sline{position:absolute;right:-40%;height:6px;border-radius:3px;background:linear-gradient(90deg,rgba(255,210,63,0),rgba(255,210,63,.9));animation:sline .5s .2s cubic-bezier(.4,0,.6,1) both}
+@keyframes sline{from{transform:translateX(0);opacity:0}20%{opacity:1}to{transform:translateX(-160vw);opacity:0}}
+.skiplabel{font-family:var(--font-display);font-size:36px;color:var(--yellow);display:flex;gap:10px;align-items:center;text-shadow:0 3px 0 #000;animation:pop .3s both}
+.cardfly{position:relative;width:min(80vw,300px);height:150px}
+.overlay .flyout{position:absolute;inset:0;display:flex;flex-direction:column;justify-content:center;animation:flyout .6s .2s cubic-bezier(.55,0,.8,.25) both}
+.overlay .flyout .l{display:block}.overlay .flyout .target{font-size:44px}
+@keyframes flyout{0%{transform:rotate(-1deg)}25%{transform:translateX(24px) rotate(5deg)}100%{transform:translateX(-160vw) rotate(-32deg)}}
+.cardback{position:absolute;inset:0;border-radius:var(--r-lg);border:6px solid transparent;background:linear-gradient(180deg,#34303F,#1C1924) padding-box,repeating-linear-gradient(135deg,var(--yellow) 0 9px,var(--ink) 9px 18px) border-box;box-shadow:0 0 0 3px #fff,0 6px 0 3px #000;display:flex;align-items:center;justify-content:center;animation:flyin .4s .62s cubic-bezier(.2,1.3,.5,1) both}
+.cardback span{font-family:var(--font-display);font-size:64px;color:var(--yellow)}
+@keyframes flyin{from{transform:translateX(150vw) rotate(25deg)}to{transform:rotate(2deg)}}
+@media (prefers-reduced-motion:reduce){.sline,.flyout,.cardback,.skiplabel{animation:none}.sline,.flyout{display:none}}
 </style>
 </head>
 <body>
@@ -371,7 +384,7 @@ const ICONS={music:'<path d="M9 18V5l11-2v13"/><circle cx="6" cy="18" r="3"/><ci
 function ic(n,size=22,cls=''){return `<svg class="ic ${cls}" width="${size}" height="${size}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${ICONS[n]||''}</svg>`;}
 const TEAM_NAME_BASE={A:'קבוצה א׳',B:'קבוצה ב׳'};const TEAM_NAME=new Proxy({},{get:(_,t)=>A&&A.S&&A.S.mode==='ai'?(t==='A'?'אתם':'המחשב'):TEAM_NAME_BASE[t]});
 const DEFAULTS = {turnsPerTeam:5,turnSeconds:60,trapSeconds:20,difficulty:'all',maxSkips:2};
-const T = {CORRECT:2200,TRAP:5000,SKIP:700,SUMMARY:6000,PREP:1500,MAX_HISTORY:12};
+const T = {CORRECT:2200,TRAP:5000,SKIP:1100,SUMMARY:6000,PREP:1500,MAX_HISTORY:12};
 
 // ---------- נרמול והתאמה (דטרמיניסטי) ----------
 const FINALS = {'ך':'כ','ם':'מ','ן':'נ','ף':'פ','ץ':'צ'};
@@ -621,8 +634,11 @@ async function botGuess(category,clues,prevGuesses){const r=await A.sample(`את
 
 // ---------- אפקטים ----------
 let audioCtx=null;
-function fx(kind){try{if(kind==='trap'){navigator.vibrate&&navigator.vibrate([220,70,320,60,120]);beep('trap');}else if(kind==='correct'){navigator.vibrate&&navigator.vibrate(60);beep('correct');}}catch(e){}}
+function fx(kind){try{if(kind==='skip'){navigator.vibrate&&navigator.vibrate(25);beep('skip');}else if(kind==='trap'){navigator.vibrate&&navigator.vibrate([220,70,320,60,120]);beep('trap');}else if(kind==='correct'){navigator.vibrate&&navigator.vibrate(60);beep('correct');}}catch(e){}}
 function beep(kind){try{audioCtx=audioCtx||new (window.AudioContext||window.webkitAudioContext)();const ctx=audioCtx,t=ctx.currentTime;
+  if(kind==='skip'){const len=.6,buf=ctx.createBuffer(1,ctx.sampleRate*len,ctx.sampleRate),d=buf.getChannelData(0);for(let i=0;i<d.length;i++)d[i]=Math.random()*2-1;
+    const src=ctx.createBufferSource();src.buffer=buf;const bp=ctx.createBiquadFilter();bp.type='bandpass';bp.Q.value=1.2;const t0=t+.22;bp.frequency.setValueAtTime(350,t0);bp.frequency.exponentialRampToValueAtTime(3200,t0+.22);bp.frequency.exponentialRampToValueAtTime(700,t0+.5);
+    const g=ctx.createGain();g.gain.setValueAtTime(.0001,t0);g.gain.exponentialRampToValueAtTime(.55,t0+.18);g.gain.exponentialRampToValueAtTime(.0001,t0+.55);src.connect(bp).connect(g).connect(ctx.destination);src.start(t0);return;}
   if(kind==='trap'){const len=1.5,buf=ctx.createBuffer(1,ctx.sampleRate*len,ctx.sampleRate);const d=buf.getChannelData(0);for(let i=0;i<d.length;i++)d[i]=(Math.random()*2-1)*Math.pow(1-i/d.length,1.7);
     const src=ctx.createBufferSource();src.buffer=buf;const lp=ctx.createBiquadFilter();lp.type='lowpass';lp.frequency.setValueAtTime(2400,t);lp.frequency.exponentialRampToValueAtTime(70,t+1.3);
     const g=ctx.createGain();g.gain.setValueAtTime(.95,t);g.gain.exponentialRampToValueAtTime(.001,t+len);src.connect(lp).connect(g).connect(ctx.destination);src.start(t);
@@ -795,7 +811,11 @@ function vOpponent(S,c){return `<div class="screen lock">${vHeader(S)}<div class
 function vLocalPrep(S){const ex=playerById(S,S.explainerId);
   return `<div class="screen center" style="gap:20px">${vHud(S)}<div class="card tc pop"><div class="muted small">${S.mode==='ai'?'עכשיו מסביר/ה':'העבירו את הטלפון ל'}</div><div style="margin:12px 0;display:flex;justify-content:center">${ex?av(ex.avatar,'xl'):''}</div><div class="black" style="font-size:32px">${ex?h(ex.name):''}</div><div class="small muted" style="margin-top:8px">${TEAM_NAME[S.activeTeam]} · ${Math.ceil(S.turnRemainingMs/1000)} שניות נותרו בתור</div></div>
     <button class="btn primary big" onclick="act({type:'begin_explaining'})">${S.mode==='ai'?'מוכן/ה — התחל':'אני המסביר — התחל'}</button></div>`;}
-function vOverlay(r){if(r.kind==='skip')return `<div class="overlay skip"><div class="pop tc"><div class="muted">דילוג</div><div class="bigq" style="font-size:36px">${h(r.word)}</div></div></div>`;
+function vOverlay(r){// דילוג: הקלף נזרק מהמסך בקווי מהירות, וקלף חדש (הפוך) נכנס במקומו
+  if(r.kind==='skip'){const left=A.S?A.S.skipsLeft:0;const lines=[12,23,31,44,58,66,77,88].map((y,i)=>`<i class="sline" style="top:${y}%;width:${90+(i*37)%120}px;animation-delay:${(i*.07).toFixed(2)}s"></i>`).join('');
+    return `<div class="overlay skip">${lines}<div class="col tc" style="align-items:center;gap:22px;position:relative;width:100%"><div class="skiplabel">${ic('skip',32)} דילוג!</div>
+      <div class="cardfly"><div class="wordcard flyout"><div class="l">המילה הייתה</div><div class="target">${h(r.word)}</div></div><div class="cardback flyin"><span>?</span></div></div>
+      <div class="chip rise" style="animation-delay:.55s">נותרו ${left} דילוגים</div></div></div>`;}
   const trap=r.kind==='trap';const d=r.delta||{};const S=A.S;const p=S&&S.players.find(x=>x.name===r.playerName);const canNext=A.mode!=='online'||A.isHost;
   const deltas=`<div class="deltas">${['A','B'].filter(t=>d[t]).map(t=>`<div class="d ${d[t]>0?'pos':'neg'}"><div class="n">${d[t]>0?'+'+d[t]:d[t]}</div><div class="xs" style="color:#fff">${TEAM_NAME[t]}</div></div>`).join('')}</div>`;
   const next=canNext?`<button class="btn primary big" style="max-width:320px" onclick="A.S.phaseEndsAt=Date.now()-1;E.tick(A.S);if(A.mode==='online')hostWrite();render()">הקלף הבא ${ic('play',20)}</button>`:'';
