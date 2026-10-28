@@ -438,6 +438,12 @@ html.kb .rolebar{display:none}
 .twords{display:flex;flex-wrap:wrap;gap:6px;justify-content:center;margin-top:14px}
 .tw{border:2.5px solid var(--ink);border-radius:999px;padding:2px 10px;font-weight:800;font-size:14px;background:#fff}
 .tw.correct{background:var(--green)}.tw.trap{background:var(--red);color:#fff}.tw.skip{background:#E4E0F2}.tw.missed{background:var(--yellow)}
+.cbtn{position:absolute;top:-6px;right:-8px;width:34px;height:34px;border-radius:50%;background:#fff;border:2.5px solid var(--ink);display:flex;align-items:center;justify-content:center;font-size:16px;box-shadow:0 2px 0 var(--ink)}
+.cbtn.inline{position:relative;top:auto;right:auto;width:44px;height:44px;font-size:20px;box-shadow:var(--sh-sm)}
+.cbtn .badge{position:absolute;top:-6px;left:-6px;min-width:20px;height:20px;border-radius:999px;background:var(--red);color:#fff;font-size:11px;font-weight:900;display:flex;align-items:center;justify-content:center;border:2px solid var(--ink);padding:0 4px}
+html.kb .cbtn:not(.inline){display:none}
+.roomchat{max-height:80vh}.roomchat .rc{min-height:180px;max-height:46vh;background:var(--bg);border-radius:14px;border:var(--o);padding:10px 8px}
+.opts.watch button{opacity:1}
 </style>
 </head>
 <body>
@@ -518,9 +524,15 @@ const E = {
     S.cardId=S.deck.pop();S.cardAt=Date.now();S.traps=[];S.cardResolved=false;S.cardResult=null;S.clues=[];
     // מצב מקומי: הטלפון עובר ליריבים רק לפני הקלף הראשון בתור; בקלפים הבאים המוקשים נבחרים אוטומטית
     if(S.mode==='local'&&S.turnRemainingMs<S.settings.turnSeconds*1000){const c=CARDS.get(S.cardId);S.traps=shuffle(c.options).slice(0,3);E.startExplaining(S);return;}
+    // אונליין: שחקן אחד מהיריבים (בסבב) טומן את המוקשים לקלף הזה, ושאר הקבוצה שלו רואה את הבחירה בזמן אמת
+    S.trapDraft=[];S.trapperId=null;{const opp=S.activeTeam==='A'?'B':'A';const hs=E.team(S,opp).filter(p=>!isBot(p.id)&&(p.connected||S.mode!=='online'));
+      if(S.mode==='online'&&hs.length){S.trapCursor=S.trapCursor||{A:0,B:0};S.trapperId=hs[S.trapCursor[opp]%hs.length].id;S.trapCursor[opp]++;}}
     E.setPhase(S,'TRAP_SELECTION',S.settings.trapSeconds*1000);},
+  trapDraft(S,playerId,words){const c=E.card(S);if(S.phase!=='TRAP_SELECTION'||!c||playerId!==S.trapperId)return;S.trapDraft=[...new Set(words)].filter(w=>c.options.includes(w)).slice(0,3);S.v++;},
+  say(S,playerId,text){const p=S.players.find(x=>x.id===playerId);const t=String(text||'').trim().slice(0,200);if(!p||!t)return;S.chat=S.chat||[];S.chat.push({id:uid(6),by:playerId,name:p.name,text:t,at:Date.now()});if(S.chat.length>40)S.chat.shift();S.v++;},
   selectTraps(S,playerId,words){const p=S.players.find(x=>x.id===playerId);const c=E.card(S);if(S.phase!=='TRAP_SELECTION'||!c)throw new Error('לא זה הזמן לטמון מוקשים');
-    if(!p||p.team===S.activeTeam)throw new Error('רק הקבוצה היריבה טומנת מוקשים');const u=[...new Set(words)];if(u.length!==3)throw new Error('צריך לבחור בדיוק 3 מוקשים');
+    if(!p||p.team===S.activeTeam)throw new Error('רק הקבוצה היריבה טומנת מוקשים');
+    if(S.mode==='online'&&S.trapperId&&playerId!==S.trapperId&&!isBot(playerId)){const t=S.players.find(x=>x.id===S.trapperId);throw new Error(`${t?t.name:'שחקן אחר'} בוחר/ת את המוקשים בקלף הזה`);}const u=[...new Set(words)];if(u.length!==3)throw new Error('צריך לבחור בדיוק 3 מוקשים');
     for(const w of u)if(!c.options.includes(w))throw new Error('מוקש לא מתוך הרשימה');S.traps=u;E.afterTraps(S);},
   autoPickTraps(S){const c=E.card(S);if(!c)return;S.traps=shuffle(c.options).slice(0,3);E.afterTraps(S);},
   afterTraps(S){if(S.mode==='local'||(S.mode==='ai'&&!isBot(S.explainerId))){E.setPhase(S,'TURN_PREPARATION',null);}else E.startExplaining(S);},
@@ -657,6 +669,8 @@ function handleAction(a){const S=A.S;if(!S)return;
     case 'skip':E.skip(S,a.from);break;
     case 'begin_explaining':if(S.phase==='TURN_PREPARATION'&&S.mode!=='online')E.startExplaining(S);break;
     case 'clue':E.clue(S,a.from,a.text);break;
+    case 'trap_draft':E.trapDraft(S,a.from,a.words||[]);break;
+    case 'say':{E.say(S,a.from,a.text);const m=(S.chat||[]).at(-1);if(m&&a.from!==A.uid&&!A.roomChat&&A.mode==='online')toast(`💬 ${m.name}: ${m.text}`);break;}
     case 'rematch':if(isHostAct(S,a))E.rematch(S);break;}};
   const before=S.cardResult;
   if(A.mode!=='online'){run();if(S.cardResult&&S.cardResult!==before)fx(S.cardResult.kind);return;}
@@ -665,7 +679,7 @@ function handleAction(a){const S=A.S;if(!S)return;
   hostWrite();render();}
 function isHostAct(S,a){return A.mode!=='online'||!!S.players.find(p=>p.id===a.from&&p.isHost);}
 function subscribeRoom(code){A.unsub.forEach(u=>u());A.unsub=[];
-  const applyState=(S)=>{if(!S)return;if(A.isHost&&A.S&&S.v<=A.S.v)return;const prev=A.S;A.S=S;if(prev&&prev.cardResult!==S.cardResult&&S.cardResult&&S.phase==='CARD_RESULT')fx(S.cardResult.kind);render();};
+  const applyState=(S)=>{if(!S)return;if(A.isHost&&A.S&&S.v<=A.S.v)return;const prev=A.S;A.S=S;chatNotify(prev,S);if(prev&&prev.cardResult!==S.cardResult&&S.cardResult&&S.phase==='CARD_RESULT')fx(S.cardResult.kind);render();};
   const ch=sb.channel('room-'+code)
     .on('postgres_changes',{event:'*',schema:'public',table:'mokesh_rooms',filter:'code=eq.'+code},(payload)=>{if(payload.eventType==='DELETE'){leaveRoom();toast('החדר נסגר');return;}applyState(payload.new&&payload.new.state);})
     .subscribe();
@@ -771,11 +785,12 @@ function render(){const S=A.S;let html='';
     case 'LOBBY':html=vLobby(S);break;
     case 'GAME_OVER':html=vGameOver(S);break;
     case 'TURN_SUMMARY':html=vSummary(S);break;
-    case 'TURN_PREPARATION':html=S.mode!=='online'&&!S.phaseEndsAt?vLocalPrep(S):vWait(S,'מתכוננים לתור הבא…');break;
+    case 'TURN_PREPARATION':html=S.mode!=='online'&&!S.phaseEndsAt?vLocalPrep(S):vWait(S,`התור הבא: ${TEAM_NAME[S.activeTeam]} · מיד נדע מי מסביר`);break;
     default:html=vGame(S);}
   if(S&&S.phase==='CARD_RESULT'&&S.cardResult)html+=vOverlay(S.cardResult);
   if(S&&A.avPick)html+=vAvPick(S);
   if(S&&A.menu)html+=vMenu(S);
+  if(S&&A.roomChat&&S.mode==='online')html+=vRoomChat(S);
   if(A.toast)html+=`<div class="toast pop" role="alert">${h(A.toast)}</div>`;
   const ae=document.activeElement;const keep=ae&&ae.tagName==='INPUT'&&app.contains(ae)?{key:ae.name||ae.id,value:ae.value,sel:ae.selectionStart}:null;
   const tpl=document.createElement('div');tpl.innerHTML=html;morph(app,tpl);
@@ -855,7 +870,7 @@ function vLobby(S){if(S.mode==='ai')return vLobbyAI(S);const me=playerById(S,myI
     ${ps.map(p=>`<div class="p">${p.isHost&&!local?`<span class="crown" style="color:var(--amber)">${ic('crown',18)}</span>`:''}${!isBot(p.id)&&(local||p.id===myId())?avBtn(p,'lg',!p.connected):av(p.avatar,'lg',!p.connected)}<span class="n">${h(p.name)}</span>${isBot(p.id)?`${!local&&A.isHost?`<button class="xs muted" onclick="apply(S=>E.removePlayer(S,'${p.id}'))">✕</button>`:''}`:p.ready?'<span class="tag" style="color:#12A85A">מוכן ✓</span>':!p.connected?'<span class="tag">מנותק</span>':''}
       ${local?`<span class="row" style="gap:2px"><button class="xs muted" onclick="act({type:'switch_team',from:'${p.id}'})">↔</button><button class="xs muted" onclick="apply(S=>E.removePlayer(S,'${p.id}'))">✕</button></span>`:A.isHost&&!p.isHost&&!isBot(p.id)?`<span class="row" style="gap:2px">${S.vsBots?'':`<button class="xs muted" title="העבר קבוצה" onclick="act({type:'move',target:'${p.id}'})">↔</button>`}<button class="xs muted" title="הוצא מהחדר" onclick="act({type:'kick',target:'${p.id}'})">✕</button></span>`:''}</div>`).join('')}
     ${S.vsBots&&t==='B'?'':`<button class="add" onclick="${local?'document.getElementById(\'lname\').focus()':`shareRoom('${h(link)}','${S.code}')`}" title="${local?'הוסף שחקן':'הזמן חבר'}">+</button>`}${canAddBot(S,t)&&!S.vsBots?`<button class="add bot" onclick="addBot('${t}')" title="הוסף מחשב לקבוצה">${ic('robot',24)}<small>מחשב</small></button>`:''}</div></div>`;
-  const head=`<div class="hdr"><button onclick="${!local&&A.isHost?'A.menu=1;render()':'leaveRoom()'}">${ic('back',22)}</button><div class="t">${local?'מכשיר אחד':'חדר משחק'}</div><div class="row" style="gap:6px">${musicBtn('')}<button onclick="A.homeMode='how';A.introPage=0;leaveRoom()" title="איך משחקים">${ic('help',22)}</button></div></div>`;
+  const head=`<div class="hdr"><button onclick="${!local&&A.isHost?'A.menu=1;render()':'leaveRoom()'}">${ic('back',22)}</button><div class="t">${local?'מכשיר אחד':'חדר משחק'}</div><div class="row" style="gap:6px">${local?musicBtn(''):chatBtn(S).replace('class="cbtn"','class="cbtn inline"')}<button onclick="A.homeMode='how';A.introPage=0;leaveRoom()" title="איך משחקים">${ic('help',22)}</button></div></div>`;
   const codeRow=local?'':`<div class="row between"><button class="codebox" onclick="shareRoom('${h(link)}','${S.code}',true)" title="העתק">${S.code} ${ic('copy',18)}</button><button class="btn info" style="width:auto" onclick="shareRoom('${h(link)}','${S.code}')">${ic('share',20)} שתף קישור</button></div>`;
   const addLocal=local?vAddPlayer(S):'';
   const mine=!local&&me?`<div class="row"><button class="btn secondary" onclick="act({type:'switch_team'})">עבור ל${me.team==='A'?'קבוצה ב׳':'קבוצה א׳'}</button><button class="btn ${me.ready?'ok':'secondary'}" onclick="act({type:'ready',ready:${!me.ready}})">${me.ready?'מוכן ✓':'אני מוכן'}</button></div>`:'';
@@ -897,15 +912,16 @@ function vSettings(S){const s=S.settings;const host=A.isHost;const set=p=>`act({
     ${open?r('תורות לכל קבוצה',s.turnsPerTeam,set({turnsPerTeam:s.turnsPerTeam-1}),set({turnsPerTeam:s.turnsPerTeam+1}))+r('שניות לתור',s.turnSeconds,set({turnSeconds:s.turnSeconds-15}),set({turnSeconds:s.turnSeconds+15}))+r('שניות לבחירת מוקשים',s.trapSeconds,set({trapSeconds:s.trapSeconds-5}),set({trapSeconds:s.trapSeconds+5}))+r('רמת קושי',dl,set({difficulty:order[(i+3)%4]}),set({difficulty:order[(i+1)%4]})):''}</div>`;}
 function vRing(S,live){return `<div class="bombclock"><img src="${ASSETS.bomb}" alt=""><div class="t">${live?'–':fmt(S.turnRemainingMs)}</div></div>`;}
 // לוח תוצאות + פתיל בוער: הטיימר הוא פתיל שנשרף לאורך המסך, והשניות על הפצצה עצמה
+function trapperLine(S){const t=S.trapperId&&playerById(S,S.trapperId);return t?`${h(t.name)} מהיריבים טומן/ת לכם מוקשים…`:'היריבים טומנים מוקשים…';}
 function myTeam(S){if(S.mode==='local')return null;const me=playerById(S,myId());return me?me.team:null;}
 // שורה קצרה שאומרת לכל שחקן מה התפקיד שלו עכשיו
 function vRoleBar(S){if(S.mode==='local')return '';const mt=myTeam(S);if(!mt)return '';const r=role(S);const at=TEAM_NAME[S.activeTeam];const ex=playerById(S,S.explainerId);
-  const txt=r==='opponent'?(S.phase==='TRAP_SELECTION'?(isAIgame()?`טמנו מוקשים ${TG.to(S.activeTeam)}!`:`אתם ב${TEAM_NAME[mt]} · טמנו מוקשים ${TG.to(S.activeTeam)}!`):`התור ${TG.of(S.activeTeam)} · אתם צופים`):r==='explainer'?'אתם מסבירים לקבוצה שלכם':r==='guesser'?`אתם מנחשים · ${ex?h(ex.name):''} מסביר/ה`:'';
+  const txt=r==='opponent'?(S.phase==='TRAP_SELECTION'?(S.mode==='online'&&S.trapperId===myId()?`תורך לטמון מוקשים ${TG.to(S.activeTeam)}!`:isAIgame()?`טמנו מוקשים ${TG.to(S.activeTeam)}!`:`אתם ב${TEAM_NAME[mt]} · טמנו מוקשים ${TG.to(S.activeTeam)}!`):`התור ${TG.of(S.activeTeam)} · אתם צופים`):r==='explainer'?'אתם מסבירים לקבוצה שלכם':r==='guesser'?`אתם מנחשים · ${ex?h(ex.name):''} מסביר/ה`:'';
   return txt?`<div class="rolebar ${r}">${txt}</div>`:'';}
 function vHud(S){const mt=myTeam(S);const tile=t=>{const ps=E.team(S,t);return `<div class="stile ${t} ${S.activeTeam===t?'active':''} ${mt===t?'mine':''}">${mt===t?'<span class="me">אתם</span>':''}<div class="n">${S.score[t]}</div><div class="l">${TEAM_NAME[t]}</div>${ps.length?`<div class="mates">${ps.slice(0,6).map(p=>`<span class="m${p.id===S.explainerId&&S.activeTeam===t?' ex':''}">${avInner(p.avatar)}</span>`).join('')}</div><div class="mnames">${ps.map(p=>h(p.name)).join(' · ')}</div>`:''}</div>`;};
   const live=S.phaseEndsAt&&(S.phase==='EXPLAINING'||S.phase==='TRAP_SELECTION');const total=S.phase==='TRAP_SELECTION'?S.settings.trapSeconds*1000:S.settings.turnSeconds*1000;
   const p=Math.max(0,Math.min(1,live?(S.phaseEndsAt-Date.now())/total:(S.turnRemainingMs||0)/(S.settings.turnSeconds*1000))).toFixed(4);
-  return `<div class="hudwrap ${live?'live':'idle'}" style="--p:${p}" ${live?`data-timer data-ends="${S.phaseEndsAt}" data-total="${total}" data-danger="${S.phase==='TRAP_SELECTION'?5000:10000}"`:''}><div class="hud">${tile('A')}<div class="ringwrap">${vRing(S,live)}${musicBtn('mbtn')}<button type="button" class="xbtn" onclick="A.menu=1;render()" aria-label="תפריט">⋯</button></div>${tile('B')}</div><div class="fuse" aria-hidden="true"><i class="rope l"></i><i class="rope r"></i><i class="spark l"></i><i class="spark r"></i></div></div>`;}
+  return `<div class="hudwrap ${live?'live':'idle'}" style="--p:${p}" ${live?`data-timer data-ends="${S.phaseEndsAt}" data-total="${total}" data-danger="${S.phase==='TRAP_SELECTION'?5000:10000}"`:''}><div class="hud">${tile('A')}<div class="ringwrap">${vRing(S,live)}${musicBtn('mbtn')}<button type="button" class="xbtn" onclick="A.menu=1;render()" aria-label="תפריט">⋯</button>${chatBtn(S)}</div>${tile('B')}</div><div class="fuse" aria-hidden="true"><i class="rope l"></i><i class="rope r"></i><i class="spark l"></i><i class="spark r"></i></div></div>`;}
 function vHeader(S){const ex=playerById(S,S.explainerId);
   return `<div class="col" style="gap:10px">${vHud(S)}<div class="row between xs muted"><span>תור ${Math.min(S.turnIndex+1,E.totalTurns(S))} מתוך ${E.totalTurns(S)}</span><span class="row" style="gap:6px">${ex?av(ex.avatar,''):''}<span>${ex?h(ex.name)+' מסביר/ה':''}</span></span></div></div>`;}
 function vScore(S){return vHud(S);}
@@ -916,16 +932,21 @@ function vWait(S,text){return `<div class="screen lock">${vHeader(S)}<div class=
 function vGame(S){const r=role(S);const c=E.card(S);
   if(S.phase==='TRAP_SELECTION'){if(r==='opponent')return vTraps(S,c);if(r==='explainer')return vExplainer(S,c);if(r==='guesser')return vGuesser(S);return vWait(S,'היריבים טומנים מוקשים…');}
   if(r==='explainer')return vExplainer(S,c);if(r==='guesser')return vGuesser(S);if(r==='opponent')return vOpponent(S,c);return vWait(S,'צופים במשחק');}
-function vTraps(S,c){if(!A.trapCard||A.trapCard!==S.cardId){A.trapCard=S.cardId;A.trapPick=[];A.trapSent=false;}const pick=A.trapPick;const local=S.mode==='local';
+function vTraps(S,c){if(!A.trapCard||A.trapCard!==S.cardId){A.trapCard=S.cardId;A.trapPick=[];A.trapSent=false;}const local=S.mode==='local';
+  const tp=S.mode==='online'&&S.trapperId?playerById(S,S.trapperId):null;const watching=!!tp&&tp.id!==myId();const pick=watching?(S.trapDraft||[]):A.trapPick;
+  if(watching)return `<div class="screen lock">${vHeader(S)}<div class="rolebar opponent">${h(tp.name)} טומן/ת מוקשים ${TG.to(S.activeTeam)} · אתם רואים בזמן אמת</div>
+    <div class="explain-head"><img class="bombimg" src="${ASSETS.bomb}" alt=""><div><div class="xs muted">${TG.needs(S.activeTeam)} · ${h(c.category)}</div><div class="black" style="font-size:30px;line-height:1.1">${h(c.target)}</div></div></div>
+    <div class="opts watch">${c.options.map(w=>`<button class="${pick.includes(w)?'on':''}" disabled>${h(w)}</button>`).join('')}</div>
+    <div class="tc small" style="color:#fff;margin-top:auto">${av(tp.avatar,'')} ${h(tp.name)} בחר/ה ${pick.length}/3</div></div>`;
   return `<div class="screen lock">${vHeader(S)}${vRoleBar(S)}${local?`<div class="banner warn">העבירו את הטלפון ל${TEAM_NAME[S.activeTeam==='A'?'B':'A']} (היריבים)</div>`:''}
     <div class="explain-head"><img class="bombimg" src="${ASSETS.bomb}" alt=""><div><div class="xs muted">${TG.needs(S.activeTeam)} · ${h(c.category)}</div><div class="black" style="font-size:30px;line-height:1.1">${h(c.target)}</div></div></div>
     <p class="tc small muted" style="margin:0">בחרו <b style="color:var(--danger)">3 מוקשים</b> — מילים שהמנחשים עלולים לומר בטעות</p>
     <div class="opts">${c.options.map(w=>`<button class="${pick.includes(w)?'on':''}" ${A.trapSent?'disabled':''} onclick="toggleTrap('${h(w)}')">${h(w)}</button>`).join('')}</div>
     <div style="margin-top:auto"><button class="btn danger big" ${pick.length!==3||A.trapSent?'disabled':''} onclick="sendTraps()"><img src="${ASSETS.bomb}" style="width:28px;height:28px" alt=""> ${A.trapSent?'המוקשים נטמנו':`טמון מוקשים (${pick.length}/3)`}</button></div></div>`;}
-function toggleTrap(w){const p=A.trapPick;A.trapPick=p.includes(w)?p.filter(x=>x!==w):p.length<3?[...p,w]:p;render();}
+function toggleTrap(w){const p=A.trapPick;A.trapPick=p.includes(w)?p.filter(x=>x!==w):p.length<3?[...p,w]:p;if(A.mode==='online'&&A.S&&A.S.trapperId===myId())act({type:'trap_draft',words:A.trapPick});render();}
 function sendTraps(){const S=A.S;A.trapSent=true;const from=S.mode!=='online'?E.team(S,S.activeTeam==='A'?'B':'A')[0].id:myId();act({type:'select_traps',words:A.trapPick,from});render();}
 function vExplainer(S,c){const live=S.phase==='EXPLAINING';const local=S.mode==='local';const ai=typedClues(S);
-  const trapHtml=S.traps.length?`<div class="trapgrid">${S.traps.map(t=>`<div class="trap">${h(t)}</div>`).join('')}</div>`:'<div class="small muted pulse tc">היריבים בוחרים מוקשים…</div>';
+  const trapHtml=S.traps.length?`<div class="trapgrid">${S.traps.map(t=>`<div class="trap">${h(t)}</div>`).join('')}</div>`:`<div class="small muted pulse tc" style="color:#fff">${trapperLine(S)}</div>`;
   return `<div class="screen lock">${vHud(S)}${vRoleBar(S)}
     <div class="wordcard"><div class="l">המילה שלך:</div><div class="target">${h(c?c.target:'')}</div></div>
     <div class="col" style="gap:6px"><div class="sublabel"><span>מוקשים — אסור שינחשו אותם</span></div>${trapHtml}</div>
@@ -944,9 +965,9 @@ function vLocalGuessBar(S,live){const gs=E.team(S,S.activeTeam).filter(p=>p.id!=
 function vGuesser(S){const live=S.phase==='EXPLAINING';const ex=playerById(S,S.explainerId);if(typedClues(S)){const hs=humansOn(S,S.activeTeam).filter(p=>p.id!==S.explainerId);if(hs.length&&!hs.find(p=>p.id===A.localActor))A.localActor=hs[0].id;}
   const exRow=`<div class="row kb-hide" style="justify-content:center;gap:12px">${ex?av(ex.avatar,'lg'):''}<div><div class="bold" style="font-size:16px">${ex?h(ex.name)+' מסביר/ה עכשיו':''}</div><span class="wave ${live?'':'off'}"><i></i><i></i><i></i><i></i><i></i><i></i><i></i></span></div></div>`;
   const form=`<form class="chatbar" onsubmit="event.preventDefault();submitGuess(this)"><input class="input" name="g" style="font-size:19px" maxlength="60" autocomplete="off" autocorrect="off" enterkeyhint="send" ${live?'':'disabled'} placeholder="${live?(VOICE.on?'מקשיב… אמרו ניחוש':'הקלד ניחוש…'):'ממתינים…'}" data-autofocus>${typedClues(S)?micBtn('g',live):''}<button class="btn info" style="width:58px;padding:0" ${live?'':'disabled'} aria-label="שלח">${ic('send',24)}</button></form>`;
-  if(typedClues(S))return `<div class="screen lock" style="gap:12px">${vHud(S)}${vRoleBar(S)}${exRow}${vChat(S,'guess',live?'חושב על רמז…':S.phase==='TRAP_SELECTION'?'היריבים טומנים מוקשים…':'רגע…')}${form}</div>`;
+  if(typedClues(S))return `<div class="screen lock" style="gap:12px">${vHud(S)}${vRoleBar(S)}${exRow}${vChat(S,'guess',live?'חושב על רמז…':S.phase==='TRAP_SELECTION'?trapperLine(S):'רגע…')}${form}</div>`;
   return `<div class="screen lock" style="gap:12px">${vHud(S)}${exRow}
-    <div class="bigq">${live?'מה המילה?':S.phase==='TRAP_SELECTION'?'היריבים טומנים מוקשים…':'רגע…'}</div>${form}
+    <div class="bigq">${live?'מה המילה?':S.phase==='TRAP_SELECTION'?trapperLine(S):'רגע…'}</div>${form}
     ${SR?`<div class="tc kb-hide"><button type="button" class="mic ${VOICE.on?'rec':''}" ${live?'':'disabled'} onclick="toggleVoice('g')" aria-label="ניחוש בקול">${ic('mic',40)}</button><div class="small muted" style="margin-top:10px">${VOICE.on?'מקשיב… אמרו ניחוש, לחצו שוב לעצירה':'לחצו כדי לנחש בקול'}</div></div>`:''}
     <div class="grow"><div class="label" style="margin-bottom:6px">ניחושים אחרונים</div>${vGuesses(S,5)}</div></div>`;}
 function vClues(S){return vChat(S,'clue','חושב על רמז…');}
@@ -980,6 +1001,13 @@ function vBlast(){const C=['var(--ink)','var(--yellow)','var(--orange)','#fff','
   const smoke=[[-60,-30],[70,-50],[-30,60],[50,50],[0,-80]].map(([x,y],i)=>`<i class="smoke" style="--x:${x}px;--y:${y}px;animation-delay:${(i*.06).toFixed(2)}s"></i>`).join('');
   return `<div class="flash"></div><div class="scorch"></div>${smoke}<i class="shock"></i><i class="shock s2"></i>${deb}`;}
 // תפריט: יציאה / סגירת החדר לכולם (למארח, עם אישור)
+// צ׳אט החדר: כל המשתתפים, משתי הקבוצות
+function chatNotify(prev,S){const a=(prev&&prev.chat||[]).length,b=(S.chat||[]);if(b.length>a&&!A.roomChat){const m=b.at(-1);if(m.by!==myId())toast(`💬 ${m.name}: ${m.text}`);}}
+function chatBtn(S){if(S.mode!=='online')return '';const n=(S.chat||[]).length-(A.chatSeen||0);return `<button type="button" class="cbtn" onclick="A.roomChat=1;A.chatSeen=(A.S.chat||[]).length;render()" aria-label="צ׳אט">💬${n>0?`<span class="badge">${n}</span>`:''}</button>`;}
+function vRoomChat(S){A.chatSeen=(S.chat||[]).length;const me=myId();const items=(S.chat||[]);
+  return `<div class="sheet-bg" onclick="A.roomChat=0;render()"><div class="sheet pop roomchat" onclick="event.stopPropagation()"><div class="row between"><div class="black" style="font-size:22px">💬 צ׳אט החדר</div><button class="btn ghost" onclick="A.roomChat=0;render()">סגור</button></div>
+    <div class="chat rc" data-autoscroll>${items.length?items.map(m=>{const p=playerById(S,m.by);return `<div class="msg${m.by===me?'':' them'}"><span class="au">${h(m.name)}${p?` · ${TEAM_NAME[p.team]}`:''}</span><div class="b">${h(m.text)}</div></div>`;}).join(''):'<div class="empty">עדיין אין הודעות. תגידו שלום 👋</div>'}</div>
+    <form class="chatbar" onsubmit="event.preventDefault();const i=this.say;const t=i.value.trim();if(t){act({type:'say',text:t});i.value='';}"><input class="input" name="say" maxlength="200" autocomplete="off" enterkeyhint="send" placeholder="כתבו לכולם…"><button class="btn primary">שלח</button></form></div></div>`;}
 function vMenu(S){const host=A.mode==='online'&&A.isHost;const confirm=A.menu===2;
   const body=confirm?`<div class="black" style="font-size:24px">לסגור את החדר לכולם?</div><div class="small isub">כל השחקנים ייצאו מהמשחק, והחדר יימחק.</div>
       <button class="btn danger big" onclick="closeRoom()">כן, סגור את החדר</button><button class="btn" onclick="A.menu=1;render()">לא, חזרה</button>`
