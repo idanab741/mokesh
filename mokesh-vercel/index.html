@@ -256,6 +256,7 @@ i.dot{display:inline-block;width:9px;height:9px;border-radius:50%;background:#2E
 .invbar{position:fixed;top:12px;left:12px;right:12px;z-index:60;max-width:32rem;margin:0 auto;display:flex;align-items:center;gap:10px;background:#fff;color:var(--ink);border:var(--o);border-radius:18px;box-shadow:var(--sh);padding:10px}
 .invbar .x{background:none;border:0;font-size:18px;cursor:pointer;color:var(--soft)}
 .skipq{align-self:center;background:#fff;color:var(--ink)}
+.cardprev{width:150px;align-self:center;border-radius:14px;border:var(--o);box-shadow:var(--sh);transform:rotate(-3deg);cursor:pointer}
 .hudnote{margin:6px auto 0;width:max-content;max-width:100%;font-size:13px;font-weight:800;color:#fff;background:rgba(21,16,43,.35);border-radius:999px;padding:3px 12px}.hudnote.hot{background:var(--orange);color:var(--ink)}
 .btags{display:flex;flex-wrap:wrap;gap:6px;justify-content:center}.btags span{background:var(--yellow);color:var(--ink);font-weight:800;font-size:14px;border-radius:999px;padding:4px 12px;border:var(--o)}
 .deltas .d.neg .n{color:var(--red)}.deltas .d.pos .n{color:#0B9A4E}
@@ -1238,14 +1239,57 @@ function vSummary(S){const t=S.turnSummary;if(!t)return '';
     ${t.words&&t.words.length?`<div class="twords">${t.words.map(w=>`<span class="tw ${w.kind}">${w.kind==='correct'?'✓':w.kind==='trap'?'💥':w.kind==='skip'?'⏭':'⏱'} ${h(w.word)}${w.mine?` <small>(עלה על ״${h(w.mine)}״)</small>`:''}</span>`).join('')}</div>${t.words.some(w=>w.kind==='missed')?`<div class="small" style="margin-top:6px">המילה שנשארה כשנגמר הזמן: <b>${h(t.words.find(w=>w.kind==='missed').word)}</b></div>`:''}`:''}
     <div class="small muted" style="margin-top:16px">הסביר/ה: <b style="color:var(--ink)">${h(t.explainerName)}</b></div>${t.best?`<div class="small muted">הכי הרבה ניחושים: <b style="color:var(--ink)">${h(t.best.name)}</b> (${t.best.correct})</div>`:''}</div>
     <div class="tc small muted pulse">התור עובר ${TG.to(S.activeTeam==='A'?'B':'A')}…</div></div>`;}
-function vGameOver(S){const g=S.gameOver;if(!g)return '';const title=g.winner==='tie'?'תיקו!':TG.won(g.winner);
+function vGameOver(S){const g=S.gameOver;if(!g)return '';prepCard(S);const title=g.winner==='tie'?'תיקו!':TG.won(g.winner);
   const st=(l,a,b)=>`<div class="row between small"><span class="bold">${a}</span><span class="muted">${l}</span><span class="bold">${b}</span></div>`;
   return `<div class="screen center"><div class="tc pop"><div style="color:var(--amber)">${ic('trophy',80)}</div><div class="wintitle ${g.winner!=='tie'?'t'+g.winner:''}">${title}</div>${g.reason==='target'?`<div class="small bold" style="color:#fff">הגיעו ראשונים ל-${S.settings.target||20} נקודות!</div>`:g.reason==='sudden'?'<div class="small bold" style="color:#fff">ניצחון במוות פתאומי ⚔️</div>':''}</div>
     <div class="card"><div class="row between"><div class="tc tA"><div class="xs">${TEAM_NAME.A}</div><div class="black" style="font-size:48px">${g.score.A}</div></div><div class="muted">:</div><div class="tc tB"><div class="xs">${TEAM_NAME.B}</div><div class="black" style="font-size:48px">${g.score.B}</div></div></div>
     <div class="col" style="border-top:1px solid rgba(255,255,255,.1);margin-top:12px;padding-top:12px">${st('תשובות נכונות',g.correctTotal.A,g.correctTotal.B)}${st('מוקשים שהופעלו',g.trapsTotal.A,g.trapsTotal.B)}</div>
     <div class="col small" style="border-top:1px solid rgba(255,255,255,.1);margin-top:12px;padding-top:12px">${g.mvp?`<div class="row">${ic('target',18)} השחקן המצטיין: <b>${h(g.mvp.name)}</b> (${g.mvp.correct} נכונות)</div>`:''}${g.bomber?`<div class="row"><img src="${ASSETS.bomb}" style="width:18px;height:18px" alt=""> מלך המוקשים: <b>${h(g.bomber.name)}</b> (${g.bomber.traps})</div>`:''}</div></div>
-    <div class="col">${A.isHost?`<button class="btn primary big" onclick="act({type:'rematch'})">משחק חוזר</button>`:'<div class="tc small muted">מנהל החדר יכול להתחיל משחק חוזר</div>'}<button class="btn info" onclick="shareResult()">שתף תוצאה</button><button class="btn ghost" onclick="leaveRoom()">יציאה מהחדר</button></div></div>`;}
-async function shareResult(){const g=A.S.gameOver;const text=`מוקש! 💥 ${TEAM_NAME.A} ${g.score.A} – ${g.score.B} ${TEAM_NAME.B}${g.winner!=='tie'?' · '+TG.won(g.winner):''}`;try{navigator.share?await navigator.share({text}):await navigator.clipboard.writeText(text);}catch(e){}}
+    <div class="col">${A.isHost?`<button class="btn primary big" onclick="act({type:'rematch'})">משחק חוזר</button>`:'<div class="tc small muted">מנהל החדר יכול להתחיל משחק חוזר</div>'}${A.cardUrl?`<img class="cardprev" src="${A.cardUrl}" alt="כרטיס הניצחון" onclick="shareResult()">`:''}<button class="btn info big" onclick="shareResult()">📸 שתפו את הניצחון</button><button class="btn ghost" onclick="leaveRoom()">יציאה מהחדר</button></div></div>`;}
+// ---------- כרטיס ניצחון לשיתוף: תמונה מעוצבת (לוגו, גביע, תוצאה, שחקנים, MVP) + קישור למשחק ----------
+// מוכנה מראש כשמסך הסיום עולה, כדי שהשיתוף ייפתח מיד בלחיצה (בלי זה אייפון חוסם את חלון השיתוף)
+const loadImg=src=>new Promise(r=>{const i=new Image();i.onload=()=>r(i);i.onerror=()=>r(null);i.src=src;});
+function rrect(x,X,Y,w,hh,r){x.beginPath();x.moveTo(X+r,Y);x.arcTo(X+w,Y,X+w,Y+hh,r);x.arcTo(X+w,Y+hh,X,Y+hh,r);x.arcTo(X,Y+hh,X,Y,r);x.arcTo(X,Y,X+w,Y,r);x.closePath();}
+function popText(x,t,X,Y,font,fill,stroke,lw){x.font=font;x.lineJoin='round';x.lineWidth=lw;x.strokeStyle=stroke;x.fillStyle='rgba(21,16,43,.55)';x.fillText(t,X,Y+10);x.strokeText(t,X,Y);x.fillStyle=fill;x.fillText(t,X,Y);}
+async function drawAvatar(x,a,cx,cy,r){x.save();x.beginPath();x.arc(cx,cy,r,0,Math.PI*2);x.closePath();
+  const img=ASSETS[a]?await loadImg(ASSETS[a]):null;x.fillStyle=img?'#fff':AV_COLORS[a]||(a==='🧠'?'#A855F7':a==='🤖'?'#3B82F6':'#4C2A9E');x.fill();x.clip();
+  if(img)x.drawImage(img,cx-r,cy-r,r*2,r*2);else{x.font=`${Math.round(r*1.1)}px system-ui,"Apple Color Emoji","Segoe UI Emoji",sans-serif`;x.textAlign='center';x.textBaseline='middle';x.fillText(a==='🧠'||a==='🤖'?a:'💣',cx,cy+2);x.textBaseline='alphabetic';}
+  x.restore();x.beginPath();x.arc(cx,cy,r,0,Math.PI*2);x.lineWidth=6;x.strokeStyle='#15102B';x.stroke();}
+async function resultCard(S){const g=S.gameOver;const W=1080,H=1350;const c=document.createElement('canvas');c.width=W;c.height=H;const x=c.getContext('2d');
+  try{await Promise.race([Promise.all([document.fonts.load('120px "Secular One"'),document.fonts.load('800 40px Rubik')]),new Promise(r=>setTimeout(r,2500))]);}catch(e){}
+  const D='"Secular One",Rubik,system-ui,sans-serif',B='Rubik,Heebo,system-ui,sans-serif';const win=g.winner;const tie=win==='tie';
+  x.fillStyle='#2B3BFF';x.fillRect(0,0,W,H);
+  // קרני אור, הילה וקונפטי
+  x.save();x.translate(W/2,470);for(let i=0;i<24;i++){x.rotate(Math.PI/12);if(i%2){x.fillStyle='rgba(255,255,255,.08)';x.beginPath();x.moveTo(0,0);x.lineTo(-120,-1500);x.lineTo(120,-1500);x.closePath();x.fill();}}x.restore();
+  const rg=x.createRadialGradient(W/2,470,30,W/2,470,560);rg.addColorStop(0,'rgba(255,210,63,.55)');rg.addColorStop(1,'rgba(255,210,63,0)');x.fillStyle=rg;x.fillRect(0,0,W,H);
+  const cc=['#FFD23F','#19D3FF','#FF4FA3','#C6F432','#fff','#FF8A1F'];let seed=11;const rnd=()=>((seed=(seed*9301+49297)%233280)/233280);
+  for(let i=0;i<80;i++){x.save();x.translate(rnd()*W,rnd()*H*.62);x.rotate(rnd()*6.3);x.fillStyle=cc[i%cc.length];rrect(x,-10,-5,20,10+rnd()*16,3);x.fill();x.restore();}
+  const logo=await loadImg(ASSETS.logo);if(logo){const lw=520,lh=lw*logo.height/logo.width;x.drawImage(logo,(W-lw)/2,30,lw,lh);}
+  x.textAlign='center';x.direction='rtl';
+  x.font='180px system-ui,"Apple Color Emoji","Segoe UI Emoji",sans-serif';x.fillText(tie?'🤝':'🏆',W/2,520);
+  popText(x,tie?'תיקו!':TG.won(win),W/2,670,`132px ${D}`,tie?'#fff':'#FFD23F','#15102B',24);
+  const why=g.reason==='target'?`הגיעו ראשונים ל-${S.settings.target||20} נקודות!`:g.reason==='sudden'?'ניצחון במוות פתאומי ⚔️':'';
+  if(why){x.font=`800 40px ${B}`;x.lineJoin='round';x.lineWidth=10;x.strokeStyle='#15102B';x.strokeText(why,W/2,735);x.fillStyle='#fff';x.fillText(why,W/2,735);}
+  // שתי הקבוצות: A מימין כמו במשחק
+  const tw=440,th=330,ty=790;for(const [t,X] of [['A',W/2+20],['B',W/2-20-tw]]){const won=win===t;
+    x.fillStyle='rgba(21,16,43,.9)';rrect(x,X+10,ty+14,tw,th,40);x.fill();x.fillStyle=t==='A'?'#19D3FF':'#FF4FA3';rrect(x,X,ty,tw,th,40);x.fill();
+    x.lineWidth=won?16:8;x.strokeStyle=won?'#FFD23F':'#15102B';x.stroke();if(won){x.lineWidth=6;x.strokeStyle='#15102B';rrect(x,X-8,ty-8,tw+16,th+16,46);x.stroke();}
+    if(won){x.font='84px system-ui,"Apple Color Emoji",sans-serif';x.fillText('👑',X+tw/2,ty+8);}
+    x.fillStyle='#15102B';x.font=`150px ${D}`;x.fillText(String(g.score[t]),X+tw/2,ty+170);x.font=`800 40px ${B}`;x.fillText(TEAM_NAME[t],X+tw/2,ty+225);
+    const ps=S.players.filter(p=>p.team===t).slice(0,5);const r=34,gap=10,tot=ps.length*(2*r)+(ps.length-1)*gap;let cx=X+tw/2+tot/2-r;for(const p of ps){await drawAvatar(x,p.avatar,cx,ty+275,r);cx-=2*r+gap;}}
+  // המצטיין
+  x.textAlign='center';let y=1205;
+  const line=g.mvp?`⭐ המצטיין/ת: ${g.mvp.name} · ${g.mvp.correct} ניחושים`:g.bomber?`💣 מלך המוקשים: ${g.bomber.name}`:'';
+  if(line){x.font=`800 42px ${B}`;const w=Math.min(W-80,x.measureText(line).width+70);x.fillStyle='#FFD23F';rrect(x,(W-w)/2,y-52,w,76,38);x.fill();x.lineWidth=6;x.strokeStyle='#15102B';x.stroke();x.fillStyle='#15102B';x.fillText(line,W/2,y);}
+  x.font=`700 34px ${B}`;x.fillStyle='rgba(255,255,255,.92)';x.fillText('בואו לשחק מוקש! · '+location.host,W/2,1305);
+  return new Promise(r=>c.toBlob(r,'image/png'));}
+function prepCard(S){const key=(S.code||'')+':'+(S.gameId||'')+':'+S.gameOver.score.A+'-'+S.gameOver.score.B;if(A.cardKey===key)return;A.cardKey=key;A.cardFile=null;A.cardUrl=null;
+  resultCard(S).then(b=>{if(A.cardKey!==key||!b)return;A.cardFile=new File([b],'mokesh-result.png',{type:'image/png'});A.cardUrl=URL.createObjectURL(b);render();}).catch(e=>console.warn('card',e));}
+function shareText(){const g=A.S.gameOver;return `מוקש! 💥 ${TEAM_NAME.A} ${g.score.A} – ${g.score.B} ${TEAM_NAME.B}${g.winner!=='tie'?' · '+TG.won(g.winner):''}\nבואו לשחק: ${location.origin}`;}
+async function shareResult(){const text=shareText();const f=A.cardFile;
+  try{if(f&&navigator.canShare&&navigator.canShare({files:[f]})){await navigator.share({files:[f],text});return;}
+    if(f){const a=document.createElement('a');a.href=A.cardUrl;a.download='mokesh-result.png';document.body.appendChild(a);a.click();a.remove();try{await navigator.clipboard.writeText(text);}catch(e){}toast('התמונה נשמרה והטקסט הועתק');return;}
+    navigator.share?await navigator.share({text}):(await navigator.clipboard.writeText(text),toast('הועתק'));}catch(e){}}
 
 // טיימרים: מעדכנים רק את הטבעת, בלי רינדור מלא
 function tickTimers(){document.querySelectorAll('[data-timer]').forEach(el=>{const ends=+el.dataset.ends,total=+el.dataset.total,danger=+el.dataset.danger;const ms=Math.max(0,ends-hnow());
