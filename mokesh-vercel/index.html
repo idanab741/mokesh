@@ -451,12 +451,6 @@ html.kb .cbtn:not(.inline){display:none}
 .awaybar{position:fixed;left:12px;right:12px;top:calc(env(safe-area-inset-top,0px) + 8px);z-index:46;background:var(--yellow);color:var(--ink);border:var(--o);border-radius:14px;box-shadow:var(--sh);padding:10px 14px;font-weight:800;font-size:14px;text-align:center}
 .msg.typing .b{background:rgba(255,255,255,.85);border-style:dashed;color:var(--soft)}
 .msg.typing .caret{display:inline-block;width:2px;height:1em;background:var(--ink);margin-inline-start:2px;vertical-align:middle;animation:blink .8s steps(2,jump-none) infinite}
-.twlist{display:flex;flex-direction:column;gap:10px;margin-top:14px;text-align:right;max-height:44vh;overflow-y:auto}
-.twrow{display:flex;flex-direction:column;gap:5px;padding-bottom:9px;border-bottom:2px dashed rgba(21,16,43,.15)}
-.twrow .tw{align-self:flex-start}
-.tg{display:flex;flex-wrap:wrap;gap:5px}
-.tgi{font-size:13px;background:rgba(21,16,43,.06);border-radius:8px;padding:2px 8px}.tgi b{font-weight:800}
-.tgi.correct{background:rgba(46,232,138,.35)}.tgi.trap{background:rgba(255,59,48,.25)}.tgi.none{color:var(--soft)}
 </style>
 </head>
 <body>
@@ -482,7 +476,7 @@ const TG={of:t=>isAIgame()?(t==='A'?'שלכם':'של המחשב'):'של '+TEAM_N
   won:t=>isAIgame()?(t==='A'?'ניצחתם!':'המחשב ניצח!'):TEAM_NAME_BASE[t]+' ניצחה!',
   needs:t=>isAIgame()?(t==='A'?'אתם צריכים לנחש':'המחשב צריך לנחש'):TEAM_NAME_BASE[t]+' צריכה לנחש'};const TEAM_NAME=new Proxy({},{get:(_,t)=>A&&A.S&&(A.S.mode==='ai'||A.S.vsBots)?(t==='A'?'אתם':'המחשב'):TEAM_NAME_BASE[t]});
 const DEFAULTS = {turnsPerTeam:5,turnSeconds:60,trapSeconds:20,difficulty:'all',maxSkips:2};
-const T = {CORRECT:2200,TRAP:5000,SKIP:1100,SUMMARY:6000,PREP:1500,MAX_HISTORY:60};
+const T = {CORRECT:2200,TRAP:5000,SKIP:1100,SUMMARY:6000,PREP:1500,MAX_HISTORY:12};
 
 // ---------- נרמול והתאמה (דטרמיניסטי) ----------
 // האם הביטוי m מופיע כמילים שלמות בתוך n (מותרת אות שימוש אחת בתחילה: ו/ה/ב/ל/כ/מ/ש)
@@ -584,7 +578,7 @@ const E = {
   resolve(S,info){E.freeze(S);S.cardResolved=true;S.cardResult=info;const c=E.card(S);if(c){S.turnWords=S.turnWords||[];S.turnWords.push({word:c.target,kind:info.kind,at:S.cardAt||0,cardId:S.cardId});}},
   endTurn(S){E.freeze(S);S.turnRemainingMs=0;{const c=E.card(S);if(c&&!S.cardResolved&&S.phase==='EXPLAINING'){S.turnWords=S.turnWords||[];S.turnWords.push({word:c.target,kind:'missed',at:S.cardAt||0,cardId:S.cardId});}}S.cardResolved=true;const ex=S.players.find(p=>p.id===S.explainerId);
     const g=E.team(S,S.activeTeam).filter(p=>p.id!==S.explainerId).sort((a,b)=>b.turnCorrect-a.turnCorrect)[0];
-    S.turnSummary={team:S.activeTeam,words:(S.turnWords||[]).map((w,i,arr)=>{const end=arr[i+1]?arr[i+1].at:Infinity;return{...w,guesses:S.guesses.filter(g=>g.cardId?g.cardId===w.cardId:(g.at>=w.at&&g.at<end)).map(g=>({n:g.playerName,t:g.text,r:g.result}))};}),explainerName:ex?ex.name:'—',correct:S.turnStats.correct,traps:S.turnStats.traps,points:S.turnStats.points,best:g&&g.turnCorrect>0?{name:g.name,correct:g.turnCorrect}:null};
+    S.turnSummary={team:S.activeTeam,words:(S.turnWords||[]).slice(),explainerName:ex?ex.name:'—',correct:S.turnStats.correct,traps:S.turnStats.traps,points:S.turnStats.points,best:g&&g.turnCorrect>0?{name:g.name,correct:g.turnCorrect}:null};
     S.cardId=null;S.traps=[];S.cardResult=null;E.setPhase(S,'TURN_SUMMARY',T.SUMMARY);},
   advanceTurn(S){S.turnIndex++;if(S.turnIndex>=E.totalTurns(S)){if(S.score.A===S.score.B)S.settings={...S.settings,turnsPerTeam:S.settings.turnsPerTeam+1};else{E.finishGame(S);return;}}
     S.activeTeam=S.activeTeam==='A'?'B':'A';E.setPhase(S,'TURN_PREPARATION',T.PREP);},
@@ -1069,7 +1063,7 @@ async function closeRoom(){const code=A.S&&A.S.code;A.menu=0;if(A.mode==='online
 function vSummary(S){const t=S.turnSummary;if(!t)return '';
   return `<div class="screen center">${vHud(S)}<div class="card tc pop"><div class="small bold t${t.team}">סיום התור ${TG.of(t.team)}</div><div class="black" style="font-size:60px;margin:8px 0;font-variant-numeric:tabular-nums">${t.points>0?'+'+t.points:t.points}</div>
     <div class="row" style="justify-content:center"><span class="chip ok">${t.correct} נכונות</span><span class="chip danger">${t.traps} מוקשים</span></div>
-    ${t.words&&t.words.length?`<div class="twlist">${t.words.map(w=>`<div class="twrow"><span class="tw ${w.kind}">${w.kind==='correct'?'✓':w.kind==='trap'?'💥':w.kind==='skip'?'⏭':'⏱'} ${h(w.word)}</span><div class="tg">${(w.guesses||[]).length?w.guesses.map(g=>`<span class="tgi ${g.r}"><b>${h(g.n)}:</b> ${h(g.t)}</span>`).join(''):'<span class="tgi none">בלי ניחושים</span>'}</div></div>`).join('')}</div>${t.words.some(w=>w.kind==='missed')?`<div class="small" style="margin-top:6px">המילה שנשארה כשנגמר הזמן: <b>${h(t.words.find(w=>w.kind==='missed').word)}</b></div>`:''}`:''}
+    ${t.words&&t.words.length?`<div class="twords">${t.words.map(w=>`<span class="tw ${w.kind}">${w.kind==='correct'?'✓':w.kind==='trap'?'💥':w.kind==='skip'?'⏭':'⏱'} ${h(w.word)}</span>`).join('')}</div>${t.words.some(w=>w.kind==='missed')?`<div class="small" style="margin-top:6px">המילה שנשארה כשנגמר הזמן: <b>${h(t.words.find(w=>w.kind==='missed').word)}</b></div>`:''}`:''}
     <div class="small muted" style="margin-top:16px">הסביר/ה: <b style="color:var(--ink)">${h(t.explainerName)}</b></div>${t.best?`<div class="small muted">הכי הרבה ניחושים: <b style="color:var(--ink)">${h(t.best.name)}</b> (${t.best.correct})</div>`:''}</div>
     <div class="tc small muted pulse">התור עובר ${TG.to(S.activeTeam==='A'?'B':'A')}…</div></div>`;}
 function vGameOver(S){const g=S.gameOver;if(!g)return '';const title=g.winner==='tie'?'תיקו!':TG.won(g.winner);
