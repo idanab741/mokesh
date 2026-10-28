@@ -48,8 +48,8 @@ html,body{height:100%;margin:0;overflow:hidden}
 *,*::before,*::after{box-sizing:border-box}
 body{background:var(--bg);color:#fff;font-family:var(--font-body);font-weight:500;-webkit-font-smoothing:antialiased;overscroll-behavior:none;position:relative;-webkit-tap-highlight-color:transparent}
 /* קרני שמש + נקודות הדפסה */
-body::before{content:"";position:fixed;inset:0;z-index:-1;background:linear-gradient(rgba(255,255,255,.14) 1.5px,transparent 1.5px) -1px -1px/112px 112px,linear-gradient(90deg,rgba(255,255,255,.14) 1.5px,transparent 1.5px) -1px -1px/112px 112px,linear-gradient(rgba(255,255,255,.055) 1px,transparent 1px) -1px -1px/28px 28px,linear-gradient(90deg,rgba(255,255,255,.055) 1px,transparent 1px) -1px -1px/28px 28px}
-body::after{content:"";position:fixed;inset:0;z-index:-1;background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='336' height='336'%3E%3Cg stroke='white' stroke-opacity='.2' stroke-width='3' stroke-linecap='round' fill='none'%3E%3Cpath d='M52 60l14 14M66 60l-14 14M250 150l14 14M264 150l-14 14M140 270l14 14M154 270l-14 14M300 300l10 10M310 300l-10 10'/%3E%3Ccircle cx='257' cy='157' r='24' stroke-dasharray='5 7'/%3E%3Ccircle cx='59' cy='67' r='18' stroke-dasharray='4 7'/%3E%3Cpath d='M59 67C120 130 180 60 257 157S190 260 147 277' stroke-dasharray='1 10' stroke-width='3.5'/%3E%3C/g%3E%3C/svg%3E") 0 0/336px 336px,radial-gradient(ellipse at 50% 30%,transparent 0 40%,rgba(14,18,140,.55) 100%);pointer-events:none}
+body::before{content:"";position:fixed;inset:0 0 auto 0;height:calc(100lvh + env(safe-area-inset-bottom,0px));min-height:100%;z-index:-1;background:linear-gradient(rgba(255,255,255,.14) 1.5px,transparent 1.5px) -1px -1px/112px 112px,linear-gradient(90deg,rgba(255,255,255,.14) 1.5px,transparent 1.5px) -1px -1px/112px 112px,linear-gradient(rgba(255,255,255,.055) 1px,transparent 1px) -1px -1px/28px 28px,linear-gradient(90deg,rgba(255,255,255,.055) 1px,transparent 1px) -1px -1px/28px 28px}
+body::after{content:"";position:fixed;inset:0 0 auto 0;height:calc(100lvh + env(safe-area-inset-bottom,0px));min-height:100%;z-index:-1;background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='336' height='336'%3E%3Cg stroke='white' stroke-opacity='.2' stroke-width='3' stroke-linecap='round' fill='none'%3E%3Cpath d='M52 60l14 14M66 60l-14 14M250 150l14 14M264 150l-14 14M140 270l14 14M154 270l-14 14M300 300l10 10M310 300l-10 10'/%3E%3Ccircle cx='257' cy='157' r='24' stroke-dasharray='5 7'/%3E%3Ccircle cx='59' cy='67' r='18' stroke-dasharray='4 7'/%3E%3Cpath d='M59 67C120 130 180 60 257 157S190 260 147 277' stroke-dasharray='1 10' stroke-width='3.5'/%3E%3C/g%3E%3C/svg%3E") 0 0/336px 336px,radial-gradient(ellipse at 50% 30%,transparent 0 40%,rgba(14,18,140,.55) 100%);pointer-events:none}
 button{font:inherit;cursor:pointer;touch-action:manipulation;border:0;color:inherit;background:none;-webkit-user-select:none;user-select:none}
 input{font:inherit;color:inherit}
 button:focus-visible,input:focus-visible{outline:3px solid var(--yellow);outline-offset:3px}
@@ -100,7 +100,8 @@ html.kb #app{padding-bottom:0}
 .tiles button .ic{width:44px;height:44px;padding:8px;border-radius:50%;background:#fff;border:var(--o);color:var(--ink)}
 
 .topbtn,.hdr button,.hdrm{width:44px;height:44px;border-radius:50%;background:var(--paper2);color:var(--ink);border:var(--o);box-shadow:var(--sh-sm);display:flex;align-items:center;justify-content:center}
-.topbtn{position:absolute;top:14px;left:14px}.topbtn.r{left:auto;right:14px}
+.topbtn{position:absolute;top:14px;left:14px}.topbtn.r{left:auto;right:14px}.topbtn.r2{left:auto;right:66px}
+.topbtn.accb{width:auto;min-width:44px;padding:0 12px 0 10px;border-radius:999px;gap:6px;font-weight:800;font-size:14px}.topbtn.accb.on{padding:0;width:48px;height:48px;overflow:visible}.topbtn.accb.on>img,.topbtn.accb.on>.cav{width:100%;height:100%;border-radius:50%;object-fit:cover}.topbtn.accb .badge{top:-6px;left:-6px}
 .topbtn:active,.hdr button:active,.hdrm:active{transform:translateY(2px);box-shadow:0 1px 0 var(--ink)}
 .topbtn.off,.hdr button.off,.hdrm.off,.mbtn.off{background:#B9B4D6}
 .hdr{display:grid;grid-template-columns:96px 1fr 96px;align-items:center}.hdr>.row{justify-content:flex-end}
@@ -926,9 +927,9 @@ function recordGame(S){if(!A.user||!S||S.phase!=='GAME_OVER'||!S.gameOver)return
 // ---------- מסכי חשבון ----------
 function statTiles(st){st=st||{};const g=st.games||0,w=st.wins||0;const t=(n,l)=>`<div class="stt"><b>${n}</b><span>${l}</span></div>`;
   return `<div class="stts">${t(g,'משחקים')}${t(w,'ניצחונות')}${t(g?Math.round(w*100/g)+'%':'—','אחוז ניצחון')}${t(st.correct||0,'ניחושים נכונים')}${t(st.traps||0,'מוקשים')}${t(st.mvp||0,'MVP')}</div>`;}
-function vAccountBar(){if(!sb||!sb.auth)return '';if(!A.user)return `<button class="acctbar" onclick="A.sheet='login';render()"><span class="ai">👤</span><span class="col" style="gap:0;text-align:right"><b>התחברות</b><span class="xs">פרופיל קבוע, חברים וסטטיסטיקות</span></span>${ic('back',18)}</button>`;
-  const inc=(A.friends||[]).filter(f=>f.incoming).length,on=(A.friends||[]).filter(f=>f.status==='accepted'&&isOnline(f)).length;
-  return `<div class="acctbar on"><button class="me" onclick="A.sheet='profile';render()"><span class="avw">${avInner(A.chosen.avatar)}</span><span class="col" style="gap:0;text-align:right"><b>${h(A.chosen.name||'שחקן')}</b><span class="xs">הפרופיל שלי</span></span></button><button class="fr" onclick="A.sheet='friends';render()">👥 חברים${on?` <i class="dot"></i>${on}`:''}${inc?`<span class="badge">${inc}</span>`:''}</button></div>`;}
+function vAccBtn(){if(!sb||!sb.auth)return '';const inc=(A.friends||[]).filter(f=>f.incoming).length;
+  return A.user?`<button class="topbtn accb on" onclick="A.sheet='profile';render()" aria-label="הפרופיל שלי">${avInner(A.chosen.avatar)}${inc?`<span class="badge">${inc}</span>`:''}</button>`
+    :`<button class="topbtn accb" onclick="A.sheet='login';render()" aria-label="התחברות"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><circle cx="12" cy="8" r="4"/><path d="M4 21c1.5-4 4.5-6 8-6s6.5 2 8 6"/></svg><span class="acclbl">כניסה</span></button>`;}
 function vLoginSheet(){const busy=A.loginBusy?'disabled':'';
   return `<div class="black" style="font-size:24px">כניסה למוקש!</div><div class="small isub">עם חשבון: הפרופיל, החברים והסטטיסטיקות נשמרים בכל מכשיר.</div>
     <button class="btn big gbtn" onclick="signInGoogle()" ${busy}><svg width="22" height="22" viewBox="0 0 48 48" aria-hidden="true"><path fill="#EA4335" d="M24 9.5c3.5 0 6.6 1.2 9 3.5l6.7-6.7C35.6 2.4 30.2 0 24 0 14.6 0 6.6 5.4 2.6 13.2l7.8 6.1C12.3 13.6 17.7 9.5 24 9.5z"/><path fill="#4285F4" d="M46.5 24.5c0-1.6-.1-3.1-.4-4.5H24v9h12.7c-.6 3-2.3 5.5-4.8 7.2l7.5 5.8c4.4-4 7.1-10 7.1-17.5z"/><path fill="#FBBC05" d="M10.4 28.7c-.5-1.4-.8-3-.8-4.7s.3-3.3.8-4.7l-7.8-6.1C1 16.5 0 20.1 0 24s1 7.5 2.6 10.8l7.8-6.1z"/><path fill="#34A853" d="M24 48c6.5 0 11.9-2.1 15.9-5.8l-7.5-5.8c-2.1 1.4-4.8 2.3-8.4 2.3-6.3 0-11.7-4.1-13.6-9.8l-7.8 6.1C6.6 42.6 14.6 48 24 48z"/></svg> המשך עם Google</button>
@@ -944,6 +945,7 @@ function vProfileSheet(){const p=A.prof;if(!p)return vLoginSheet();const c=A.cho
   return `<div class="row between"><div class="black" style="font-size:24px">הפרופיל שלי</div><button class="btn ghost" style="width:auto" onclick="A.sheet=null;render()">סגור</button></div>
     <label class="col" style="gap:4px"><span class="small isub">הכינוי שלך</span><input class="input" name="pname" maxlength="16" value="${h(c.name)}" oninput="A.chosen.name=this.value;saveProfile()"></label>
     <div class="avgrid">${AVATARS.map(a=>`<button class="${a===c.avatar?'on':''}" onclick="A.chosen.avatar='${a}';saveProfile();render()">${avInner(a)}</button>`).join('')}</div>
+    <button class="btn info" onclick="A.sheet='friends';render()">👥 החברים שלי${(A.friends||[]).filter(f=>f.incoming).length?` · ${(A.friends||[]).filter(f=>f.incoming).length} בקשות חדשות`:''}</button>
     ${statTiles(p.stats)}
     <div class="fcode"><div class="xs isub">קוד החבר שלך</div><div class="code" dir="ltr">${h(p.friend_code)}</div><button class="btn info" onclick="shareFriendCode()">${ic('share',20)} שלחו לחברים</button></div>
     <button class="btn ghost" onclick="signOut()">התנתקות</button>`;}
@@ -1011,7 +1013,7 @@ function vHome(){const c=A.chosen;const m=A.homeMode;if(m==='how'||m==='intro')r
     <label class="col" style="gap:4px"><span class="small muted">הכינוי שלך</span><input class="input" name="nick" data-autofocus maxlength="16" placeholder="למשל: דנה" value="${h(c.name)}" oninput="A.chosen.name=this.value;saveProfile()"></label>
     <div class="col" style="gap:4px"><span class="small muted">אווטאר</span><div class="avgrid">${AVATARS.map(a=>`<button class="${a===c.avatar?'on':''}" onclick="A.chosen.avatar='${a}';saveProfile();render()">${avInner(a)}</button>`).join('')}</div></div>`;
   let body='';
-  if(m==='menu')body=`<div class="col" style="gap:12px">${vAccountBar()}
+  if(m==='menu')body=`<div class="col" style="gap:12px">
       <button class="btn primary big" onclick="A.homeMode='create';render()">${ic('users',24)} צור משחק</button>
       <button class="btn info big" onclick="A.homeMode='join';render()">${ic('join',24)} הצטרף למשחק</button>
       <div class="tiles"><button onclick="A.homeMode='how';A.introPage=0;render()">${ic('book',28)}איך משחקים?</button><button onclick="A.homeMode='ai';render()">${ic('robot',28)}מול המחשב</button><button onclick="A.homeMode='local';render()">${ic('phone',28)}מכשיר אחד</button></div>
@@ -1032,7 +1034,7 @@ function vHome(){const c=A.chosen;const m=A.homeMode;if(m==='how'||m==='intro')r
       <p style="margin:0"><b style="color:var(--ok)">המנחשים</b> מקלידים ניחושים. נכון: +2, ובונוס +1 על ניחוש ב-10 שניות ועל כל רצף של 3. מוקש: −2 לקבוצה ו-+1 ליריבים.</p>
       <p style="margin:0">הראשונים ל-20 נקודות מנצחים. אם אף קבוצה לא הגיעה אחרי 5 תורות — התור האחרון כפול, ותיקו מוכרע במוות פתאומי.</p>
       <button class="btn ghost" onclick="A.homeMode='menu';render()">הבנתי</button></div>`;
-  return `<div class="screen center" style="gap:22px;position:relative">${m==='menu'?`<button class="topbtn" onclick="A.homeMode='settings';render()">${ic('gear',20)}</button>`:''}${musicBtn('topbtn r')}<header class="tc"><img class="logo pop" src="${ASSETS.logo}" alt="מוקש!"><p class="tagline" style="margin:12px auto 0;max-width:310px">משחק הניחושים שבו כל טעות תעלה לכם בפיצוץ!</p></header>${body}${m==='menu'?`<div class="tape" aria-hidden="true"><div>${'זהירות! שטח ממוקש ✕ '.repeat(10)}</div></div>`:''}</div>`;}
+  return `<div class="screen center" style="gap:22px;position:relative">${m==='menu'?`${vAccBtn()}<button class="topbtn r2" onclick="A.homeMode='settings';render()" aria-label="הגדרות">${ic('gear',20)}</button>`:''}${musicBtn('topbtn r')}<header class="tc"><img class="logo pop" src="${ASSETS.logo}" alt="מוקש!"><p class="tagline" style="margin:12px auto 0;max-width:310px">משחק הניחושים שבו כל טעות תעלה לכם בפיצוץ!</p></header>${body}${m==='menu'?`<div class="tape" aria-hidden="true"><div>${'זהירות! שטח ממוקש ✕ '.repeat(10)}</div></div>`:''}</div>`;}
 // שני עמודי הסבר: מה זה מוקש, וניקוד + דרכי משחק. מוצגים בכניסה הראשונה ומ"איך משחקים?"
 function vIntro(){const pg=A.introPage||0;const last=pg===1;
   const step=(n,t,d)=>`<div class="istep"><span class="num">${n}</span><div><div class="bold">${t}</div><div class="small isub">${d}</div></div></div>`;
