@@ -301,6 +301,35 @@ html.kb .wordcard::after{display:none}
 html.kb .bombclock{width:56px;height:54px;margin-top:-2px}html.kb .bombclock .t{font-size:12px}
 html.kb .fuse{height:8px;margin:5px 4px 0}html.kb .fuse .rope{border-width:2px;box-shadow:0 2px 0 var(--ink)}
 @media (prefers-reduced-motion:reduce){.tape div,.fuse .spark,.fuse .spark::before,.fuse .spark::after,.hudwrap.hot .bombclock,.trapgrid .trap::before,.opts button.on::before{animation:none}}
+/* פיצוץ */
+.overlay.quake{animation:quake .55s cubic-bezier(.36,.07,.19,.97) both}
+@keyframes quake{10%,90%{transform:translate(-2px,1px)}20%,80%{transform:translate(5px,-3px)}30%,50%,70%{transform:translate(-9px,4px) rotate(-1deg)}40%,60%{transform:translate(9px,-4px) rotate(1deg)}}
+.scorch{position:absolute;left:50%;top:36%;width:420px;height:420px;margin:-210px;border-radius:50%;background:radial-gradient(circle,rgba(40,8,8,.55) 0,rgba(40,8,8,.25) 40%,transparent 68%);animation:scorch .5s ease-out both}
+@keyframes scorch{from{transform:scale(.2);opacity:0}to{transform:scale(1);opacity:1}}
+.shock{position:absolute;left:50%;top:36%;width:50px;height:50px;margin:-25px;border-radius:50%;border:8px solid #fff;animation:shock .75s cubic-bezier(.1,.6,.3,1) both;pointer-events:none}
+.shock.s2{border-color:var(--yellow);animation-delay:.12s}
+@keyframes shock{from{transform:scale(.2);opacity:1}to{transform:scale(13);opacity:0;border-width:2px}}
+.smoke{position:absolute;left:50%;top:38%;width:170px;height:170px;margin:-85px;border-radius:50%;background:radial-gradient(circle,rgba(70,30,30,.6),rgba(70,30,30,0) 70%);animation:smoke 1.8s ease-out both;pointer-events:none}
+@keyframes smoke{from{transform:translate(0,0) scale(.3);opacity:0}25%{opacity:1}to{transform:translate(var(--x),calc(var(--y) - 60px)) scale(2.3);opacity:0}}
+.debris{position:absolute;left:50%;top:36%;width:var(--s);height:var(--s);background:var(--c);border:2px solid var(--ink);border-radius:3px;animation:fly var(--t) cubic-bezier(.12,.75,.3,1) both;pointer-events:none}
+.debris.tape{width:calc(var(--s)*2.6);background:repeating-linear-gradient(135deg,var(--yellow) 0 5px,var(--ink) 5px 10px)}
+@keyframes fly{from{transform:translate(-50%,-50%) rotate(var(--a)) translateX(0) rotate(0);opacity:1}80%{opacity:1}to{transform:translate(-50%,-50%) rotate(var(--a)) translateX(var(--d)) rotate(600deg);opacity:0}}
+.overlay .boom{animation:bump .6s cubic-bezier(.2,.8,.2,1) both}
+.rise{animation:rise .4s .45s cubic-bezier(.2,.8,.2,1) both}
+@keyframes rise{from{transform:translateY(30px);opacity:0}to{transform:none;opacity:1}}
+@media (prefers-reduced-motion:reduce){.overlay.quake,.scorch,.shock,.smoke,.debris,.rise{animation:none}.shock,.smoke,.debris{display:none}}
+/* מרווחים: קצת יותר אוויר */
+.screen{gap:18px;padding:20px 18px}
+.card{padding:18px}
+.hud{gap:14px}
+.tiles{gap:12px}.opts,.trapgrid{gap:12px}
+.glist{gap:9px}.chat{gap:12px}
+.plist{gap:14px;padding:14px 16px}
+.teamcard .th{padding:10px 16px}
+.settings{padding:4px 18px}.settings .r{padding:9px 0}
+.screen.center{gap:24px}
+@media (max-height:700px){.screen{gap:12px;padding:14px}.screen.center{gap:16px}}
+html.kb .screen{gap:8px;padding:10px 12px}
 </style>
 </head>
 <body>
@@ -570,11 +599,13 @@ async function botGuess(category,clues,prevGuesses){const r=await A.sample(`את
 
 // ---------- אפקטים ----------
 let audioCtx=null;
-function fx(kind){try{if(kind==='trap'){navigator.vibrate&&navigator.vibrate([120,60,200]);beep('trap');}else if(kind==='correct'){navigator.vibrate&&navigator.vibrate(60);beep('correct');}}catch(e){}}
+function fx(kind){try{if(kind==='trap'){navigator.vibrate&&navigator.vibrate([220,70,320,60,120]);beep('trap');}else if(kind==='correct'){navigator.vibrate&&navigator.vibrate(60);beep('correct');}}catch(e){}}
 function beep(kind){try{audioCtx=audioCtx||new (window.AudioContext||window.webkitAudioContext)();const ctx=audioCtx,t=ctx.currentTime;
-  if(kind==='trap'){const buf=ctx.createBuffer(1,ctx.sampleRate*0.5,ctx.sampleRate);const d=buf.getChannelData(0);for(let i=0;i<d.length;i++)d[i]=(Math.random()*2-1)*Math.pow(1-i/d.length,2);
-    const src=ctx.createBufferSource();src.buffer=buf;const lp=ctx.createBiquadFilter();lp.type='lowpass';lp.frequency.setValueAtTime(900,t);lp.frequency.exponentialRampToValueAtTime(120,t+.5);
-    const g=ctx.createGain();g.gain.setValueAtTime(.8,t);g.gain.exponentialRampToValueAtTime(.01,t+.5);src.connect(lp).connect(g).connect(ctx.destination);src.start(t);}
+  if(kind==='trap'){const len=1.5,buf=ctx.createBuffer(1,ctx.sampleRate*len,ctx.sampleRate);const d=buf.getChannelData(0);for(let i=0;i<d.length;i++)d[i]=(Math.random()*2-1)*Math.pow(1-i/d.length,1.7);
+    const src=ctx.createBufferSource();src.buffer=buf;const lp=ctx.createBiquadFilter();lp.type='lowpass';lp.frequency.setValueAtTime(2400,t);lp.frequency.exponentialRampToValueAtTime(70,t+1.3);
+    const g=ctx.createGain();g.gain.setValueAtTime(.95,t);g.gain.exponentialRampToValueAtTime(.001,t+len);src.connect(lp).connect(g).connect(ctx.destination);src.start(t);
+    const o=ctx.createOscillator(),og=ctx.createGain();o.type='sine';o.frequency.setValueAtTime(120,t);o.frequency.exponentialRampToValueAtTime(28,t+.6);og.gain.setValueAtTime(1,t);og.gain.exponentialRampToValueAtTime(.001,t+.7);o.connect(og).connect(ctx.destination);o.start(t);o.stop(t+.75);
+    for(let k=0;k<6;k++){const c=ctx.createBufferSource();c.buffer=buf;const hp=ctx.createBiquadFilter();hp.type='highpass';hp.frequency.value=3000;const cg=ctx.createGain(),ct=t+.15+k*.09+Math.random()*.05;cg.gain.setValueAtTime(.25,ct);cg.gain.exponentialRampToValueAtTime(.001,ct+.05);c.connect(hp).connect(cg).connect(ctx.destination);c.start(ct,Math.random()*.5,.06);}}
   else{[660,880].forEach((f,i)=>{const o=ctx.createOscillator();o.type='triangle';o.frequency.value=f;const g=ctx.createGain();g.gain.setValueAtTime(.0001,t+i*.1);g.gain.exponentialRampToValueAtTime(.3,t+i*.1+.02);g.gain.exponentialRampToValueAtTime(.0001,t+i*.1+.18);o.connect(g).connect(ctx.destination);o.start(t+i*.1);o.stop(t+i*.1+.2);});}}catch(e){}}
 
 // ---------- רינדור ----------
@@ -744,8 +775,13 @@ function vOverlay(r){if(r.kind==='skip')return `<div class="overlay skip"><div c
   const trap=r.kind==='trap';const d=r.delta||{};const S=A.S;const p=S&&S.players.find(x=>x.name===r.playerName);const canNext=A.mode!=='online'||A.isHost;
   const deltas=`<div class="deltas">${['A','B'].filter(t=>d[t]).map(t=>`<div class="d ${d[t]>0?'pos':'neg'}"><div class="n">${d[t]>0?'+'+d[t]:d[t]}</div><div class="xs" style="color:#fff">${TEAM_NAME[t]}</div></div>`).join('')}</div>`;
   const next=canNext?`<button class="btn primary big" style="max-width:320px" onclick="A.S.phaseEndsAt=Date.now()-1;E.tick(A.S);if(A.mode==='online')hostWrite();render()">הקלף הבא ${ic('play',20)}</button>`:'';
-  if(trap)return `<div class="overlay trap"><div class="flash"></div><img class="bombbg" src="${ASSETS.bomb}" alt=""><div class="col tc shake" style="align-items:center;gap:14px;position:relative;width:100%"><img class="boom bump" src="${ASSETS.boom}" alt="בום!"><div class="tag">נפלתם על מוקש!</div><div class="said">${p?av(p.avatar,''):''}${h(r.playerName||'')} אמר/ה: <b>${h(r.word)}</b></div>${deltas}${next}</div></div>`;
+  if(trap)return `<div class="overlay trap quake">${vBlast()}<div class="col tc" style="align-items:center;gap:16px;position:relative;width:100%"><img class="boom bump" src="${ASSETS.boom}" alt="בום!"><div class="col rise" style="align-items:center;gap:16px;width:100%"><div class="tag">נפלתם על מוקש!</div><div class="said">${p?av(p.avatar,''):''}${h(r.playerName||'')} אמר/ה: <b>${h(r.word)}</b></div>${deltas}${next}</div></div></div>`;
   return `<div class="overlay correct"><div class="col tc pop" style="align-items:center;gap:14px;width:100%"><div style="color:#fff">${ic('target',96)}</div><div class="tag">נכון!</div><div class="said">${p?av(p.avatar,''):''}${h(r.playerName||'')} קלע/ה: <b style="color:#0f7a3f">${h(r.word)}</b></div>${deltas}${next}</div></div>`;}
+// הפיצוץ: הבזק, גלי הדף, עשן ורסיסים שעפים לכל הכיוונים (ערכים קבועים לפי אינדקס, כדי שרינדור חוזר לא יזיז אותם)
+function vBlast(){const C=['var(--ink)','var(--yellow)','var(--orange)','#fff','#3A3442'];let deb='';
+  for(let i=0;i<22;i++){const a=i*16.4+(i%3)*9,d=150+(i*53)%130,sz=7+(i*7)%12,t=(.75+(i%4)*.12).toFixed(2);deb+=`<i class="debris${i%5===0?' tape':''}" style="--a:${a}deg;--d:${d}px;--s:${sz}px;--c:${C[i%5]};--t:${t}s"></i>`;}
+  const smoke=[[-60,-30],[70,-50],[-30,60],[50,50],[0,-80]].map(([x,y],i)=>`<i class="smoke" style="--x:${x}px;--y:${y}px;animation-delay:${(i*.06).toFixed(2)}s"></i>`).join('');
+  return `<div class="flash"></div><div class="scorch"></div>${smoke}<i class="shock"></i><i class="shock s2"></i>${deb}`;}
 function vSummary(S){const t=S.turnSummary;if(!t)return '';
   return `<div class="screen center">${vHud(S)}<div class="card tc pop"><div class="small bold t${t.team}">סיום התור של ${TEAM_NAME[t.team]}</div><div class="black" style="font-size:60px;margin:8px 0;font-variant-numeric:tabular-nums">${t.points>0?'+'+t.points:t.points}</div>
     <div class="row" style="justify-content:center"><span class="chip ok">${t.correct} נכונות</span><span class="chip danger">${t.traps} מוקשים</span></div>
