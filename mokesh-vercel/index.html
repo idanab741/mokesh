@@ -276,6 +276,7 @@ i.dot{display:inline-block;width:9px;height:9px;border-radius:50%;background:#2E
 .vnote .vwho{font-weight:600;opacity:.85}.vnote button{background:#fff;color:var(--ink);border-radius:999px;padding:2px 10px;font-size:12px;font-weight:800}
 .vnote .vtap{width:100%;background:var(--yellow);font-size:14px;padding:6px}
 .vnote .vlvl{background:rgba(255,255,255,.15);border-radius:999px;padding:1px 8px}
+.newver{position:fixed;left:12px;right:12px;bottom:calc(env(safe-area-inset-bottom,0px) + 12px);z-index:70;background:var(--yellow);color:var(--ink);border:var(--o);border-radius:16px;box-shadow:var(--sh);padding:12px;font-weight:900;font-size:16px}
 .vjoin{width:100%;background:var(--lime);color:var(--ink);border:var(--o);border-radius:var(--r-md);box-shadow:var(--sh-sm);padding:10px;font-weight:800}
 .hudnote{margin:6px auto 0;width:max-content;max-width:100%;font-size:13px;font-weight:800;color:#fff;background:rgba(21,16,43,.35);border-radius:999px;padding:3px 12px}.hudnote.hot{background:var(--orange);color:var(--ink)}
 .btags{display:flex;flex-wrap:wrap;gap:6px;justify-content:center}.btags span{background:var(--yellow);color:var(--ink);font-weight:800;font-size:14px;border-radius:999px;padding:4px 12px;border:var(--o)}
@@ -1062,7 +1063,7 @@ function audible(S,fromId,toId){const a=playerById(S,fromId),b=playerById(S,toId
 async function voiceJoin(){const S=A.S;if(!voiceOk(S))return toast('השיחה הקולית לא נתמכת בדפדפן הזה');
   try{V.mic=await navigator.mediaDevices.getUserMedia({audio:{echoCancellation:true,noiseSuppression:true,autoGainControl:true},video:false});}
   catch(e){return toast('צריך לאשר גישה למיקרופון כדי להצטרף לשיחה');}
-  await loadIce();V.on=true;V.muted=false;V.inCall={};{const t=V.mic.getAudioTracks()[0];if(t)t.onended=()=>ensureMic();}meterStart();vSend({type:'hello'});clearInterval(V.pingT);V.pingT=setInterval(()=>{if(!V.on)return;ensureMic();vSend({type:'ping'});const now=Date.now();for(const id in V.inCall)if(now-V.inCall[id]>25000){delete V.inCall[id];closePeer(id);}render();},8000);render();toast('🎙️ הצטרפת לשיחה');}
+  await loadIce();V.on=true;V.muted=false;V.inCall={};{const t=V.mic.getAudioTracks()[0];if(t)t.onended=()=>ensureMic();}meterStart();vSend({type:'hello'});clearInterval(V.pingT);V.pingT=setInterval(async()=>{if(!V.on)return;ensureMic();vSend({type:'ping'});await voiceStats();const now=Date.now();for(const id in V.inCall)if(now-V.inCall[id]>25000){delete V.inCall[id];closePeer(id);}render();},8000);render();toast('🎙️ הצטרפת לשיחה');}
 function voiceLeave(silent){clearInterval(V.pingT);clearInterval(V.meterT);V.an=null;if(V.on)vSend({type:'bye'});Object.keys(V.peers).forEach(closePeer);if(V.mic)V.mic.getTracks().forEach(t=>t.stop());V.mic=null;V.on=false;V.inCall={};if(!silent)render();}
 async function ensureMic(){if(!V.on||V.fixing)return;const tr=V.mic&&V.mic.getAudioTracks()[0];if(tr&&tr.readyState==='live')return;V.fixing=true;
   try{const m=await navigator.mediaDevices.getUserMedia({audio:{echoCancellation:true,noiseSuppression:true,autoGainControl:true},video:false});const nt=m.getAudioTracks()[0];
@@ -1071,6 +1072,7 @@ async function ensureMic(){if(!V.on||V.fixing)return;const tr=V.mic&&V.mic.getAu
 // מד עוצמה: רואים שהמיקרופון באמת קולט
 function meterStart(){try{V.ac=V.ac||new (window.AudioContext||window.webkitAudioContext)();if(V.ac.state==='suspended')V.ac.resume();if(V.src)V.src.disconnect();V.src=V.ac.createMediaStreamSource(V.mic);V.an=V.ac.createAnalyser();V.an.fftSize=512;V.src.connect(V.an);V.buf=new Uint8Array(V.an.fftSize);
   clearInterval(V.meterT);V.meterT=setInterval(()=>{if(!V.on||!V.an)return;V.an.getByteTimeDomainData(V.buf);let m=0;for(const x of V.buf)m=Math.max(m,Math.abs(x-128));const el=document.querySelector('.vlvl');if(el){const t=V.muted?'🔇 מושתק':m>10?'🟢 שומעים אותך':'⚪ שקט';if(el.textContent!==t)el.textContent=t;}},250);}catch(e){}}
+async function voiceStats(){for(const p of Object.values(V.peers)){try{let b=0;(await p.pc.getStats()).forEach(x=>{if(x.type==='inbound-rtp'&&x.kind==='audio')b+=x.bytesReceived||0;});p.rx=b-(p.lastRx||0)>1500;p.lastRx=b;}catch(e){}}}
 function voiceUnlock(){V.needTap=false;for(const p of Object.values(V.peers))if(p.audio){p.audio.muted=false;const r=p.audio.play();if(r&&r.catch)r.catch(()=>{});}voiceRoute();render();}
 function voiceMute(){if(V.on)ensureMic();V.muted=!V.muted;if(V.mic)V.mic.getAudioTracks().forEach(t=>t.enabled=!V.muted);render();}
 function closePeer(id){const p=V.peers[id];if(!p)return;try{p.pc.close();}catch(e){}if(p.audio)p.audio.remove();delete V.peers[id];}
@@ -1106,7 +1108,7 @@ function voiceBtn(S,inline){if(!voiceOk(S))return '';const n=Object.keys(V.inCal
     :`<button type="button" class="vbtn${inline?' inline':''}" onclick="voiceJoin()" aria-label="הצטרפות לשיחה קולית">🎧</button>`;}
 function voiceNote(S){if(!voiceOk(S))return '';
   if(!V.on)return S.phase==='LOBBY'?`<button class="vjoin" onclick="voiceJoin()">🎧 הצטרפו לשיחה הקולית של החדר</button>`:'';
-  const me=playerById(S,myId());const st=id=>{const p=V.peers[id];const c=p&&p.pc.connectionState;return c==='connected'?(p.audio?'✅':'🔈'):c==='failed'?'❌':'⏳';};
+  const me=playerById(S,myId());const st=id=>{const p=V.peers[id];const c=p&&p.pc.connectionState;return c==='connected'?(!p.audio?'🔈':p.rx===false?'🔇':'🔊'):c==='failed'?'❌':'⏳';};
   const names=Object.keys(V.inCall).filter(id=>playerById(S,id)).map(id=>h(playerById(S,id).name)+' '+st(id));
   let hint='🗣️ כולם שומעים את כולם';
   if(S.phase==='TRAP_SELECTION')hint='🔒 עכשיו שומעים רק את הקבוצה שלכם';
@@ -1125,6 +1127,7 @@ function render(){const S=A.S;let html='';voiceRoute();if(S&&S.phase==='GAME_OVE
   if(S&&A.avPick)html+=vAvPick(S);
   if(S&&A.menu)html+=vMenu(S);
   if(S&&A.roomChat&&S.mode==='online')html+=vRoomChat(S);
+  if(A.newVer)html+=`<button class="newver" onclick="location.reload()">🔄 יש גרסה חדשה של המשחק — לחצו לעדכון</button>`;
   if(A.sheet)html+=vSheet();
   if(A.inviteBar)html+=vInviteBar();
   if(A.toast)html+=`<div class="toast pop" role="alert">${h(A.toast)}</div>`;
@@ -1175,7 +1178,7 @@ function vHome(){const c=A.chosen;const m=A.homeMode;if(m==='how'||m==='intro')r
       <button class="btn primary big" onclick="createLocal()">התחל</button><button class="btn ghost" onclick="A.homeMode='menu';render()">חזרה</button></div>`;
   else if(m==='ai')body=`<div class="card col" style="gap:10px"><div class="bold row">${ic('robot',22)} מול המחשב</div><p class="small muted" style="margin:0;line-height:1.5">אתם (עם שותף-מחשב אם אתם לבד) נגד קבוצת מחשב. כשאתם מסבירים — מקלידים רמזים והשותף מנחש. כשהמחשב מסביר — אתם מנחשים. וכשהמחשב בתור — אתם טומנים לו מוקשים. המחשב לא רואה את התשובה כשהוא מנחש.</p>
       <button class="btn primary big" onclick="createAI()">התחל</button><button class="btn ghost" onclick="A.homeMode='menu';render()">חזרה</button></div>`;
-  else if(m==='settings')body=`<div class="card col"><div class="bold row">${ic('gear',22)} הגדרות</div><p class="small muted" style="margin:0;line-height:1.5">הגדרות המשחק (תורות, זמן, קושי) נקבעות בחדר המשחק על ידי מנהל החדר. הכינוי והאווטאר שלך נשמרים במכשיר.</p><button class="btn ghost" onclick="A.homeMode='menu';render()">חזרה</button></div>`;
+  else if(m==='settings')body=`<div class="card col"><div class="bold row">${ic('gear',22)} הגדרות</div><p class="small muted" style="margin:0;line-height:1.5">הגדרות המשחק (תורות, זמן, קושי) נקבעות בחדר המשחק על ידי מנהל החדר. הכינוי והאווטאר שלך נשמרים במכשיר.</p><p class="xs isub" style="margin:0">גרסה: ${h(A.ver||'')}</p><button class="btn ghost" onclick="A.homeMode='menu';render()">חזרה</button></div>`;
   else body=`<div class="card col small" style="line-height:1.6">
       <p style="margin:0"><b class="tA">שתי קבוצות.</b> בכל תור קבוצה אחת מסבירה ומנחשת, והשנייה טומנת מוקשים.</p>
       <p style="margin:0"><b style="color:var(--danger)">היריבים</b> רואים את מילת היעד ובוחרים 3 מילים דומות שיהפכו למוקשים — 25 שניות.</p>
@@ -1520,6 +1523,11 @@ try{const old=JSON.parse(localStorage.getItem('mokesh.session')||'null');if(A.jo
 // אז מתחברים מחדש ומעבדים מיד את כל מי שניסה להצטרף בינתיים
 function onReturn(){if(document.hidden||A.mode!=='online'||!A.S||!sb)return;const now=Date.now();if(now-(A.lastResync||0)<1500)return;A.lastResync=now;subscribeRoom(A.S.code);}
 window.addEventListener('pagehide',()=>{if(A.qm)qmStop(true);});
+// בדיקת גרסה: כל דקה (ובחזרה לאפליקציה) בודקים אם עלתה גרסה חדשה של האתר
+A.ver=document.lastModified;
+async function checkVersion(){try{const r=await fetch(location.pathname+'?v='+Date.now(),{method:'HEAD',cache:'no-store'});const t=r.headers.get('etag')||r.headers.get('last-modified');if(!t)return;
+  if(!A.verTag){A.verTag=t;return;}if(t!==A.verTag&&!A.newVer){A.newVer=true;if(!A.S)location.reload();else render();}}catch(e){}}
+setInterval(checkVersion,60000);document.addEventListener('visibilitychange',()=>{if(!document.hidden)checkVersion();});setTimeout(checkVersion,3000);
 document.addEventListener('visibilitychange',()=>{if(!document.hidden&&V.on)setTimeout(ensureMic,500);});
 document.addEventListener('visibilitychange',onReturn);window.addEventListener('pageshow',onReturn);window.addEventListener('focus',onReturn);
 render();initRuntime();
