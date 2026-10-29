@@ -487,7 +487,7 @@ html.kb .cbtn:not(.inline){display:none}
 </head>
 <body>
 <div id="app"></div>
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.116.0/dist/umd/supabase.js"></script>
 <script src="cards.js?v=2"></script>
 <script>
 'use strict';
@@ -676,8 +676,8 @@ function myId(){return A.me&&A.me.id;}
 function saveProfile(){try{localStorage.setItem('mokesh.profile',JSON.stringify(A.chosen));}catch(e){}syncProf();}
 
 // ---------- אונליין: Supabase (Realtime) ----------
-const SUPABASE_URL='https://jsuajuhciuskruztjijx.supabase.co';
-const SUPABASE_ANON='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImpzdWFqdWhjaXVza3J1enRqaWp4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODM5NjgyMDcsImV4cCI6MjA5OTU0NDIwN30.ak6omwMPGOtKs5er3M727NjCm3ZFWHHbrSbXjaCi-Kg';
+const SUPABASE_URL='https://tbnhqvabnzuxaxtrlmkg.supabase.co';
+const SUPABASE_ANON='sb_publishable_uTj27DrHLr05T-dBY12jMw_6ZVa0WDj';
 let sb=null;
 async function dbGetRoom(code){const {data,error}=await sb.from('mokesh_rooms').select('state').eq('code',code).maybeSingle();if(error)throw error;return data?data.state:null;}
 async function dbSetRoom(code,state){const {error}=await sb.from('mokesh_rooms').upsert({code,state,updated_at:new Date().toISOString()});if(error)throw error;}
