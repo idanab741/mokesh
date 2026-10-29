@@ -265,6 +265,10 @@ i.dot{display:inline-block;width:9px;height:9px;border-radius:50%;background:#2E
 @keyframes qping{0%{transform:scale(.5);opacity:1}100%{transform:scale(1.35);opacity:0}}
 .qslots{display:flex;gap:6px;justify-content:center}.qslots span{width:42px;height:42px;border-radius:50%;border:3px dashed rgba(21,16,43,.3);display:grid;place-items:center;font-size:20px;overflow:hidden}.qslots span.on{border:3px solid var(--ink);background:#fff}.qslots span img{width:100%;height:100%;object-fit:cover}
 .msg .au .mod{background:none;border:0;padding:0 3px;font-size:13px;cursor:pointer;opacity:.7}
+.screen.lock.trapscr{overflow-y:auto;-webkit-overflow-scrolling:touch}
+/* כפתור הנעילה תמיד נראה: נדבק לתחתית גם כשהמסך קצר */
+.trapfoot{position:sticky;bottom:0;margin-top:auto;padding:12px 0 4px;background:linear-gradient(rgba(43,59,255,0),var(--bg) 28%);z-index:2}
+@media (max-height:740px){.trapscr .opts{gap:8px}.trapscr .opts button{padding:10px 4px;font-size:16px}.trapscr .bombimg{width:44px;height:44px}.trapscr .explain-head .black{font-size:24px!important}.trapscr{gap:10px}}
 .hudnote{margin:6px auto 0;width:max-content;max-width:100%;font-size:13px;font-weight:800;color:#fff;background:rgba(21,16,43,.35);border-radius:999px;padding:3px 12px}.hudnote.hot{background:var(--orange);color:var(--ink)}
 .btags{display:flex;flex-wrap:wrap;gap:6px;justify-content:center}.btags span{background:var(--yellow);color:var(--ink);font-weight:800;font-size:14px;border-radius:999px;padding:4px 12px;border:var(--o)}
 .deltas .d.neg .n{color:var(--red)}.deltas .d.pos .n{color:#0B9A4E}
@@ -1203,22 +1207,22 @@ function vGame(S){const r=role(S);const c=E.card(S);
   if(r==='explainer')return vExplainer(S,c);if(r==='guesser')return vGuesser(S);if(r==='opponent')return vOpponent(S,c);return vWait(S,'צופים במשחק');}
 function vTraps(S,c){if(!A.trapCard||A.trapCard!==S.cardId){A.trapCard=S.cardId;A.trapPick=[];A.trapSent=false;}const local=S.mode==='local';
   if(S.mode==='online')return vTrapVote(S,c);const pick=A.trapPick;
-  return `<div class="screen lock">${vHeader(S)}${vRoleBar(S)}${local?`<div class="banner warn">העבירו את הטלפון ל${TEAM_NAME[S.activeTeam==='A'?'B':'A']} (היריבים)</div>`:''}
+  return `<div class="screen lock trapscr">${vHeader(S)}${vRoleBar(S)}${local?`<div class="banner warn">העבירו את הטלפון ל${TEAM_NAME[S.activeTeam==='A'?'B':'A']} (היריבים)</div>`:''}
     <div class="explain-head"><img class="bombimg" src="${ASSETS.bomb}" alt=""><div><div class="xs muted">${TG.needs(S.activeTeam)} · ${h(c.category)}</div><div class="black" style="font-size:30px;line-height:1.1">${h(c.target)}</div></div></div>
     <p class="tc small muted" style="margin:0">בחרו <b style="color:var(--danger)">3 מוקשים</b> — מילים שהמנחשים עלולים לומר בטעות</p>
     <div class="opts">${c.options.map(w=>`<button class="${pick.includes(w)?'on':''}" ${A.trapSent?'disabled':''} data-w="${h(w)}" onclick="toggleTrap(this.dataset.w)">${h(w)}</button>`).join('')}</div>
-    <div style="margin-top:auto"><button class="btn danger big" ${pick.length!==3||A.trapSent?'disabled':''} onclick="sendTraps()"><img src="${ASSETS.bomb}" style="width:28px;height:28px" alt=""> ${A.trapSent?'המוקשים נטמנו':`טמון מוקשים (${pick.length}/3)`}</button></div></div>`;}
+    <div class="trapfoot"><button class="btn danger big" ${pick.length!==3||A.trapSent?'disabled':''} onclick="sendTraps()"><img src="${ASSETS.bomb}" style="width:28px;height:28px" alt=""> ${A.trapSent?'המוקשים נטמנו':`טמון מוקשים (${pick.length}/3)`}</button></div></div>`;}
 function toggleTrap(w){const S=A.S;const max=S&&S.runoff?S.runoff.need:3;const p=A.trapPick;A.trapPick=p.includes(w)?p.filter(x=>x!==w):p.length<max?[...p,w]:p;if(A.mode==='online'&&S)act({type:'trap_vote',words:A.trapPick});render();}
 function vTrapVote(S,c){const ro=S.runoff;const key=S.cardId+':'+(ro?ro.round:0);if(A.voteKey!==key){A.voteKey=key;A.trapPick=[];}
   const me=myId();const need=ro?ro.need:3;const pool=ro?ro.words:c.options;const votes=S.trapVotes||{};const locked=!!(S.trapLocked||{})[me]||A.lockKey===key;
   const cnt={};pool.forEach(w=>cnt[w]=0);Object.values(votes).forEach(ws=>ws.forEach(w=>{if(w in cnt)cnt[w]++;}));
   const voters=E.trapVoters(S);const done=voters.filter(v=>(S.trapLocked||{})[v.id]).length;const mine=locked?(votes[me]||[]):A.trapPick;
-  return `<div class="screen lock">${vHeader(S)}<div class="rolebar opponent">${ro?`תיקו! בחרו עוד ${need===1?'מילה אחת':need+' מילים'}`:`מצביעים על מוקשים ${TG.to(S.activeTeam)}`}</div>
+  return `<div class="screen lock trapscr">${vHeader(S)}<div class="rolebar opponent">${ro?`תיקו! בחרו עוד ${need===1?'מילה אחת':need+' מילים'}`:`מצביעים על מוקשים ${TG.to(S.activeTeam)}`}</div>
     <div class="explain-head"><img class="bombimg" src="${ASSETS.bomb}" alt=""><div><div class="xs muted">${TG.needs(S.activeTeam)} · ${h(c.category)}</div><div class="black" style="font-size:30px;line-height:1.1">${h(c.target)}</div></div></div>
     ${ro&&ro.fixed.length?`<div class="tc small" style="color:#fff">כבר מוקשים: ${ro.fixed.map(w=>`<span class="chip danger">${h(w)}</span>`).join(' ')}</div>`:''}
     <p class="tc small" style="margin:0;color:#fff">${ro?'רק המילים שבתיקו נשארו. הרוב קובע.':'כל אחד בוחר 3 · המילים עם הכי הרבה קולות הופכות למוקשים'}</p>
     <div class="opts">${pool.map(w=>`<button class="${mine.includes(w)?'on':''}" ${locked?'disabled':''} data-w="${h(w)}" onclick="toggleTrap(this.dataset.w)">${h(w)}${cnt[w]?`<span class="vc">${cnt[w]}</span>`:''}</button>`).join('')}</div>
-    <div class="col" style="margin-top:auto;gap:8px"><div class="tc small" style="color:#fff">נעלו ${done}/${voters.length} ${voters.map(v=>`<span class="vav ${(S.trapLocked||{})[v.id]?'ok':''}">${avInner(v.avatar)}</span>`).join('')}</div>
+    <div class="col trapfoot" style="gap:8px"><div class="tc small" style="color:#fff">נעלו ${done}/${voters.length} ${voters.map(v=>`<span class="vav ${(S.trapLocked||{})[v.id]?'ok':''}">${avInner(v.avatar)}</span>`).join('')}</div>
     <button class="btn danger big" ${mine.length!==need||locked?'disabled':''} onclick="lockTraps()"><img src="${ASSETS.bomb}" style="width:28px;height:28px" alt=""> ${locked?'נעלתם — מחכים לשאר':`נעלתי את הבחירה (${mine.length}/${need})`}</button></div></div>`;}
 function lockTraps(){const S=A.S;if(!S)return;A.lockKey=A.voteKey;act({type:'trap_lock',words:A.trapPick});render();}
 function sendTraps(){const S=A.S;A.trapSent=true;const from=S.mode!=='online'?E.team(S,S.activeTeam==='A'?'B':'A')[0].id:myId();act({type:'select_traps',words:A.trapPick,from});render();}
