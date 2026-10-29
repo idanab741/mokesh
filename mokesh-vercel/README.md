@@ -1,17 +1,14 @@
 # מוקש! — גרסת Vercel
 
-דף אחד (`index.html`) + פונקציית שרת אחת (`api/ai.js`). החדרים נשמרים ב-Supabase (Realtime), ״המחשב״ רץ דרך Claude.
+דף אחד (`index.html`) + קלפים (`cards.js`). החדרים נשמרים ב-Supabase (Realtime). ״המחשב״ מנחש לפי מילון מילות הקשר שבקלפים, בלי AI ובלי עלות.
 
-## פריסה ב-5 צעדים
+## פריסה ב-4 צעדים
 
 1. **GitHub:** צרו ריפו חדש (למשל `mokesh`) והעלו את כל הקבצים מהתיקייה הזו
    (דרך `git push`, או ״Add file → Upload files״ באתר GitHub וגרירה של הכול).
 2. **Vercel:** vercel.com → Add New → Project → Import מהריפו. בלי הגדרות מיוחדות (Framework: Other). Deploy.
-3. **מפתח ל-AI (למצב ״מול המחשב״):** ב-Vercel → Project → Settings → Environment Variables:
-   `ANTHROPIC_API_KEY` = המפתח מ-console.anthropic.com. (אופציונלי: `ANTHROPIC_MODEL`.) אחרי שינוי — Redeploy.
-   בלי המפתח כל השאר עובד; רק הכפתור ״מול המחשב״ יהיה כבוי.
-4. **דומיין:** Vercel → Project → Settings → Domains → הוסיפו את הדומיין ועקבו אחרי רשומות ה-DNS שהם מציגים.
-5. **Supabase:** כבר מחובר. הטבלאות `mokesh_rooms` ו-`mokesh_inbox` קיימות בפרויקט שלכם (ראו `supabase.sql`).
+3. **דומיין:** Vercel → Project → Settings → Domains → הוסיפו את הדומיין ועקבו אחרי רשומות ה-DNS שהם מציגים.
+4. **Supabase:** כבר מחובר. הטבלאות `mokesh_rooms` ו-`mokesh_inbox` קיימות בפרויקט שלכם (ראו `supabase.sql`).
    מפתח ה-anon שמופיע ב-`index.html` הוא ציבורי לפי תכנון — הוא מוגבל לשתי הטבלאות האלה בלבד.
 
 ## מה עובד
