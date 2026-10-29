@@ -1056,10 +1056,9 @@ let ICE=[{urls:['stun:stun.l.google.com:19302','stun:stun1.l.google.com:19302']}
 async function loadIce(){if(V.iceAt&&Date.now()-V.iceAt<3*3600*1000)return;try{const r=await fetch('/api/turn');const d=r.ok?await r.json():null;if(d&&Array.isArray(d.iceServers)&&d.iceServers.length){ICE=d.iceServers;V.turn=!!d.turn;V.iceAt=Date.now();}}catch(e){}}
 function voiceOk(S){return !!(S&&S.mode==='online'&&!S.public&&window.RTCPeerConnection&&navigator.mediaDevices&&navigator.mediaDevices.getUserMedia);}
 function vSend(p){try{A.roomCh&&A.roomCh.send({type:'broadcast',event:'voice',payload:{...p,from:myId()}});}catch(e){}}
-// מי שומע את מי: בבחירת מוקשים — כל קבוצה רק את עצמה; בהסבר — הקבוצה שבתור נשמעת לכולם, והיריבים רק לעצמם; בשאר הזמן — כולם
+// מי שומע את מי: בבחירת מוקשים — כל קבוצה רק את עצמה; בכל שאר הזמן (גם בתור עצמו ובהמתנה) — כולם שומעים את כולם
 function audible(S,fromId,toId){const a=playerById(S,fromId),b=playerById(S,toId);if(!a||!b)return false;
-  if(S.phase==='TRAP_SELECTION')return a.team===b.team;
-  if(S.phase==='EXPLAINING'||S.phase==='CARD_RESULT')return a.team===S.activeTeam||a.team===b.team;return true;}
+  if(S.phase==='TRAP_SELECTION')return a.team===b.team;return true;}
 async function voiceJoin(){const S=A.S;if(!voiceOk(S))return toast('השיחה הקולית לא נתמכת בדפדפן הזה');
   try{V.mic=await navigator.mediaDevices.getUserMedia({audio:{echoCancellation:true,noiseSuppression:true,autoGainControl:true},video:false});}
   catch(e){return toast('צריך לאשר גישה למיקרופון כדי להצטרף לשיחה');}
@@ -1111,7 +1110,6 @@ function voiceNote(S){if(!voiceOk(S))return '';
   const names=Object.keys(V.inCall).filter(id=>playerById(S,id)).map(id=>h(playerById(S,id).name)+' '+st(id));
   let hint='🗣️ כולם שומעים את כולם';
   if(S.phase==='TRAP_SELECTION')hint='🔒 עכשיו שומעים רק את הקבוצה שלכם';
-  else if((S.phase==='EXPLAINING'||S.phase==='CARD_RESULT')&&me)hint=me.team===S.activeTeam?'📢 התור שלכם — כולם שומעים אתכם':'👂 שומעים את הקבוצה שבתור · הם לא שומעים אתכם';
   return `<div class="vnote"><span class="vlvl">${V.muted?'🔇 מושתק':'⚪ שקט'}</span><button onclick="voiceMute()">${V.muted?'הפעל מיקרופון':'השתק'}</button>${V.needTap?'<button class="vtap" onclick="voiceUnlock()">🔊 לחצו כאן כדי לשמוע</button>':''}${hint}<span class="vwho">${names.length?'בשיחה: '+names.join(', '):'מחכים שעוד מישהו יצטרף…'}</span><button onclick="voiceLeave()">יציאה</button></div>`;}
 function render(){const S=A.S;let html='';voiceRoute();if(S&&S.phase==='GAME_OVER')recordGame(S);
   if(!S)html=vHome();
