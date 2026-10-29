@@ -695,14 +695,11 @@ async function dbSetRoom(code,state){const {error}=await sb.from('mokesh_rooms')
 async function dbAddInbox(code,action){const {error}=await sb.from('mokesh_inbox').insert({id:uid(10),code,action});if(error)throw error;}
 async function dbDeleteInbox(id){try{await sb.from('mokesh_inbox').delete().eq('id',id);}catch(e){}}
 async function dbPendingInbox(code){const {data}=await sb.from('mokesh_inbox').select('id,action').eq('code',code).order('at');return data||[];}
-function makeSample(){const call=async(body)=>{const r=await fetch('/api/ai',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});if(!r.ok)throw new Error('ai '+r.status);return r.json();};
-  const f=async(prompt)=>call({prompt});f.json=async(prompt)=>(await call({prompt,json:true})).value;return f;}
 async function initRuntime(){
   try{if(window.supabase&&SUPABASE_URL.startsWith('http')){sb=window.supabase.createClient(SUPABASE_URL,SUPABASE_ANON,{realtime:{params:{eventsPerSecond:20}}});A.uid=localStorage.getItem('mokesh.uid')||('u'+uid(10));localStorage.setItem('mokesh.uid',A.uid);A.dbReady=true;}}catch(e){console.error(e);}
   if(!A.dbReady)A.dbMissing=true;else await authInit();
   // קישור חבר (?f=קוד): מחובר — נוסף מיד; אורח — מתבקש להתחבר קודם
   if(A.pendingFriend){try{const u=new URL(location.href);u.searchParams.delete('f');history.replaceState(null,'',u.pathname+u.search+u.hash);}catch(e){}if(A.user){const c=A.pendingFriend;A.pendingFriend=null;addFriend(c);}else if(A.dbReady)A.sheet='login';}
-  try{const r=await fetch('/api/ai');const d=r.ok?await r.json():null;A.sample=d&&d.ok?makeSample():null;}catch(e){A.sample=null;}
   // חזרה אוטומטית לחדר האחרון (למשל אחרי רענון), אלא אם נכנסו מקישור לחדר אחר: אז הקישור החדש מנצח
   try{let s=JSON.parse(localStorage.getItem('mokesh.session')||'null');
     if(s&&A.joinCode&&s.code!==A.joinCode){if(A.dbReady&&!s.isHost)dbAddInbox(s.code,{type:'leave',from:A.uid,at:Date.now()}).catch(()=>{});localStorage.removeItem('mokesh.session');s=null;A.homeMode='join';}
@@ -826,7 +823,7 @@ function leaveRoom(){voiceLeave(true);if(A.mode==='online'&&A.isHost&&A.S&&sb){c
 function startLocalLoop(){clearInterval(A.hostT);A.hostT=setInterval(()=>{if(A.mode==='online'||!A.S)return;if(E.tick(A.S)){if(A.S.cardResult&&A.S.phase==='CARD_RESULT')fx(A.S.cardResult.kind);render();}},250);}
 function createLocal(){A.mode='local';A.isHost=true;A.me={id:'local-host',name:'',avatar:''};const S=newState('LOCAL','local');A.S=S;startLocalLoop();startBotLoop();render();}
 
-// ---------- מול המחשב: בוטים שמופעלים ע״י מודל שפה (יכולת sample של הארטיפקט) ----------
+// ---------- מול המחשב: בוטים שמנחשים לפי מילון מילות הקשר שבקלפים (בלי AI) ----------
 const BOTS={partner:{id:'bot-a',name:'השותף שלך',avatar:'🤖',team:'A'},b1:{id:'bot-b1',name:'מחשב 1',avatar:'🧠',team:'B'},b2:{id:'bot-b2',name:'מחשב 2',avatar:'🤖',team:'B'}};
 function createAI(){A.mode='ai';A.isHost=true;A.me={id:'local-host',name:'',avatar:''};const S=newState('AI','ai');A.S=S;A.bot={busy:{},lastClueAt:0,lastGuessedClue:0};startLocalLoop();startBotLoop();render();}
 function aiStart(){const S=A.S;const humans=S.players.filter(p=>!isBot(p.id));if(!humans.length)return toast('הוסיפו לפחות שחקן אחד');
@@ -848,7 +845,7 @@ function setVsBots(S,on){S.players=S.players.filter(p=>!isBot(p.id));S.vsBots=!!
 function addBotsBoth(){['A','B'].forEach(t=>{if(A.S&&canAddBot(A.S,t))addBot(t);});}
 function humansOn(S,t){return E.team(S,t).filter(p=>!isBot(p.id));}
 function startBotLoop(){A.bot=A.bot||{busy:{},lastClueAt:0,lastGuessedClue:0};clearInterval(A.botT);A.botT=setInterval(botThink,700);}
-async function botThink(){const S=A.S;if(!S||(A.mode==='online'&&!A.isHost)||!hasBots(S))return;if(S.phase==='LOBBY'||S.phase==='GAME_OVER')A.aiGame=0;const b=A.bot;const c=E.card(S);if(!c)return;
+async function botThink(){const S=A.S;if(!S||(A.mode==='online'&&!A.isHost)||!hasBots(S))return;const b=A.bot;const c=E.card(S);if(!c)return;
   const opp=S.activeTeam==='A'?'B':'A';
   // יריבים-בוטים טומנים מוקשים: מתוך האפשרויות המבלבלות ביותר שהוכנו מראש (בלי AI)
   if(S.phase==='TRAP_SELECTION'&&!humansOn(S,opp).length&&!b.busy.traps){b.busy.traps=true;const cardId=S.cardId;
@@ -864,26 +861,17 @@ async function botThink(){const S=A.S;if(!S||(A.mode==='online'&&!A.isHost)||!ha
       const g=await botGuessFor(S2,c);
       if(g&&A.S&&A.S.phase==='EXPLAINING'&&A.S.cardId===cardId&&!A.S.cardResolved)apply(S=>E.guess(S,guesser.id,g,uid(10)));}
     catch(e){console.warn('bot',e);}finally{b.busy.guess=false;}}}
-const SAMPLE_OPTS={modelTier:'quick',cache:false};
 function botPickTraps(c){return shuffle(c.options.slice(0,4)).slice(0,3);}
 function botClue(c,n){const cl=c.clues;if(!cl.length)return 'משהו שקשור ל'+c.category;return n<cl.length?cl[n]:'שוב: '+cl[cl.length-4+(n-cl.length)%4];}
 // כמה ממילות הקשר של המילה מופיעות ברמזים (כולל תחיליות ו/ה/ב/ל/מ/ש/כ, רבים וסמיכות)
 function keyHits(c,clues){const txt=normalize(clues.join(' '));const toks=txt.split(' ').flatMap(t=>{const v=[t];let m=t;for(let i=0;i<2&&/^[והבלמשכ]/.test(m)&&m.length>3;i++){m=m.slice(1);v.push(m);}return v;});
   return c.keys.filter(k0=>{const k=normalize(k0);if(!k)return false;if(k.includes(' '))return txt.includes(k);const st=k.length>=4&&k.endsWith('ה')?k.slice(0,-1):k;return toks.some(t=>t===k||(k.length>=3&&t.startsWith(st)&&t.length-st.length<=3));}).length;}
-// AI רק כגיבוי כשהמחשב לא בטוח, עם תקרה למשחק וליום
-const AI_GAME_MAX=3,AI_DAY_MAX=15;
-function aiBudget(){if(!A.sample||(A.aiGame||0)>=AI_GAME_MAX)return false;const today=new Date().toDateString();let d=null;try{d=JSON.parse(localStorage.getItem('mokesh.ai')||'null');}catch(e){}
-  if(!d||d.d!==today)d={d:today,n:0};if(d.n>=AI_DAY_MAX)return false;d.n++;A.aiGame=(A.aiGame||0)+1;try{localStorage.setItem('mokesh.ai',JSON.stringify(d));}catch(e){}return true;}
 async function botGuessFor(S,c){const from=S.cardAt||0;const prev=S.guesses.filter(x=>x.at>=from).map(x=>x.text);const tried=new Set(prev.map(normalize));if(tried.has(normalize(c.target)))return null;
   const n=S.clues.length;const wrong=()=>{const pool=c.options.filter(o=>!tried.has(normalize(o)));return pool.length?pool[Math.floor(Math.random()*pool.length)]:c.target;};
   // כשהמחשב גם מסביר: תסריט — כמה טעויות ואז מגיע לתשובה
   if(isBot(S.explainerId))return Math.random()<([0.12,0.3,0.5,0.7,0.85,0.95][n-1]??1)?c.target:wrong();
   const hits=keyHits(c,S.clues.map(x=>x.text));if(hits>=2||(hits>=1&&n>=2))return c.target;
-  // AI רק כשבאמת אין מושג: מהרמז השני ואילך על אותה מילה, ושום מילת קשר לא זוהתה
-  if(n>=2&&hits===0&&aiBudget()){try{const g=await botGuess(c.category,S.clues.map(x=>x.text),prev);if(g)return g;}catch(e){console.warn('ai guess',e);}}
   return n>=4&&Math.random()<0.5?c.target:wrong();}
-async function botGuess(category,clues,prevGuesses){const r=await A.sample(`אתה מנחש במשחק ״מוקש!״ בעברית, ומכיר היטב את התרבות הישראלית. קטגוריה: ${category}. הרמזים של המסביר, לפי הסדר: ${clues.map(x=>'״'+x+'״').join(' | ')}. ${prevGuesses.length?'ניחושים קודמים שהיו שגויים (אל תחזור עליהם): '+prevGuesses.join(', ')+'. ':''}חשוב על כל הרמזים יחד. השב בניחוש הכי סביר בלבד (מילה או שם, עד שלוש מילים), בלי הסבר ובלי סימני פיסוק.`,SAMPLE_OPTS);
-  const g=String(r.text||'').trim().split('\n')[0].replace(/[^\u05D0-\u05EA0-9a-zA-Z\s'״׳]/g,'').trim();return g.split(/\s+/).slice(0,3).join(' ');}
 
 // ---------- אפקטים ----------
 let audioCtx=null;
