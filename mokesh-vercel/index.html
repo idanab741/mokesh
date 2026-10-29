@@ -564,7 +564,7 @@ const E = {
   switchTeam(S,id,team){const p=S.players.find(x=>x.id===id);if(!p||S.phase!=='LOBBY'||S.vsBots)return;p.team=team||(p.team==='A'?'B':'A');p.ready=false;},
   setReady(S,id,r){const p=S.players.find(x=>x.id===id);if(p)p.ready=!!r;},
   updateSettings(S,patch){if(S.phase!=='LOBBY')return;const s={...S.settings,...patch};s.wordMode=s.wordMode?1:0;
-    // מעבר בין הסגנונות: מספר תורות שמתאים לכל סגנון
+    // מעבר בין הסגנונות: מספר תורים שמתאים לכל סגנון
     if('wordMode' in patch&&!('turnsPerTeam' in patch)&&s.wordMode!==(S.settings.wordMode?1:0))s.turnsPerTeam=s.wordMode?8:DEFAULTS.turnsPerTeam;const cl=(n,lo,hi)=>Math.min(hi,Math.max(lo,Math.round(Number(n)||lo)));
     s.turnsPerTeam=cl(s.turnsPerTeam,1,s.wordMode?20:10);s.turnSeconds=cl(s.turnSeconds,30,120);s.trapSeconds=cl(s.trapSeconds,10,40);s.maxSkips=cl(s.maxSkips,0,5);s.target=cl(s.target||20,10,50);
     if(![1,2,3,'all'].includes(s.difficulty))s.difficulty='all';S.settings=s;},
@@ -580,7 +580,7 @@ const E = {
     const m=E.team(S,S.activeTeam).filter(p=>p.connected||S.mode!=='online');if(!m.length){E.finishGame(S);return;}
     // משחק מול המחשב: לא מחכים לתור של המחשב ולא בוחרים לו מוקשים — רואים מיד את התוצאה שלו
     if((S.mode==='ai'||S.vsBots)&&m.every(p=>isBot(p.id))){E.simTurn(S,m);return;}
-    // שחקן יחיד עם מחשב: המחשב תמיד מסביר והשחקן מנחש. שניים ומעלה: כולם מסבירים בתורות, כולל המחשב
+    // שחקן יחיד עם מחשב: המחשב תמיד מסביר והשחקן מנחש. שניים ומעלה: כולם מסבירים לפי הסדר, כולל המחשב
     const bots=m.filter(p=>isBot(p.id));const people=m.length-bots.length;const pool=bots.length&&people===1?bots:m;
     S.explainerId=pool[S.cursor[S.activeTeam]%pool.length].id;S.cursor[S.activeTeam]++;E.nextCard(S);},
   nextCard(S){if(E.checkTarget(S))return;if(S.turnRemainingMs<=0||(E.oneWord(S)&&(S.turnWords||[]).some(w=>w.kind!=='skip'))){E.endTurn(S);return;}
@@ -1178,13 +1178,13 @@ function vHome(){const c=A.chosen;const m=A.homeMode;if(m==='how'||m==='intro')r
       <button class="btn primary big" onclick="createLocal()">התחל</button><button class="btn ghost" onclick="A.homeMode='menu';render()">חזרה</button></div>`;
   else if(m==='ai')body=`<div class="card col" style="gap:10px"><div class="bold row">${ic('robot',22)} מול המחשב</div><p class="small muted" style="margin:0;line-height:1.5">אתם (עם שותף-מחשב אם אתם לבד) נגד קבוצת מחשב. כשאתם מסבירים — מקלידים רמזים והשותף מנחש. כשהמחשב מסביר — אתם מנחשים. וכשהמחשב בתור — אתם טומנים לו מוקשים. המחשב לא רואה את התשובה כשהוא מנחש.</p>
       <button class="btn primary big" onclick="createAI()">התחל</button><button class="btn ghost" onclick="A.homeMode='menu';render()">חזרה</button></div>`;
-  else if(m==='settings')body=`<div class="card col"><div class="bold row">${ic('gear',22)} הגדרות</div><p class="small muted" style="margin:0;line-height:1.5">הגדרות המשחק (תורות, זמן, קושי) נקבעות בחדר המשחק על ידי מנהל החדר. הכינוי והאווטאר שלך נשמרים במכשיר.</p><p class="xs isub" style="margin:0">גרסה: ${h(A.ver||'')}</p><button class="btn ghost" onclick="A.homeMode='menu';render()">חזרה</button></div>`;
+  else if(m==='settings')body=`<div class="card col"><div class="bold row">${ic('gear',22)} הגדרות</div><p class="small muted" style="margin:0;line-height:1.5">הגדרות המשחק (תורים, זמן, קושי) נקבעות בחדר המשחק על ידי מנהל החדר. הכינוי והאווטאר שלך נשמרים במכשיר.</p><p class="xs isub" style="margin:0">גרסה: ${h(A.ver||'')}</p><button class="btn ghost" onclick="A.homeMode='menu';render()">חזרה</button></div>`;
   else body=`<div class="card col small" style="line-height:1.6">
       <p style="margin:0"><b class="tA">שתי קבוצות.</b> בכל תור קבוצה אחת מסבירה ומנחשת, והשנייה טומנת מוקשים.</p>
       <p style="margin:0"><b style="color:var(--danger)">היריבים</b> רואים את מילת היעד ובוחרים 3 מילים דומות שיהפכו למוקשים — 25 שניות.</p>
       <p style="margin:0"><b style="color:var(--amber2)">המסביר</b> רואה את המילה ואת המוקשים, ומסביר בלי לומר אותה.</p>
       <p style="margin:0"><b style="color:var(--ok)">המנחשים</b> מקלידים ניחושים. נכון: +2, ובונוס +1 על ניחוש ב-10 שניות ועל כל רצף של 3. מוקש: −2 לקבוצה ו-+1 ליריבים.</p>
-      <p style="margin:0">הראשונים ל-20 נקודות מנצחים. אם אף קבוצה לא הגיעה אחרי 5 תורות — התור האחרון כפול, ותיקו מוכרע במוות פתאומי.</p>
+      <p style="margin:0">הראשונים ל-20 נקודות מנצחים. אם אף קבוצה לא הגיעה אחרי 5 תורים — התור האחרון כפול, ותיקו מוכרע במוות פתאומי.</p>
       <button class="btn ghost" onclick="A.homeMode='menu';render()">הבנתי</button></div>`;
   return `<div class="screen center" style="gap:22px;position:relative">${m==='menu'?`${vAccBtn()}<button class="topbtn r2" onclick="A.homeMode='settings';render()" aria-label="הגדרות">${ic('gear',20)}</button>`:''}${musicBtn('topbtn r')}<header class="tc"><img class="logo pop" src="${ASSETS.logo}" alt="מוקש!"><p class="tagline" style="margin:12px auto 0;max-width:310px">משחק הניחושים שבו כל טעות תעלה לכם בפיצוץ!</p></header>${body}${m==='menu'?`<div class="tape" aria-hidden="true"><div>${'זהירות! שטח ממוקש ✕ '.repeat(10)}</div></div>`:''}</div>`;}
 // שני עמודי הסבר: מה זה מוקש, וניקוד + דרכי משחק. מוצגים בכניסה הראשונה ומ"איך משחקים?"
@@ -1196,7 +1196,7 @@ function vIntro(){const pg=A.introPage||0;const last=pg===1;
   const row=(cls,big,t,d)=>`<div class="srow"><span class="schip ${cls}">${big}</span><div><div class="bold">${t}</div><div class="small isub">${d}</div></div></div>`;
   const mode=(cls,icon,t,d)=>`<div class="imode ${cls}">${ic(icon,26)}<div class="bold">${t}</div><div class="xs">${d}</div></div>`;
   const p2=`<h1 class="ititle">ניקוד ודרכי משחק</h1>
-    <div class="card col" style="gap:14px">${row('ok','+2','ניחוש נכון','לקבוצה שניחשה')}${row('bad','−2','עליתם על מוקש','והיריבים מקבלים +1')}${row('ok','+1','בונוס','ניחוש ב-10 שניות, וכל רצף של 3')}${row('skip','⏭','דילוג','2 דילוגים בכל תור, בלי ניקוד')}<div class="small isub tc" style="border-top:2px dashed rgba(21,16,43,.2);padding-top:12px">🏁 הראשונים ל-20 מנצחים · אחרי 5 תורות: התור האחרון כפול · תיקו = מוות פתאומי</div></div>
+    <div class="card col" style="gap:14px">${row('ok','+2','ניחוש נכון','לקבוצה שניחשה')}${row('bad','−2','עליתם על מוקש','והיריבים מקבלים +1')}${row('ok','+1','בונוס','ניחוש ב-10 שניות, וכל רצף של 3')}${row('skip','⏭','דילוג','2 דילוגים בכל תור, בלי ניקוד')}<div class="small isub tc" style="border-top:2px dashed rgba(21,16,43,.2);padding-top:12px">🏁 הראשונים ל-20 מנצחים · אחרי 5 תורים: התור האחרון כפול · תיקו = מוות פתאומי</div></div>
     <div class="imodes">${mode('m1','join','אונליין','כל אחד מהטלפון שלו, עם קוד חדר')}${mode('m2','phone','מכשיר אחד','טלפון אחד שעובר בין כולם')}${mode('m3','robot','מול המחשב','אתם נגד המחשב')}</div>`;
   return `<div class="screen intro" ontouchstart="A.tx=event.touches[0].clientX" ontouchend="introSwipe(event)">
     <div class="ihead"><span class="ipage">${pg+1}/2</span><img class="ilogo pop" src="${ASSETS.logo}" alt="מוקש!"><button class="btn ghost" onclick="introDone()">דלג</button></div>
@@ -1252,8 +1252,8 @@ function vSettings(S){const s=S.settings;const host=A.isHost;const set=p=>`act({
   const dl={all:'קלאסי',1:'קל',2:'בינוני',3:'קשה'}[s.difficulty];const order=['all',1,2,3];const i=order.indexOf(s.difficulty);
   const open=!!A.settingsOpen;const wm=!!s.wordMode;
   const style=`<div class="modepick">${[[0,'⏱️ על זמן','כמה שיותר מילים בתור'],[1,'🔁 תור-תור','מילה אחת וזה עובר']].map(([v,l,d])=>`<button class="${(wm?1:0)===v?'on':''}" ${host?`onclick="${set({wordMode:v})}"`:'disabled'}><b>${l}</b><span>${d}</span></button>`).join('')}</div>`;
-  return `${style}<div class="settings"><button class="sum" onclick="A.settingsOpen=!A.settingsOpen;render()">${ic('gear',20)}<span>הגדרות משחק</span><span class="s">עד ${s.target||20} · ${s.turnsPerTeam} ${wm?'מילים':'תורות'} · ${s.turnSeconds} שניות · ${dl}</span><span class="muted">${open?'▴':'▾'}</span></button>
-    ${open?r('מנצחים ב-',(s.target||20)+' נק׳',set({target:(s.target||20)-5}),set({target:(s.target||20)+5}))+r(wm?'מילים לכל קבוצה':'תורות לכל קבוצה',s.turnsPerTeam,set({turnsPerTeam:s.turnsPerTeam-1}),set({turnsPerTeam:s.turnsPerTeam+1}))+r(wm?'שניות למילה':'שניות לתור',s.turnSeconds,set({turnSeconds:s.turnSeconds-15}),set({turnSeconds:s.turnSeconds+15}))+r('שניות לבחירת מוקשים',s.trapSeconds,set({trapSeconds:s.trapSeconds-5}),set({trapSeconds:s.trapSeconds+5}))+r('רמת קושי',dl,set({difficulty:order[(i+3)%4]}),set({difficulty:order[(i+1)%4]})):''}</div>`;}
+  return `${style}<div class="settings"><button class="sum" onclick="A.settingsOpen=!A.settingsOpen;render()">${ic('gear',20)}<span>הגדרות משחק</span><span class="s">עד ${s.target||20} · ${s.turnsPerTeam} ${wm?'מילים':'תורים'} · ${s.turnSeconds} שניות · ${dl}</span><span class="muted">${open?'▴':'▾'}</span></button>
+    ${open?r('מנצחים ב-',(s.target||20)+' נק׳',set({target:(s.target||20)-5}),set({target:(s.target||20)+5}))+r(wm?'מילים לכל קבוצה':'תורים לכל קבוצה',s.turnsPerTeam,set({turnsPerTeam:s.turnsPerTeam-1}),set({turnsPerTeam:s.turnsPerTeam+1}))+r(wm?'שניות למילה':'שניות לתור',s.turnSeconds,set({turnSeconds:s.turnSeconds-15}),set({turnSeconds:s.turnSeconds+15}))+r('שניות לבחירת מוקשים',s.trapSeconds,set({trapSeconds:s.trapSeconds-5}),set({trapSeconds:s.trapSeconds+5}))+r('רמת קושי',dl,set({difficulty:order[(i+3)%4]}),set({difficulty:order[(i+1)%4]})):''}</div>`;}
 function vRing(S,live){return `<div class="bombclock"><img src="${ASSETS.bomb}" alt=""><div class="t">${live?'–':fmt(S.turnRemainingMs)}</div></div>`;}
 // לוח תוצאות + פתיל בוער: הטיימר הוא פתיל שנשרף לאורך המסך, והשניות על הפצצה עצמה
 function trapperLine(S){return isAIgame()?'המחשב בוחר לכם מוקשים…':S.mode==='online'&&S.runoff?'היריבים מכריעים בתיקו על המוקשים…':S.mode==='online'?'היריבים בוחרים לכם מוקשים…':'היריבים בוחרים מוקשים…';}
