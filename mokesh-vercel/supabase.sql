@@ -137,3 +137,13 @@ grant execute on function public.mokesh_unqueue(text) to anon, authenticated;
 
 -- ===== Realtime =====
 alter publication supabase_realtime add table public.mokesh_rooms, public.mokesh_inbox, public.mokesh_invites, public.mokesh_friends;
+
+-- ===== ניקוי אוטומטי (חיסכון בנפח): נקרא מהאתר בכל פתיחת חדר =====
+-- חדר שלא עודכן 30 דקות (מנהל החדר שולח דופק כל 20 שניות כל עוד הוא מחובר) נמחק — יחד עם הצ'אט ותיבת הפעולות שלו.
+-- גם הזמנות בנות יותר מיום, ותור משחק מהיר ישן.
+create or replace function public.mokesh_cleanup() returns void language sql security definer set search_path = public as $$
+  delete from public.mokesh_rooms where updated_at < now() - interval '30 minutes';
+  delete from public.mokesh_invites where created_at < now() - interval '1 day';
+  delete from public.mokesh_queue where joined_at < now() - interval '30 minutes';
+$$;
+grant execute on function public.mokesh_cleanup() to anon, authenticated;
