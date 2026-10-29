@@ -554,6 +554,8 @@ const E = {
   totalTurns:S=>S.settings.turnsPerTeam*2,
   // תור-תור (וגם מוות פתאומי): מילה אחת לכל קבוצה בכל תור. דילוג מחליף מילה באותו תור
   oneWord:S=>!!(S.sudden||S.settings.wordMode),
+  // בתור-תור דילוג עולה נקודה (כפול בסיבוב האחרון)
+  skipCost:S=>S.settings.wordMode&&!S.sudden?(E.finalRound(S)?2:1):0,
   card:S=>S.cardId?CARDS.get(S.cardId):null,
   addPlayer(S,{id,name,avatar}){if(S.players.find(p=>p.id===id))return;if(S.players.length>=12)throw new Error('החדר מלא (12 שחקנים)');
     const a=E.team(S,'A').length,b=S.players.length-a;
@@ -637,7 +639,7 @@ const E = {
       const pc=[0,.72,.62,.52][c.difficulty]||.62,r=Math.random();
       if(r<pc||(r>=pc+.12&&!S.skipsLeft)){E.points(S,'correct',g,dt*1000);S.turnWords.push({word:c.target,kind:'correct',at:0,cardId:c.id});}
       else if(r<pc+.12){const w=c.options[Math.floor(Math.random()*3)];E.points(S,'trap',g);S.turnWords.push({word:c.target,kind:'trap',mine:w,at:0,cardId:c.id});}
-      else{S.skipsLeft--;S.streak=0;S.turnWords.push({word:c.target,kind:'skip',at:0,cardId:c.id});continue;}
+      else{S.skipsLeft--;S.streak=0;const k=E.skipCost(S);if(k){S.score[S.activeTeam]-=k;S.turnStats.points-=k;}S.turnWords.push({word:c.target,kind:'skip',at:0,cardId:c.id});continue;}
       if(E.oneWord(S)||(S.settings.target&&(S.score.A>=S.settings.target||S.score.B>=S.settings.target)))break;}
     S.cardId=null;E.endTurn(S);S.turnSummary.sim=true;},
   freeze(S){if(S.phase==='EXPLAINING')S.turnRemainingMs=Math.max(0,S.turnRemainingMs-(Date.now()-S.explainStartedAt));},
@@ -652,7 +654,7 @@ const E = {
     if(result==='miss')S.v++;
     return result;},
   skip(S,playerId){const pl=S.players.find(x=>x.id===playerId);const botEx=isBot(S.explainerId)&&pl&&pl.team===S.activeTeam&&!isBot(playerId);if(playerId!==S.explainerId&&!botEx)throw new Error('רק המסביר יכול לדלג');const c=E.card(S);if(S.phase!=='EXPLAINING'||!c||S.cardResolved)throw new Error('אי אפשר לדלג עכשיו');
-    if(S.skipsLeft<=0)throw new Error('נגמרו הדילוגים לתור הזה');S.skipsLeft--;S.streak=0;E.resolve(S,{kind:'skip',word:c.target,delta:{}});E.setPhase(S,'CARD_RESULT',T.SKIP);},
+    if(S.skipsLeft<=0)throw new Error('נגמרו הדילוגים לתור הזה');S.skipsLeft--;S.streak=0;const k=E.skipCost(S),t=S.activeTeam;if(k){S.score[t]-=k;S.turnStats.points-=k;}E.resolve(S,{kind:'skip',word:c.target,delta:k?{[t]:-k}:{}});E.setPhase(S,'CARD_RESULT',T.SKIP);},
   resolve(S,info){E.freeze(S);S.cardResolved=true;S.cardResult=info;const c=E.card(S);if(c){S.turnWords=S.turnWords||[];S.turnWords.push({word:c.target,kind:info.kind,at:S.cardAt||0,cardId:S.cardId});}},
   endTurn(S){E.freeze(S);S.turnRemainingMs=0;{const c=E.card(S);if(c&&!S.cardResolved&&S.phase==='EXPLAINING'){S.turnWords=S.turnWords||[];S.turnWords.push({word:c.target,kind:'missed',at:S.cardAt||0,cardId:S.cardId});}}S.cardResolved=true;const ex=S.players.find(p=>p.id===S.explainerId);
     const g=E.team(S,S.activeTeam).filter(p=>p.id!==S.explainerId).sort((a,b)=>b.turnCorrect-a.turnCorrect)[0];
@@ -1031,7 +1033,8 @@ async function qmEnter(d){const mem=(Array.isArray(d.members)?d.members:[]).filt
   if(mem.length<=1){toast('לא נמצאו עוד שחקנים כרגע — משחקים מול המחשב 🤖');createAI();apply(S=>E.addPlayer(S,{id:A.uid,name:A.chosen.name,avatar:A.chosen.avatar}));aiStart();return;}
   if(d.host)await createPublicRoom(String(d.room),mem);else await joinPublic(String(d.room));}
 async function createPublicRoom(code,mem){if(!/^[A-Z0-9]{6}$/.test(code))return;A.me={id:A.uid,name:A.chosen.name,avatar:A.chosen.avatar};A.isHost=true;A.mode='online';
-  const S=newState(code,'online');S.public=true;
+  // משחק מהיר: פעם על זמן ופעם תור-תור, בהגרלה
+  const S=newState(code,'online');S.public=true;if(Math.random()<.5)E.updateSettings(S,{wordMode:1});
   mem.forEach((m,i)=>{E.addPlayer(S,{id:m.id,name:cleanWords(m.name),avatar:AVATARS.includes(m.avatar)?m.avatar:AVATARS[0]});const p=S.players.at(-1);p.team=i%2?'B':'A';p.connected=true;p.lastSeen=Date.now();});
   let k=1;for(const t of ['A','B'])while(E.team(S,t).length<3){E.addPlayer(S,{id:'bot-'+t.toLowerCase()+uid(4),name:'מחשב '+k,avatar:k%2?'🤖':'🧠'});S.players.at(-1).team=t;k++;}
   S.players.forEach(p=>p.isHost=p.id===A.uid);A.S=S;
@@ -1196,7 +1199,7 @@ function vIntro(){const pg=A.introPage||0;const last=pg===1;
   const row=(cls,big,t,d)=>`<div class="srow"><span class="schip ${cls}">${big}</span><div><div class="bold">${t}</div><div class="small isub">${d}</div></div></div>`;
   const mode=(cls,icon,t,d)=>`<div class="imode ${cls}">${ic(icon,26)}<div class="bold">${t}</div><div class="xs">${d}</div></div>`;
   const p2=`<h1 class="ititle">ניקוד ודרכי משחק</h1>
-    <div class="card col" style="gap:14px">${row('ok','+2','ניחוש נכון','לקבוצה שניחשה')}${row('bad','−2','עליתם על מוקש','והיריבים מקבלים +1')}${row('ok','+1','בונוס','ניחוש ב-10 שניות, וכל רצף של 3')}${row('skip','⏭','דילוג','2 דילוגים בכל תור, בלי ניקוד')}<div class="small isub tc" style="border-top:2px dashed rgba(21,16,43,.2);padding-top:12px">🏁 הראשונים ל-20 מנצחים · אחרי 5 תורים: התור האחרון כפול · תיקו = מוות פתאומי</div></div>
+    <div class="card col" style="gap:14px">${row('ok','+2','ניחוש נכון','לקבוצה שניחשה')}${row('bad','−2','עליתם על מוקש','והיריבים מקבלים +1')}${row('ok','+1','בונוס','ניחוש ב-10 שניות, וכל רצף של 3')}${row('skip','⏭','דילוג','2 דילוגים בכל תור, בלי ניקוד (בתור-תור: −1)')}<div class="small isub tc" style="border-top:2px dashed rgba(21,16,43,.2);padding-top:12px">🏁 הראשונים ל-20 מנצחים · אחרי 5 תורים: התור האחרון כפול · תיקו = מוות פתאומי</div></div>
     <div class="imodes">${mode('m1','join','אונליין','כל אחד מהטלפון שלו, עם קוד חדר')}${mode('m2','phone','מכשיר אחד','טלפון אחד שעובר בין כולם')}${mode('m3','robot','מול המחשב','אתם נגד המחשב')}</div>`;
   return `<div class="screen intro" ontouchstart="A.tx=event.touches[0].clientX" ontouchend="introSwipe(event)">
     <div class="ihead"><span class="ipage">${pg+1}/2</span><img class="ilogo pop" src="${ASSETS.logo}" alt="מוקש!"><button class="btn ghost" onclick="introDone()">דלג</button></div>
@@ -1269,7 +1272,7 @@ function vHud(S){const mt=myTeam(S);const tile=t=>{const ps=E.team(S,t);return `
   const p=Math.max(0,Math.min(1,live?(S.phaseEndsAt-hnow())/total:(S.turnRemainingMs||0)/(S.settings.turnSeconds*1000))).toFixed(4);
   return `<div class="hudwrap ${live?'live':'idle'}" style="--p:${p}" ${live?`data-timer data-ends="${S.phaseEndsAt}" data-total="${total}" data-danger="${S.phase==='TRAP_SELECTION'?5000:10000}"`:''}><div class="hud">${tile('A')}<div class="ringwrap">${vRing(S,live)}</div>${tile('B')}</div><div class="fuse" aria-hidden="true"><i class="rope l"></i><i class="rope r"></i><i class="spark l"></i><i class="spark r"></i></div><div class="hudbar">${hudNote(S)}<div class="tools">${voiceBtn(S)}${chatBtn(S)}${musicBtn('tbtn')}<button type="button" class="tbtn" onclick="A.menu=1;render()" aria-label="תפריט">${ic('more',20)}</button></div></div>${voiceNote(S)}</div>`;}
 function hudNote(S){if(['LOBBY','GAME_OVER'].includes(S.phase))return '';
-  const t=S.sudden?'⚔️ מוות פתאומי':E.finalRound(S)?'🔥 סיבוב אחרון · ניקוד כפול':`🏁 ראשונים ל-${S.settings.target||20}`;
+  const t=S.sudden?'⚔️ מוות פתאומי':(S.settings.wordMode?'🔁 תור-תור · ':'')+(E.finalRound(S)?'🔥 סיבוב אחרון · ניקוד כפול':`🏁 ראשונים ל-${S.settings.target||20}`);
   return `<div class="hudnote${S.sudden||E.finalRound(S)?' hot':''}">${t}</div>`;}
 function vHeader(S){const ex=playerById(S,S.explainerId);
   return `<div class="col" style="gap:10px">${vHud(S)}<div class="row between xs muted"><span>תור ${Math.min(S.turnIndex+1,E.totalTurns(S))} מתוך ${E.totalTurns(S)}</span><span class="row" style="gap:6px">${ex?av(ex.avatar,''):''}<span>${ex?h(ex.name)+' מסביר/ה':''}</span></span></div></div>`;}
@@ -1307,7 +1310,7 @@ function vExplainer(S,c){const live=S.phase==='EXPLAINING';const local=S.mode===
   return `<div class="screen lock">${vHud(S)}${vRoleBar(S)}
     <div class="wordcard"><div class="l">המילה שלך:</div><div class="target">${h(c?c.target:'')}</div></div>
     <div class="col" style="gap:6px"><div class="sublabel"><span>מוקשים — אסור שינחשו אותם</span></div>${trapHtml}</div>
-    <div class="row ctrl"><div class="pill kb-hide"><span class="wave ${live?'':'off'}"><i></i><i></i><i></i><i></i><i></i><i></i><i></i></span><span>${live?'מסבירים — הזמן רץ':'ממתינים למוקשים'}</span></div><button class="btn info" ${!live||S.skipsLeft<=0?'disabled':''} onclick="act({type:'skip',from:'${S.explainerId}'})">${ic('skip',20)} דלג (${S.skipsLeft})</button></div>
+    <div class="row ctrl"><div class="pill kb-hide"><span class="wave ${live?'':'off'}"><i></i><i></i><i></i><i></i><i></i><i></i><i></i></span><span>${live?'מסבירים — הזמן רץ':'ממתינים למוקשים'}</span></div><button class="btn info" ${!live||S.skipsLeft<=0?'disabled':''} onclick="act({type:'skip',from:'${S.explainerId}'})">${ic('skip',20)} דלג (${S.skipsLeft})${E.skipCost(S)?` · −${E.skipCost(S)}`:''}</button></div>
     ${ai?vChat(S,'clue',live?'כתבו רמז ראשון לשותף 👇':S.phase==='TRAP_SELECTION'?trapperLine(S):'רגע…')+(live?vClueBar(S,live)+(S.mode!=='online'&&humansOn(S,S.activeTeam).some(p=>p.id!==S.explainerId)?vLocalGuessBar(S,live):''):''):`<div class="grow"><div class="label" style="margin-bottom:6px">ניחושים אחרונים</div>${vGuesses(S,3)}</div>${local?vLocalGuessBar(S,live):''}`}</div>`;}
 // רמזים וניחושים של הקלף הנוכחי כשיחה אחת, לפי סדר הזמן
 function vChat(S,mine,emptyText){const ex=playerById(S,S.explainerId);const from=S.cardAt||0;const lastClue=S.clues.length?S.clues.at(-1):null;
@@ -1326,7 +1329,7 @@ function vLocalGuessBar(S,live){const gs=E.team(S,S.activeTeam).filter(p=>p.id!=
 function vGuesser(S){const live=S.phase==='EXPLAINING';const ex=playerById(S,S.explainerId);if(typedClues(S)){const hs=humansOn(S,S.activeTeam).filter(p=>p.id!==S.explainerId);if(hs.length&&!hs.find(p=>p.id===A.localActor))A.localActor=hs[0].id;}
   const exRow=`<div class="row kb-hide" style="justify-content:center;gap:12px">${ex?av(ex.avatar,'lg'):''}<div><div class="bold" style="font-size:16px">${ex?h(ex.name)+' מסביר/ה עכשיו':''}</div><span class="wave ${live?'':'off'}"><i></i><i></i><i></i><i></i><i></i><i></i><i></i></span></div></div>`;
   const form=`<form class="chatbar" onsubmit="event.preventDefault();submitGuess(this)"><input class="input" name="g" style="font-size:19px" maxlength="60" autocomplete="off" autocorrect="off" enterkeyhint="send" oninput="typingSend(this.value)" ${live?'':'disabled'} placeholder="${live?(VOICE.on?'מקשיב… אמרו ניחוש':'הקלד ניחוש…'):'ממתינים…'}" data-autofocus>${typedClues(S)?micBtn('g',live):''}<button class="btn info" style="width:58px;padding:0" ${live?'':'disabled'} aria-label="שלח">${ic('send',24)}</button></form>`;
-  const skipBtn=isBot(S.explainerId)?`<button class="btn sm skipq kb-hide" ${!live||S.cardResolved||S.skipsLeft<=0?'disabled':''} onclick="act({type:'skip',from:'${A.mode==='online'?myId():(A.localActor||'')}'})">${ic('skip',18)} קשה מדי? דלגו (${S.skipsLeft})</button>`:'';
+  const skipBtn=isBot(S.explainerId)?`<button class="btn sm skipq kb-hide" ${!live||S.cardResolved||S.skipsLeft<=0?'disabled':''} onclick="act({type:'skip',from:'${A.mode==='online'?myId():(A.localActor||'')}'})">${ic('skip',18)} קשה מדי? דלגו (${S.skipsLeft})${E.skipCost(S)?` · −${E.skipCost(S)}`:''}</button>`:'';
   if(typedClues(S))return `<div class="screen lock" style="gap:12px">${vHud(S)}${vRoleBar(S)}${vChat(S,'guess',live?(ex?h(ex.name)+' חושב/ת על רמז…':'חושבים על רמז…'):S.phase==='TRAP_SELECTION'?trapperLine(S):'רגע…')}${live?skipBtn+form:''}</div>`;
   return `<div class="screen lock" style="gap:12px">${vHud(S)}${exRow}
     <div class="bigq">${live?'מה המילה?':S.phase==='TRAP_SELECTION'?trapperLine(S):'רגע…'}</div>${live?form:''}
@@ -1352,7 +1355,7 @@ function vOverlay(r){// דילוג: הקלף נזרק מהמסך בקווי מה
   if(r.kind==='skip'){const left=A.S?A.S.skipsLeft:0;const lines=[12,23,31,44,58,66,77,88].map((y,i)=>`<i class="sline" style="top:${y}%;width:${90+(i*37)%120}px;animation-delay:${(i*.07).toFixed(2)}s"></i>`).join('');
     return `<div class="overlay skip">${lines}<div class="col tc" style="align-items:center;gap:22px;position:relative;width:100%"><div class="skiplabel">${ic('skip',32)} דילוג!</div>
       <div class="cardfly"><div class="wordcard flyout"><div class="l">המילה הייתה</div><div class="target">${h(r.word)}</div></div><div class="cardback flyin"><span>?</span></div></div>
-      <div class="chip rise" style="animation-delay:.55s">נותרו ${left} דילוגים</div></div></div>`;}
+      <div class="chip rise" style="animation-delay:.55s">${(()=>{const v=Object.values(r.delta||{}).find(v=>v<0);return v?`−${-v} ${v===-1?'נקודה':'נקודות'} · `:'';})()}${left===1?'נותר דילוג אחד':left?`נותרו ${left} דילוגים`:'אין יותר דילוגים'}</div></div></div>`;}
   const trap=r.kind==='trap';const d=r.delta||{};const S=A.S;const p=S&&S.players.find(x=>x.name===r.playerName);const canNext=A.mode!=='online'||A.isHost;
   const deltas=`<div class="deltas">${['A','B'].filter(t=>d[t]).map(t=>`<div class="d ${d[t]>0?'pos':'neg'}"><div class="n">${d[t]>0?'+'+d[t]:d[t]}</div><div class="xs" style="color:#fff">${TEAM_NAME[t]}</div></div>`).join('')}</div>${(r.tags||[]).length?`<div class="btags">${r.tags.map(x=>`<span>${h(x)}</span>`).join('')}</div>`:''}`;
   const next=canNext?`<button class="btn primary big" style="max-width:320px" onclick="A.S.phaseEndsAt=Date.now()-1;E.tick(A.S);if(A.mode==='online')hostWrite();render()">הקלף הבא ${ic('play',20)}</button>`:'';
