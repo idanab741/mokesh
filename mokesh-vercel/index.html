@@ -871,7 +871,7 @@ function botClue(c,n){const cl=c.clues;if(!cl.length)return 'משהו שקשור
 function keyHits(c,clues){const txt=normalize(clues.join(' '));const toks=txt.split(' ').flatMap(t=>{const v=[t];let m=t;for(let i=0;i<2&&/^[והבלמשכ]/.test(m)&&m.length>3;i++){m=m.slice(1);v.push(m);}return v;});
   return c.keys.filter(k0=>{const k=normalize(k0);if(!k)return false;if(k.includes(' '))return txt.includes(k);const st=k.length>=4&&k.endsWith('ה')?k.slice(0,-1):k;return toks.some(t=>t===k||(k.length>=3&&t.startsWith(st)&&t.length-st.length<=3));}).length;}
 // AI רק כגיבוי כשהמחשב לא בטוח, עם תקרה למשחק וליום
-const AI_GAME_MAX=10,AI_DAY_MAX=40;
+const AI_GAME_MAX=3,AI_DAY_MAX=15;
 function aiBudget(){if(!A.sample||(A.aiGame||0)>=AI_GAME_MAX)return false;const today=new Date().toDateString();let d=null;try{d=JSON.parse(localStorage.getItem('mokesh.ai')||'null');}catch(e){}
   if(!d||d.d!==today)d={d:today,n:0};if(d.n>=AI_DAY_MAX)return false;d.n++;A.aiGame=(A.aiGame||0)+1;try{localStorage.setItem('mokesh.ai',JSON.stringify(d));}catch(e){}return true;}
 async function botGuessFor(S,c){const from=S.cardAt||0;const prev=S.guesses.filter(x=>x.at>=from).map(x=>x.text);const tried=new Set(prev.map(normalize));if(tried.has(normalize(c.target)))return null;
@@ -879,7 +879,8 @@ async function botGuessFor(S,c){const from=S.cardAt||0;const prev=S.guesses.filt
   // כשהמחשב גם מסביר: תסריט — כמה טעויות ואז מגיע לתשובה
   if(isBot(S.explainerId))return Math.random()<([0.12,0.3,0.5,0.7,0.85,0.95][n-1]??1)?c.target:wrong();
   const hits=keyHits(c,S.clues.map(x=>x.text));if(hits>=2||(hits>=1&&n>=2))return c.target;
-  if(aiBudget()){try{const g=await botGuess(c.category,S.clues.map(x=>x.text),prev);if(g)return g;}catch(e){console.warn('ai guess',e);}}
+  // AI רק כשבאמת אין מושג: מהרמז השני ואילך על אותה מילה, ושום מילת קשר לא זוהתה
+  if(n>=2&&hits===0&&aiBudget()){try{const g=await botGuess(c.category,S.clues.map(x=>x.text),prev);if(g)return g;}catch(e){console.warn('ai guess',e);}}
   return n>=4&&Math.random()<0.5?c.target:wrong();}
 async function botGuess(category,clues,prevGuesses){const r=await A.sample(`אתה מנחש במשחק ״מוקש!״ בעברית, ומכיר היטב את התרבות הישראלית. קטגוריה: ${category}. הרמזים של המסביר, לפי הסדר: ${clues.map(x=>'״'+x+'״').join(' | ')}. ${prevGuesses.length?'ניחושים קודמים שהיו שגויים (אל תחזור עליהם): '+prevGuesses.join(', ')+'. ':''}חשוב על כל הרמזים יחד. השב בניחוש הכי סביר בלבד (מילה או שם, עד שלוש מילים), בלי הסבר ובלי סימני פיסוק.`,SAMPLE_OPTS);
   const g=String(r.text||'').trim().split('\n')[0].replace(/[^\u05D0-\u05EA0-9a-zA-Z\s'״׳]/g,'').trim();return g.split(/\s+/).slice(0,3).join(' ');}
