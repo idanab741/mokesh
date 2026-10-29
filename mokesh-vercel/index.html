@@ -274,6 +274,7 @@ i.dot{display:inline-block;width:9px;height:9px;border-radius:50%;background:#2E
 .vbtn.inline{position:relative;top:auto;left:auto;width:44px;height:44px;font-size:20px;box-shadow:var(--sh-sm)}
 .vnote{margin:6px auto 0;max-width:100%;display:flex;flex-wrap:wrap;align-items:center;justify-content:center;gap:4px 8px;font-size:12.5px;font-weight:800;color:#fff;background:rgba(21,16,43,.45);border-radius:14px;padding:5px 10px;text-align:center}
 .vnote .vwho{font-weight:600;opacity:.85}.vnote button{background:#fff;color:var(--ink);border-radius:999px;padding:2px 10px;font-size:12px;font-weight:800}
+.vnote .vtap{width:100%;background:var(--yellow);font-size:14px;padding:6px}
 .vjoin{width:100%;background:var(--lime);color:var(--ink);border:var(--o);border-radius:var(--r-md);box-shadow:var(--sh-sm);padding:10px;font-weight:800}
 .hudnote{margin:6px auto 0;width:max-content;max-width:100%;font-size:13px;font-weight:800;color:#fff;background:rgba(21,16,43,.35);border-radius:999px;padding:3px 12px}.hudnote.hot{background:var(--orange);color:var(--ink)}
 .btags{display:flex;flex-wrap:wrap;gap:6px;justify-content:center}.btags span{background:var(--yellow);color:var(--ink);font-weight:800;font-size:14px;border-radius:999px;padding:4px 12px;border:var(--o)}
@@ -1059,15 +1060,16 @@ function audible(S,fromId,toId){const a=playerById(S,fromId),b=playerById(S,toId
 async function voiceJoin(){const S=A.S;if(!voiceOk(S))return toast('השיחה הקולית לא נתמכת בדפדפן הזה');
   try{V.mic=await navigator.mediaDevices.getUserMedia({audio:{echoCancellation:true,noiseSuppression:true,autoGainControl:true},video:false});}
   catch(e){return toast('צריך לאשר גישה למיקרופון כדי להצטרף לשיחה');}
-  V.on=true;V.muted=false;V.inCall={};vSend({type:'hello'});render();toast('🎙️ הצטרפת לשיחה');}
-function voiceLeave(silent){if(V.on)vSend({type:'bye'});Object.keys(V.peers).forEach(closePeer);if(V.mic)V.mic.getTracks().forEach(t=>t.stop());V.mic=null;V.on=false;V.inCall={};if(!silent)render();}
+  V.on=true;V.muted=false;V.inCall={};vSend({type:'hello'});clearInterval(V.pingT);V.pingT=setInterval(()=>{if(!V.on)return;vSend({type:'ping'});const now=Date.now();for(const id in V.inCall)if(now-V.inCall[id]>25000){delete V.inCall[id];closePeer(id);}render();},8000);render();toast('🎙️ הצטרפת לשיחה');}
+function voiceLeave(silent){clearInterval(V.pingT);if(V.on)vSend({type:'bye'});Object.keys(V.peers).forEach(closePeer);if(V.mic)V.mic.getTracks().forEach(t=>t.stop());V.mic=null;V.on=false;V.inCall={};if(!silent)render();}
+function voiceUnlock(){V.needTap=false;for(const p of Object.values(V.peers))if(p.audio){p.audio.muted=false;const r=p.audio.play();if(r&&r.catch)r.catch(()=>{});}voiceRoute();render();}
 function voiceMute(){V.muted=!V.muted;if(V.mic)V.mic.getAudioTracks().forEach(t=>t.enabled=!V.muted);render();}
 function closePeer(id){const p=V.peers[id];if(!p)return;try{p.pc.close();}catch(e){}if(p.audio)p.audio.remove();delete V.peers[id];}
 function addMic(p){const tr=V.mic&&V.mic.getAudioTracks()[0];if(tr&&!p.sender){p.sender=p.pc.addTrack(tr,V.mic);p.allowed=true;}}
 function getPeer(id){if(V.peers[id])return V.peers[id];const pc=new RTCPeerConnection({iceServers:ICE});const p={pc,pend:[],allowed:true};V.peers[id]=p;
   pc.onicecandidate=e=>{if(e.candidate)vSend({type:'ice',to:id,c:e.candidate.toJSON?e.candidate.toJSON():e.candidate});};
   pc.ontrack=e=>{if(!p.audio){const a=document.createElement('audio');a.autoplay=true;a.setAttribute('playsinline','');a.dataset.peer=id;document.body.appendChild(a);p.audio=a;}
-    p.audio.srcObject=e.streams[0]||new MediaStream([e.track]);const pl=p.audio.play&&p.audio.play();if(pl&&pl.catch)pl.catch(()=>{});voiceRoute();};
+    p.audio.srcObject=e.streams[0]||new MediaStream([e.track]);const pl=p.audio.play&&p.audio.play();if(pl&&pl.catch)pl.catch(()=>{V.needTap=true;render();});voiceRoute();};
   pc.onconnectionstatechange=()=>{if(['failed','closed'].includes(pc.connectionState)){closePeer(id);render();}else if(pc.connectionState==='connected')render();};
   return p;}
 async function flushIce(p){for(const c of p.pend.splice(0))await p.pc.addIceCandidate(c).catch(()=>{});}
@@ -1080,6 +1082,8 @@ async function onVoice(m){if(!m||!okId(m.from)||m.from===myId()||!V.on)return;if
       await p.pc.setLocalDescription(await p.pc.createAnswer());vSend({type:'answer',to:id,sdp:p.pc.localDescription});}
     else if(m.type==='answer'){const p=V.peers[id];if(p&&p.pc.signalingState==='have-local-offer'){await p.pc.setRemoteDescription(m.sdp);await flushIce(p);}}
     else if(m.type==='ice'){const p=V.peers[id];if(!p)return;if(p.pc.remoteDescription)await p.pc.addIceCandidate(m.c).catch(()=>{});else p.pend.push(m.c);}
+    else if(m.type==='ping'){V.inCall[id]=Date.now();const p=V.peers[id];if(p&&['failed','disconnected'].includes(p.pc.connectionState))closePeer(id);
+      if(myId()<id&&!V.peers[id]){const q=getPeer(id);addMic(q);await q.pc.setLocalDescription(await q.pc.createOffer());vSend({type:'offer',to:id,sdp:q.pc.localDescription});}}
     else if(m.type==='bye'){delete V.inCall[id];closePeer(id);}
   }catch(e){console.warn('voice',e);}
   voiceRoute();render();}
@@ -1093,11 +1097,12 @@ function voiceBtn(S,inline){if(!voiceOk(S))return '';const n=Object.keys(V.inCal
     :`<button type="button" class="vbtn${inline?' inline':''}" onclick="voiceJoin()" aria-label="הצטרפות לשיחה קולית">🎧</button>`;}
 function voiceNote(S){if(!voiceOk(S))return '';
   if(!V.on)return S.phase==='LOBBY'?`<button class="vjoin" onclick="voiceJoin()">🎧 הצטרפו לשיחה הקולית של החדר</button>`:'';
-  const me=playerById(S,myId());const names=Object.keys(V.inCall).map(id=>playerById(S,id)).filter(Boolean).map(p=>h(p.name));
+  const me=playerById(S,myId());const st=id=>{const p=V.peers[id];const c=p&&p.pc.connectionState;return c==='connected'?(p.audio?'✅':'🔈'):c==='failed'?'❌':'⏳';};
+  const names=Object.keys(V.inCall).filter(id=>playerById(S,id)).map(id=>h(playerById(S,id).name)+' '+st(id));
   let hint='🗣️ כולם שומעים את כולם';
   if(S.phase==='TRAP_SELECTION')hint='🔒 עכשיו שומעים רק את הקבוצה שלכם';
   else if((S.phase==='EXPLAINING'||S.phase==='CARD_RESULT')&&me)hint=me.team===S.activeTeam?'📢 התור שלכם — כולם שומעים אתכם':'👂 שומעים את הקבוצה שבתור · הם לא שומעים אתכם';
-  return `<div class="vnote">${V.muted?'🔇 המיקרופון כבוי · ':''}${hint}<span class="vwho">${names.length?'בשיחה: '+names.join(', '):'מחכים שעוד מישהו יצטרף…'}</span><button onclick="voiceLeave()">יציאה</button></div>`;}
+  return `<div class="vnote">${V.needTap?'<button class="vtap" onclick="voiceUnlock()">🔊 לחצו כאן כדי לשמוע</button>':''}${V.muted?'🔇 המיקרופון כבוי · ':''}${hint}<span class="vwho">${names.length?'בשיחה: '+names.join(', '):'מחכים שעוד מישהו יצטרף…'}</span><button onclick="voiceLeave()">יציאה</button></div>`;}
 function render(){const S=A.S;let html='';voiceRoute();if(S&&S.phase==='GAME_OVER')recordGame(S);
   if(!S)html=vHome();
   else switch(S.phase){
