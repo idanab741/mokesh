@@ -676,8 +676,8 @@ function myId(){return A.me&&A.me.id;}
 function saveProfile(){try{localStorage.setItem('mokesh.profile',JSON.stringify(A.chosen));}catch(e){}syncProf();}
 
 // ---------- אונליין: Supabase (Realtime) ----------
-const SUPABASE_URL='https://jsuajuhciuskruztjijx.supabase.co';
-const SUPABASE_ANON='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImpzdWFqdWhjaXVza3J1enRqaWp4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODM5NjgyMDcsImV4cCI6MjA5OTU0NDIwN30.ak6omwMPGOtKs5er3M727NjCm3ZFWHHbrSbXjaCi-Kg';
+const SUPABASE_URL='https://wpdwmnkalhixzqbhgsln.supabase.co';
+const SUPABASE_ANON='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6IndwZHdtbmthbGhpeHpxYmhnc2xuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTMyNjk3NTEsImV4cCI6MjEwODg0NTc1MX0.LRY9JGuzAaeqnf2Z_eBW7x44wauA4MoqxLi9o_AZEMA';
 let sb=null;
 async function dbGetRoom(code){const {data,error}=await sb.from('mokesh_rooms').select('state').eq('code',code).maybeSingle();if(error)throw error;return data?data.state:null;}
 async function dbSetRoom(code,state){const {error}=await sb.from('mokesh_rooms').upsert({code,state,updated_at:new Date().toISOString()});if(error)throw error;}
