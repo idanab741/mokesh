@@ -45,6 +45,7 @@
   color-scheme:light;box-sizing:border-box;
 }
 html,body{height:100%;margin:0;overflow:hidden}
+html{background-color:#2B3BFF;background-image:linear-gradient(rgba(255,255,255,.14) 1.5px,transparent 1.5px),linear-gradient(90deg,rgba(255,255,255,.14) 1.5px,transparent 1.5px),linear-gradient(rgba(255,255,255,.055) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.055) 1px,transparent 1px);background-size:112px 112px,112px 112px,28px 28px,28px 28px;background-position:-1px -1px}
 *,*::before,*::after{box-sizing:border-box}
 body{background:var(--bg);color:#fff;font-family:var(--font-body);font-weight:500;-webkit-font-smoothing:antialiased;overscroll-behavior:none;position:relative;-webkit-tap-highlight-color:transparent}
 /* קרני שמש + נקודות הדפסה */
@@ -1085,7 +1086,7 @@ function vHome(){const c=A.chosen;const m=A.homeMode;if(m==='how'||m==='intro')r
   if(m==='menu')body=`<div class="col" style="gap:12px">
       <button class="btn primary big" onclick="A.homeMode='create';render()">${ic('users',24)} צור משחק</button>
       <button class="btn info big" onclick="A.homeMode='join';render()">${ic('join',24)} הצטרף למשחק</button>
-      <button class="btn quick big" onclick="quickMatch()">⚡ משחק מהיר עם אנשים מהרשת</button>
+      <button class="btn quick big" onclick="quickMatch()">⚡ משחק מהיר</button>
       <div class="tiles"><button onclick="A.homeMode='how';A.introPage=0;render()">${ic('book',28)}איך משחקים?</button><button onclick="A.homeMode='ai';render()">${ic('robot',28)}מול המחשב</button><button onclick="A.homeMode='local';render()">${ic('phone',28)}מכשיר אחד</button></div>
       ${A.dbMissing?'<div class="banner warn">מצב אונליין לא זמין כרגע. ״מכשיר אחד״ עובד תמיד.</div>':''}
     </div>`;
