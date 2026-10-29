@@ -54,9 +54,10 @@ body::after{content:"";position:fixed;inset:0 0 auto 0;height:calc(100lvh + env(
 button{font:inherit;cursor:pointer;touch-action:manipulation;border:0;color:inherit;background:none;-webkit-user-select:none;user-select:none}
 input{font:inherit;color:inherit}
 button:focus-visible,input:focus-visible{outline:3px solid var(--yellow);outline-offset:3px}
-#app{position:fixed;left:0;right:0;top:var(--vt,0px);height:var(--vh,100%);overflow-y:auto;overflow-x:hidden;-webkit-overflow-scrolling:touch;overscroll-behavior:contain;
+/* מסך מלא עד התחתית (גם כשסרגל הספארי מתקפל); רק כשהמקלדת פתוחה הגובה נקבע לפי החלק הנראה */
+#app{position:fixed;left:0;right:0;top:var(--vt,0px);bottom:0;overflow-y:auto;overflow-x:hidden;-webkit-overflow-scrolling:touch;overscroll-behavior:contain;
   padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
-html.kb #app{padding-bottom:0}
+html.kb #app{padding-bottom:0;bottom:auto;height:var(--vh,100%)}
 .screen{min-height:100%;display:flex;flex-direction:column;gap:14px;max-width:34rem;margin:0 auto;padding:16px}
 .screen.lock{height:100%;min-height:0;overflow:hidden}
 .center{justify-content:center}.grow{flex:1;min-height:0;overflow:hidden}
@@ -91,6 +92,8 @@ html.kb #app{padding-bottom:0}
 .input.listening{box-shadow:0 0 0 4px var(--red)}
 
 .logo{width:min(86%,340px);display:block;margin:0 auto;filter:drop-shadow(0 8px 0 rgba(21,16,43,.55))}
+/* במסכי טופס (צור / הצטרף / משחק מהיר) לוגו קטן, כדי שהכפתור ייכנס במסך בלי לגלול */
+.logo.sm{width:min(52%,200px);margin-top:20px}
 .tagline{color:#fff;font-family:var(--font-display);font-size:20px;line-height:1.3;text-shadow:0 2px 0 var(--ink),0 0 14px rgba(21,16,43,.5)}
 
 /* אריחי הבית — מדבקות צבעוניות */
@@ -1235,6 +1238,7 @@ function vHome(){const c=A.chosen;const m=A.homeMode;if(m==='how'||m==='intro')r
       <p style="margin:0">הראשונים ל-20 נקודות מנצחים. אם אף קבוצה לא הגיעה אחרי 5 תורים — התור האחרון כפול, ותיקו מוכרע במוות פתאומי.</p>
       <button class="btn ghost" onclick="A.homeMode='menu';render()">הבנתי</button></div>`;
   const head=m==='menu'?`<div class="ghostled" aria-hidden="true">00:60</div><i class="hspark" style="top:12%;right:12%"></i><i class="hspark" style="top:44%;left:6%;animation-delay:.5s"></i><i class="hspark" style="top:2%;left:26%;animation-delay:1s"></i><img class="logo pop" src="${ASSETS.logo}" alt="מוקש!"><div class="ledbox" aria-hidden="true"><span class="scr"><span class="seg" id="homeled">${ledText()}</span></span></div>`
+    :['create','join','quick'].includes(m)?`<img class="logo pop sm" src="${ASSETS.logo}" alt="מוקש!">`
     :`<img class="logo pop" src="${ASSETS.logo}" alt="מוקש!"><p class="tagline" style="margin:12px auto 0;max-width:310px">משחק הניחושים שבו כל טעות תעלה לכם בפיצוץ!</p>`;
   return `<div class="screen center${m==='menu'?' home':''}" style="gap:22px;position:relative">${m==='menu'?`${vAccBtn()}<button class="topbtn r2" onclick="A.homeMode='settings';render()" aria-label="הגדרות">${ic('gear',20)}</button>`:''}${musicBtn('topbtn r')}<header class="tc">${head}</header>${body}${m==='menu'?`<div class="tape" aria-hidden="true"><div>${'זהירות! שטח ממוקש ✕ '.repeat(10)}</div></div>`:''}</div>`;}
 // שני עמודי הסבר: מה זה מוקש, וניקוד + דרכי משחק. מוצגים בכניסה הראשונה ומ"איך משחקים?"
