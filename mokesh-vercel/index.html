@@ -1050,7 +1050,9 @@ function vQueue(){const q=A.qm;const left=q?Math.max(0,QM_WAIT-Math.floor((Date.
     <button class="btn ghost" onclick="qmCancel()">ביטול</button></div>`;}
 // ---------- שיחה קולית בחדר עם חברים: קול ישיר בין הטלפונים (WebRTC), התיאום עובר בערוץ של החדר ----------
 const V={on:false,mic:null,muted:false,peers:{},inCall:{}};
-const ICE=[{urls:['stun:stun.l.google.com:19302','stun:stun1.l.google.com:19302']}];
+let ICE=[{urls:['stun:stun.l.google.com:19302','stun:stun1.l.google.com:19302']}];
+// שרת תיווך (TURN) מהשרת שלנו — בלעדיו חיבור בגלישה סלולרית נכשל לעיתים קרובות
+async function loadIce(){if(V.iceAt&&Date.now()-V.iceAt<3*3600*1000)return;try{const r=await fetch('/api/turn');const d=r.ok?await r.json():null;if(d&&Array.isArray(d.iceServers)&&d.iceServers.length){ICE=d.iceServers;V.turn=!!d.turn;V.iceAt=Date.now();}}catch(e){}}
 function voiceOk(S){return !!(S&&S.mode==='online'&&!S.public&&window.RTCPeerConnection&&navigator.mediaDevices&&navigator.mediaDevices.getUserMedia);}
 function vSend(p){try{A.roomCh&&A.roomCh.send({type:'broadcast',event:'voice',payload:{...p,from:myId()}});}catch(e){}}
 // מי שומע את מי: בבחירת מוקשים — כל קבוצה רק את עצמה; בהסבר — הקבוצה שבתור נשמעת לכולם, והיריבים רק לעצמם; בשאר הזמן — כולם
@@ -1060,7 +1062,7 @@ function audible(S,fromId,toId){const a=playerById(S,fromId),b=playerById(S,toId
 async function voiceJoin(){const S=A.S;if(!voiceOk(S))return toast('השיחה הקולית לא נתמכת בדפדפן הזה');
   try{V.mic=await navigator.mediaDevices.getUserMedia({audio:{echoCancellation:true,noiseSuppression:true,autoGainControl:true},video:false});}
   catch(e){return toast('צריך לאשר גישה למיקרופון כדי להצטרף לשיחה');}
-  V.on=true;V.muted=false;V.inCall={};vSend({type:'hello'});clearInterval(V.pingT);V.pingT=setInterval(()=>{if(!V.on)return;vSend({type:'ping'});const now=Date.now();for(const id in V.inCall)if(now-V.inCall[id]>25000){delete V.inCall[id];closePeer(id);}render();},8000);render();toast('🎙️ הצטרפת לשיחה');}
+  await loadIce();V.on=true;V.muted=false;V.inCall={};vSend({type:'hello'});clearInterval(V.pingT);V.pingT=setInterval(()=>{if(!V.on)return;vSend({type:'ping'});const now=Date.now();for(const id in V.inCall)if(now-V.inCall[id]>25000){delete V.inCall[id];closePeer(id);}render();},8000);render();toast('🎙️ הצטרפת לשיחה');}
 function voiceLeave(silent){clearInterval(V.pingT);if(V.on)vSend({type:'bye'});Object.keys(V.peers).forEach(closePeer);if(V.mic)V.mic.getTracks().forEach(t=>t.stop());V.mic=null;V.on=false;V.inCall={};if(!silent)render();}
 function voiceUnlock(){V.needTap=false;for(const p of Object.values(V.peers))if(p.audio){p.audio.muted=false;const r=p.audio.play();if(r&&r.catch)r.catch(()=>{});}voiceRoute();render();}
 function voiceMute(){V.muted=!V.muted;if(V.mic)V.mic.getAudioTracks().forEach(t=>t.enabled=!V.muted);render();}
