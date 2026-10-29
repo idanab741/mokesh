@@ -206,6 +206,11 @@ html.kb #app{padding-bottom:0}
 .banner{border-radius:var(--r-sm);padding:8px 12px;text-align:center;font-size:14px;font-weight:600;box-shadow:var(--sh-sm)}
 .banner.warn{background:var(--yellow);color:var(--ink)}
 .settings{border-radius:var(--r-md);padding:2px 16px}
+.modepick{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.modepick button{display:flex;flex-direction:column;align-items:center;gap:2px;padding:10px 6px;border-radius:var(--r-md);background:var(--paper);color:var(--ink);border:var(--o);box-shadow:var(--sh-sm);font-size:15px}
+.modepick button span{font-size:12px;color:var(--soft);font-weight:600}
+.modepick button.on{background:var(--yellow);transform:translateY(-1px)}
+.modepick button:disabled{opacity:1}.modepick button:disabled:not(.on){opacity:.55}
 .settings .sum{display:flex;align-items:center;gap:10px;padding:10px 0;font-weight:800;font-size:15px;width:100%;text-align:right;color:var(--ink)}
 .settings .sum .s{color:var(--soft);font-weight:600;flex:1;font-size:13px}
 .settings .r{display:flex;justify-content:space-between;align-items:center;padding:7px 0;border-top:2px dashed rgba(21,16,43,.2)}
@@ -516,8 +521,8 @@ const TG={of:t=>isAIgame()?(t==='A'?'שלכם':'של המחשב'):'של '+TEAM_N
   to:t=>isAIgame()?(t==='A'?'לכם':'למחשב'):'ל'+TEAM_NAME_BASE[t],
   won:t=>isAIgame()?(t==='A'?'ניצחתם!':'המחשב ניצח!'):TEAM_NAME_BASE[t]+' ניצחה!',
   needs:t=>isAIgame()?(t==='A'?'אתם צריכים לנחש':'המחשב צריך לנחש'):TEAM_NAME_BASE[t]+' צריכה לנחש'};const TEAM_NAME=new Proxy({},{get:(_,t)=>A&&A.S&&(A.S.mode==='ai'||A.S.vsBots)?(t==='A'?'אתם':'המחשב'):TEAM_NAME_BASE[t]});
-const DEFAULTS = {turnsPerTeam:5,turnSeconds:60,trapSeconds:25,difficulty:'all',maxSkips:2,target:20};
-const T = {CORRECT:2200,TRAP:5000,SKIP:1100,SUMMARY:6000,PREP:1500,MAX_HISTORY:12};
+const DEFAULTS = {turnsPerTeam:5,turnSeconds:60,trapSeconds:25,difficulty:'all',maxSkips:2,target:20,wordMode:0};
+const T = {CORRECT:2200,TRAP:5000,SKIP:1100,SUMMARY:6000,SUMMARY_WORD:3500,PREP:1500,MAX_HISTORY:12};
 
 // ---------- נרמול והתאמה (דטרמיניסטי) ----------
 // האם הביטוי m מופיע כמילים שלמות בתוך n (מותרת אות שימוש אחת בתחילה: ו/ה/ב/ל/כ/מ/ש)
@@ -547,6 +552,8 @@ function deckPop(S){if(typeof S.deck!=='string')S.deck=deckEnc(Array.isArray(S.d
 const E = {
   team:(S,t)=>S.players.filter(p=>p.team===t),
   totalTurns:S=>S.settings.turnsPerTeam*2,
+  // תור-תור (וגם מוות פתאומי): מילה אחת לכל קבוצה בכל תור. דילוג מחליף מילה באותו תור
+  oneWord:S=>!!(S.sudden||S.settings.wordMode),
   card:S=>S.cardId?CARDS.get(S.cardId):null,
   addPlayer(S,{id,name,avatar}){if(S.players.find(p=>p.id===id))return;if(S.players.length>=12)throw new Error('החדר מלא (12 שחקנים)');
     const a=E.team(S,'A').length,b=S.players.length-a;
@@ -556,8 +563,10 @@ const E = {
     if(id===S.explainerId&&!['LOBBY','GAME_OVER','TURN_SUMMARY','TURN_PREPARATION'].includes(S.phase))E.endTurn(S);},
   switchTeam(S,id,team){const p=S.players.find(x=>x.id===id);if(!p||S.phase!=='LOBBY'||S.vsBots)return;p.team=team||(p.team==='A'?'B':'A');p.ready=false;},
   setReady(S,id,r){const p=S.players.find(x=>x.id===id);if(p)p.ready=!!r;},
-  updateSettings(S,patch){if(S.phase!=='LOBBY')return;const s={...S.settings,...patch};const cl=(n,lo,hi)=>Math.min(hi,Math.max(lo,Math.round(Number(n)||lo)));
-    s.turnsPerTeam=cl(s.turnsPerTeam,1,10);s.turnSeconds=cl(s.turnSeconds,30,120);s.trapSeconds=cl(s.trapSeconds,10,40);s.maxSkips=cl(s.maxSkips,0,5);s.target=cl(s.target||20,10,50);
+  updateSettings(S,patch){if(S.phase!=='LOBBY')return;const s={...S.settings,...patch};s.wordMode=s.wordMode?1:0;
+    // מעבר בין הסגנונות: מספר תורות שמתאים לכל סגנון
+    if('wordMode' in patch&&!('turnsPerTeam' in patch)&&s.wordMode!==(S.settings.wordMode?1:0))s.turnsPerTeam=s.wordMode?8:DEFAULTS.turnsPerTeam;const cl=(n,lo,hi)=>Math.min(hi,Math.max(lo,Math.round(Number(n)||lo)));
+    s.turnsPerTeam=cl(s.turnsPerTeam,1,s.wordMode?20:10);s.turnSeconds=cl(s.turnSeconds,30,120);s.trapSeconds=cl(s.trapSeconds,10,40);s.maxSkips=cl(s.maxSkips,0,5);s.target=cl(s.target||20,10,50);
     if(![1,2,3,'all'].includes(s.difficulty))s.difficulty='all';S.settings=s;},
   startGame(S){if(S.phase!=='LOBBY')throw new Error('המשחק כבר התחיל');if(E.team(S,'A').length<2||E.team(S,'B').length<2)throw new Error('צריך לפחות 2 שחקנים בכל קבוצה');
     E.reset(S);E.beginTurn(S);},
@@ -574,7 +583,7 @@ const E = {
     // שחקן יחיד עם מחשב: המחשב תמיד מסביר והשחקן מנחש. שניים ומעלה: כולם מסבירים בתורות, כולל המחשב
     const bots=m.filter(p=>isBot(p.id));const people=m.length-bots.length;const pool=bots.length&&people===1?bots:m;
     S.explainerId=pool[S.cursor[S.activeTeam]%pool.length].id;S.cursor[S.activeTeam]++;E.nextCard(S);},
-  nextCard(S){if(E.checkTarget(S))return;if(S.turnRemainingMs<=0||(S.sudden&&(S.turnWords||[]).length)){E.endTurn(S);return;}
+  nextCard(S){if(E.checkTarget(S))return;if(S.turnRemainingMs<=0||(E.oneWord(S)&&(S.turnWords||[]).some(w=>w.kind!=='skip'))){E.endTurn(S);return;}
     S.cardId=deckPop(S);S.cardAt=Date.now();S.traps=[];S.cardResolved=false;S.cardResult=null;S.clues=[];
     // מצב מקומי: הטלפון עובר ליריבים רק לפני הקלף הראשון בתור; בקלפים הבאים המוקשים נבחרים אוטומטית
     if(S.mode==='local'&&S.turnRemainingMs<S.settings.turnSeconds*1000){const c=CARDS.get(S.cardId);S.traps=shuffle(c.options).slice(0,3);E.startExplaining(S);return;}
@@ -628,8 +637,8 @@ const E = {
       const pc=[0,.72,.62,.52][c.difficulty]||.62,r=Math.random();
       if(r<pc||(r>=pc+.12&&!S.skipsLeft)){E.points(S,'correct',g,dt*1000);S.turnWords.push({word:c.target,kind:'correct',at:0,cardId:c.id});}
       else if(r<pc+.12){const w=c.options[Math.floor(Math.random()*3)];E.points(S,'trap',g);S.turnWords.push({word:c.target,kind:'trap',mine:w,at:0,cardId:c.id});}
-      else{S.skipsLeft--;S.streak=0;S.turnWords.push({word:c.target,kind:'skip',at:0,cardId:c.id});}
-      if(S.sudden||(S.settings.target&&(S.score.A>=S.settings.target||S.score.B>=S.settings.target)))break;}
+      else{S.skipsLeft--;S.streak=0;S.turnWords.push({word:c.target,kind:'skip',at:0,cardId:c.id});continue;}
+      if(E.oneWord(S)||(S.settings.target&&(S.score.A>=S.settings.target||S.score.B>=S.settings.target)))break;}
     S.cardId=null;E.endTurn(S);S.turnSummary.sim=true;},
   freeze(S){if(S.phase==='EXPLAINING')S.turnRemainingMs=Math.max(0,S.turnRemainingMs-(Date.now()-S.explainStartedAt));},
   guess(S,playerId,text,guessId){const p=S.players.find(x=>x.id===playerId);const c=E.card(S);
@@ -648,7 +657,7 @@ const E = {
   endTurn(S){E.freeze(S);S.turnRemainingMs=0;{const c=E.card(S);if(c&&!S.cardResolved&&S.phase==='EXPLAINING'){S.turnWords=S.turnWords||[];S.turnWords.push({word:c.target,kind:'missed',at:S.cardAt||0,cardId:S.cardId});}}S.cardResolved=true;const ex=S.players.find(p=>p.id===S.explainerId);
     const g=E.team(S,S.activeTeam).filter(p=>p.id!==S.explainerId).sort((a,b)=>b.turnCorrect-a.turnCorrect)[0];
     S.turnSummary={team:S.activeTeam,words:(S.turnWords||[]).slice(),explainerName:ex?ex.name:'—',correct:S.turnStats.correct,traps:S.turnStats.traps,points:S.turnStats.points,best:g&&g.turnCorrect>0?{name:g.name,correct:g.turnCorrect}:null};
-    S.cardId=null;S.traps=[];S.cardResult=null;E.setPhase(S,'TURN_SUMMARY',T.SUMMARY);},
+    S.cardId=null;S.traps=[];S.cardResult=null;E.setPhase(S,'TURN_SUMMARY',S.settings.wordMode?T.SUMMARY_WORD:T.SUMMARY);},
   advanceTurn(S){if(E.checkTarget(S))return;S.turnIndex++;
     // מוות פתאומי: מילה אחת לכל קבוצה; מי שניחשה (מהר יותר) מנצחת, ואם אף אחת / שתיהן באותו זמן — עוד סבב
     if(S.sudden){S.sudden.played++;if(S.sudden.played%2===0){const a=S.sudden.res.A,b=S.sudden.res.B;const w=a!=null&&(b==null||a<b)?'A':b!=null&&(a==null||b<a)?'B':null;if(w){E.finishGame(S,w,'sudden');return;}S.sudden.res={};S.sudden.round++;}}
@@ -1241,9 +1250,10 @@ async function shareRoom(link,code,copyOnly){const data={title:'מוקש!',text:
 function vSettings(S){const s=S.settings;const host=A.isHost;const set=p=>`act({type:'settings',settings:${JSON.stringify(p).replace(/"/g,'&quot;')}})`;
   const r=(l,v,dec,inc)=>`<div class="r"><span class="small muted">${l}</span><div class="row">${host?`<button onclick="${dec}">−</button>`:''}<span class="v">${v}</span>${host?`<button onclick="${inc}">+</button>`:''}</div></div>`;
   const dl={all:'קלאסי',1:'קל',2:'בינוני',3:'קשה'}[s.difficulty];const order=['all',1,2,3];const i=order.indexOf(s.difficulty);
-  const open=!!A.settingsOpen;
-  return `<div class="settings"><button class="sum" onclick="A.settingsOpen=!A.settingsOpen;render()">${ic('gear',20)}<span>הגדרות משחק</span><span class="s">עד ${s.target||20} · ${s.turnsPerTeam} תורות · ${s.turnSeconds} שניות · ${dl}</span><span class="muted">${open?'▴':'▾'}</span></button>
-    ${open?r('מנצחים ב-',(s.target||20)+' נק׳',set({target:(s.target||20)-5}),set({target:(s.target||20)+5}))+r('תורות לכל קבוצה',s.turnsPerTeam,set({turnsPerTeam:s.turnsPerTeam-1}),set({turnsPerTeam:s.turnsPerTeam+1}))+r('שניות לתור',s.turnSeconds,set({turnSeconds:s.turnSeconds-15}),set({turnSeconds:s.turnSeconds+15}))+r('שניות לבחירת מוקשים',s.trapSeconds,set({trapSeconds:s.trapSeconds-5}),set({trapSeconds:s.trapSeconds+5}))+r('רמת קושי',dl,set({difficulty:order[(i+3)%4]}),set({difficulty:order[(i+1)%4]})):''}</div>`;}
+  const open=!!A.settingsOpen;const wm=!!s.wordMode;
+  const style=`<div class="modepick">${[[0,'⏱️ על זמן','כמה שיותר מילים בתור'],[1,'🔁 תור-תור','מילה אחת וזה עובר']].map(([v,l,d])=>`<button class="${(wm?1:0)===v?'on':''}" ${host?`onclick="${set({wordMode:v})}"`:'disabled'}><b>${l}</b><span>${d}</span></button>`).join('')}</div>`;
+  return `${style}<div class="settings"><button class="sum" onclick="A.settingsOpen=!A.settingsOpen;render()">${ic('gear',20)}<span>הגדרות משחק</span><span class="s">עד ${s.target||20} · ${s.turnsPerTeam} ${wm?'מילים':'תורות'} · ${s.turnSeconds} שניות · ${dl}</span><span class="muted">${open?'▴':'▾'}</span></button>
+    ${open?r('מנצחים ב-',(s.target||20)+' נק׳',set({target:(s.target||20)-5}),set({target:(s.target||20)+5}))+r(wm?'מילים לכל קבוצה':'תורות לכל קבוצה',s.turnsPerTeam,set({turnsPerTeam:s.turnsPerTeam-1}),set({turnsPerTeam:s.turnsPerTeam+1}))+r(wm?'שניות למילה':'שניות לתור',s.turnSeconds,set({turnSeconds:s.turnSeconds-15}),set({turnSeconds:s.turnSeconds+15}))+r('שניות לבחירת מוקשים',s.trapSeconds,set({trapSeconds:s.trapSeconds-5}),set({trapSeconds:s.trapSeconds+5}))+r('רמת קושי',dl,set({difficulty:order[(i+3)%4]}),set({difficulty:order[(i+1)%4]})):''}</div>`;}
 function vRing(S,live){return `<div class="bombclock"><img src="${ASSETS.bomb}" alt=""><div class="t">${live?'–':fmt(S.turnRemainingMs)}</div></div>`;}
 // לוח תוצאות + פתיל בוער: הטיימר הוא פתיל שנשרף לאורך המסך, והשניות על הפצצה עצמה
 function trapperLine(S){return isAIgame()?'המחשב בוחר לכם מוקשים…':S.mode==='online'&&S.runoff?'היריבים מכריעים בתיקו על המוקשים…':S.mode==='online'?'היריבים בוחרים לכם מוקשים…':'היריבים בוחרים מוקשים…';}
