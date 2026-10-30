@@ -823,7 +823,7 @@ async function initRuntime(){
   try{if(window.supabase&&SUPABASE_URL.startsWith('http')){sb=window.supabase.createClient(SUPABASE_URL,SUPABASE_ANON,{realtime:{params:{eventsPerSecond:20}}});A.uid=localStorage.getItem('mokesh.uid')||('u'+uid(10));localStorage.setItem('mokesh.uid',A.uid);A.dbReady=true;}}catch(e){console.error(e);}
   if(!A.dbReady)A.dbMissing=true;else await authInit();
   // קישור חבר (?f=קוד): מחובר — נוסף מיד; אורח — מתבקש להתחבר קודם
-  if(A.pendingFriend){try{const u=new URL(location.href);u.searchParams.delete('f');history.replaceState(null,'',u.pathname+u.search+u.hash);}catch(e){}if(A.user){const c=A.pendingFriend;A.pendingFriend=null;addFriend(c);}else if(A.dbReady)A.sheet='login';}
+  if(A.pendingFriend){try{const u=new URL(location.href);u.searchParams.delete('f');history.replaceState(null,'',u.pathname+u.search+u.hash);}catch(e){}if(A.user){const c=A.pendingFriend;A.pendingFriend=null;addFriend(c);}else if(A.dbReady&&LOGIN_ON)A.sheet='login';}
   // חזרה אוטומטית לחדר האחרון (למשל אחרי רענון), אלא אם נכנסו מקישור לחדר אחר: אז הקישור החדש מנצח
   try{let s=JSON.parse(localStorage.getItem('mokesh.session')||'null');
     if(s&&A.joinCode&&s.code!==A.joinCode){if(A.dbReady&&!s.isHost)dbAddInbox(s.code,{type:'leave',from:A.uid,at:Date.now()}).catch(()=>{});localStorage.removeItem('mokesh.session');s=null;A.homeMode='join';}
@@ -1073,7 +1073,7 @@ async function sendEmailCode(){const em=(A.loginEmail||'').trim();if(!/^\S+@\S+\
 async function verifyEmailCode(){const t=(A.loginCode||'').replace(/\D/g,'');if(t.length<6)return toast('הקוד צריך להיות 6 ספרות');A.loginBusy=true;render();
   try{const {error}=await sb.auth.verifyOtp({email:(A.loginEmail||'').trim(),token:t,type:'email'});if(error)throw error;toast('נכנסת! 🎉');}catch(e){toast('הקוד לא נכון או שפג תוקפו');}A.loginBusy=false;render();}
 async function signOut(){try{await sb.auth.signOut();}catch(e){}A.user=null;A.prof=null;A.friends=[];stopSocial();A.uid=localStorage.getItem('mokesh.uid')||A.uid;A.sheet=null;render();}
-async function addFriend(code){code=String(code||'').trim().toUpperCase();if(!code)return;if(!A.user){A.pendingFriend=code;A.sheet='login';render();return;}
+async function addFriend(code){code=String(code||'').trim().toUpperCase();if(!code)return;if(!A.user){if(!LOGIN_ON)return;A.pendingFriend=code;A.sheet='login';render();return;}
   try{const {data,error}=await sb.rpc('mokesh_add_friend',{p_code:code});if(error)throw error;
     toast({requested:'בקשת חברות נשלחה ✉️',accepted:'אתם חברים עכשיו! 🎉',already:'אתם כבר חברים',pending:'כבר שלחת בקשה, מחכים שיאשרו',not_found:'לא מצאנו קוד כזה',self:'זה הקוד שלך 🙂'}[data]||'משהו השתבש');A.friendCode='';loadFriends();}catch(e){toast('לא הצלחנו להוסיף חבר');}}
 async function acceptFriend(id){try{await sb.rpc('mokesh_accept_friend',{p_other:id});toast('אתם חברים עכשיו! 🎉');}catch(e){}loadFriends();}
@@ -1094,7 +1094,9 @@ function recordGame(S){if(!A.user||!S||S.phase!=='GAME_OVER'||!S.gameOver)return
 // ---------- מסכי חשבון ----------
 function statTiles(st){st=st||{};const N=x=>Number(x)||0;st={games:N(st.games),wins:N(st.wins),correct:N(st.correct),traps:N(st.traps),mvp:N(st.mvp)};const g=st.games||0,w=st.wins||0;const t=(n,l)=>`<div class="stt"><b>${n}</b><span>${l}</span></div>`;
   return `<div class="stts">${t(g,'משחקים')}${t(w,'ניצחונות')}${t(g?Math.round(w*100/g)+'%':'—','אחוז ניצחון')}${t(st.correct||0,'ניחושים נכונים')}${t(st.traps||0,'מוקשים')}${t(st.mvp||0,'MVP')}</div>`;}
-function vAccBtn(){if(!sb||!sb.auth)return '';const inc=(A.friends||[]).filter(f=>f.incoming).length;
+// כפתור הכניסה מנוטרל זמנית (בקשת המשתמש). להחזרה: LOGIN_ON=true
+const LOGIN_ON=false;
+function vAccBtn(){if(!LOGIN_ON||!sb||!sb.auth)return '';const inc=(A.friends||[]).filter(f=>f.incoming).length;
   return A.user?`<button class="topbtn accb on" onclick="A.sheet='profile';render()" aria-label="הפרופיל שלי">${avInner(A.chosen.avatar)}${inc?`<span class="badge">${inc}</span>`:''}</button>`
     :`<button class="topbtn accb" onclick="A.sheet='login';render()" aria-label="התחברות"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><circle cx="12" cy="8" r="4"/><path d="M4 21c1.5-4 4.5-6 8-6s6.5 2 8 6"/></svg><span class="acclbl">כניסה</span></button>`;}
 function vLoginSheet(){const busy=A.loginBusy?'disabled':'';
