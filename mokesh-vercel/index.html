@@ -136,6 +136,9 @@ html.kb #app{padding-bottom:0;bottom:auto;height:var(--vh,100%)}
 .homeblast{position:fixed;width:0;height:0;z-index:50;pointer-events:none}
 .homeblast>*{top:0!important;left:0!important}
 .homeblast .flash{position:fixed;inset:0;margin:0;opacity:.75}
+/* הרקע "נשרף": כתום-אדום שמתפשט מהצג ודועך בחזרה לכחול */
+.homeblast .bgburn{position:fixed;inset:0;top:0!important;left:0!important;background:radial-gradient(circle at var(--x) var(--y),rgba(255,214,90,.95) 0,rgba(255,120,40,.9) 18%,rgba(230,40,50,.82) 42%,rgba(90,10,40,.7) 75%,rgba(40,5,30,.65) 100%);animation:bgburn 1.9s ease-out both}
+@keyframes bgburn{0%{opacity:0}8%{opacity:1}45%{opacity:.85}100%{opacity:0}}
 .homeblast .hboom{position:absolute;width:250px;margin:-95px 0 0 -125px;filter:drop-shadow(0 6px 0 rgba(21,16,43,.6));animation:hboom 1.9s cubic-bezier(.2,.8,.2,1) both}
 @keyframes hboom{0%{transform:scale(.2) rotate(-12deg);opacity:0}15%{transform:scale(1.12) rotate(4deg);opacity:1}25%{transform:scale(1) rotate(0)}80%{opacity:1}100%{transform:scale(1.05);opacity:0}}
 .hquake{animation:shake .5s ease-in-out}
@@ -950,7 +953,13 @@ async function botGuessFor(S,c){const from=S.cardAt||0;const prev=S.guesses.filt
 
 // ---------- אפקטים ----------
 let audioCtx=null;
-function fx(kind){try{if(kind==='skip'){navigator.vibrate&&navigator.vibrate(25);beep('skip');}else if(kind==='trap'){navigator.vibrate&&navigator.vibrate([220,70,320,60,120]);beep('trap');}else if(kind==='correct'){navigator.vibrate&&navigator.vibrate(60);beep('correct');}}catch(e){}}
+// רטט: באנדרואיד דרך vibrate. באייפון אין vibrate, אבל לחיצה על מתג (input switch, iOS 18+) נותנת נקישה של המנוע — כל "פעימה" בתבנית = נקישה
+let hapEl=null;
+function haptic(pat){try{const a=Array.isArray(pat)?pat:[pat];if(navigator.vibrate){navigator.vibrate(a);return;}
+  if(!/iP(hone|ad|od)/.test(navigator.userAgent))return;
+  if(!hapEl){hapEl=document.createElement('label');hapEl.setAttribute('aria-hidden','true');hapEl.style.cssText='position:fixed;left:-99px;top:0;opacity:0;pointer-events:none';hapEl.innerHTML='<input type="checkbox" switch tabindex="-1">';document.body.appendChild(hapEl);}
+  let t=0;a.forEach((ms,i)=>{if(i%2===0)for(let k=0;k<Math.max(1,Math.round(ms/110));k++)setTimeout(()=>hapEl.click(),t+k*70);t+=ms;});}catch(e){}}
+function fx(kind){try{if(kind==='skip'){haptic(25);beep('skip');}else if(kind==='trap'){haptic([220,70,320,60,120]);beep('trap');}else if(kind==='correct'){haptic(60);beep('correct');}}catch(e){}}
 function beep(kind){try{audioCtx=audioCtx||new (window.AudioContext||window.webkitAudioContext)();const ctx=audioCtx,t=ctx.currentTime;
   if(kind==='skip'){const len=.6,buf=ctx.createBuffer(1,ctx.sampleRate*len,ctx.sampleRate),d=buf.getChannelData(0);for(let i=0;i<d.length;i++)d[i]=Math.random()*2-1;
     const src=ctx.createBufferSource();src.buffer=buf;const bp=ctx.createBiquadFilter();bp.type='bandpass';bp.Q.value=1.2;const t0=t+.22;bp.frequency.setValueAtTime(350,t0);bp.frequency.exponentialRampToValueAtTime(3200,t0+.22);bp.frequency.exponentialRampToValueAtTime(700,t0+.5);
@@ -1016,7 +1025,7 @@ async function acceptFriend(id){try{await sb.rpc('mokesh_accept_friend',{p_other
 async function removeFriend(id){const me=A.user.id;const [a,b]=me<id?[me,id]:[id,me];try{await sb.from('mokesh_friends').delete().eq('a',a).eq('b',b);}catch(e){}A.openFriend=null;loadFriends();}
 async function inviteFriend(id){const S=A.S;if(!S||A.mode!=='online')return toast('קודם פתחו חדר אונליין');
   try{const {error}=await sb.from('mokesh_invites').insert({from_id:A.user.id,to_id:id,room:S.code});if(error)throw error;const f=A.friends.find(x=>x.id===id);toast('ההזמנה נשלחה ל'+(f?f.name:'חבר'));A.invited=Object.assign(A.invited||{},{[id]:S.code});render();}catch(e){toast('לא הצלחנו לשלוח הזמנה');}}
-function onInvite(row){if(!row)return;if(A.S&&A.S.code===row.room)return;const f=(A.friends||[]).find(x=>x.id===row.from_id);A.inviteBar={room:row.room,name:f?f.name:'חבר',avatar:f?f.avatar:AVATARS[0]};try{beep('correct');navigator.vibrate&&navigator.vibrate([60,40,60]);}catch(e){}render();}
+function onInvite(row){if(!row)return;if(A.S&&A.S.code===row.room)return;const f=(A.friends||[]).find(x=>x.id===row.from_id);A.inviteBar={room:row.room,name:f?f.name:'חבר',avatar:f?f.avatar:AVATARS[0]};try{beep('correct');haptic([60,40,60]);}catch(e){}render();}
 async function acceptInvite(){const iv=A.inviteBar;A.inviteBar=null;if(!iv)return;if(A.S)leaveRoom();A.joinCode=iv.room;if(!(A.chosen.name||'').trim()){A.homeMode='join';render();return;}joinOnline(iv.room);}
 function friendLink(){return location.origin+location.pathname+'?f='+(A.prof?A.prof.friend_code:'');}
 async function shareFriendCode(){const link=friendLink();const data={title:'מוקש!',text:'בוא/י נהיה חברים במוקש! הקוד שלי: '+A.prof.friend_code,url:link};
@@ -1231,7 +1240,7 @@ setInterval(()=>{const e=document.getElementById('homeled');if(!e)return;const t
 function homeBoom(){const led=document.querySelector('.ledbox');if(!led||document.hidden||A.homeBoomAt>Date.now()-2500)return;A.homeBoomAt=Date.now();
   if(matchMedia('(prefers-reduced-motion: reduce)').matches)return;
   const r=led.getBoundingClientRect(),L=document.createElement('div');L.className='homeblast';L.style.left=(r.left+r.width/2)+'px';L.style.top=(r.top+r.height/2)+'px';
-  L.innerHTML=vBlast()+`<img class="hboom" src="${ASSETS.boom}" alt="">`;document.body.appendChild(L);
+  L.innerHTML=`<div class="bgburn" style="--x:${Math.round(r.left+r.width/2)}px;--y:${Math.round(r.top+r.height/2)}px"></div>`+vBlast()+`<img class="hboom" src="${ASSETS.boom}" alt="">`;document.body.appendChild(L);haptic([220,70,320,60,120]);
   const hd=document.querySelector('.screen.home header');if(hd){hd.classList.remove('hquake');void hd.offsetWidth;hd.classList.add('hquake');}
   led.classList.add('hit');if(MUSIC.on)beep('trap');setTimeout(()=>{L.remove();led.classList.remove('hit');},1900);}
 function vHome(){const c=A.chosen;const m=A.homeMode;if(m==='how'||m==='intro')return vIntro();
