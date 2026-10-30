@@ -607,6 +607,9 @@ const E = {
   removePlayer(S,id){const p=S.players.find(x=>x.id===id);if(!p)return;S.players=S.players.filter(x=>x.id!==id);
     if(p.isHost&&S.players[0])S.players[0].isHost=true;
     if(id===S.explainerId&&!['LOBBY','GAME_OVER','TURN_SUMMARY','TURN_PREPARATION'].includes(S.phase))E.endTurn(S);},
+  // שחקן שחזר ממכשיר/דפדפן אחר מקבל בחזרה את המקום שלו: כל ההפניות למזהה הישן עוברות לחדש
+  remapPlayer(S,from,to){const p=S.players.find(x=>x.id===from);if(!p||from===to)return;p.id=to;p.connected=true;p.lastSeen=Date.now();if(S.explainerId===from)S.explainerId=to;
+    for(const k of ['trapVotes','trapLocked'])if(S[k]&&from in S[k]){S[k][to]=S[k][from];delete S[k][from];}(S.guesses||[]).forEach(g=>{if(g.playerId===from)g.playerId=to;});},
   switchTeam(S,id,team){const p=S.players.find(x=>x.id===id);if(!p||S.phase!=='LOBBY'||S.vsBots)return;p.team=team||(p.team==='A'?'B':'A');p.ready=false;},
   setReady(S,id,r){const p=S.players.find(x=>x.id===id);if(p)p.ready=!!r;},
   updateSettings(S,patch){if(S.phase!=='LOBBY')return;const s={...S.settings,...patch};s.wordMode=s.wordMode?1:0;
@@ -785,9 +788,16 @@ async function joinOnline(code,asHost,resume){
   code=(code||'').toUpperCase().trim();if(!/^[A-Z0-9]{6}$/.test(code))return toast('קוד חדר לא תקין');let S;try{S=cleanState(await dbGetRoom(code));}catch(e){return toast('שגיאת חיבור');}
   if(!S){localStorage.removeItem('mokesh.session');return toast('לא נמצא חדר עם הקוד הזה');}
   A.mode='online';A.me={id:A.uid,name:A.chosen.name||(A.me&&A.me.name),avatar:A.chosen.avatar||(A.me&&A.me.avatar)};
-  const existing=S.players.find(p=>p.id===A.uid);
+  // אותו אדם יכול להופיע בחדר במזהה האורח או במזהה החשבון (אם ההתחברות נטענה לפני/אחרי שנכנס)
+  const ids=[A.uid,localStorage.getItem('mokesh.uid'),A.user&&A.user.id].filter(Boolean);
+  let existing=null;for(const id of ids){existing=S.players.find(p=>p.id===id);if(existing){A.uid=id;break;}}
+  const nm=(A.me.name||'').trim();
+  // המארח חזר ממקום אחר: אם החדר לא עודכן 45 שניות, הוא לוקח בחזרה את הניהול בעצמו
+  if(!existing&&nm){const hp=S.players.find(p=>p.isHost&&!isBot(p.id)&&p.name.trim()===nm);
+    if(hp&&Date.now()-(S.updatedAt||0)>45000){E.remapPlayer(S,hp.id,A.uid);existing=hp;A.S=S;A.isHost=true;hostWrite();}}
   A.isHost=!!(existing&&existing.isHost);
-  if(!existing){if(S.phase!=='LOBBY')return toast('המשחק כבר התחיל — אפשר להצטרף בסיבוב הבא');await sendAction(code,{type:'join',name:A.me.name,avatar:A.me.avatar});}
+  if(!existing){const back=nm&&S.players.some(p=>!p.isHost&&!isBot(p.id)&&p.name.trim()===nm&&(!p.connected||Date.now()-(p.lastSeen||0)>20000));
+    if(S.phase!=='LOBBY'&&!back)return toast('המשחק כבר התחיל — אפשר להצטרף בסיבוב הבא');await sendAction(code,{type:'join',name:A.me.name,avatar:A.me.avatar});}
   else if(!resume){await sendAction(code,{type:'presence'});}
   localStorage.setItem('mokesh.session',JSON.stringify({code,isHost:A.isHost,name:A.me.name,avatar:A.me.avatar}));
   A.S=S;subscribeRoom(code);if(A.isHost)startHostLoop();render();
@@ -813,8 +823,10 @@ function cleanState(S){if(!S||typeof S!=='object'||!/^[A-Z0-9]{6}$/.test(String(
 function handleAction(a){const S=A.S;if(!S||!a||!okId(a.from))return;const quiet=a.type==='presence'&&!!(S.players.find(x=>x.id===a.from)||{}).connected;if(a.avatar!=null&&!AVATARS.includes(a.avatar))a.avatar=AVATARS[0];
   const run=()=>{switch(a.type){
     case 'join':{if(a.at&&Date.now()-a.at>10*60*1000)break; // בקשה ישנה (למשל מלפני שהמארח חזר) — מתעלמים
-      const nm=(a.name||'').trim();const dup=S.phase==='LOBBY'&&nm&&S.players.find(x=>x.id!==a.from&&!x.isHost&&!isBot(x.id)&&x.name.trim()===nm&&(!x.connected||Date.now()-(x.lastSeen||0)>20000));
-      if(dup){dup.id=a.from;dup.avatar=a.avatar||dup.avatar;dup.connected=true;dup.lastSeen=Date.now();dup.ready=false;break;} // אותו שם = אותו אדם שהצטרף שוב (דפדפן אחר)
+      const nm=(a.name||'').trim();const dup=nm&&!S.players.find(x=>x.id===a.from)&&S.players.find(x=>x.id!==a.from&&!x.isHost&&!isBot(x.id)&&x.name.trim()===nm&&(!x.connected||Date.now()-(x.lastSeen||0)>20000));
+      // אותו שם = אותו אדם שחזר (דפדפן אחר / וואטסאפ / התחברות שלא נטענה) — מקבל בחזרה את המקום שלו, גם באמצע משחק
+      if(dup){E.remapPlayer(S,dup.id,a.from);if(S.phase==='LOBBY'){dup.avatar=a.avatar||dup.avatar;dup.ready=false;}break;}
+      if(S.phase!=='LOBBY')break;
       const isNew=!S.players.find(x=>x.id===a.from);E.addPlayer(S,{id:a.from,name:a.name,avatar:a.avatar});if(S.vsBots){const np=S.players.find(x=>x.id===a.from);if(np)np.team='A';}if(isNew&&A.mode==='online'&&a.from!==A.uid)toast(`${nm||'שחקן'} הצטרף/ה!`);break;}
     case 'move':if(isHostAct(S,a))E.switchTeam(S,a.target);break;
     case 'vsbots':if(isHostAct(S,a)&&S.phase==='LOBBY'){if('partner' in a)S.vsPartner=!!a.partner;setVsBots(S,!a.off);}break;
