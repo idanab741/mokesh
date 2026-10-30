@@ -819,9 +819,17 @@ async function dbSetRoom(code,state){const {error}=await sb.from('mokesh_rooms')
 async function dbAddInbox(code,action){const {error}=await sb.from('mokesh_inbox').insert({id:uid(10),code,action});if(error)throw error;}
 async function dbDeleteInbox(id){try{await sb.from('mokesh_inbox').delete().eq('id',id);}catch(e){}}
 async function dbPendingInbox(code){const {data}=await sb.from('mokesh_inbox').select('id,action').eq('code',code).order('at');return data||[];}
+// סטטיסטיקה לעמוד הניהול: מכשיר (מזהה אקראי, בלי מידע אישי), מאיפה הגיע ואיזה משחק פתח. כניסה נספרת פעם ביום
+// מקור: ?s=fb בקישור (לפוסטים), או לפי האתר שממנו הגיעו
+function trafficSrc(){try{const q=new URLSearchParams(location.search);const s=(q.get('s')||q.get('utm_source')||'').toLowerCase().replace(/[^a-z0-9_-]/g,'').slice(0,20);if(s)return s;
+  if(q.get('fbclid'))return 'facebook';if(q.get('room')||q.get('f'))return 'invite';const r=document.referrer?new URL(document.referrer).hostname:'';if(!r||r===location.hostname)return 'direct';
+  for(const [k,v] of [['facebook','facebook'],['fb.','facebook'],['instagram','instagram'],['whatsapp','whatsapp'],['google','google'],['tiktok','tiktok'],['t.co','twitter'],['twitter','twitter'],['x.com','twitter']])if(r.includes(k))return v;return r.replace(/^www\./,'').slice(0,20);}catch(e){return '';}}
+function devKind(){const u=navigator.userAgent;return /iPhone|iPad|iPod/.test(u)?'iphone':/Android/.test(u)?'android':'desktop';}
+function track(kind){if(!sb)return;try{if(kind==='visit'){const d=new Date().toDateString();if(localStorage.getItem('mokesh.hit')===d)return;localStorage.setItem('mokesh.hit',d);}}catch(e){}
+  sb.rpc('mokesh_hit',{p_uid:localStorage.getItem('mokesh.uid')||A.uid,p_kind:kind,p_src:trafficSrc(),p_dev:devKind()}).then(()=>{},()=>{});}
 async function initRuntime(){
   try{if(window.supabase&&SUPABASE_URL.startsWith('http')){sb=window.supabase.createClient(SUPABASE_URL,SUPABASE_ANON,{realtime:{params:{eventsPerSecond:20}}});A.uid=localStorage.getItem('mokesh.uid')||('u'+uid(10));localStorage.setItem('mokesh.uid',A.uid);A.dbReady=true;}}catch(e){console.error(e);}
-  if(!A.dbReady)A.dbMissing=true;else await authInit();
+  if(!A.dbReady)A.dbMissing=true;else{track('visit');await authInit();}
   // קישור חבר (?f=קוד): מחובר — נוסף מיד; אורח — מתבקש להתחבר קודם
   if(A.pendingFriend){try{const u=new URL(location.href);u.searchParams.delete('f');history.replaceState(null,'',u.pathname+u.search+u.hash);}catch(e){}if(A.user){const c=A.pendingFriend;A.pendingFriend=null;addFriend(c);}else if(A.dbReady&&LOGIN_ON)A.sheet='login';}
   // חזרה אוטומטית לחדר האחרון (למשל אחרי רענון), אלא אם נכנסו מקישור לחדר אחר: אז הקישור החדש מנצח
@@ -846,7 +854,7 @@ async function createOnline(){
   const code=uid(6);A.me={id:A.uid,name:A.chosen.name,avatar:A.chosen.avatar};A.isHost=true;A.mode='online';
   const S=newState(code,'online');E.addPlayer(S,A.me);A.S=S;
   try{await dbSetRoom(code,JSON.parse(JSON.stringify(S)));sb.rpc('mokesh_cleanup').then(()=>{},()=>{});}catch(e){console.error(e);A.S=null;A.mode=null;return toast('לא ניתן ליצור חדר');}
-  localStorage.setItem('mokesh.session',JSON.stringify({code,isHost:true,name:A.me.name,avatar:A.me.avatar}));
+  localStorage.setItem('mokesh.session',JSON.stringify({code,isHost:true,name:A.me.name,avatar:A.me.avatar}));track('online');
   subscribeRoom(code);startHostLoop();render();
 }
 async function joinOnline(code,asHost,resume){
@@ -954,12 +962,12 @@ function leaveRoom(){voiceLeave(true);if(A.mode==='online'&&A.isHost&&A.S&&sb){c
 
 // ---------- מצב מקומי (העבר את הטלפון) ----------
 function startLocalLoop(){clearInterval(A.hostT);A.hostT=setInterval(()=>{if(A.mode==='online'||!A.S)return;if(E.tick(A.S)){if(A.S.cardResult&&A.S.phase==='CARD_RESULT')fx(A.S.cardResult.kind);render();}},250);}
-function createLocal(){A.mode='local';A.isHost=true;A.me={id:'local-host',name:'',avatar:''};const S=newState('LOCAL','local');A.S=S;startLocalLoop();startBotLoop();render();}
+function createLocal(){track('local');A.mode='local';A.isHost=true;A.me={id:'local-host',name:'',avatar:''};const S=newState('LOCAL','local');A.S=S;startLocalLoop();startBotLoop();render();}
 
 // ---------- מול המחשב: בוטים שמנחשים לפי מילון מילות הקשר שבקלפים (בלי AI) ----------
 const BOTS={partner:{id:'bot-a',name:'השותף שלך',avatar:'🤖',team:'A'},b1:{id:'bot-b1',name:'מחשב 1',avatar:'🧠',team:'B'},b2:{id:'bot-b2',name:'מחשב 2',avatar:'🤖',team:'B'}};
 function createAI(){A.mode='ai';A.isHost=true;A.me={id:'local-host',name:'',avatar:''};const S=newState('AI','ai');A.S=S;A.bot={busy:{},lastClueAt:0,lastGuessedClue:0};startLocalLoop();startBotLoop();render();}
-function aiStart(){const S=A.S;const humans=S.players.filter(p=>!isBot(p.id));if(!humans.length)return toast('הוסיפו לפחות שחקן אחד');
+function aiStart(){const S=A.S;const humans=S.players.filter(p=>!isBot(p.id));if(!humans.length)return toast('הוסיפו לפחות שחקן אחד');track('ai');
   for(const p of humans)p.team='A';S.players=S.players.filter(p=>!isBot(p.id));
   if(humans.length<2||S.wantPartner)E.addPlayer(S,BOTS.partner); // שותף-מחשב: חובה רק לשחקן יחיד, אחרת לבחירתכם
   E.addPlayer(S,BOTS.b1);E.addPlayer(S,BOTS.b2);
@@ -1149,7 +1157,7 @@ async function reportPlayer(id){const S=A.S;const p=S&&playerById(S,id);if(!p||!
   try{await sb.from('mokesh_reports').insert({reporter:myId(),target:id,target_name:p.name,room:S.code,reason:(S.chat||[]).filter(m=>m.by===id).slice(-3).map(m=>m.text).join(' | ').slice(0,300)});}catch(e){}
   A.muted.add(id);saveMuted();toast('תודה! הדיווח נשלח והשחקן הושתק');render();}
 async function quickMatch(){if(!A.dbReady)return toast('מצב אונליין לא זמין כרגע');if(!(A.chosen.name||'').trim()){A.homeMode='quick';render();return;}
-  qmStop(false);A.qm={since:Date.now(),waiting:1,err:0};A.homeMode='queue';render();qmPoll();A.qmT=setInterval(qmPoll,2000);A.qmT2=setInterval(()=>{if(A.qm&&A.homeMode==='queue'&&!A.S)render();},1000);}
+  track('quick');qmStop(false);A.qm={since:Date.now(),waiting:1,err:0};A.homeMode='queue';render();qmPoll();A.qmT=setInterval(qmPoll,2000);A.qmT2=setInterval(()=>{if(A.qm&&A.homeMode==='queue'&&!A.S)render();},1000);}
 async function qmPoll(){const q=A.qm;if(!q||q.busy)return;q.busy=true;
   try{const {data,error}=await sb.rpc('mokesh_match',{p_id:A.uid,p_name:(A.chosen.name||'').trim().slice(0,16),p_avatar:A.chosen.avatar});if(error)throw error;if(A.qm!==q)return;
     if(data&&data.room){qmStop(false);await qmEnter(data);return;}

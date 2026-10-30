@@ -1,0 +1,165 @@
+<!doctype html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="robots" content="noindex,nofollow">
+<title>מוקש! · ניהול</title>
+<link rel="manifest" href="/admin.webmanifest">
+<meta name="theme-color" content="#15102B">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="מוקש · ניהול">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<link rel="icon" href="/favicon-32.png">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Secular+One&family=Rubik:wght@500;700;800&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.116.0/dist/umd/supabase.js"></script>
+<style>
+:root{--bg:#2B3BFF;--ink:#15102B;--paper:#FFF6E3;--soft:#5D5578;--yellow:#FFD23F;--cyan:#19D3FF;--pink:#FF4FA3;--lime:#C6F432;--green:#2EE88A;--red:#FF3B30;--o:3px solid var(--ink);--sh:0 5px 0 var(--ink)}
+*{box-sizing:border-box}
+html,body{margin:0;background:#1f2bd6;color:var(--ink);font-family:Rubik,system-ui,sans-serif;-webkit-font-smoothing:antialiased}
+body{min-height:100vh;background:radial-gradient(120% 60% at 50% 0%,#3a48ff 0%,var(--bg) 50%,#1f2bd6 100%) no-repeat #1f2bd6}
+.wrap{max-width:900px;margin:0 auto;padding:calc(env(safe-area-inset-top,0px) + 14px) 16px calc(env(safe-area-inset-bottom,0px) + 28px)}
+h1,h2{font-family:"Secular One",sans-serif;font-weight:400;margin:0}
+button{font:inherit;cursor:pointer}
+.top{display:flex;align-items:center;gap:10px;margin-bottom:16px}
+.top img{width:92px;filter:drop-shadow(0 4px 0 rgba(21,16,43,.45))}
+.top h1{color:#fff;font-size:26px;text-shadow:0 3px 0 var(--ink);flex:1}
+.ib{height:42px;min-width:42px;padding:0 12px;border-radius:999px;background:var(--paper);border:var(--o);box-shadow:0 3px 0 var(--ink);display:inline-flex;align-items:center;justify-content:center;gap:6px;font-weight:800;font-size:14px;color:var(--ink)}
+.ib:active{transform:translateY(2px);box-shadow:0 1px 0 var(--ink)}
+.ib svg{width:20px;height:20px}
+.card{background:var(--paper);border:var(--o);border-radius:22px;box-shadow:var(--sh);padding:16px;margin-bottom:16px}
+.card h2{font-size:20px;margin-bottom:12px;display:flex;align-items:center;gap:8px}
+.card h2 small{font:700 13px Rubik;color:var(--soft);margin-inline-start:auto}
+.live{display:flex;align-items:center;gap:12px;background:var(--ink);color:#fff;border-radius:22px;padding:14px 16px;margin-bottom:16px;border:var(--o);box-shadow:0 5px 0 rgba(0,0,0,.35)}
+.live .dot{width:12px;height:12px;border-radius:50%;background:var(--green);box-shadow:0 0 0 4px rgba(46,232,138,.25);animation:pulse 1.4s ease-in-out infinite;flex:none}
+@keyframes pulse{50%{opacity:.35}}
+.live b{font-family:"Secular One";font-size:26px;font-weight:400;color:var(--yellow)}
+.live span{font-weight:700;font-size:15px}
+.kpis{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;margin-bottom:16px}
+@media(min-width:640px){.kpis{grid-template-columns:repeat(4,1fr)}}
+.kpi{background:var(--paper);border:var(--o);border-radius:20px;box-shadow:var(--sh);padding:12px 14px}
+.kpi .l{font:800 13px Rubik;color:var(--soft)}
+.kpi .v{font:400 40px/1.1 "Secular One";font-variant-numeric:tabular-nums}
+.kpi .s{font:700 12px Rubik;color:var(--soft)}
+.kpi.hi{background:var(--yellow)}
+.chart{position:relative;height:190px;display:flex;align-items:flex-end;gap:2px;padding-top:24px;border-bottom:2px solid rgba(21,16,43,.35);direction:ltr}
+.chart .b{flex:1;position:relative;height:100%;display:flex;align-items:flex-end}
+.chart .b i{display:block;width:100%;background:var(--bg);border-radius:4px 4px 0 0;min-height:2px}
+.chart .b.t i{background:var(--pink)}
+.chart .b:hover i,.chart .b.on i{background:var(--ink)}
+.chart .grid{position:absolute;left:0;right:0;border-top:1px dashed rgba(21,16,43,.18);pointer-events:none}
+.chart .gl{position:absolute;right:100%;transform:translate(-4px,-50%);font:700 11px Rubik;color:var(--soft)}
+.axis{display:flex;justify-content:space-between;font:700 11px Rubik;color:var(--soft);margin-top:6px;direction:ltr}
+.tip{position:absolute;top:0;transform:translateX(-50%);background:var(--ink);color:#fff;border-radius:10px;padding:5px 9px;font:700 12px Rubik;white-space:nowrap;pointer-events:none;direction:rtl;z-index:2}
+.hbars{display:flex;flex-direction:column;gap:10px}
+.hb{display:grid;grid-template-columns:104px 1fr 58px;align-items:center;gap:10px}
+.hb .n{font-weight:800;font-size:14px;display:flex;align-items:center;gap:6px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.hb .tr{height:22px;background:rgba(21,16,43,.08);border-radius:6px;overflow:hidden}
+.hb .tr i{display:block;height:100%;background:var(--bg);border-radius:0 4px 4px 0}
+.hb .c{font:400 20px "Secular One";text-align:left;font-variant-numeric:tabular-nums}
+.hb .c small{font:700 11px Rubik;color:var(--soft);display:block;line-height:1}
+.empty{color:var(--soft);font-weight:700;font-size:14px;text-align:center;padding:14px}
+.links{display:flex;flex-direction:column;gap:8px}
+.lk{display:flex;align-items:center;gap:8px;background:#fff;border:2px solid var(--ink);border-radius:14px;padding:8px 10px}
+.lk code{flex:1;font:700 13px ui-monospace,monospace;direction:ltr;text-align:left;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.lk b{font-size:14px;min-width:70px}
+.muted{color:var(--soft);font-size:13px;line-height:1.5}
+.login{max-width:380px;margin:12vh auto 0;text-align:center}
+.login img{width:200px;filter:drop-shadow(0 6px 0 rgba(21,16,43,.45))}
+.login h1{color:#fff;font-size:30px;margin:10px 0 18px;text-shadow:0 3px 0 var(--ink)}
+input{width:100%;height:54px;border-radius:16px;border:var(--o);padding:0 16px;font:700 18px Rubik;background:#fff;color:var(--ink);text-align:center}
+.big{width:100%;height:56px;margin-top:12px;border-radius:18px;background:var(--yellow);border:var(--o);box-shadow:var(--sh);font:400 22px "Secular One";color:var(--ink)}
+.big:active{transform:translateY(3px);box-shadow:0 2px 0 var(--ink)}
+.err{color:#fff;background:var(--red);border:var(--o);border-radius:14px;padding:8px 12px;margin-top:12px;font-weight:700}
+.foot{text-align:center;color:rgba(255,255,255,.75);font:700 12px Rubik;margin-top:6px}
+.sheet{position:fixed;inset:0;background:rgba(21,16,43,.6);display:flex;align-items:flex-end;z-index:10}
+.sheet .in{background:var(--paper);width:100%;border-radius:24px 24px 0 0;border:var(--o);padding:20px 18px calc(env(safe-area-inset-bottom,0px) + 22px)}
+.sheet ol{padding-inline-start:22px;line-height:1.9;font-weight:700;margin:10px 0 14px}
+table{width:100%;border-collapse:collapse;font-size:13px}td,th{padding:4px 6px;border-bottom:1px solid rgba(21,16,43,.12);text-align:right}th{color:var(--soft)}
+.toggle{background:none;border:0;color:var(--soft);font:800 12px Rubik;text-decoration:underline;padding:0;margin-top:10px}
+</style>
+</head>
+<body>
+<div class="wrap" id="app"></div>
+<script>
+const SUPABASE_URL='https://tbnhqvabnzuxaxtrlmkg.supabase.co',SUPABASE_ANON='sb_publishable_uTj27DrHLr05T-dBY12jMw_6ZVa0WDj';
+const sb=window.supabase.createClient(SUPABASE_URL,SUPABASE_ANON);
+const app=document.getElementById('app');
+const ST={key:null,data:null,err:'',busy:false,tip:null,table:false,install:null,sheet:false};
+try{ST.key=localStorage.getItem('mokesh.adminKey');}catch(e){}
+const h=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const nf=n=>Number(n||0).toLocaleString('he-IL');
+const IC={refresh:'<path d="M20 11a8 8 0 1 0-2.3 5.7M20 4v7h-7"/>',out:'<path d="M15 4h4a1 1 0 0 1 1 1v14a1 1 0 0 1-1 1h-4M10 17l-5-5 5-5M5 12h11"/>',inst:'<path d="M12 3v12M7 10l5 5 5-5M5 20h14"/>',check:'<path d="M5 12.5l4.5 4.5L19 7.5"/>',copy:'<rect x="8" y="8" width="12" height="12" rx="2"/><path d="M16 8V5a1 1 0 0 0-1-1H5a1 1 0 0 0-1 1v10a1 1 0 0 0 1 1h3"/>'};
+const ic=n=>`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">${IC[n]}</svg>`;
+const SRC={direct:'ישיר',facebook:'פייסבוק',fb:'פייסבוק',instagram:'אינסטגרם',ig:'אינסטגרם',whatsapp:'וואטסאפ',wa:'וואטסאפ',invite:'הזמנה מחבר',google:'גוגל',tiktok:'טיקטוק',twitter:'X / טוויטר'};
+const MODE=[['online','חדר עם חברים'],['quick','משחק מהיר'],['local','מכשיר אחד'],['ai','מול המחשב']];
+const DEV=[['iphone','אייפון'],['android','אנדרואיד'],['desktop','מחשב']];
+
+async function load(){if(!ST.key)return;ST.busy=true;render();
+  try{const {data,error}=await sb.rpc('mokesh_stats',{p_key:ST.key});if(error)throw error;
+    if(data&&data.error==='key'){ST.key=null;ST.data=null;try{localStorage.removeItem('mokesh.adminKey');}catch(e){}ST.err='סיסמה שגויה';}
+    else{ST.data=data;ST.err='';}}
+  catch(e){ST.err=/mokesh_stats|function/i.test(e.message||'')?'עוד לא הורץ קובץ admin.sql ב-Supabase':'בעיית חיבור. נסו שוב';}
+  ST.busy=false;render();}
+function login(f){const k=f.k.value.trim();if(!k)return;ST.key=k;try{localStorage.setItem('mokesh.adminKey',k);}catch(e){}load();}
+function logout(){ST.key=null;ST.data=null;try{localStorage.removeItem('mokesh.adminKey');}catch(e){}render();}
+
+function hbars(rows,total){/* r.x = שורה קטנה מתחת למספר */const max=Math.max(1,...rows.map(r=>r.c));if(!rows.length||!rows.some(r=>r.c))return '<div class="empty">עוד אין נתונים</div>';
+  return `<div class="hbars">${rows.map(r=>`<div class="hb"><span class="n">${h(r.n)}</span><span class="tr"><i style="width:${(100*r.c/max).toFixed(1)}%"></i></span><span class="c">${nf(r.c)}${r.x?`<small>${r.x}</small>`:total?`<small>${Math.round(100*r.c/total)}%</small>`:''}</span></div>`).join('')}</div>`;}
+
+function daily(d){const days=d.daily||[];const max=Math.max(4,...days.map(x=>x.u));const step=Math.ceil(max/4/5)*5||1;const top=Math.max(step*4,max);
+  const lines=[1,2,3,4].map(k=>k*top/4).map(v=>`<div class="grid" style="bottom:${(100*v/top)*(166/190)}%"></div>`).join('');
+  const fmt=s=>{const [y,m,dd]=s.split('-');return +dd+'.'+(+m);};const last=days.length-1;
+  const tip='<div class="tip" hidden></div>';
+  const bars=days.map((x,i)=>`<div class="b ${i===last?'t':''}" data-i="${i}" onmouseenter="tipAt(${i})" onclick="tipAt(${i},1)"><i style="height:${(100*x.u/top).toFixed(1)}%"></i></div>`).join('');
+  const table=ST.table?`<table><tr><th>יום</th><th>מכשירים</th><th>חדשים</th></tr>${[...days].reverse().map(x=>`<tr><td>${fmt(x.d)}</td><td>${nf(x.u)}</td><td>${nf(x.n)}</td></tr>`).join('')}</table>`:'';
+  return `<div class="chart" role="img" aria-label="מכשירים שונים בכל יום, 30 ימים" onmouseleave="tipAt(null)">${lines}${bars}${tip}</div><div class="axis"><span>${days[0]?fmt(days[0].d):''}</span><span>${days[15]?fmt(days[15].d):''}</span><span>היום</span></div>
+    <button class="toggle" onclick="ST.table=!ST.table;render()">${ST.table?'הסתר טבלה':'הצג כטבלה'}</button>${table}`;}
+
+function vDash(){const d=ST.data;if(!d)return `<div class="card"><div class="empty">${ST.busy?'טוען…':h(ST.err||'')}</div></div>`;
+  const today=(d.daily||[]).at(-1)||{n:0};const m=d.modes||{},mt=d.modesToday||{};const games=MODE.reduce((a,[k])=>a+(+m[k]||0),0);
+  const src=(d.src||[]).map(x=>({n:SRC[x.s]||x.s,c:+x.c}));const srcT=src.reduce((a,x)=>a+x.c,0);
+  const dev=DEV.map(([k,n])=>({n,c:+(d.dev||{})[k]||0}));const devT=dev.reduce((a,x)=>a+x.c,0);
+  const site=location.origin;
+  return `<div class="live"><i class="dot"></i><span>עכשיו במשחק:</span><b>${nf(d.livePlayers)}</b><span>שחקנים ב-</span><b>${nf(d.liveRooms)}</b><span>חדרים</span></div>
+  <div class="kpis">
+    <div class="kpi hi"><div class="l">היום</div><div class="v">${nf(d.today)}</div><div class="s">${nf(today.n)} חדשים</div></div>
+    <div class="kpi"><div class="l">7 ימים</div><div class="v">${nf(d.week)}</div><div class="s">${nf(d.returning)} חזרו יותר מפעם אחת</div></div>
+    <div class="kpi"><div class="l">30 ימים</div><div class="v">${nf(d.month)}</div><div class="s">מכשירים שונים</div></div>
+    <div class="kpi"><div class="l">מאז ההתחלה</div><div class="v">${nf(d.total)}</div><div class="s">מכשירים שונים</div></div>
+  </div>
+  <div class="card"><h2>כניסות ביום<small>מכשירים שונים · 30 ימים</small></h2>${daily(d)}</div>
+  <div class="card"><h2>משחקים שנפתחו<small>30 ימים · ${nf(games)} סה״כ</small></h2>${hbars(MODE.map(([k,n])=>({n,c:+m[k]||0,x:mt[k]?`היום ${nf(mt[k])}`:`${games?Math.round(100*(+m[k]||0)/games):0}%`})),games)}</div>
+  <div class="card"><h2>מאיפה הגיעו<small>30 ימים</small></h2>${hbars(src,srcT)}</div>
+  <div class="card"><h2>מכשירים<small>30 ימים</small></h2>${hbars(dev,devT)}</div>
+  <div class="card"><h2>קישורים למעקב</h2><p class="muted" style="margin:0 0 10px">כשמפרסמים, משתמשים בקישור של אותו מקום. ככה רואים כאן בדיוק מאיפה הגיעו האנשים.</p><div class="links">
+    ${[['פייסבוק','fb'],['וואטסאפ','wa'],['אינסטגרם','ig'],['טיקטוק','tiktok']].map(([n,s])=>`<div class="lk"><b>${n}</b><code>${h(site)}/?s=${s}</code><button class="ib" style="height:34px;min-width:34px;padding:0 8px" onclick="copyLink('${h(site)}/?s=${s}',this)" aria-label="העתק">${ic('copy')}</button></div>`).join('')}</div></div>
+  <div class="foot">מתעדכן לבד כל 30 שניות · עודכן ${new Date(d.at).toLocaleTimeString('he-IL',{hour:'2-digit',minute:'2-digit'})} · "מכשיר" = טלפון או מחשב אחד, בלי מידע אישי</div>`;}
+
+function vLogin(){return `<div class="login"><img src="/icon-192.png" alt="" style="width:110px;border-radius:26px;border:3px solid var(--ink);box-shadow:0 6px 0 var(--ink)"><h1>מוקש! · ניהול</h1>
+  <form onsubmit="event.preventDefault();login(this)"><input name="k" type="password" placeholder="סיסמה" autocomplete="current-password" autofocus><button class="big">כניסה</button></form>${ST.err?`<div class="err">${h(ST.err)}</div>`:''}</div>`;}
+
+function vSheet(){return `<div class="sheet" onclick="if(event.target===this){ST.sheet=false;render()}"><div class="in"><h2 style="font-size:24px">התקנה למסך הבית</h2>
+  <ol><li>לוחצים על כפתור השיתוף של ספארי (ריבוע עם חץ למעלה)</li><li>גוללים ובוחרים "הוספה למסך הבית"</li><li>לוחצים "הוספה"</li></ol>
+  <p class="muted">יופיע אייקון "מוקש · ניהול" שנפתח ישר לדשבורד, בלי להקליד סיסמה שוב.</p><button class="big" onclick="ST.sheet=false;render()">הבנתי</button></div></div>`;}
+
+function render(){const standalone=matchMedia('(display-mode: standalone)').matches||navigator.standalone;
+  const head=`<div class="top"><img src="/icon-192.png" alt="" style="width:46px;border-radius:12px;border:var(--o)"><h1>ניהול</h1>
+    ${ST.key?`${standalone?'':`<button class="ib" onclick="install()">${ic('inst')}התקנה</button>`}<button class="ib" onclick="load()" aria-label="רענון" ${ST.busy?'disabled':''}>${ic('refresh')}</button><button class="ib" onclick="logout()" aria-label="יציאה">${ic('out')}</button>`:''}</div>`;
+  app.innerHTML=ST.key?head+vDash()+(ST.sheet?vSheet():''):vLogin();}
+// טולטיפ בלי לרנדר את כל העמוד (אחרת הריחוף מהבהב)
+function tipAt(i,toggle){const ch=document.querySelector('.chart');if(!ch||!ST.data)return;if(toggle&&ST.tip===i)i=null;ST.tip=i;const days=ST.data.daily||[];const t=ch.querySelector('.tip');
+  ch.querySelectorAll('.b').forEach(b=>b.classList.toggle('on',+b.dataset.i===i));if(i==null||!days[i]){t.hidden=true;return;}
+  const x=days[i],[y,m,dd]=x.d.split('-');t.textContent=`${+dd}.${+m} · ${nf(x.u)} מכשירים · ${nf(x.n)} חדשים`;t.hidden=false;
+  const pct=100*(i+.5)/days.length;t.style.left=Math.min(82,Math.max(18,pct))+'%';}
+function install(){if(ST.install){ST.install.prompt();ST.install=null;return;}ST.sheet=true;render();}
+function copyLink(t,b){navigator.clipboard&&navigator.clipboard.writeText(t).then(()=>{b.innerHTML=ic('check');setTimeout(()=>{b.innerHTML=ic('copy');},1200);});}
+window.addEventListener('beforeinstallprompt',e=>{e.preventDefault();ST.install=e;});
+setInterval(()=>{if(ST.key&&!document.hidden&&ST.tip==null)load();},30000);
+document.addEventListener('visibilitychange',()=>{if(!document.hidden&&ST.key)load();});
+render();load();
+</script>
+</body>
+</html>
