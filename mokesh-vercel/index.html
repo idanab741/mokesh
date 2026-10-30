@@ -133,6 +133,14 @@ html.kb #app{padding-bottom:0;bottom:auto;height:var(--vh,100%)}
 .hicons button>span::before{content:"";position:absolute;left:8px;right:8px;top:4px;height:6px;border-radius:6px;background:rgba(255,255,255,.45)}
 .hicons button:active>span{transform:translateY(3px);box-shadow:0 1px 0 var(--ink)}
 @media (prefers-reduced-motion:reduce){.hbtn.q::after,.hspark,.ldot{animation:none}}
+.homeblast{position:fixed;width:0;height:0;z-index:50;pointer-events:none}
+.homeblast>*{top:0!important;left:0!important}
+.homeblast .flash{position:fixed;inset:0;margin:0;opacity:.75}
+.homeblast .hboom{position:absolute;width:250px;margin:-95px 0 0 -125px;filter:drop-shadow(0 6px 0 rgba(21,16,43,.6));animation:hboom 1.9s cubic-bezier(.2,.8,.2,1) both}
+@keyframes hboom{0%{transform:scale(.2) rotate(-12deg);opacity:0}15%{transform:scale(1.12) rotate(4deg);opacity:1}25%{transform:scale(1) rotate(0)}80%{opacity:1}100%{transform:scale(1.05);opacity:0}}
+.hquake{animation:shake .5s ease-in-out}
+.ledbox{cursor:pointer}.ledbox.hit .seg{animation:ledhit .25s steps(1) 6}
+@keyframes ledhit{50%{opacity:.15}}
 @media (max-height:780px){.screen.home{gap:14px!important}.screen.home .logo{width:min(64%,250px);margin-top:26px}.screen.home .ledbox{margin-top:10px;padding:6px 12px}.screen.home .seg{font-size:26px}.screen.home .ghostled{font-size:66px}
  .hbtn{min-height:58px;padding:7px 14px;font-size:21px;border-radius:20px}.hbtn.q{min-height:66px}.hbtn .hic{width:38px;height:38px;border-radius:12px}.hbtn .har{width:30px;height:30px}
  .hicons{padding-top:2px}.hicons button>span{width:50px;height:50px;border-radius:17px}.screen.home .tape{margin-top:0}}
@@ -1218,7 +1226,14 @@ const fmt=ms=>{const s=Math.ceil(ms/1000);return `${String(Math.floor(s/60)).pad
 
 // צג הלד במסך הבית: סופר 59→0 בלולאה
 function ledText(){const t=59-Math.floor(Date.now()/1000)%60;return '00:'+String(t).padStart(2,'0');}
-setInterval(()=>{const e=document.getElementById('homeled');if(e)e.textContent=ledText();},1000);
+setInterval(()=>{const e=document.getElementById('homeled');if(!e)return;const t=ledText();e.textContent=t;if(t==='00:00')homeBoom();},1000);
+// כשהצג מגיע לאפס (או כשלוחצים עליו): פיצוץ קטן מעל מסך הבית. שכבה נפרדת מהרינדור, כדי שעדכון מסך לא יקטע אותה
+function homeBoom(){const led=document.querySelector('.ledbox');if(!led||document.hidden||A.homeBoomAt>Date.now()-2500)return;A.homeBoomAt=Date.now();
+  if(matchMedia('(prefers-reduced-motion: reduce)').matches)return;
+  const r=led.getBoundingClientRect(),L=document.createElement('div');L.className='homeblast';L.style.left=(r.left+r.width/2)+'px';L.style.top=(r.top+r.height/2)+'px';
+  L.innerHTML=vBlast()+`<img class="hboom" src="${ASSETS.boom}" alt="">`;document.body.appendChild(L);
+  const hd=document.querySelector('.screen.home header');if(hd){hd.classList.remove('hquake');void hd.offsetWidth;hd.classList.add('hquake');}
+  led.classList.add('hit');if(MUSIC.on)beep('trap');setTimeout(()=>{L.remove();led.classList.remove('hit');},1900);}
 function vHome(){const c=A.chosen;const m=A.homeMode;if(m==='how'||m==='intro')return vIntro();
   const form=`<div class="card col" style="gap:14px">
     <label class="col" style="gap:4px"><span class="small muted">הכינוי שלך</span><input class="input" name="nick" data-autofocus maxlength="16" placeholder="למשל: דנה" value="${h(c.name)}" oninput="const was=!!A.chosen.name.trim();A.chosen.name=this.value;saveProfile();if(was!==!!this.value.trim())render()"></label>
@@ -1249,7 +1264,7 @@ function vHome(){const c=A.chosen;const m=A.homeMode;if(m==='how'||m==='intro')r
       <p style="margin:0"><b style="color:var(--ok)">המנחשים</b> מקלידים ניחושים. נכון: +2, ובונוס +1 על ניחוש ב-10 שניות ועל כל רצף של 3. מוקש: −2 לקבוצה ו-+1 ליריבים.</p>
       <p style="margin:0">הראשונים ל-20 נקודות מנצחים. אם אף קבוצה לא הגיעה אחרי 5 תורים — התור האחרון כפול, ותיקו מוכרע במוות פתאומי.</p>
       <button class="btn ghost" onclick="A.homeMode='menu';render()">הבנתי</button></div>`;
-  const head=m==='menu'?`<div class="ghostled" aria-hidden="true">00:60</div><i class="hspark" style="top:12%;right:12%"></i><i class="hspark" style="top:44%;left:6%;animation-delay:.5s"></i><i class="hspark" style="top:2%;left:26%;animation-delay:1s"></i><img class="logo pop" src="${ASSETS.logo}" alt="מוקש!"><div class="ledbox" aria-hidden="true"><span class="scr"><span class="seg" id="homeled">${ledText()}</span></span></div>`
+  const head=m==='menu'?`<div class="ghostled" aria-hidden="true">00:60</div><i class="hspark" style="top:12%;right:12%"></i><i class="hspark" style="top:44%;left:6%;animation-delay:.5s"></i><i class="hspark" style="top:2%;left:26%;animation-delay:1s"></i><img class="logo pop" src="${ASSETS.logo}" alt="מוקש!"><div class="ledbox" aria-hidden="true" onclick="homeBoom()"><span class="scr"><span class="seg" id="homeled">${ledText()}</span></span></div>`
     :['create','join','quick'].includes(m)?`<img class="logo pop sm" src="${ASSETS.logo}" alt="מוקש!">`
     :`<img class="logo pop" src="${ASSETS.logo}" alt="מוקש!"><p class="tagline" style="margin:12px auto 0;max-width:310px">משחק הניחושים שבו כל טעות תעלה לכם בפיצוץ!</p>`;
   return `<div class="screen center${m==='menu'?' home':''}" style="gap:22px;position:relative">${m==='menu'?`${vAccBtn()}<button class="topbtn r2" onclick="A.homeMode='settings';render()" aria-label="הגדרות">${ic('gear',20)}</button>`:''}${musicBtn('topbtn r')}<header class="tc">${head}</header>${body}${m==='menu'?`<div class="tape" aria-hidden="true"><div>${'זהירות! שטח ממוקש ✕ '.repeat(10)}</div></div>`:''}</div>`;}
