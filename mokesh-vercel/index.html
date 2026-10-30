@@ -1233,8 +1233,9 @@ function localRole(S){if(S.mode==='ai'||hasBots(S)){const opp=S.activeTeam==='A'
 function playerById(S,id){return S.players.find(p=>p.id===id);}
 const fmt=ms=>{const s=Math.ceil(ms/1000);return `${String(Math.floor(s/60)).padStart(2,'0')}:${String(s%60).padStart(2,'0')}`;};
 
-// צג הלד במסך הבית: סופר 59→0 בלולאה
-function ledText(){const t=59-Math.floor(Date.now()/1000)%60;return '00:'+String(t).padStart(2,'0');}
+// צג הלד במסך הבית: חצי דקה מהרגע שנכנסים, 30→0 ואז פיצוץ ומתחילים שוב
+const LED_T0=Date.now();
+function ledText(){const t=30-Math.floor((Date.now()-LED_T0)/1000)%31;return '00:'+String(t).padStart(2,'0');}
 setInterval(()=>{const e=document.getElementById('homeled');if(!e)return;const t=ledText();e.textContent=t;if(t==='00:00')homeBoom();},1000);
 // כשהצג מגיע לאפס (או כשלוחצים עליו): פיצוץ קטן מעל מסך הבית. שכבה נפרדת מהרינדור, כדי שעדכון מסך לא יקטע אותה
 function homeBoom(){const led=document.querySelector('.ledbox');if(!led||document.hidden||A.homeBoomAt>Date.now()-2500)return;A.homeBoomAt=Date.now();
@@ -1273,7 +1274,7 @@ function vHome(){const c=A.chosen;const m=A.homeMode;if(m==='how'||m==='intro')r
       <p style="margin:0"><b style="color:var(--ok)">המנחשים</b> מקלידים ניחושים. נכון: +2, ובונוס +1 על ניחוש ב-10 שניות ועל כל רצף של 3. מוקש: −2 לקבוצה ו-+1 ליריבים.</p>
       <p style="margin:0">הראשונים ל-20 נקודות מנצחים. אם אף קבוצה לא הגיעה אחרי 5 תורים — התור האחרון כפול, ותיקו מוכרע במוות פתאומי.</p>
       <button class="btn ghost" onclick="A.homeMode='menu';render()">הבנתי</button></div>`;
-  const head=m==='menu'?`<div class="ghostled" aria-hidden="true">00:60</div><i class="hspark" style="top:12%;right:12%"></i><i class="hspark" style="top:44%;left:6%;animation-delay:.5s"></i><i class="hspark" style="top:2%;left:26%;animation-delay:1s"></i><img class="logo pop" src="${ASSETS.logo}" alt="מוקש!"><div class="ledbox" aria-hidden="true" onclick="homeBoom()"><span class="scr"><span class="seg" id="homeled">${ledText()}</span></span></div>`
+  const head=m==='menu'?`<div class="ghostled" aria-hidden="true">00:30</div><i class="hspark" style="top:12%;right:12%"></i><i class="hspark" style="top:44%;left:6%;animation-delay:.5s"></i><i class="hspark" style="top:2%;left:26%;animation-delay:1s"></i><img class="logo pop" src="${ASSETS.logo}" alt="מוקש!"><div class="ledbox" aria-hidden="true" onclick="homeBoom()"><span class="scr"><span class="seg" id="homeled">${ledText()}</span></span></div>`
     :['create','join','quick'].includes(m)?`<img class="logo pop sm" src="${ASSETS.logo}" alt="מוקש!">`
     :`<img class="logo pop" src="${ASSETS.logo}" alt="מוקש!"><p class="tagline" style="margin:12px auto 0;max-width:310px">משחק הניחושים שבו כל טעות תעלה לכם בפיצוץ!</p>`;
   return `<div class="screen center${m==='menu'?' home':''}" style="gap:22px;position:relative">${m==='menu'?`${vAccBtn()}<button class="topbtn r2" onclick="A.homeMode='settings';render()" aria-label="הגדרות">${ic('gear',20)}</button>`:''}${musicBtn('topbtn r')}<header class="tc">${head}</header>${body}${m==='menu'?`<div class="tape" aria-hidden="true"><div>${'זהירות! שטח ממוקש ✕ '.repeat(10)}</div></div>`:''}</div>`;}
