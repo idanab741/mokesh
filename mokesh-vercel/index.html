@@ -772,9 +772,13 @@ const E = {
     // אונליין: כל היריבים מצביעים (כל אחד 3 מילים); 3 המילים עם הכי הרבה קולות הן המוקשים, ותיקו הולך לסבב הכרעה
     S.trapVotes={};S.trapLocked={};S.runoff=null;S.trapBy=null;S.trapByAcc=null;S.trapStage=null;S.trapPool=null;
     E.setPhase(S,'TRAP_SELECTION',(S.settings.trapSeconds+(S.settings.customTraps?15:0))*1000);},
+  // "חומוס" ו"החומוס" (או "וחומוס") — אותה מילה. מאחדים רק כשגם הצורה בלי התחילית נכתבה, כדי לא לפגוע במילים כמו "הודו"
+  trapCanon(words){const keys=new Set(words.map(normalize));const m=new Map();for(const w of words){const k=normalize(w);let c=k;
+      if(k.length>4&&k.startsWith('וה')&&keys.has(k.slice(2)))c=k.slice(2);else if(k.length>3&&/^[הו]/.test(k)&&keys.has(k.slice(1)))c=k.slice(1);m.set(w,c);}return m;},
   // מוקשים שהיריבים כותבים בעצמם (הגדרה): עד 3 מילים שונות, בלי המילה עצמה, עם סינון קללות
   cleanTrapWords(S,words){const c=E.card(S);if(!c)return [];const bad=new Set([c.target,...c.aliases].map(normalize));const seen=new Set();const out=[];
-    for(const w0 of (Array.isArray(words)?words:[])){const w=pubText(S,String(w0||'').replace(/\s+/g,' ').trim().slice(0,30));const k=normalize(w);if(!k||bad.has(k)||seen.has(k))continue;seen.add(k);out.push(w);if(out.length===3)break;}return out;},
+    const ws=(Array.isArray(words)?words:[]).map(w0=>pubText(S,String(w0||'').replace(/\s+/g,' ').trim().slice(0,30)));const cm=E.trapCanon(ws);
+    for(const w of ws){const k=cm.get(w)||normalize(w);if(!k||bad.has(k)||bad.has(normalize(w))||seen.has(k))continue;seen.add(k);out.push(w);if(out.length===3)break;}return out;},
   trapVoters(S){const opp=S.activeTeam==='A'?'B':'A';return E.team(S,opp).filter(p=>!isBot(p.id)&&p.connected);},
   trapVote(S,playerId,words){const c=E.card(S);const p=S.players.find(x=>x.id===playerId);if(S.phase!=='TRAP_SELECTION'||!c||!p||p.team===S.activeTeam||isBot(playerId))return;
     const pool=S.runoff?S.runoff.words:S.trapStage==='vote'&&S.trapPool?S.trapPool:c.options;const need=S.runoff?S.runoff.need:3;S.trapVotes=S.trapVotes||{};S.trapLocked=S.trapLocked||{};
@@ -785,11 +789,13 @@ const E = {
   tallyTraps(S,force){const c=E.card(S);if(!c||S.phase!=='TRAP_SELECTION')return;
     // מי הצביע על כל מילה (לתואר "הטומן הערמומי"), מצטבר גם בין סבבי הכרעה
     const acc=S.trapByAcc||{};for(const [id,ws] of Object.entries(S.trapVotes||{}))for(const w of ws){const k=normalize(w);acc[k]=acc[k]||[];if(!acc[k].includes(id))acc[k].push(id);}S.trapByAcc=acc;
-    if(S.settings.customTraps&&S.trapStage!=='vote'){const cnt=new Map();for(const ws of Object.values(S.trapVotes||{}))for(const w of ws){const k=normalize(w);const e=cnt.get(k)||{w,c:0,r:Math.random()};e.c++;cnt.set(k,e);}
-      const all=[...cnt.values()].sort((a,b)=>b.c-a.c||a.r-b.r).map(e=>e.w);
-      // יותר מכותב אחד ויותר מ-3 מילים: עוברים להצבעה על כל מה שנכתב (רק באונליין)
-      if(S.mode==='online'&&S.trapStage!=='vote'&&all.length>3&&Object.keys(S.trapVotes||{}).length>1){S.trapStage='vote';S.trapPool=all.slice(0,9);S.trapVotes={};S.trapLocked={};E.setPhase(S,'TRAP_SELECTION',20000);return;}
-      const chosen=all.slice(0,3);
+    if(S.settings.customTraps&&S.trapStage!=='vote'){const lists=Object.values(S.trapVotes||{}).filter(ws=>ws&&ws.length);const cm=E.trapCanon(lists.flat());const cnt=new Map();
+      for(const ws of lists)for(const w of ws){const k=cm.get(w)||normalize(w);const e=cnt.get(k)||{w,c:0,r:Math.random()};if(normalize(w)===k)e.w=w;e.c++;cnt.set(k,e);} // מציגים את הצורה בלי התחילית
+      const all=[...cnt.values()].sort((a,b)=>b.c-a.c||a.r-b.r);const writers=lists.length;
+      // מילה שרוב היריבים כתבו — נכנסת ישר. על השאר מצביעים (באונליין, כשיש יותר מכותב אחד)
+      const auto=writers>1?all.filter(e=>e.c*2>writers).slice(0,3).map(e=>e.w):[];const rest=all.map(e=>e.w).filter(w=>!auto.includes(w));const need=3-auto.length;
+      if(S.mode==='online'&&writers>1&&need>0&&rest.length>need){S.trapStage='vote';S.runoff={fixed:auto,words:rest.slice(0,15),need,round:0,pick:1};S.trapVotes={};S.trapLocked={};E.setPhase(S,'TRAP_SELECTION',20000);return;}
+      const chosen=[...auto,...rest].slice(0,3);
       for(const o of c.options){if(chosen.length>=3)break;if(!chosen.some(w=>normalize(w)===normalize(o)))chosen.push(o);} // לא הספיקו לכתוב — משלימים מהרשימה
       S.traps=chosen;S.trapBy=acc;S.trapByAcc=null;S.runoff=null;S.trapStage=null;S.trapPool=null;S.trapVotes={};S.trapLocked={};E.afterTraps(S);return;}const ro=S.runoff;const pool=ro?ro.words:S.trapStage==='vote'&&S.trapPool?S.trapPool:c.options;const fixed=ro?ro.fixed:[];const need=3-fixed.length;
     const cnt={};pool.forEach(w=>cnt[w]=0);Object.values(S.trapVotes||{}).forEach(ws=>ws.forEach(w=>{if(w in cnt)cnt[w]++;}));
@@ -1642,10 +1648,10 @@ function vTrapVote(S,c){const ro=S.runoff;const vote=S.trapStage==='vote'&&S.tra
   const me=myId();const need=ro?ro.need:3;const pool=ro?ro.words:vote?S.trapPool:c.options;const votes=S.trapVotes||{};const locked=!!(S.trapLocked||{})[me]||A.lockKey===key;
   const cnt={};pool.forEach(w=>cnt[w]=0);Object.values(votes).forEach(ws=>ws.forEach(w=>{if(w in cnt)cnt[w]++;}));
   const voters=E.trapVoters(S);const done=voters.filter(v=>(S.trapLocked||{})[v.id]).length;const mine=locked?(votes[me]||[]):A.trapPick;
-  return `<div class="screen lock trapscr">${vHeader(S)}<div class="rolebar opponent">${ro?`תיקו! בחרו עוד ${need===1?'מילה אחת':need+' מילים'}`:vote?'הצבעה: אילו 3 מהמילים שכתבתם?':`בוחרים מוקשים ${TG.to(S.activeTeam)}`}</div>
+  return `<div class="screen lock trapscr">${vHeader(S)}<div class="rolebar opponent">${ro&&ro.pick?`הצבעה: בחרו ${need===1?'מילה אחת':need+' מילים'} מתוך מה שכתבתם`:ro?`תיקו! בחרו עוד ${need===1?'מילה אחת':need+' מילים'}`:vote?'הצבעה: אילו 3 מהמילים שכתבתם?':`בוחרים מוקשים ${TG.to(S.activeTeam)}`}</div>
     <div class="explain-head"><img class="bombimg" src="${ASSETS.bomb}" alt=""><div><div class="xs muted">${TG.needs(S.activeTeam)} · ${h(c.category)}</div><div class="black" style="font-size:30px;line-height:1.1">${h(c.target)}</div></div></div>
     ${ro&&ro.fixed.length?`<div class="tc small" style="color:#fff">כבר מוקשים: ${ro.fixed.map(w=>`<span class="chip danger">${h(w)}</span>`).join(' ')}</div>`:''}
-    <p class="tc small" style="margin:0;color:#fff">${ro?'רק המילים שבתיקו נשארו. הרוב קובע.':vote?'כל אחד בוחר 3 מתוך מה שכולם כתבו · הרוב קובע':'כל אחד בוחר 3 · המילים עם הכי הרבה קולות הופכות למוקשים'}</p>
+    <p class="tc small" style="margin:0;color:#fff">${ro&&ro.pick?(ro.fixed.length?'מה שרובכם כתבתם כבר נכנס. על השאר — הרוב קובע.':'הרוב קובע.'):ro?'רק המילים שבתיקו נשארו. הרוב קובע.':vote?'כל אחד בוחר 3 מתוך מה שכולם כתבו · הרוב קובע':'כל אחד בוחר 3 · המילים עם הכי הרבה קולות הופכות למוקשים'}</p>
     <div class="opts">${pool.map(w=>`<button class="${mine.includes(w)?'on':''}" ${locked?'disabled':''} data-w="${h(w)}" onclick="toggleTrap(this.dataset.w)">${h(w)}${cnt[w]?`<span class="vc">${cnt[w]}</span>`:''}</button>`).join('')}</div>
     <div class="col trapfoot" style="gap:8px"><div class="tc small" style="color:#fff">נעלו ${done}/${voters.length} ${voters.map(v=>`<span class="vav ${(S.trapLocked||{})[v.id]?'ok':''}">${avInner(v.avatar)}</span>`).join('')}</div>
     <button class="btn danger big" ${mine.length!==need||locked?'disabled':''} onclick="lockTraps()"><img src="${ASSETS.bomb}" style="width:28px;height:28px" alt=""> ${locked?'נעלתם — מחכים לשאר':`נעלתי את הבחירה (${mine.length}/${need})`}</button></div></div>`;}
