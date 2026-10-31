@@ -875,7 +875,11 @@ const myTxt=x=>String(x||'').replace(/\s+/g,' ').trim().slice(0,30);
 function myDeckClean(d,max){return (Array.isArray(d)?d:[]).slice(0,max||MY_MAX).map(x=>{const r={w:myTxt(x&&x.w),o:(Array.isArray(x&&x.o)?x.o:[]).map(myTxt).filter(Boolean).slice(0,9)};if(x&&okId(x.by))r.by=x.by;if(x&&okId(x.p))r.p=x.p;return r;}).filter(x=>x.w);}
 // תיקיות מילים אישיות (בהגדרות המשתמש): "המשפחה", "החברים"... כל תיקייה עם מילים משלה. on = נכנסת למשחק כשהמילים שלנו פעילות בחדר
 const FOLDER_MAX=20;
-function foldersLoad(){try{let f=JSON.parse(localStorage.getItem('mokesh.folders')||'null');
+// חבילות שנמחקו (או הפכו למשותפות): נשמר המזהה, כדי שטלפון אחר לא יחזיר אותן בסנכרון
+function fdelLoad(){try{const d=JSON.parse(localStorage.getItem('mokesh.fdel')||'[]');return Array.isArray(d)?d.filter(x=>typeof x==='string').slice(-200):[];}catch(e){return [];}}
+function fdelAdd(id){const d=fdelLoad();if(!d.includes(id)){d.push(id);try{localStorage.setItem('mokesh.fdel',JSON.stringify(d.slice(-200)));}catch(e){}}}
+function foldersLoad(){return foldersLoad0().filter(f=>!fdelLoad().includes(f.id));}
+function foldersLoad0(){try{let f=JSON.parse(localStorage.getItem('mokesh.folders')||'null');
     if(!Array.isArray(f)){const old=JSON.parse(localStorage.getItem('mokesh.mydeck')||'[]');f=Array.isArray(old)&&old.length?[{id:uid(6),n:'המילים שלי',w:old,on:1}]:[];}
     return f.slice(0,FOLDER_MAX).map(x=>({id:String((x&&x.id)||uid(6)).replace(/[^A-Za-z0-9]/g,'').slice(0,8)||uid(6),n:myTxt(x&&x.n)||'חבילה',w:myDeckClean(x&&x.w),on:x&&x.on?1:0}));}catch(e){return [];}}
 function foldersSave(f,quiet){try{localStorage.setItem('mokesh.folders',JSON.stringify(f));}catch(e){}if(!quiet)udPush();}
@@ -1475,7 +1479,13 @@ function vGroups(){if(!A.user)return `<div class="xs" style="margin-top:-4px">ק
 // ---------- חבילות משותפות: כמה אנשים בונים חבילה ביחד. כל אחד רואה רק את המילים שלו; במשחק כל המילים נכנסות ----------
 function spOn(id){try{return (JSON.parse(localStorage.getItem('mokesh.spOn')||'{}'))[id]!==0;}catch(e){return true;}}
 function spToggle(id){let m={};try{m=JSON.parse(localStorage.getItem('mokesh.spOn')||'{}');}catch(e){}m[id]=spOn(id)?0:1;try{localStorage.setItem('mokesh.spOn',JSON.stringify(m));}catch(e){}A.spDeal=null;render();}
-async function spLoad(){if(!A.user||!sb)return;try{const {data,error}=await sb.rpc('mokesh_spack_list');if(error)throw error;A.spacks=Array.isArray(data)?data:[];A.spAt=Date.now();render();}catch(e){console.warn('spacks',e);}}
+async function spLoad(){if(!A.user||!sb)return;try{const {data,error}=await sb.rpc('mokesh_spack_list');if(error)throw error;A.spacks=Array.isArray(data)?data:[];A.spAt=Date.now();spDedupe();render();}catch(e){console.warn('spacks',e);}}
+// חבילה פרטית שכבר שותפה (אותו שם, וכל המילים שלה כבר בחבילה המשותפת שלי) — כפילות: מסירים את הפרטית
+async function spDedupe(){if(A.spDeduped)return;A.spDeduped=1;const loc=foldersLoad();let changed=0;
+  for(const p of (A.spacks||[])){if(p.owner!==A.user.id)continue;const f=loc.find(x=>x.n.trim()===String(p.name).trim());if(!f)continue;
+    try{const {data}=await sb.from('mokesh_spack_words').select('w').eq('pack_id',p.id).eq('by_user',A.user.id);const have=new Set((data||[]).map(x=>normalize(x.w)));
+      if(f.w.every(x=>have.has(normalize(x.w)))){fdelAdd(f.id);changed=1;}}catch(e){}}
+  if(changed){foldersSave(foldersLoad());render();}}
 async function spWordsLoad(id){try{const {data}=await sb.from('mokesh_spack_words').select('id,w,o').eq('pack_id',id).eq('by_user',A.user.id).order('id');A.spWords=A.spWords||{};A.spWords[id]=data||[];render();}catch(e){}}
 const curSp=()=>String(A.deckEdit||'').startsWith('sp:')?(A.spacks||[]).find(p=>'sp:'+p.id===A.deckEdit):null;
 async function spNew(){if(!A.user){A.sheet='login';A.authMode='signup';A.fromSettings=1;render();return;}
@@ -1486,7 +1496,7 @@ async function folderShare(){const f=curFolder();if(!f)return;if(!A.user){A.shee
   if(!await uiAsk({title:`לשתף את "${h(f.n)}"?`,text:'החבילה תהפוך למשותפת: תוכלו להזמין אחרים להוסיף מילים. המילים שלכם יישארו מוסתרות מהם.',ok:'שיתוף',icon:ic('share',28)}))return;
   try{const {data,error}=await sb.rpc('mokesh_spack_create',{p_name:f.n});if(error)throw error;
     if(f.w.length){const r=await sb.from('mokesh_spack_words').insert(f.w.map(x=>({pack_id:data.id,by_user:A.user.id,w:x.w,o:x.o})));if(r.error)throw r.error;}
-    foldersSave(foldersLoad().filter(x=>x.id!==f.id));await spLoad();A.deckEdit='sp:'+data.id;spWordsLoad(data.id);spInvite(data.code,data.name);}catch(e){toast(GERR(e));}}
+    fdelAdd(f.id);foldersSave(foldersLoad().filter(x=>x.id!==f.id));await spLoad();A.deckEdit='sp:'+data.id;spWordsLoad(data.id);spInvite(data.code,data.name);}catch(e){toast(GERR(e));}}
 function spInvite(code,name){const link=location.origin+location.pathname+'?sp='+code;const t=`בואו להוסיף מילים לחבילה "${name}" במוקש! כל אחד מוסיף מילים משלו, ואף אחד לא רואה של האחרים`;
   if(navigator.share)navigator.share({title:'מוקש!',text:t,url:link}).catch(()=>{});else{try{navigator.clipboard.writeText(link).then(()=>toast('הקישור הועתק — שלחו למי שתרצו'),()=>toast('קוד החבילה: '+code));}catch(e){toast('קוד החבילה: '+code);}}}
 async function spJoin(code){code=String(code||'').trim().toUpperCase();if(!code)return;if(!A.user){A.pendingSp=code;A.sheet='login';A.authMode='signup';render();return;}
@@ -1535,14 +1545,15 @@ function authGate(){if(!sb||!sb.auth||A.user||A.S||A.sheet||A.authAsked||A.homeM
   try{if(!localStorage.getItem('mokesh.tour.home')||sessionStorage.getItem('mokesh.guest'))return;}catch(e){return;}
   A.authAsked=true;setTimeout(()=>{if(!A.user&&!A.S&&!A.sheet&&!TOUR.el){A.sheet='login';render();}},700);}
 // סנכרון: מה שנשמר בטלפון עובר לחשבון, ובטלפון חדש נטען מהחשבון
-const UD_KEYS=['mokesh.folders','mokesh.theme','mokesh.hap','mokesh.music','mokesh.route'];
+const UD_KEYS=['mokesh.fdel','mokesh.folders','mokesh.theme','mokesh.hap','mokesh.music','mokesh.route'];
 function udLocal(){const d={};try{for(const k of UD_KEYS){const v=localStorage.getItem(k);if(v!=null)d[k]=v;}}catch(e){}return d;}
 async function udPull(){if(!A.user||!sb)return;try{const {data}=await sb.from('mokesh_userdata').select('data').eq('id',A.user.id).maybeSingle();
     const srv=data&&data.data&&typeof data.data==='object'?data.data:null;
     if(srv&&Object.keys(srv).length){
       // חבילות: מאחדים את מה שיש בטלפון עם מה שבחשבון (לא מאבדים מילים)
       const mine=foldersLoad();let theirs=[];try{theirs=JSON.parse(srv['mokesh.folders']||'[]');}catch(e){}
-      try{for(const k of UD_KEYS)if(k!=='mokesh.folders'&&typeof srv[k]==='string')localStorage.setItem(k,srv[k]);
+      const myDel=fdelLoad();
+      try{for(const k of UD_KEYS)if(k!=='mokesh.folders'&&typeof srv[k]==='string')localStorage.setItem(k,srv[k]);for(const id of myDel)fdelAdd(id);
         localStorage.setItem('mokesh.folders',JSON.stringify(theirs));const all=foldersLoad();for(const f of mine)if(!all.some(x=>x.id===f.id||x.n===f.n))all.push(f);foldersSave(all,true);}catch(e){}
       MUSIC.on=localStorage.getItem('mokesh.music')!=='0';}
     A.udReady=true;udPush(true);render();}catch(e){console.warn('userdata',e);}}
@@ -1572,7 +1583,7 @@ async function onUser(){devCheck();if(!A.user){A.prof=null;A.friends=[];A.invite
 let profT=null;
 function syncProf(){if(!A.prof||!sb)return;clearTimeout(profT);profT=setTimeout(()=>{const n=(A.chosen.name||'').trim().slice(0,16);if(!n)return;
   sb.from('mokesh_profiles').update({name:n,avatar:A.chosen.avatar}).eq('id',A.prof.id).then(()=>{A.prof.name=n;A.prof.avatar=A.chosen.avatar;});},700);}
-function startSocial(){stopSocial();if(!A.user)return;heartbeat();loadFriends();groupsLoad().then(groupCallsCheck);A.socialT=setInterval(()=>{heartbeat();loadFriends();groupCallsCheck();},45000);
+function startSocial(){stopSocial();if(!A.user)return;heartbeat();loadFriends();groupsLoad().then(groupCallsCheck);spLoad();A.socialT=setInterval(()=>{heartbeat();loadFriends();groupCallsCheck();},45000);
   try{A.socialCh=sb.channel('mokesh-social-'+A.user.id)
     .on('postgres_changes',{event:'INSERT',schema:'public',table:'mokesh_invites',filter:'to_id=eq.'+A.user.id},p=>onInvite(p.new))
     .on('postgres_changes',{event:'*',schema:'public',table:'mokesh_friends'},()=>loadFriends()).subscribe();}catch(e){}}
@@ -2251,7 +2262,7 @@ async function folderNew(){const all=foldersLoad();if(all.length>=FOLDER_MAX)ret
   const f={id:uid(6),n,w:[],on:1};const a2=foldersLoad();a2.push(f);foldersSave(a2);A.deckEdit=f.id;A.deckPaste=false;render();}
 function folderToggle(id){const all=foldersLoad();const f=all.find(x=>x.id===id);if(f){f.on=f.on?0:1;foldersSave(all);}render();}
 async function folderRename(){const f=curFolder();if(!f)return;const n=myTxt(await uiAsk({title:'שם חדש לחבילה',input:1,value:f.n,ok:'שמירה'})||'');if(!n)return;folderUpd(x=>{x.n=n;});render();}
-async function folderDelete(){const f=curFolder();if(!f)return;if(!await uiAsk({title:`למחוק את "${h(f.n)}"?`,text:`${f.w.length} מילים יימחקו.`,ok:'מחיקה',danger:1}))return;foldersSave(foldersLoad().filter(x=>x.id!==f.id));A.deckEdit='list';render();}
+async function folderDelete(){const f=curFolder();if(!f)return;if(!await uiAsk({title:`למחוק את "${h(f.n)}"?`,text:`${f.w.length} מילים יימחקו.`,ok:'מחיקה',danger:1}))return;fdelAdd(f.id);foldersSave(foldersLoad().filter(x=>x.id!==f.id));A.deckEdit='list';render();}
 // אייפון: אחרי שהמקלדת נסגרת הדף נשאר גלול והמסך נראה תקוע — מחזירים למעלה
 document.addEventListener('focusout',e=>{if(e.target&&e.target.closest&&e.target.closest('.deck'))setTimeout(()=>{const a=document.activeElement;if(!a||!a.closest||!a.closest('.deck'))window.scrollTo(0,0);},120);});
 function closeDeck(){A.deckEdit=false;render();}
