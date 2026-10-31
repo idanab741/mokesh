@@ -293,10 +293,10 @@ html.kb .startbar{position:static;background:none}
 
 .topbtn,.hdr button,.hdrm{width:44px;height:44px;border-radius:50%;background:var(--paper2);color:var(--ink);border:var(--o);box-shadow:var(--sh-sm);display:flex;align-items:center;justify-content:center}
 .topbtn{position:absolute;top:14px;left:14px;z-index:6}.topbtn.l2{left:66px}
-.hello{position:absolute;top:10px;right:12px;z-index:6;display:flex;align-items:center;gap:12px;max-width:calc(100% - 84px);min-width:min(240px,calc(100% - 84px));padding:6px 20px 6px 6px;border-radius:999px;background:var(--paper);border:var(--o);box-shadow:var(--sh-sm);color:var(--ink);text-align:right;cursor:pointer;animation:hin .5s cubic-bezier(.2,1.4,.5,1) both}
-.hello .av.hav{width:46px;height:46px;border-width:2.5px}.hello .ht{display:flex;flex-direction:column;gap:3px;min-width:0;line-height:1.2}.hello b{font-family:var(--font-display);font-weight:400;font-size:18px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.hello .ht span{font-size:12px;font-weight:700;color:var(--soft);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.hello{position:absolute;top:14px;right:14px;z-index:6;display:flex;align-items:center;gap:10px;height:44px;max-width:calc(100% - 84px);padding:0 16px 0 3px;border-radius:999px;background:var(--paper);border:var(--o);box-shadow:var(--sh-sm);color:var(--ink);text-align:right;cursor:pointer;animation:hin .5s cubic-bezier(.2,1.4,.5,1) both}
+.hello .av.hav{width:34px;height:34px;border-width:2px}.hello .ht{display:flex;flex-direction:column;min-width:0;line-height:1}.hello b{font-family:var(--font-display);font-weight:400;font-size:17px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.hello .ht span{font-size:12px;font-weight:700;color:var(--soft);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .hello:active{transform:translateY(2px);box-shadow:0 1px 0 var(--ink)}@keyframes hin{from{opacity:0;transform:translateY(-10px) scale(.9)}}
-.screen.home header{padding-top:46px}.topbtn.r{left:auto;right:14px}.topbtn.r2{left:auto;right:66px}
+.screen.home header{padding-top:40px}.topbtn.r{left:auto;right:14px}.topbtn.r2{left:auto;right:66px}
 .topbtn.accb{width:auto;min-width:44px;padding:0 12px 0 10px;border-radius:999px;gap:6px;font-weight:800;font-size:14px}.topbtn.accb.on{padding:0;width:48px;height:48px;overflow:visible}.topbtn.accb.on>img,.topbtn.accb.on>.cav{width:100%;height:100%;border-radius:50%;object-fit:cover}.topbtn.accb .badge{top:-6px;left:-6px}
 .topbtn:active,.hdr button:active,.hdrm:active{transform:translateY(2px);box-shadow:0 1px 0 var(--ink)}
 .topbtn.off,.hdr button.off,.hdrm.off,.mbtn.off{background:#B9B4D6}
@@ -2019,7 +2019,7 @@ function packSummary(S){const pk=packsOf(S);const names=[...(classicOn(S)&&packM
 // ברכה אישית למעלה בצד ימין: התמונה של המשתמש + "ערב טוב, עידן!". לחיצה פותחת את ההגדרות
 function hello(){const h0=new Date().getHours();return h0>=5&&h0<12?'בוקר טוב':h0>=12&&h0<17?'צהריים טובים':h0>=17&&h0<21?'ערב טוב':'לילה טוב';}
 function vHello(){const c=A.chosen;const nm=(c.name||'').trim().split(/\s+/)[0];
-  return `<button class="hello" onclick="A.homeMode='settings';render()" aria-label="הפרופיל וההגדרות">${av(c.avatar,'hav')}<span class="ht"><b>${hello()}${nm?', '+h(nm):''}!</b><span>${A.user?'מוכנים לפוצץ משהו?':'לחצו כדי לפתוח חשבון'}</span></span></button>`;}
+  return `<button class="hello" onclick="A.homeMode='settings';render()" aria-label="הפרופיל וההגדרות">${av(c.avatar,'hav')}<span class="ht"><b>${hello()}${nm?', '+h(nm):''}!</b></span></button>`;}
 function vSettingsPage(){if(A.user&&!A.groupsAt||A.user&&Date.now()-A.groupsAt>60000){A.groupsAt=Date.now();setTimeout(()=>{groupsLoad();spLoad();},0);}const c=A.chosen;const prem=premiumOn(null);const f=foldersLoad();
   const sec=(icon,title,body,extra)=>`<section class="sset"><div class="ssh"><span class="ssi">${ic(icon,20)}</span><b>${title}</b>${extra||''}</div>${body}</section>`;
   const sw=(on,label,sub,fn)=>`<label class="srow"><span class="col" style="gap:1px"><b>${label}</b>${sub?`<span class="xs">${sub}</span>`:''}</span><span class="fsw"><input type="checkbox" ${on?'checked':''} onchange="${fn}"><span></span></span></label>`;
