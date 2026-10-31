@@ -915,8 +915,9 @@ function trafficSrc(){try{const q=new URLSearchParams(location.search);const s=(
   if(q.get('fbclid'))return 'facebook';if(q.get('room')||q.get('f'))return 'invite';const r=document.referrer?new URL(document.referrer).hostname:'';if(!r||r===location.hostname)return 'direct';
   for(const [k,v] of [['facebook','facebook'],['fb.','facebook'],['instagram','instagram'],['whatsapp','whatsapp'],['google','google'],['tiktok','tiktok'],['t.co','twitter'],['twitter','twitter'],['x.com','twitter']])if(r.includes(k))return v;return r.replace(/^www\./,'').slice(0,20);}catch(e){return '';}}
 function devKind(){const u=navigator.userAgent;return /iPhone|iPad|iPod/.test(u)?'iphone':/Android/.test(u)?'android':'desktop';}
-function track(kind){if(!sb)return;try{if(kind==='visit'){const d=new Date().toDateString();if(localStorage.getItem('mokesh.hit')===d)return;localStorage.setItem('mokesh.hit',d);}}catch(e){}
-  sb.rpc('mokesh_hit',{p_uid:localStorage.getItem('mokesh.uid')||A.uid,p_kind:kind,p_src:trafficSrc(),p_dev:devKind()}).then(()=>{},()=>{});}
+// הכניסה של היום נרשמת כ"נספרה" רק אחרי שהשרת אישר — אם נכשל, ננסה שוב בכניסה הבאה
+function track(kind){if(!sb)return;const d=new Date().toDateString();try{if(kind==='visit'&&localStorage.getItem('mokesh.hit2')===d)return;}catch(e){}
+  sb.rpc('mokesh_hit',{p_uid:localStorage.getItem('mokesh.uid')||A.uid,p_kind:kind,p_src:trafficSrc(),p_dev:devKind()}).then(r=>{if(kind==='visit'&&r&&!r.error)try{localStorage.setItem('mokesh.hit2',d);}catch(e){}},()=>{});}
 async function initRuntime(){
   try{if(window.supabase&&SUPABASE_URL.startsWith('http')){sb=window.supabase.createClient(SUPABASE_URL,SUPABASE_ANON,{realtime:{params:{eventsPerSecond:20}}});A.uid=localStorage.getItem('mokesh.uid')||('u'+uid(10));localStorage.setItem('mokesh.uid',A.uid);A.dbReady=true;}}catch(e){console.error(e);}
   if(!A.dbReady)A.dbMissing=true;else{track('visit');await authInit();}
