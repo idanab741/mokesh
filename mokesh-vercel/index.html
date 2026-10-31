@@ -1479,7 +1479,7 @@ function vSpDeck(p){const d=(A.spWords||{})[p.id];if(!d){spWordsLoad(p.id);}cons
     ${deckForm()}
     ${words.length?`<div class="dklist">${list}</div>`:''}</div></div>`;}
 // ---------- חשבון: מייל+סיסמה / גוגל, וסנכרון ההגדרות האישיות (החבילות שלי, ערכה, צליל, רטט) ----------
-const AUTH_ERR=e=>{const m=String(e&&e.message||e||'');return /Invalid login/i.test(m)?'אימייל או סיסמה לא נכונים':/not confirmed/i.test(m)?'צריך לאשר את המייל קודם (בדקו את תיבת הדואר)':/already registered|already been registered/i.test(m)?'כבר יש חשבון עם המייל הזה. נסו להיכנס':/Password should be|at least 6/i.test(m)?'סיסמה צריכה לפחות 6 תווים':/provider is not enabled|Unsupported provider/i.test(m)?'הכניסה הזו עוד לא מופעלת':/rate limit|too many/i.test(m)?'יותר מדי ניסיונות. נסו שוב בעוד כמה דקות':/network|fetch/i.test(m)?'אין חיבור לאינטרנט':'משהו השתבש. נסו שוב';};
+const AUTH_ERR=e=>{const m=String(e&&e.message||e||'');return /Invalid login/i.test(m)?'אימייל או סיסמה לא נכונים':/not confirmed/i.test(m)?'צריך לאשר את המייל קודם (בדקו את תיבת הדואר)':/already registered|already been registered/i.test(m)?'כבר יש חשבון עם המייל הזה. נסו להיכנס':/Password should be|at least 6/i.test(m)?'סיסמה צריכה לפחות 6 תווים':/provider is not enabled|Unsupported provider/i.test(m)?'הכניסה הזו עוד לא מופעלת':/signups are disabled|logins are disabled|provider_disabled/i.test(m)?'ההרשמה עם מייל כבויה כרגע. נסו עם Google':/rate limit|too many/i.test(m)?'יותר מדי ניסיונות. נסו שוב בעוד כמה דקות':/network|fetch/i.test(m)?'אין חיבור לאינטרנט':'משהו השתבש. נסו שוב';};
 async function emailAuth(){const em=(A.loginEmail||'').trim(),pw=A.loginPass||'';const up=A.authMode==='signup';
   if(!/^\S+@\S+\.\S+$/.test(em))return toast('כתובת מייל לא תקינה');if(up&&!mailOk(em))return toast('אפשר להירשם עם מייל של Gmail, Walla, Hotmail/Outlook, Yahoo או iCloud');if(pw.length<6)return toast('סיסמה צריכה לפחות 6 תווים');
   A.loginBusy=true;render();
@@ -1854,7 +1854,7 @@ const LED_T0=Date.now();
 function ledText(){const t=30-Math.floor((Date.now()-LED_T0)/1000)%31;return '00:'+String(t).padStart(2,'0');}
 setInterval(()=>{const e=document.getElementById('homeled');if(!e)return;const t=ledText();e.textContent=t;if(t==='00:00')homeBoom();},1000);
 // כשהצג מגיע לאפס (או כשלוחצים עליו): פיצוץ קטן מעל מסך הבית. שכבה נפרדת מהרינדור, כדי שעדכון מסך לא יקטע אותה
-function homeBoom(){const led=document.querySelector('.ledbox');if(!led||document.hidden||A.homeBoomAt>Date.now()-2500)return;A.homeBoomAt=Date.now();
+function homeBoom(){const led=document.querySelector('.ledbox');if(!led||document.hidden||A.sheet||A.dlg||A.deckEdit||A.histOpen||TOUR.el||A.homeBoomAt>Date.now()-2500)return;A.homeBoomAt=Date.now();
   if(matchMedia('(prefers-reduced-motion: reduce)').matches)return;
   const r=led.getBoundingClientRect(),L=document.createElement('div');L.className='homeblast';L.style.left=(r.left+r.width/2)+'px';L.style.top=(r.top+r.height/2)+'px';
   L.innerHTML=`<div class="bgburn" style="--x:${Math.round(r.left+r.width/2)}px;--y:${Math.round(r.top+r.height/2)}px"></div>`+vBlast()+boomImg('hboom');document.body.appendChild(L);haptic([220,70,320,60,120]);
