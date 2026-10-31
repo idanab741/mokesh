@@ -557,6 +557,9 @@ html.kb .msg .b{padding:6px 12px;font-size:16px}html.kb .msg.clue.cur .b{font-si
 .settings .r button.mylnk,.mylnk{width:auto;height:auto;box-shadow:none;border-radius:0;background:none;border:0;padding:0 2px;font:inherit;font-size:13px;font-weight:800;color:var(--ink);text-decoration:underline;cursor:pointer}
 .sheet-bg.top{align-items:flex-start;padding-top:max(12px,env(safe-area-inset-top))}.deck{max-height:calc(100vh - 24px);max-height:calc(100dvh - 24px);overflow-y:auto;-webkit-overflow-scrolling:touch;overscroll-behavior:contain}.deck .muted{color:var(--soft)}.mycol{display:flex;flex-direction:column;align-items:flex-start;gap:2px}.dkform{display:flex;flex-direction:column;gap:8px}.dkm{display:grid;grid-template-columns:repeat(3,1fr);gap:6px}.dkm .input{font-size:15px;padding:9px 10px}
 .pkgrid{display:grid;grid-template-columns:1fr 1fr;gap:8px}.pkchip{position:relative;display:flex;flex-direction:column;align-items:flex-start;gap:2px;text-align:right;padding:10px 12px;border:2.5px solid var(--ink);border-radius:14px;background:#fff;color:var(--ink);font:inherit;cursor:pointer}
+.ourw{display:flex;flex-direction:column;gap:10px;border:2.5px dashed var(--ink);border-radius:16px;padding:12px;background:#fff}.ourw.on{border-style:solid;background:var(--yellow)}.ourw .muted{color:var(--soft)}
+.ouronly{display:flex;align-items:center;gap:8px;font-weight:700;font-size:14px}.ouronly input{width:20px;height:20px;accent-color:var(--ink)}
+.tjoin.tbot{display:flex;align-items:center;justify-content:center;gap:6px}
 .pkchip b{font-size:15px}.thchip .sw{display:flex;gap:3px;margin-top:4px}.thchip .sw i{width:18px;height:18px;border-radius:50%;border:2px solid var(--ink)}.pkchip span{font-size:12px;color:var(--soft)}.pkchip.on{background:var(--yellow);box-shadow:0 3px 0 var(--ink)}.pkchip svg{position:absolute;top:8px;left:8px}
 .settings .r button.packbtn{max-width:60%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .deck textarea{resize:vertical;font-size:16px}
@@ -1238,7 +1241,7 @@ function leaveRoom(){voiceLeave(true);A.roomSeen=null;if(A.S&&!['LOBBY','GAME_OV
   localStorage.removeItem('mokesh.session');A.newAv=null;A.avPick=null;A.menu=0;A.S=null;A.mode=null;A.isHost=false;A.homeMode='menu';render();}
 
 // ---------- מצב מקומי (העבר את הטלפון) ----------
-function startLocalLoop(){clearInterval(A.hostT);A.hostT=setInterval(()=>{if(A.mode==='online'||!A.S)return;if(E.tick(A.S)){if(A.S.cardResult&&A.S.phase==='CARD_RESULT')fx(A.S.cardResult.kind);render();}},250);}
+function startLocalLoop(){clearInterval(A.hostT);A.hostT=setInterval(()=>{if(A.mode==='online'||!A.S||TOUR.pauseAt)return;if(E.tick(A.S)){if(A.S.cardResult&&A.S.phase==='CARD_RESULT')fx(A.S.cardResult.kind);render();}},250);}
 function createLocal(){track('local');A.mode='local';A.isHost=true;A.me={id:'local-host',name:'',avatar:''};const S=newState('LOCAL','local');S.premium=!!A.premium;A.S=S;startLocalLoop();startBotLoop();render();}
 
 // ---------- מול המחשב: בוטים שמנחשים לפי מילון מילות הקשר שבקלפים (בלי AI) ----------
@@ -1636,13 +1639,16 @@ const TOURS={
     {target:'.chatbar input[name=g]',title:'כתבו מה אתם חושבים',text:'כל ניחוש נשלח מיד. ניחשתם נכון? נקודות לקבוצה! רק תיזהרו ממוקשים.'}]};
 const TOUR={steps:null,i:0,key:'',el:null,t:null,iv:null,passive:false};
 function tourSeen(k){try{return !!localStorage.getItem('mokesh.tour.'+k);}catch(e){return true;}}
-function tourStart(key,opts){const all=TOURS[key];if(!all)return;tourClose(false);
+const GAME_TOURS=['trap','explainer','guesser'];
+// הסבר בתוך המשחק: רק במשחק הראשון במכשיר. במכשיר אחד / מול המחשב השעון עוצר בזמן ההסבר
+function gameTourOk(S){if(!S||!S.gameId)return false;try{const g=localStorage.getItem('mokesh.tourgame');if(!g){localStorage.setItem('mokesh.tourgame',S.gameId);return true;}return g===S.gameId;}catch(e){return false;}}
+function tourStart(key,opts){const all=TOURS[key];if(!all)return;tourClose(false);TOUR.pauseAt=GAME_TOURS.includes(key)&&A.S&&A.S.mode!=='online'&&A.S.phaseEndsAt?Date.now():0;
   TOUR.steps=all.filter(s=>s.hero||document.querySelector(s.target));if(!TOUR.steps.length)return;
   TOUR.key=key;TOUR.i=0;TOUR.passive=!!(opts&&opts.passive);try{localStorage.setItem('mokesh.tour.'+key,'1');}catch(e){}
   const R=document.createElement('div');R.className='tr-root'+(TOUR.passive?' passive':'');R.innerHTML='<div class="tr-spot"></div><div class="tr-ring"></div><div class="tr-hand">'+HAND+'</div><div class="tr-body"></div>';
   if(!TOUR.passive)R.addEventListener('click',e=>{if(e.target.closest('.tr-skip,.tr-next'))return;tourNext();});
   document.body.appendChild(R);TOUR.el=R;tourShow();TOUR.iv=setInterval(tourPlace,400);window.addEventListener('resize',tourPlace);}
-function tourClose(){clearTimeout(TOUR.t);clearInterval(TOUR.iv);window.removeEventListener('resize',tourPlace);if(TOUR.el){const el=TOUR.el;el.classList.add('out');setTimeout(()=>el.remove(),250);}TOUR.el=null;TOUR.steps=null;}
+function tourClose(){if(TOUR.pauseAt){const d=Date.now()-TOUR.pauseAt;TOUR.pauseAt=0;if(A.S&&A.S.phaseEndsAt&&A.S.mode!=='online'){A.S.phaseEndsAt+=d;render();}}clearTimeout(TOUR.t);clearInterval(TOUR.iv);window.removeEventListener('resize',tourPlace);if(TOUR.el){const el=TOUR.el;el.classList.add('out');setTimeout(()=>el.remove(),250);}TOUR.el=null;TOUR.steps=null;}
 function tourNext(){if(!TOUR.steps)return;if(TOUR.i>=TOUR.steps.length-1){tourClose();return;}TOUR.i++;tourShow();}
 function tourShow(){const s=TOUR.steps[TOUR.i],R=TOUR.el,last=TOUR.i===TOUR.steps.length-1,n=TOUR.steps.length;clearTimeout(TOUR.t);
   const ms=s.hero?(TOUR.passive?6000:11000):(TOUR.passive?5500:7000);
@@ -1669,6 +1675,7 @@ function tourAuto(){if(TOUR.el||A.sheet||A.menu||A.avPick)return;const S=A.S;let
   else if(S.phase==='TRAP_SELECTION'&&S.mode!=='ai'&&role(S)==='opponent')k='trap';
   else if(S.phase==='EXPLAINING'&&role(S)==='explainer'&&typedClues(S))k='explainer';
   else if(S.phase==='EXPLAINING'&&role(S)==='guesser'&&typedClues(S))k='guesser';
+  if(k&&GAME_TOURS.includes(k)&&!gameTourOk(S))return;
   if(k&&!tourSeen(k)){clearTimeout(A.tourT);A.tourT=setTimeout(()=>{if(!TOUR.el)tourStart(k,{passive});},passive?500:900);}}
 function vHome(){const c=A.chosen;const m=A.homeMode;if(m==='how'||m==='intro'){A.homeMode='menu';setTimeout(()=>tourStart('home'),50);return vHome();}
   const form=`<div class="card col" style="gap:14px">
@@ -1732,7 +1739,7 @@ function vLobby(S){if(S.mode==='ai')return vLobbyAI(S);const me=playerById(S,myI
     return `<div class="lpw"><button type="button" class="lp${!p.connected?' off':''}" onclick="${self?`A.avPick='${p.id}';render()`:menu?`A.pmenu=${open?'null':`'${p.id}'`};render()`:''}">${av(p.avatar,'md'+(p.ready&&!local?' ready':''),!p.connected)}<span class="n">${h(p.name)}</span>${p.isHost&&!local?`<span class="crown">${ic('crown',14)}</span>`:''}</button>
       ${open?`<div class="pmenu">${!S.vsBots&&!isBot(p.id)?`<button type="button" onclick="A.pmenu=null;${local?`act({type:'switch_team',from:'${p.id}'})`:`act({type:'move',target:'${p.id}'})`}">${ic('swap',16)} לקבוצה השנייה</button>`:''}<button type="button" onclick="A.pmenu=null;${local||isBot(p.id)?`apply(S=>E.removePlayer(S,'${p.id}'))`:`act({type:'kick',target:'${p.id}'})`}">✕ הוצאה</button></div>`:''}</div>`;};
   const col=(t,ps)=>`<div class="tcol ${t}"><div class="tch"><b>${TEAM_NAME[t]}</b><span>${ps.length}</span></div><div class="tps">${ps.map(pl).join('')||`<div class="tempty">עוד אין שחקנים</div>`}</div>
-    ${!local&&me&&me.team!==t&&!S.vsBots?`<button type="button" class="tjoin" onclick="act({type:'switch_team'})">עברו לכאן</button>`:''}</div>`;
+    ${!local&&me&&me.team!==t&&!S.vsBots?`<button type="button" class="tjoin" onclick="act({type:'switch_team'})">עברו לכאן</button>`:''}${(local||host)&&!S.vsBots&&canAddBot(S,t)?`<button type="button" class="tjoin tbot" onclick="addBot('${t}')">${ic('robot',16)} הוסיפו מחשב</button>`:''}</div>`;
   const head=`<div class="hdr"><button onclick="${!local&&host?'A.menu=1;render()':'leaveRoom()'}">${ic('back',22)}</button><div class="t">${local?'מכשיר אחד':'החדר'}</div><div class="row" style="gap:6px">${local?musicBtn(''):voiceBtn(S)+chatBtn(S)}<button onclick="A.helpOpen=true;A.introPage=0;render()" title="איך משחקים">${ic('help',22)}</button></div></div>`;
   const invite=local?'':`<div class="invite"><div class="il">${S.players.length<2?'שלחו לחברים את הקישור כדי שיצטרפו':'קוד החדר'}</div><div class="row between"><button class="codebox" onclick="shareRoom('${h(link)}','${S.code}',true)" title="העתק">${S.code} ${ic('copy',18)}</button><button class="btn info" style="width:auto" onclick="shareRoom('${h(link)}','${S.code}')">${ic('share',20)} שתפו</button></div></div>`;
   const pending=!local&&!me?`<div class="card tc col" style="gap:6px"><div class="bold pulse">מצטרפים לחדר…</div><div class="small muted">תופיעו ברשימה ברגע שהטלפון של מנהל/ת החדר יהיה פתוח במשחק.</div></div>`:'';
@@ -1740,7 +1747,6 @@ function vLobby(S){if(S.mode==='ai')return vLobbyAI(S);const me=playerById(S,myI
   const botHint=!S.vsBots&&humans===2&&TL.length===2&&!can&&(canAddBot(S,'A')||canAddBot(S,'B'))?`<button class="btn ghost" onclick="addBotsBoth()">${ic('robot',20)} רק שניים? הוסיפו מחשב לכל קבוצה</button>`:'';
   const sw=(on,label,onclick)=>`<label class="pswitch r"><input type="checkbox" ${on?'checked':''} onchange="${onclick}"><span></span>${label}</label>`;
   const extra=(!local&&host?sw(S.vsBots,'כולנו נגד המחשב',"act({type:'vsbots',off:!this.checked})")+(S.vsBots&&humans>=2?sw(S.vsPartner,'שותף-מחשב בקבוצה שלנו',`act({type:'vsbots',partner:this.checked})`):''):'')
-    +((local||host)&&!S.vsBots?`<div class="r"><span class="small muted">מחשבים</span><div class="row">${teamsOf(S).map(t=>`<button class="mini" ${canAddBot(S,t)?'':'disabled'} onclick="addBot('${t}')">+ ל${TEAM_NAME[t]}</button>`).join('')}</div></div>`:'')
     +((local||host)&&S.players.length>=3&&!S.vsBots?`<div class="r"><span class="small muted">קבוצות</span><button class="mini" onclick="act({type:'shuffle'})">ערבוב</button></div>`:'');
   const cta=local||host?`<button class="btn primary big" onclick="gateStart(()=>act({type:'start'}))" ${can?'':'disabled'}>${ic('play',22)} ${can?'יאללה, מתחילים':'צריך 2 שחקנים בכל קבוצה'}</button>`
     :me?`<button class="btn big ${me.ready?'ok':'primary'}" onclick="act({type:'ready',ready:${!me.ready}})">${me.ready?ic('check',22)+' מוכן! מחכים למנהל/ת החדר':'אני מוכן/ה'}</button>`:'';
@@ -1791,7 +1797,7 @@ function vSettings(S,extra){const s=S.settings;const host=A.isHost;const lock=!p
   const open=!!A.settingsOpen;const wm=!!s.wordMode;
   const style=`<div class="modepick">${[[0,'timer','על זמן','כמה שיותר מילים בתור'],[1,'swap','תור-תור','מילה אחת וזה עובר']].map(([v,i,l,d])=>`<button class="${(wm?1:0)===v?'on':''}" ${host?`onclick="${set({wordMode:v})}"`:'disabled'}>${ic(i,26)}<b>${l}</b><span>${d}</span></button>`).join('')}</div>`;
   return `<div class="settings"><button class="sum" onclick="A.settingsOpen=!A.settingsOpen;render()">${ic('gear',20)}<span>הגדרות${lock?` <i class="plock">${ic('crown',14)} פרימיום</i>`:''}</span><span class="s">${wm?'תור-תור':'על זמן'} · עד ${s.target||20} נק׳ · ${s.turnsPerTeam} ${wm?'מילים':'תורים'}</span><span class="muted">${open?'▴':'▾'}</span></button>
-    ${open?`<div style="padding:4px 0 10px">${style}</div>`+(extra||'')+r('מנצחים ב-',(s.target||20)+' נק׳',set({target:(s.target||20)-5}),set({target:(s.target||20)+5}))+r(wm?'מילים לכל קבוצה':'תורים לכל קבוצה',s.turnsPerTeam,set({turnsPerTeam:s.turnsPerTeam-1}),set({turnsPerTeam:s.turnsPerTeam+1}))+r(wm?'שניות למילה':'שניות לתור',s.turnSeconds,set({turnSeconds:s.turnSeconds-15}),set({turnSeconds:s.turnSeconds+15}))+r('שניות לבחירת מוקשים',s.trapSeconds,set({trapSeconds:s.trapSeconds-5}),set({trapSeconds:s.trapSeconds+5}))+(S.mode!=='ai'&&!S.vsBots&&!S.public?r('מספר קבוצות',s.teams||2,set({teams:(s.teams||2)-1}),set({teams:(s.teams||2)+1}))+vMyRow(S,host,lock):'')+vPackRow(S,host,lock)+vColorRow(S,host,lock)+r('רמת קושי',dl,set({difficulty:order[(i+3)%4]}),set({difficulty:order[(i+1)%4]}))+r('מוקשים',['רשימה','כותבים לבד','גם וגם'][s.customTraps||0],set({customTraps:((s.customTraps||0)+2)%3}),set({customTraps:((s.customTraps||0)+1)%3})):''}</div>`;}
+    ${open?`<div style="padding:4px 0 10px">${style}</div>`+(extra||'')+r('מנצחים ב-',(s.target||20)+' נק׳',set({target:(s.target||20)-5}),set({target:(s.target||20)+5}))+r(wm?'מילים לכל קבוצה':'תורים לכל קבוצה',s.turnsPerTeam,set({turnsPerTeam:s.turnsPerTeam-1}),set({turnsPerTeam:s.turnsPerTeam+1}))+r(wm?'שניות למילה':'שניות לתור',s.turnSeconds,set({turnSeconds:s.turnSeconds-15}),set({turnSeconds:s.turnSeconds+15}))+r('שניות לבחירת מוקשים',s.trapSeconds,set({trapSeconds:s.trapSeconds-5}),set({trapSeconds:s.trapSeconds+5}))+(S.mode!=='ai'&&!S.vsBots&&!S.public?r('מספר קבוצות',s.teams||2,set({teams:(s.teams||2)-1}),set({teams:(s.teams||2)+1})):'')+vPackRow(S,host,lock)+r('רמת קושי',dl,set({difficulty:order[(i+3)%4]}),set({difficulty:order[(i+1)%4]}))+r('מוקשים',['רשימה','כותבים לבד','גם וגם'][s.customTraps||0],set({customTraps:((s.customTraps||0)+2)%3}),set({customTraps:((s.customTraps||0)+1)%3})):''}</div>`;}
 // שורת "החפיסה שלי" בהגדרות + עריכת החפיסה (המילים נשמרות בטלפון של מנהל/ת החדר)
 function vMyRow(S,host,lock){const m=S.settings.myDeck||0;const L=['כבויות','מעורבבות','רק שלנו'];const n=myDeckLoad().length;const room=(S.myDeck||[]).length;
   const go=v=>lock?`needPremium('settings')`:`setMyDeck(${v})`;const ppl=new Set((S.myDeck||[]).map(x=>x.by).filter(Boolean)).size;
@@ -1811,12 +1817,19 @@ function vThemes(S){const cur=themeOf(S);const D={'--bg':'#2B3BFF','--yellow':'#
 function vColorRow(S,host,lock){const L=teamsOf(S);const used=L.map(t=>S.settings['c'+t]);
   const nx=t=>{const cur=S.settings['c'+t];for(let k=1;k<=TPAL.length;k++){const v=(cur+k)%TPAL.length;if(!used.includes(v))return v;}return cur;};
   return `<div class="r"><span class="small muted">צבעי קבוצות</span><div class="row" style="gap:8px">${L.map(t=>`<button class="tdot ${t}" aria-label="${TEAM_NAME[t]}" ${host||lock?`onclick="${lock?`needPremium('settings')`:`act({type:'settings',settings:{c${t}:${nx(t)}}})`}"`:'disabled'}>${TEAM_NAME_BASE[t].slice(-2)}</button>`).join('')}</div></div>`;}
-function vPackRow(S,host,lock){return `<div class="r"><span class="small muted">חבילות מילים</span><button class="mini packbtn" onclick="${lock?`needPremium('settings')`:host?'A.packOpen=true;render()':''}" ${host||lock?'':'disabled'}>${h(packSummary(S))}</button></div>`;}
+function vPackRow(S,host,lock){const my=S.settings.myDeck;const sum=my===2?'רק המילים שלנו':packSummary(S)+(my?' + שלנו':'');return `<div class="r"><span class="small muted">חבילות מילים</span><button class="mini packbtn" onclick="${lock?`needPremium('settings')`:'A.packOpen=true;render()'}">${h(sum)}</button></div>`;}
 function packToggle(bit){const S=A.S;if(!S||!A.isHost)return;let m=packMask(S)^(1<<bit);if(!(m&((2<<PACKS.length)-1)))m=1;act({type:'settings',settings:{packs:m}});}
 function vPacks(S){const m=packMask(S);const host=A.isHost;const chip=(bit,name,n,sub)=>`<button class="pkchip${m&(1<<bit)?' on':''}" ${host?`onclick="packToggle(${bit})"`:'disabled'}><b>${name}</b><span>${sub}</span>${m&(1<<bit)?ic('check',18):''}</button>`;
   return `<div class="sheet-bg top" onclick="A.packOpen=false;render()"><div class="sheet pop deck" onclick="event.stopPropagation()"><div class="row between"><div class="black" style="font-size:22px">חבילות מילים</div><button class="btn ghost" onclick="A.packOpen=false;render()">סיום</button></div>
     <div class="small muted">בחרו כמה שרוצים. המילים מכל החבילות שבחרתם מתערבבות.</div>
-    <div class="pkgrid">${chip(0,'בסיסית','',CARD_IDS.length+' מילים')}${PACKS.map((p,i)=>chip(i+1,p[1],'',p[2]+' מילים')).join('')}</div></div></div>`;}
+    <div class="pkgrid">${chip(0,'בסיסית','',CARD_IDS.length+' מילים')}${PACKS.map((p,i)=>chip(i+1,p[1],'',p[2]+' מילים')).join('')}</div>
+    ${vOurWords(S)}</div></div>`;}
+// "המילים שלנו": כל שחקן כותב מילים בטלפון שלו; מנהל החדר מדליק. מילה לא מגיעה לקבוצה של מי שכתב אותה
+function vOurWords(S){const host=A.isHost;const my=S.settings.myDeck||0;const n=myDeckLoad().length;const room=(S.myDeck||[]).length;const ppl=new Set((S.myDeck||[]).map(x=>x.by).filter(Boolean)).size;
+  return `<div class="ourw${my?' on':''}"><div class="row between" style="gap:10px"><div class="col" style="gap:2px;min-width:0"><b>המילים שלנו</b><span class="xs muted">כל אחד כותב מילים בטלפון שלו. מילה שלכם לא תגיע לקבוצה שלכם.</span></div>
+      ${host?`<label class="pswitch"><input type="checkbox" ${my?'checked':''} onchange="setMyDeck(this.checked?1:0)"><span></span></label>`:`<span class="xs bold">${my?'פעיל':'כבוי'}</span>`}</div>
+    ${my&&host?`<label class="ouronly"><input type="checkbox" ${my===2?'checked':''} onchange="setMyDeck(this.checked?2:1)"> רק המילים שלנו (בלי החבילות)</label>`:''}
+    <div class="row between" style="gap:8px"><button class="btn info" style="width:auto;padding:8px 14px" onclick="openDeck()">${ic('chat',18)} המילים שלי${n?` (${n})`:''}</button>${my&&room?`<span class="xs muted">בחדר: ${room} מילים${ppl>1?` מ-${ppl} שחקנים`:''}</span>`:''}</div></div>`;}
 function setMyDeck(v){const S=A.S;if(!S)return;if(!premiumOn(S))return needPremium('settings');if(v&&!myDeckLoad().length&&!(S.myDeck||[]).length){toast('קודם הוסיפו מילים לחפיסה');openDeck();}act({type:'settings',settings:{myDeck:v}});}
 function openDeck(){A.deckEdit=true;A.deckPaste=false;render();}
 // אייפון: אחרי שהמקלדת נסגרת הדף נשאר גלול והמסך נראה תקוע — מחזירים למעלה
