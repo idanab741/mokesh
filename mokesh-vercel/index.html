@@ -557,6 +557,11 @@ html.kb .msg .b{padding:6px 12px;font-size:16px}html.kb .msg.clue.cur .b{font-si
 .settings .r button.mylnk,.mylnk{width:auto;height:auto;box-shadow:none;border-radius:0;background:none;border:0;padding:0 2px;font:inherit;font-size:13px;font-weight:800;color:var(--ink);text-decoration:underline;cursor:pointer}
 .sheet-bg.top{align-items:flex-start;padding-top:max(12px,env(safe-area-inset-top))}.deck{max-height:calc(100vh - 24px);max-height:calc(100dvh - 24px);overflow-y:auto;-webkit-overflow-scrolling:touch;overscroll-behavior:contain}.deck .muted{color:var(--soft)}.mycol{display:flex;flex-direction:column;align-items:flex-start;gap:2px}.dkform{display:flex;flex-direction:column;gap:8px}.dkm{display:grid;grid-template-columns:repeat(3,1fr);gap:6px}.dkm .input{font-size:15px;padding:9px 10px}
 .pkgrid{display:grid;grid-template-columns:1fr 1fr;gap:8px}.pkchip{position:relative;display:flex;flex-direction:column;align-items:flex-start;gap:2px;text-align:right;padding:10px 12px;border:2.5px solid var(--ink);border-radius:14px;background:#fff;color:var(--ink);font:inherit;cursor:pointer}
+.flist{display:flex;flex-direction:column;gap:8px}.fold{display:flex;align-items:center;gap:8px;background:#fff;border:2.5px solid var(--ink);border-radius:16px;padding:8px 10px}.fold.on{background:var(--yellow)}
+.fopen{flex:1;display:flex;align-items:center;gap:10px;background:none;border:0;padding:0;text-align:right;color:var(--ink);font:inherit;min-width:0;cursor:pointer}.fopen b{font-size:17px}.fopen .muted{color:var(--soft)}
+.fic{flex:none;width:38px;height:38px;border-radius:12px;border:2.5px solid var(--ink);background:var(--paper);display:grid;place-items:center}
+.fsw{position:relative;flex:none;width:52px;height:30px}.fsw input{position:absolute;opacity:0;inset:0;margin:0;cursor:pointer;z-index:1}.fsw span{position:absolute;inset:0;border-radius:99px;background:#CFCBE3;border:2.5px solid var(--ink)}
+.fsw span::after{content:"";position:absolute;top:2px;right:2px;width:21px;height:21px;border-radius:50%;background:#fff;border:2px solid var(--ink);transition:transform .15s}.fsw input:checked+span{background:var(--green)}.fsw input:checked+span::after{transform:translateX(-22px)}
 .ourw{display:flex;flex-direction:column;gap:10px;border:2.5px dashed var(--ink);border-radius:16px;padding:12px;background:#fff}.ourw.on{border-style:solid;background:var(--yellow)}.ourw .muted{color:var(--soft)}
 .ouronly{display:flex;align-items:center;gap:8px;font-weight:700;font-size:14px}.ouronly input{width:20px;height:20px;accent-color:var(--ink)}
 .tjoin.tbot{display:flex;align-items:center;justify-content:center;gap:6px}
@@ -787,8 +792,16 @@ const CARD_IDS=[...CARDS.keys()];
 const MY_BASE=1000,MY_MAX=150,ROOM_MY_MAX=600;
 const myTxt=x=>String(x||'').replace(/\s+/g,' ').trim().slice(0,30);
 function myDeckClean(d,max){return (Array.isArray(d)?d:[]).slice(0,max||MY_MAX).map(x=>{const r={w:myTxt(x&&x.w),o:(Array.isArray(x&&x.o)?x.o:[]).map(myTxt).filter(Boolean).slice(0,9)};if(x&&okId(x.by))r.by=x.by;return r;}).filter(x=>x.w);}
-function myDeckLoad(){try{return myDeckClean(JSON.parse(localStorage.getItem('mokesh.mydeck')||'[]'));}catch(e){return [];}}
-function myDeckSave(d){try{localStorage.setItem('mokesh.mydeck',JSON.stringify(myDeckClean(d)));}catch(e){}}
+// תיקיות מילים אישיות (בהגדרות המשתמש): "המשפחה", "החברים"... כל תיקייה עם מילים משלה. on = נכנסת למשחק כשהמילים שלנו פעילות בחדר
+const FOLDER_MAX=20;
+function foldersLoad(){try{let f=JSON.parse(localStorage.getItem('mokesh.folders')||'null');
+    if(!Array.isArray(f)){const old=JSON.parse(localStorage.getItem('mokesh.mydeck')||'[]');f=Array.isArray(old)&&old.length?[{id:uid(6),n:'המילים שלי',w:old,on:1}]:[];}
+    return f.slice(0,FOLDER_MAX).map(x=>({id:String((x&&x.id)||uid(6)).replace(/[^A-Za-z0-9]/g,'').slice(0,8)||uid(6),n:myTxt(x&&x.n)||'תיקייה',w:myDeckClean(x&&x.w),on:x&&x.on?1:0}));}catch(e){return [];}}
+function foldersSave(f){try{localStorage.setItem('mokesh.folders',JSON.stringify(f));}catch(e){}}
+// המילים שנשלחות לחדר: כל התיקיות המסומנות, בלי כפילויות
+function myDeckLoad(){const out=[];for(const f of foldersLoad())if(f.on)for(const x of f.w)if(!out.some(y=>normalize(y.w)===normalize(x.w)))out.push(x);return out.slice(0,300);}
+const curFolder=()=>foldersLoad().find(f=>f.id===A.deckEdit);
+function folderUpd(fn){const all=foldersLoad();const f=all.find(x=>x.id===A.deckEdit);if(!f)return;fn(f,all);foldersSave(all);}
 function myDeckSync(S){for(const k of [...CARDS.keys()])if(k.startsWith('my'))CARDS.delete(k);
   ((S&&S.myDeck)||[]).forEach((x,i)=>{const o=[];for(const w of x.o)if(normalize(w)!==normalize(x.w)&&!o.some(y=>normalize(y)===normalize(w)))o.push(w);CARDS.set('my'+i,{id:'my'+i,my:1,by:x.by,target:x.w,category:'החפיסה שלי',difficulty:0,options:o,aliases:[],clues:[],keys:[]});});}
 function myOn(S){return !!(S&&S.settings&&S.settings.myDeck&&S.mode!=='ai'&&!S.vsBots&&!S.public&&S.myDeck&&S.myDeck.length);}
@@ -1700,7 +1713,7 @@ function vHome(){const c=A.chosen;const m=A.homeMode;if(m==='how'||m==='intro'){
       <button class="btn primary big" onclick="createLocal()">התחל</button><button class="btn ghost" onclick="A.homeMode='menu';render()">חזרה</button></div>`;
   else if(m==='ai')body=`<div class="card col" style="gap:10px"><div class="bold row">${ic('robot',22)} מול המחשב</div><p class="small muted" style="margin:0;line-height:1.5">אתם (עם שותף-מחשב אם אתם לבד) נגד קבוצת מחשב. כשאתם מסבירים — מקלידים רמזים והשותף מנחש. כשהמחשב מסביר — אתם מנחשים. וכשהמחשב בתור — אתם טומנים לו מוקשים. המחשב לא רואה את התשובה כשהוא מנחש.</p>
       <button class="btn primary big" onclick="createAI()">התחל</button><button class="btn ghost" onclick="A.homeMode='menu';render()">חזרה</button></div>`;
-  else if(m==='settings')body=`<div class="card col"><div class="bold row">${ic('gear',22)} הגדרות</div><p class="small muted" style="margin:0;line-height:1.5">הגדרות המשחק (תורים, זמן, קושי) נקבעות בחדר המשחק על ידי מנהל החדר. הכינוי והאווטאר שלך נשמרים במכשיר.</p>${vThemeHome()}<p class="xs isub" style="margin:0">גרסה: ${h(A.ver||'')}</p><button class="btn ghost" onclick="A.homeMode='menu';render()">חזרה</button></div>`;
+  else if(m==='settings')body=`<div class="card col"><div class="bold row">${ic('gear',22)} הגדרות</div><p class="small muted" style="margin:0;line-height:1.5">הגדרות המשחק (תורים, זמן, קושי) נקבעות בחדר המשחק על ידי מנהל החדר. הכינוי והאווטאר שלך נשמרים במכשיר.</p>${vThemeHome()}<div class="col" style="gap:6px"><span class="bold">התיקיות שלי${premiumOn(null)?'':` <i class="plock">${ic('crown',14)} פרימיום</i>`}</span><button class="btn info" onclick="openDeck()">${ic('book',20)} ${(()=>{const f=foldersLoad();return f.length?f.length+' תיקיות · '+f.reduce((a,x)=>a+x.w.length,0)+' מילים':'יצירת תיקיית מילים';})()}</button></div><p class="xs isub" style="margin:0">גרסה: ${h(A.ver||'')}</p><button class="btn ghost" onclick="A.homeMode='menu';render()">חזרה</button></div>`;
   else body=`<div class="card col small" style="line-height:1.6">
       <p style="margin:0"><b class="tA">שתי קבוצות.</b> בכל תור קבוצה אחת מסבירה ומנחשת, והשנייה טומנת מוקשים.</p>
       <p style="margin:0"><b style="color:var(--danger)">היריבים</b> רואים את מילת היעד ובוחרים 3 מילים דומות שיהפכו למוקשים — 25 שניות.</p>
@@ -1803,7 +1816,7 @@ function vMyRow(S,host,lock){const m=S.settings.myDeck||0;const L=['כבויות
   const go=v=>lock?`needPremium('settings')`:`setMyDeck(${v})`;const ppl=new Set((S.myDeck||[]).map(x=>x.by).filter(Boolean)).size;
   return `<div class="r"><span class="small muted mycol">החפיסות האישיות<button class="mylnk" onclick="${lock?`needPremium('settings')`:'openDeck()'}">שלי: ${n?(n===1?'מילה אחת':n+' מילים')+' · ':''}עריכה</button>${m&&room?`<span class="xs">בחדר: ${room} מילים${ppl>1?` מ-${ppl} שחקנים`:''}</span>`:''}</span><div class="row">${host?`<button onclick="${go((m+2)%3)}">−</button>`:''}<span class="v">${L[m]}</span>${host?`<button onclick="${go((m+1)%3)}">+</button>`:''}</div></div>`;}
 // כשהחפיסות פעילות בחדר: כל טלפון שולח את החפיסה שלו (שוב בכל שינוי)
-function deckAutoPush(S){if(A.deckEdit||!S||S.phase!=='LOBBY'||S.mode==='ai'||S.vsBots||S.public||!S.settings||!S.settings.myDeck)return;const d=myDeckLoad();const key=S.code+'|'+myId()+'|'+JSON.stringify(d);
+function deckAutoPush(S){if(A.deckEdit||!S||S.phase!=='LOBBY'||S.mode==='ai'||S.vsBots||S.public||!S.settings||!S.settings.myDeck)return;const d=myDeckClean(myDeckLoad(),300);const key=S.code+'|'+myId()+'|'+JSON.stringify(d);
   if(A.deckKey===key||(!d.length&&!A.deckKey))return;A.deckKey=key;setTimeout(()=>act({type:'mydeck',deck:d}),0);}
 function packSummary(S){const pk=packsOf(S);const names=[...(classicOn(S)&&packMask(S)&1?['בסיסית']:[]),...pk.map(k=>PACKS.find(p=>p[0]===k)[1])];return names.length>2?names[0]+' + '+(names.length-1):names.join(' + ');}
 function vThemeHome(){const cur=themeOf(null);const lock=!premiumOn(null);const D={'--bg':'#2B3BFF','--yellow':'#FFD23F','--pink':'#FF4FA3','--cyan':'#19D3FF','--trap-bg':'#FF3B30'};const sw=v=>Object.keys(D).map(k=>`<i style="background:${v[k]||D[k]}"></i>`).join('');
@@ -1829,28 +1842,42 @@ function vOurWords(S){const host=A.isHost;const my=S.settings.myDeck||0;const n=
   return `<div class="ourw${my?' on':''}"><div class="row between" style="gap:10px"><div class="col" style="gap:2px;min-width:0"><b>המילים שלנו</b><span class="xs muted">כל אחד כותב מילים בטלפון שלו. מילה שלכם לא תגיע לקבוצה שלכם.</span></div>
       ${host?`<label class="pswitch"><input type="checkbox" ${my?'checked':''} onchange="setMyDeck(this.checked?1:0)"><span></span></label>`:`<span class="xs bold">${my?'פעיל':'כבוי'}</span>`}</div>
     ${my&&host?`<label class="ouronly"><input type="checkbox" ${my===2?'checked':''} onchange="setMyDeck(this.checked?2:1)"> רק המילים שלנו (בלי החבילות)</label>`:''}
-    <div class="row between" style="gap:8px"><button class="btn info" style="width:auto;padding:8px 14px" onclick="openDeck()">${ic('chat',18)} המילים שלי${n?` (${n})`:''}</button>${my&&room?`<span class="xs muted">בחדר: ${room} מילים${ppl>1?` מ-${ppl} שחקנים`:''}</span>`:''}</div></div>`;}
+    <div class="row between" style="gap:8px"><button class="btn info" style="width:auto;padding:8px 14px" onclick="openDeck()">${ic('book',18)} התיקיות שלי${n?` (${n})`:''}</button>${my&&room?`<span class="xs muted">בחדר: ${room} מילים${ppl>1?` מ-${ppl} שחקנים`:''}</span>`:''}</div></div>`;}
 function setMyDeck(v){const S=A.S;if(!S)return;if(!premiumOn(S))return needPremium('settings');if(v&&!myDeckLoad().length&&!(S.myDeck||[]).length){toast('קודם הוסיפו מילים לחפיסה');openDeck();}act({type:'settings',settings:{myDeck:v}});}
-function openDeck(){A.deckEdit=true;A.deckPaste=false;render();}
+function openDeck(){if(!premiumOn(A.S))return needPremium('folders');A.deckEdit='list';A.deckPaste=false;render();}
+function folderNew(){const all=foldersLoad();if(all.length>=FOLDER_MAX)return toast('אפשר עד '+FOLDER_MAX+' תיקיות');const n=myTxt(prompt('שם התיקייה (למשל: המשפחה, החברים)')||'');if(!n)return;
+  const f={id:uid(6),n,w:[],on:1};all.push(f);foldersSave(all);A.deckEdit=f.id;A.deckPaste=false;render();}
+function folderToggle(id){const all=foldersLoad();const f=all.find(x=>x.id===id);if(f){f.on=f.on?0:1;foldersSave(all);}render();}
+function folderRename(){const f=curFolder();if(!f)return;const n=myTxt(prompt('שם חדש לתיקייה',f.n)||'');if(!n)return;folderUpd(x=>{x.n=n;});render();}
+function folderDelete(){const f=curFolder();if(!f||!confirm(`למחוק את התיקייה "${f.n}" עם ${f.w.length} מילים?`))return;foldersSave(foldersLoad().filter(x=>x.id!==f.id));A.deckEdit='list';render();}
 // אייפון: אחרי שהמקלדת נסגרת הדף נשאר גלול והמסך נראה תקוע — מחזירים למעלה
 document.addEventListener('focusout',e=>{if(e.target&&e.target.closest&&e.target.closest('.deck'))setTimeout(()=>{const a=document.activeElement;if(!a||!a.closest||!a.closest('.deck'))window.scrollTo(0,0);},120);});
 function closeDeck(){A.deckEdit=false;render();}
-function deckPut(list){const d=myDeckLoad();let added=0;for(const x of list){const w=myTxt(x.w);if(!w)continue;if(d.length>=MY_MAX){toast('אפשר עד '+MY_MAX+' מילים');break;}
-    if(d.some(y=>normalize(y.w)===normalize(w)))continue;d.push({w,o:(x.o||[]).map(myTxt).filter(o=>o&&normalize(o)!==normalize(w))});added++;}myDeckSave(d);return added;}
+function deckBack(){A.deckEdit=A.deckEdit==='list'?false:'list';A.deckPaste=false;render();}
+function deckPut(list){const f=curFolder();if(!f)return 0;const d=f.w;let added=0;for(const x of list){const w=myTxt(x.w);if(!w)continue;if(d.length>=MY_MAX){toast('אפשר עד '+MY_MAX+' מילים');break;}
+    if(d.some(y=>normalize(y.w)===normalize(w)))continue;d.push({w,o:(x.o||[]).map(myTxt).filter(o=>o&&normalize(o)!==normalize(w))});added++;}folderUpd(x=>{x.w=d;});return added;}
 function deckAdd(e){e.preventDefault();const f=e.target;const w=myTxt(f.dw.value);if(!w){f.dw.focus();return;}
-  if(myDeckLoad().some(y=>normalize(y.w)===normalize(w))){toast('המילה כבר בחפיסה');return;}
+  if((curFolder()||{w:[]}).w.some(y=>normalize(y.w)===normalize(w))){toast('המילה כבר בתיקייה');return;}
   deckPut([{w,o:[f.m1.value,f.m2.value,f.m3.value]}]);haptic&&haptic(15);f.reset();render();}
 // הדבקת רשימה: שורה לכל מילה. מוקשים אחרי נקודתיים, מופרדים בפסיקים
 function deckPasteGo(){const t=document.querySelector('.deck textarea');if(!t)return;const list=t.value.split(/\n+/).map(l=>{const [w,r]=l.split(/:\s*(.*)/s);return {w,o:(r||'').split(/[,،]/)};});
   const n=deckPut(list);toast(n?`נוספו ${n} מילים`:'לא נוספו מילים חדשות');A.deckPaste=false;render();}
-function deckDel(i){const d=myDeckLoad();d.splice(i,1);myDeckSave(d);render();}
-function vDeck(){const d=myDeckLoad();
+function deckDel(i){folderUpd(f=>{f.w.splice(i,1);});render();}
+function vFolders(){const all=foldersLoad();const inRoom=A.S&&A.S.phase==='LOBBY'&&A.S.mode!=='ai';
+  const row=f=>`<div class="fold${f.on?' on':''}"><button class="fopen" onclick="A.deckEdit='${f.id}';render()"><span class="fic">${ic('book',20)}</span><span class="col" style="gap:1px;min-width:0"><b>${h(f.n)}</b><span class="xs muted">${f.w.length===1?'מילה אחת':f.w.length+' מילים'}</span></span></button>
+    <label class="fsw" title="נכנסת למשחק"><input type="checkbox" ${f.on?'checked':''} onchange="folderToggle('${f.id}')"><span></span></label></div>`;
+  return `<div class="sheet-bg top" onclick="closeDeck()"><div class="sheet pop deck" onclick="event.stopPropagation()">
+    <div class="row between"><div class="black" style="font-size:22px">התיקיות שלי</div><button class="btn ghost" onclick="closeDeck()">סיום</button></div>
+    <div class="small muted">מכינים תיקיות של מילים משלכם, למשל "המשפחה" או "החברים". ${inRoom?'התיקיות המסומנות נכנסות למשחק כשמנהל החדר מדליק את "המילים שלנו".':'בחדר, מנהל החדר מדליק את "המילים שלנו" והתיקיות המסומנות נכנסות למשחק.'} <b>מילה שלכם לא תגיע לקבוצה שלכם לניחוש.</b></div>
+    ${all.length?`<div class="flist">${all.map(row).join('')}</div>`:`<div class="tc small muted" style="padding:10px 0">עוד אין תיקיות</div>`}
+    <button class="btn primary" onclick="folderNew()">+ תיקייה חדשה</button></div></div>`;}
+function vDeck(){if(A.deckEdit==='list')return vFolders();const fo=curFolder();if(!fo){A.deckEdit='list';return vFolders();}const d=fo.w;
   const list=d.map((x,i)=>({x,i})).reverse().map(({x,i})=>`<div class="dk"><div><b>${h(x.w)}</b>${x.o.length?`<span class="xs muted">${x.o.map(h).join(' · ')}</span>`:''}</div><button class="dkx" aria-label="מחיקה" onclick="deckDel(${i})">×</button></div>`).join('');
   return `<div class="sheet-bg top" onclick="closeDeck()"><div class="sheet pop deck" onclick="event.stopPropagation()">
-    <div class="row between"><div class="black" style="font-size:22px">החפיסה שלי <span class="xs muted">${d.length}/${MY_MAX}</span></div><button class="btn ghost" onclick="closeDeck()">סיום</button></div>
-    <div class="small muted">מילים משלכם: שמות של חברים, בדיחות פנימיות, מקומות. המוקשים לא חובה. <b>המילים שלכם לא יגיעו לקבוצה שלכם לניחוש</b> — רק ליריבים, או כשאתם מסבירים.</div>
+    <div class="row between"><button class="btn ghost" style="width:auto;padding:6px 8px" onclick="deckBack()">‹ התיקיות</button><button class="btn ghost" onclick="closeDeck()">סיום</button></div>
+    <div class="row between" style="gap:8px"><div class="black" style="font-size:24px;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${h(fo.n)} <span class="xs muted">${d.length}/${MY_MAX}</span></div><div class="row" style="gap:6px"><button class="mylnk" onclick="folderRename()">שינוי שם</button><button class="mylnk" style="color:#C81E14" onclick="folderDelete()">מחיקה</button></div></div>
     ${A.deckPaste?`<textarea class="input" rows="6" placeholder="מילה בכל שורה. אפשר להוסיף מוקשים:&#10;פלאפל: חומוס, פיתה, טחינה&#10;סבתא רחל"></textarea><div class="row"><button class="btn primary" style="flex:1" onclick="deckPasteGo()">הוספה</button><button class="btn ghost" onclick="A.deckPaste=false;render()">ביטול</button></div>`
-    :`<form class="dkform" onsubmit="deckAdd(event)"><input class="input" name="dw" maxlength="30" placeholder="המילה" autocomplete="off"><div class="dkm"><input class="input" name="m1" maxlength="30" placeholder="מוקש" autocomplete="off"><input class="input" name="m2" maxlength="30" placeholder="מוקש" autocomplete="off"><input class="input" name="m3" maxlength="30" placeholder="מוקש" autocomplete="off"></div><button class="btn primary">הוספה לחפיסה</button></form>
+    :`<form class="dkform" onsubmit="deckAdd(event)"><input class="input" name="dw" maxlength="30" placeholder="המילה" autocomplete="off"><div class="dkm"><input class="input" name="m1" maxlength="30" placeholder="מוקש" autocomplete="off"><input class="input" name="m2" maxlength="30" placeholder="מוקש" autocomplete="off"><input class="input" name="m3" maxlength="30" placeholder="מוקש" autocomplete="off"></div><button class="btn primary">הוספה לתיקייה</button></form>
     <button class="mylnk" style="align-self:center" onclick="A.deckPaste=true;render()">הדבקת רשימה שלמה</button>`}
     ${d.length?`<div class="dklist">${list}</div>`:''}</div></div>`;}
 function vRing(S,live){return `<div class="bombclock"><img src="${TA('bomb')}" alt=""><div class="t">${live?'–':fmt(S.turnRemainingMs)}</div></div>`;}
