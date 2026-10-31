@@ -79,6 +79,10 @@ input{width:100%;height:54px;border-radius:16px;border:var(--o);padding:0 16px;f
 .sheet .in{background:var(--paper);width:100%;border-radius:24px 24px 0 0;border:var(--o);padding:20px 18px calc(env(safe-area-inset-bottom,0px) + 22px)}
 .sheet ol{padding-inline-start:22px;line-height:1.9;font-weight:700;margin:10px 0 14px}
 table{width:100%;border-collapse:collapse;font-size:13px}td,th{padding:4px 6px;border-bottom:1px solid rgba(21,16,43,.12);text-align:right}th{color:var(--soft)}
+.usearch{width:100%;height:42px;border:var(--o);border-radius:12px;padding:0 12px;font:inherit;font-size:15px;margin-bottom:10px;background:#fff;color:var(--ink)}
+.ulist{display:flex;flex-direction:column;gap:8px;max-height:520px;overflow:auto}.urow{border:2px solid rgba(21,16,43,.15);border-radius:14px;padding:9px 11px;background:#fff}
+.uh{display:flex;align-items:center;gap:8px}.uh b{font-size:16px}.ulast{margin-right:auto;font-size:12px;opacity:.65}.ubadge{background:#FFD23F;border:2px solid #15102B;border-radius:999px;padding:0 8px;font-size:11px;font-weight:800}
+.um{text-align:right;font:13px ui-monospace,monospace;opacity:.8;margin:2px 0 5px;word-break:break-all}.us{display:flex;flex-wrap:wrap;gap:6px}.us span{background:rgba(21,16,43,.06);border-radius:999px;padding:2px 9px;font-size:12px;font-weight:700}
 .devt td,.devt th{padding:7px 6px}.devt td b{font-size:14px}
 .kpi .s b{color:var(--ink)}
 .sub2{font:800 14px Rubik;color:var(--soft);margin:12px 0 6px}
@@ -110,7 +114,7 @@ const DEV=[['iphone','אייפון'],['android','אנדרואיד'],['desktop','
 async function load(){if(!ST.key)return;ST.busy=true;render();
   try{const {data,error}=await sb.rpc('mokesh_stats',{p_key:ST.key});if(error)throw error;
     if(data&&data.error==='key'){ST.key=null;ST.data=null;try{localStorage.removeItem('mokesh.adminKey');}catch(e){}ST.err='סיסמה שגויה';}
-    else{ST.data=data;ST.err='';try{const r2=await sb.rpc('mokesh_stats2',{p_key:ST.key});ST.d2=r2.data&&!r2.data.error?r2.data:null;}catch(e){ST.d2=null;}await premAct(null,false,null,true);}}
+    else{ST.data=data;ST.err='';try{const r2=await sb.rpc('mokesh_stats2',{p_key:ST.key});ST.d2=r2.data&&!r2.data.error?r2.data:null;}catch(e){ST.d2=null;}await premAct(null,false,null,true);try{const r3=await sb.rpc('mokesh_users_admin',{p_key:ST.key});ST.users=r3.data&&!r3.data.error?r3.data:null;}catch(e){ST.users=null;}}}
   catch(e){ST.err=/mokesh_stats|function/i.test(e.message||'')?'עוד לא הורץ קובץ admin.sql ב-Supabase':'בעיית חיבור. נסו שוב';}
   ST.busy=false;render();}
 function login(f){const k=f.k.value.trim();if(!k)return;ST.key=k;try{localStorage.setItem('mokesh.adminKey',k);}catch(e){}load();}
@@ -159,6 +163,17 @@ function vMore(d){if(!d)return '';const f=d.funnel||{};const steps=[['מכשיר
   const er=(d.errors||[]);const errs=er.length?`<table class="devt"><tr><th>תקלה</th><th>פעמים</th><th>מכשירים</th><th>לאחרונה</th></tr>${er.map(x=>`<tr><td style="direction:ltr;text-align:left;font:12px ui-monospace,monospace;word-break:break-word">${h(x.m)}<div class="muted">${h(x.s||'')} ${h(x.v||'')}</div></td><td>${nf(x.c)}</td><td>${nf(x.u)}</td><td>${new Date(x.last).toLocaleString('he-IL',{day:'numeric',month:'numeric',hour:'2-digit',minute:'2-digit'})}</td></tr>`).join('')}</table>`:'<div class="empty">אין תקלות ב-14 הימים האחרונים</div>';
   const card=(t,sub,body)=>`<div class="card"><h2>${t}<small>${sub}</small></h2>${body}</div>`;
   return card('מכניסה ועד סוף משחק','30 ימים',funnel)+card('שעות שיא','30 ימים · שעון ישראל',peak)+card('כמה חוזרים','מכשירים חדשים',ret)+card('מילים','30 ימים',words)+card('משחק מהיר','30 ימים',qm)+card('איך משחקים','30 ימים · '+nf(g)+' משחקים',sets)+card('תקלות','14 ימים',errs);}
+// משתמשים רשומים: שם, מייל, איך נכנסו, מתי נרשמו, מתי היו לאחרונה, משחקים וכניסות
+function vUsers(){const U=ST.users;if(!U)return '';const q=(ST.uq||'').trim().toLowerCase();
+  const ago=t=>{if(!t)return '—';const m=Math.round((Date.now()-Date.parse(t))/60000);return m<2?'עכשיו':m<60?`לפני ${m} דק׳`:m<1440?`לפני ${Math.round(m/60)} שע׳`:m<43200?`לפני ${Math.round(m/1440)} ימים`:new Date(t).toLocaleDateString('he-IL')};
+  const prov=p=>String(p||'').split(',').map(x=>x==='google'?'גוגל':x==='email'?'מייל':x==='apple'?'Apple':x).join(' + ');
+  const list=(U.users||[]).filter(u=>!q||String(u.email||'').toLowerCase().includes(q)||String(u.name||'').toLowerCase().includes(q));
+  return `<div class="card"><h2>משתמשים רשומים<small>${nf(U.total)} סה״כ</small></h2>
+    <div class="kpis" style="margin:0 0 12px"><div class="kpi hi"><div class="l">רשומים</div><div class="v">${nf(U.total)}</div><div class="s">גוגל: ${nf(U.google)} · מייל: ${nf(U.email)}</div></div><div class="kpi"><div class="l">חדשים השבוע</div><div class="v">${nf(U.new7)}</div></div><div class="kpi"><div class="l">פעילים השבוע</div><div class="v">${nf(U.active7)}</div></div></div>
+    <input class="usearch" placeholder="חיפוש לפי שם או מייל" value="${h(ST.uq||'')}" oninput="ST.uq=this.value;const c=this.selectionStart;render();const i=document.querySelector('.usearch');if(i){i.focus();i.setSelectionRange(c,c);}">
+    ${list.length?`<div class="ulist">${list.map(u=>`<div class="urow"><div class="uh"><b>${h(u.name||'—')}</b>${u.premium?'<span class="ubadge">פרימיום</span>':''}<span class="ulast">${ago(u.last)}</span></div>
+      <div class="um" dir="ltr">${h(u.email||'')}</div>
+      <div class="us"><span>${prov(u.provider)}</span><span>נרשם/ה ${new Date(u.created).toLocaleDateString('he-IL')}</span><span>${nf(u.games)} משחקים · ${nf(u.wins)} ניצחונות</span><span>${nf(u.visits)} כניסות</span></div></div>`).join('')}</div>`:'<div class="empty">אין משתמשים</div>'}</div>`;}
 // פרימיום: הפעלה ידנית לפי קוד מכשיר (עד שיחובר תשלום), וכמה רוצים לקנות
 async function premAct(uid,on,note,quiet){try{const {data}=await sb.rpc('mokesh_premium_admin',{p_key:ST.key,p_uid:uid,p_on:on,p_note:note});if(data&&!data.error)ST.prem=data;}catch(e){}if(!quiet)render();}
 function vPrem(){const P=ST.prem;if(!P)return '';
@@ -185,7 +200,7 @@ function vDash(){const d=ST.data;if(!d)return `<div class="card"><div class="emp
   <div class="card"><h2>מכשירים<small>30 ימים</small></h2>${hbars(dev,devT)}</div>
   <div class="card"><h2>קישורים למעקב</h2><p class="muted" style="margin:0 0 10px">כשמפרסמים, משתמשים בקישור של אותו מקום. ככה רואים כאן בדיוק מאיפה הגיעו האנשים.</p><div class="links">
     ${[['פייסבוק','fb'],['וואטסאפ','wa'],['אינסטגרם','ig'],['טיקטוק','tiktok']].map(([n,s])=>`<div class="lk"><b>${n}</b><code>${h(site)}/?s=${s}</code><button class="ib" style="height:34px;min-width:34px;padding:0 8px" onclick="copyLink('${h(site)}/?s=${s}',this)" aria-label="העתק">${ic('copy')}</button></div>`).join('')}</div></div>
-  ${vPrem()}${vMore(ST.d2)}
+  ${vUsers()}${vPrem()}${vMore(ST.d2)}
   <div class="foot">מתעדכן לבד כל 30 שניות · עודכן ${new Date(d.at).toLocaleTimeString('he-IL',{hour:'2-digit',minute:'2-digit'})} · "מכשיר" = טלפון או מחשב אחד, בלי מידע אישי</div>`;}
 
 function vLogin(){return `<div class="login"><img src="/icon-192.png" alt="" style="width:110px;border-radius:26px;border:3px solid var(--ink);box-shadow:0 6px 0 var(--ink)"><h1>מוקש! · ניהול</h1>
