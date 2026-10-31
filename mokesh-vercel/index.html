@@ -922,17 +922,17 @@ const taKey=n=>window.LANG==='en'&&LOC_ASSET.has(n)?n+'_en':n;
 const TA=n=>{const t=THEMES[themeOf(A&&A.S)];const k=taKey(n);return t.a&&t.a[k]?t.a[k]+'?v=8':ASSETS[k]||'';};const themeHas=n=>{const t=THEMES[themeOf(A&&A.S)];return !!(t.a&&t.a[taKey(n)]);};
 // פיצוץ: לתמונה של ערכה אין טקסט — כותבים "בום!" מעליה
 // תמונות אנגלית לערכה הקלאסית (en/logo.webp, en/boom.webp) — נכנסות כאן כשהן מוכנות
-const ASSETS_EN={};
+const ASSETS_EN={logo:'en/logo.webp?v=1',boom:'en/boom.webp?v=1'};
 function logoSrc(){return EN?(ASSETS_EN.logo||''):ASSETS.logo;}
-function logoImg(cls){const s=logoSrc();return s?`<img class="${cls}" src="${s}" alt="">`:`<div class="${cls} tlogo" role="img" aria-label="Mokesh!"><span class="tltxt">${fxText('Mokesh!')}</span></div>`;}
+function logoImg(cls){const s=logoSrc();return s?`<img class="${cls}" src="${s}" alt="">`:`<div class="${cls} tlogo" role="img" aria-label="Blast!"><span class="tltxt">${fxText('Blast!')}</span></div>`;}
 function boomImg(cls){if(EN&&!themeHas('boomt')){if(!themeHas('boom')&&ASSETS_EN.boom)return `<img class="${cls}" src="${ASSETS_EN.boom}" alt="BOOM!">`;return `<span class="boomwrap ${cls}"><img src="${themeHas('boom')?TA('boom'):ASSETS.bomb}" alt=""><span class="boomtxt">${fxText('BOOM!')}</span></span>`;}
   if(themeHas('boomt'))return `<img class="${cls}" src="${TA('boomt')}" alt="בום!">`;return themeHas('boom')?`<span class="boomwrap ${cls}"><img src="${TA('boom')}" alt=""><span class="boomtxt">${fxText('בום!')}</span></span>`:`<img class="${cls}" src="${ASSETS.boom}" alt="בום!">`;}
 // כיתוב מאויר (כמו בלוגו): קו מתאר עבה, עומק תלת-ממדי ומילוי בצבעי הערכה
 const fxText=t=>`<span class="fx" data-t="${t}"><span>${t}</span></span>`;
 // לוגו של ערכה: הפצצה של הערכה + "מוקש!" מאויר (+ כובע אם יש). בלי ערכה — הלוגו המקורי
-function logoHTML(cls){if(themeHas('logo'))return `<img class="${cls} tlimg" src="${TA('logo')}" alt="מוקש!">`;if(EN&&ASSETS_EN.logo)return `<img class="${cls}" src="${ASSETS_EN.logo}" alt="Mokesh!">`;if(!themeHas('bomb')&&!EN)return `<img class="${cls}" src="${ASSETS.logo}" alt="מוקש!">`;
-  if(EN&&!themeHas('bomb'))return `<div class="tlogo ${cls}" role="img" aria-label="Mokesh!"><span class="tltxt">${fxText('Mokesh!')}</span></div>`;
-  return `<div class="tlogo ${cls}" role="img" aria-label="מוקש!"><img class="tlbomb" src="${TA('bomb')}" alt="">${themeHas('hat')?`<img class="tlhat" src="${TA('hat')}" alt="">`:''}<span class="tltxt">${fxText(EN?'Mokesh!':'מוקש!')}</span></div>`;}
+function logoHTML(cls){if(themeHas('logo'))return `<img class="${cls} tlimg" src="${TA('logo')}" alt="מוקש!">`;if(EN&&ASSETS_EN.logo)return `<img class="${cls}" src="${ASSETS_EN.logo}" alt="Blast!">`;if(!themeHas('bomb')&&!EN)return `<img class="${cls}" src="${ASSETS.logo}" alt="מוקש!">`;
+  if(EN&&!themeHas('bomb'))return `<div class="tlogo ${cls}" role="img" aria-label="Blast!"><span class="tltxt">${fxText('Blast!')}</span></div>`;
+  return `<div class="tlogo ${cls}" role="img" aria-label="מוקש!"><img class="tlbomb" src="${TA('bomb')}" alt="">${themeHas('hat')?`<img class="tlhat" src="${TA('hat')}" alt="">`:''}<span class="tltxt">${fxText(EN?'Blast!':'מוקש!')}</span></div>`;}
 function myTheme(){try{const v=+localStorage.getItem('mokesh.theme')||0;return THEMES[v]?v:0;}catch(e){return 0;}}
 // הערכה אישית לכל טלפון: נבחרת בהגדרות שבמסך הבית ונשמרת בטלפון
 function themeOf(S){return premiumOn(S)||A.premium?myTheme():0;}
@@ -1239,6 +1239,7 @@ function trackVisit(){const ua=navigator.userAgent||'';if(navigator.webdriver||/
 function track(kind){if(!sb)return;sb.rpc('mokesh_hit',{p_uid:localStorage.getItem('mokesh.uid')||A.uid,p_kind:kind,p_src:trafficSrc(),p_dev:devKind()}).then(()=>{},()=>{});}
 async function initRuntime(){
   try{if(window.supabase&&SUPABASE_URL.startsWith('http')){sb=window.supabase.createClient(SUPABASE_URL,SUPABASE_ANON,{realtime:{params:{eventsPerSecond:20}}});A.uid=localStorage.getItem('mokesh.uid')||('u'+uid(10));localStorage.setItem('mokesh.uid',A.uid);A.dbReady=true;}}catch(e){console.error(e);}
+  if(EN)packLoad('en');
   if(!A.dbReady)A.dbMissing=true;else{trackVisit();checkPremium();await authInit();}
   // קישור חבר (?f=קוד): מחובר — נוסף מיד; אורח — מתבקש להתחבר קודם
   if(A.pendingFriend){try{const u=new URL(location.href);u.searchParams.delete('f');history.replaceState(null,'',u.pathname+u.search+u.hash);}catch(e){}if(A.user){const c=A.pendingFriend;A.pendingFriend=null;addFriend(c);}else if(A.dbReady&&LOGIN_ON)A.sheet='login';}
@@ -2043,7 +2044,10 @@ function render(){const S=A.S;let html='';applyTeamColors(S);applyTheme(S);if(S&
   app.querySelectorAll('[data-autoscroll]').forEach(el=>{el.scrollTop=el.scrollHeight;});
   app.querySelectorAll('.avrow').forEach(r=>{const on=r.querySelector('.on');if(!on)return;const rr=r.getBoundingClientRect(),o=on.getBoundingClientRect();if(o.left<rr.left||o.right>rr.right)r.scrollLeft+=(o.left+o.width/2)-(rr.left+rr.width/2);});
   if(VOICE.on){const vi=app.querySelector(`input[name="${VOICE.field}"]`);if(!vi||vi.disabled)stopVoice(true);else vi.classList.add('listening');}
-  tickTimers();tourAuto();}
+  tickTimers();tourAuto();if(!S)requestAnimationFrame(fitHome);}
+// מסך הבית בלי גלילה: אם התוכן גבוה מהמסך, מקטינים את אזור הלוגו והשעון עד שהכל נכנס
+function fitHome(){const sc=app.querySelector('.screen.home');if(!sc)return;const hd=sc.querySelector(':scope > header')||sc.children[2];if(!hd)return;hd.style.zoom='';let z=1;for(let i=0;i<4;i++){const over=app.scrollHeight-app.clientHeight;if(over<=1)break;const h=hd.getBoundingClientRect().height;if(!h)break;z=Math.max(.55,z*(h-over-2)/h);hd.style.zoom=z.toFixed(3);if(z<=.55)break;}}
+addEventListener('resize',()=>requestAnimationFrame(fitHome));
 // עדכון ה-DOM במקום החלפה מלאה: שדה הקלדה פעיל נשאר אותו אלמנט, כך שהמקלדת לא נסגרת ולא קופצת בכל עדכון
 function morph(from,to){const tc=[...to.childNodes];
   tc.forEach((t,i)=>{const f=from.childNodes[i];

@@ -3,9 +3,19 @@
 (function(){
   var D=window.I18N_EN_DICT||{},EX=new Map(),PAT=[],HE=/[א-ת]/,cache=new Map();
   function esc(s){return s.replace(/[.*+?^${}()|[\]\\]/g,'\\$&');}
-  Object.keys(D).forEach(function(k){if(k.indexOf('{x}')<0)EX.set(k,D[k]);else PAT.push({re:new RegExp('^\\s*'+k.split('{x}').map(function(x){return esc(x.trim());}).join('\\s*([\\s\\S]*?)\\s*')+'\\s*$'),v:D[k],lit:k.replace(/\{x\}/g,'').length});});
+  function nq(s){return s.replace(/\u05F3/g,"'").replace(/\u05F4/g,'"');}
+  function lit(x){return esc(x).replace(/\s+/g,'\\s+');}
+  Object.keys(D).forEach(function(k0){var k=nq(k0);if(k.indexOf('{x}')<0){EX.set(k,D[k0]);return;}
+    var P=k.split('{x}'),n=P.length,re='^\\s*';
+    for(var i=0;i<n;i++){var p=P[i];
+      if(i>0){var sb=/\s$/.test(P[i-1]),sa=/^\s/.test(p);
+        if(i===1&&P[0].trim()===''){re+='(?:([\\s\\S]*?)'+(sa?'\\s+':'')+')?';}
+        else if(i===n-1&&p.trim()===''){re+='(?:'+(sb?'\\s+':'')+'([\\s\\S]*?))?';}
+        else re+=(sb?'\\s+':'')+'([\\s\\S]+?)'+(sa?'\\s+':'');}
+      re+=lit(p.trim());}
+    re+='\\s*$';try{PAT.push({re:new RegExp(re),v:D[k0],lit:k.replace(/\{x\}/g,'').length});}catch(e){}});
   PAT.sort(function(a,b){return b.lit-a.lit;});
-  function core(t){if(cache.has(t))return cache.get(t);var r=EX.get(t);
+  function core(t){t=nq(t);if(cache.has(t))return cache.get(t);var r=EX.get(t);
     if(r==null){for(var i=0;i<PAT.length;i++){var m=t.match(PAT[i].re);if(m){var j=1;r=PAT[i].v.replace(/\{x\}/g,function(){var g=m[j++]||'';return HE.test(g)?core(g.trim()):g;}).replace(/\s{2,}/g,' ').trim();break;}}}
     if(r==null){var m2=t.match(/^([\s\S]*?)([:.!?…]+)$/);if(m2&&EX.has(m2[1]))r=EX.get(m2[1])+m2[2];}
     if(r==null)r=t;cache.set(t,r);return r;}
