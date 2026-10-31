@@ -1,0 +1,17 @@
+{
+  "appId": "com.mokesh.game",
+  "appName": "מוקש!",
+  "webDir": "www",
+  "server": {
+    "url": "https://mokesh-psi.vercel.app",
+    "errorPath": "index.html",
+    "androidScheme": "https"
+  },
+  "backgroundColor": "#2B3BFF",
+  "android": { "allowMixedContent": false },
+  "ios": { "contentInset": "never", "backgroundColor": "#2B3BFF" },
+  "plugins": {
+    "SplashScreen": { "launchShowDuration": 1200, "launchAutoHide": true, "backgroundColor": "#2B3BFF", "showSpinner": false },
+    "StatusBar": { "style": "DARK", "backgroundColor": "#2B3BFF", "overlaysWebView": false }
+  }
+}

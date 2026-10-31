@@ -1405,7 +1405,7 @@ let audioCtx=null;
 // רטט: באנדרואיד דרך vibrate. באייפון אין vibrate, אבל לחיצה על מתג (input switch, iOS 18+) נותנת נקישה של המנוע — כל "פעימה" בתבנית = נקישה
 let hapEl=null;
 function hapOn(){try{return localStorage.getItem('mokesh.hap')!=='0';}catch(e){return true;}}
-function haptic(pat){if(!hapOn())return;try{const a=Array.isArray(pat)?pat:[pat];if(navigator.vibrate){navigator.vibrate(a);return;}
+function haptic(pat){if(!hapOn())return;try{const a=Array.isArray(pat)?pat:[pat];const HP=NATIVE&&window.Capacitor.Plugins&&Capacitor.Plugins.Haptics;if(HP){let t=0;a.forEach((ms,i)=>{if(i%2===0)setTimeout(()=>HP.vibrate({duration:Math.max(10,ms)}).catch(()=>{}),t);t+=ms;});return;}if(navigator.vibrate){navigator.vibrate(a);return;}
   if(!/iP(hone|ad|od)/.test(navigator.userAgent))return;
   if(!hapEl){hapEl=document.createElement('label');hapEl.setAttribute('aria-hidden','true');hapEl.style.cssText='position:fixed;left:-99px;top:0;opacity:0;pointer-events:none';hapEl.innerHTML='<input type="checkbox" switch tabindex="-1">';document.body.appendChild(hapEl);}
   let t=0;a.forEach((ms,i)=>{if(i%2===0)for(let k=0;k<Math.max(1,Math.round(ms/110));k++)setTimeout(()=>hapEl.click(),t+k*70);t+=ms;});}catch(e){}}
@@ -1429,6 +1429,8 @@ const app=document.getElementById('app');
 function avInner(a){if(isPhoto(a))return `<img src="${a}" alt="">`;if(a&&ASSETS[a])return `<img src="${ASSETS[a]}" alt="">`;if(a&&AV_COLORS[a])return `<span class="cav" style="background:${AV_COLORS[a]}"><img src="${TA('bomb')}" alt=""></span>`;if(a==='🤖'||a==='🧠')return `<span class="cav" style="background:${a==='🧠'?'#A855F7':'#3B82F6'}">${ic('robot',22)}</span>`;return `<span class="cav" style="background:#4C2A9E">${ic('users',20)}</span>`;}
 function av(a,cls='',off=false){const hat=themeHas('hat');return `<span class="av ${cls} ${off?'off':''}${hat?' hatted':''}">${avInner(a)}${hat?`<img class="avhat" src="${TA('hat')}" alt="">`:''}</span>`;}
 // ---------- חשבון: כניסה (Google / מייל / אורח), פרופיל קבוע, חברים, הזמנות וסטטיסטיקות ----------
+// באפליקציה (Capacitor) — גוגל חוסם כניסה מתוך WebView, ולכן שם רק מייל וסיסמה
+const NATIVE=(()=>{try{return !!(window.Capacitor&&Capacitor.isNativePlatform&&Capacitor.isNativePlatform());}catch(e){return false;}})();
 const AUTH={apple:false}; // Apple יופעל אחרי שהמפתחות יוגדרו ב-Supabase
 // ---------- חלון אישור / שאלה בסגנון של המשחק (במקום החלונות של הטלפון) ----------
 function uiAsk(o){return new Promise(res=>{A.dlg=o;A.dlgVal=o.value||'';A.dlgRes=res;render();setTimeout(()=>{const i=document.querySelector('.dlg input');if(i){i.focus();i.select&&i.select();}},80);});}
@@ -1561,7 +1563,8 @@ let udT=null;
 function udPush(now){if(!A.user||!sb||!A.udReady)return;clearTimeout(udT);udT=setTimeout(()=>{sb.from('mokesh_userdata').upsert({id:A.user.id,data:udLocal(),updated_at:new Date().toISOString()}).then(()=>{});},now?0:1200);}
 function vAccount(){if(!sb||!sb.auth)return '';
   if(A.user){const em=A.user.email||'';const g=(A.user.app_metadata||{}).provider==='google';
-    return `<div class="sacc on"><div class="col" style="gap:1px;min-width:0"><b>${ic('check',16)} מחובר/ת${g?' עם Google':''}</b><span class="xs" dir="ltr" style="text-align:right;overflow:hidden;text-overflow:ellipsis">${h(em)}</span></div><button class="btn ghost sgh" style="width:auto;padding:6px 12px" onclick="signOutAsk()">יציאה</button></div>`;}
+    return `<div class="sacc on"><div class="col" style="gap:1px;min-width:0"><b>${ic('check',16)} מחובר/ת${g?' עם Google':''}</b><span class="xs" dir="ltr" style="text-align:right;overflow:hidden;text-overflow:ellipsis">${h(em)}</span></div><button class="btn ghost sgh" style="width:auto;padding:6px 12px" onclick="signOutAsk()">יציאה</button></div>
+    <div class="authlinks" style="justify-content:space-between"><button class="mylnk" style="opacity:.7" onclick="deleteAccountAsk()">מחיקת החשבון</button><a class="mylnk" style="opacity:.7" href="/privacy" target="_blank" rel="noopener">מדיניות פרטיות</a></div>`;}
   return `<div class="sacc"><div class="col" style="gap:2px"><b>אתם משחקים כאורחים</b><span class="xs">פתחו חשבון כדי שהכל יישמר, גם בטלפון אחר</span></div><button class="btn primary" style="width:auto;padding:8px 16px" onclick="A.sheet='login';A.authMode='signup';A.fromSettings=1;render()">פתיחת חשבון</button></div>`;}
 
 const ONLINE_MS=90000;
@@ -1603,6 +1606,11 @@ async function sendEmailCode(){const em=(A.loginEmail||'').trim();if(!/^\S+@\S+\
   try{const {error}=await sb.auth.signInWithOtp({email:em,options:{emailRedirectTo:location.origin+location.pathname+location.search}});if(error)throw error;A.otpSent=true;}catch(e){toast('לא הצלחנו לשלוח מייל: '+(e.message||e));}A.loginBusy=false;render();}
 async function verifyEmailCode(){const t=(A.loginCode||'').replace(/\D/g,'');if(t.length<6)return toast('הקוד צריך להיות 6 ספרות');A.loginBusy=true;render();
   try{const {error}=await sb.auth.verifyOtp({email:(A.loginEmail||'').trim(),token:t,type:'email'});if(error)throw error;toast('נכנסת! 🎉');}catch(e){toast('הקוד לא נכון או שפג תוקפו');}A.loginBusy=false;render();}
+async function deleteAccountAsk(){if(!A.user)return;
+  if(!await uiAsk({title:'למחוק את החשבון?',text:'החשבון יימחק לצמיתות, יחד עם הפרופיל, החבילות האישיות, ההיסטוריה וההישגים. אי אפשר לשחזר.',ok:'מחיקה לצמיתות',danger:1,icon:ic('flame',28)}))return;
+  try{const {error}=await sb.rpc('mokesh_delete_me');if(error)throw error;}catch(e){toast('המחיקה לא הצליחה. נסו שוב');return;}
+  try{UD_KEYS.forEach(k=>localStorage.removeItem(k));localStorage.removeItem('mokesh.mydeck');}catch(e){}
+  await signOut();toast('החשבון נמחק');}
 async function signOutAsk(){if(await uiAsk({title:'לצאת מהחשבון?',text:'החבילות וההגדרות שלכם שמורות בחשבון ויחזרו כשתיכנסו שוב.',ok:'יציאה',danger:1,icon:ic('back',28)}))signOut();}
 async function signOut(){try{await sb.auth.signOut();}catch(e){}A.user=null;A.prof=null;A.friends=[];stopSocial();A.uid=localStorage.getItem('mokesh.uid')||A.uid;A.sheet=null;render();}
 async function addFriend(code){code=String(code||'').trim().toUpperCase();if(!code)return;if(!A.user){if(!LOGIN_ON)return;A.pendingFriend=code;A.sheet='login';render();return;}
@@ -1800,9 +1808,9 @@ function vLoginSheet(){const busy=A.loginBusy?'disabled':'';const up=A.authMode=
     <div class="small isub">${up?'הכינוי, האווטאר, החבילות שלכם וערכת העיצוב — נשמרים בכל טלפון':'נכנסים לחשבון שכבר פתחתם'}</div></div></div>
     <div class="ltabs"><button class="${up?'on':''}" onclick="A.authMode='signup';A.authMsg='';render()">הרשמה</button><button class="${up?'':'on'}" onclick="A.authMode='login';A.authMsg='';render()">כניסה</button></div>
     ${A.authMsg?`<div class="authmsg">${h(A.authMsg)}</div>`:''}
-    <button class="btn big gbtn" onclick="signInGoogle()" ${busy}>${G} המשך עם Google</button>
+    ${NATIVE?'':`<button class="btn big gbtn" onclick="signInGoogle()" ${busy}>${G} המשך עם Google</button>
     ${AUTH.apple?`<button class="btn big abtn" onclick="signInApple()" ${busy}> המשך עם Apple</button>`:''}
-    <div class="ordiv"><span>${up?'או הרשמה עם מייל וסיסמה':'או כניסה עם מייל וסיסמה'}</span></div>
+    <div class="ordiv"><span>${up?'או הרשמה עם מייל וסיסמה':'או כניסה עם מייל וסיסמה'}</span></div>`}
     <form class="col" style="gap:10px" onsubmit="event.preventDefault();emailAuth()">
       <input class="input" name="email" type="email" dir="ltr" autocomplete="email" placeholder="name@gmail.com" value="${h(A.loginEmail||'')}" oninput="A.loginEmail=this.value">
       <input class="input" name="pass" type="password" dir="ltr" autocomplete="${up?'new-password':'current-password'}" placeholder="${up?'סיסמה (לפחות 6 תווים)':'סיסמה'}" value="${h(A.loginPass||'')}" oninput="A.loginPass=this.value">
