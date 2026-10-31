@@ -8,27 +8,46 @@
 
 כל שינוי שעולה לאתר מופיע מיד גם באפליקציה. צריך לשלוח גרסה חדשה לחנויות רק כשמשנים את המעטפת עצמה: אייקון, שם, הרשאות.
 
-כל הבנייה נעשית ב-**Codemagic**, אז לא צריך Mac.
+הבנייה נעשית ב-**GitHub Actions**, בדיוק כמו בטריפלייס, אז לא צריך Mac:
+- `.github/workflows/android.yml`: בונה קובץ AAB חתום.
+- `.github/workflows/ios.yml`: בונה על שרת Mac של GitHub, חותם אוטומטית ומעלה ישר ל-TestFlight.
 
 | מה | איפה |
 |---|---|
 | שם האפליקציה | `מוקש!` (באנדרואיד באנגלית: `Mokesh!`) |
 | מזהה האפליקציה | `com.mokesh.game` (אי אפשר לשנות אחרי ההעלאה הראשונה) |
 | הכתובת שנפתחת | `capacitor.config.json` → `server.url` (כשיהיה דומיין, משנים רק פה) |
-| הגדרות הבנייה | `codemagic.yaml` בתיקייה הראשית של הריפו |
 | אייקון ומסך פתיחה | `assets/` (מייצרים מחדש עם `npm run assets`) |
 | מדיניות פרטיות | https://mokesh-psi.vercel.app/privacy |
 | מחיקת חשבון | בתוך המשחק: הגדרות ← הפרופיל שלי ← "מחיקת החשבון" |
 
-> בתוך האפליקציה אין כפתור "המשך עם Google", כי Google חוסמת כניסה מתוך אפליקציות מהסוג הזה. נכנסים במייל וסיסמה, והחשבון זהה לחשבון באתר. משתמשים שנרשמו באתר עם Google יכולים לבחור "שכחתי סיסמה" ולקבוע סיסמה.
+**התחברות עם Google באפליקציה:** כמו בטריפלייס, ההתחברות נפתחת בדפדפן של הטלפון וחוזרת לאפליקציה דרך `com.mokesh.game://auth/callback`.
+- **באנדרואיד:** הכפתור מופיע.
+- **באייפון:** הכפתור יופיע רק אחרי שתופעל גם התחברות עם Apple, כי אפל מחייבת את זה כשיש כניסה עם Google. עד אז נכנסים במייל וסיסמה.
 
 ---
 
-## שלב 0 — Codemagic (פעם אחת)
+## שלב 0 — הגדרה חד-פעמית
 
-1. נכנסים ל-https://codemagic.io/signup ובוחרים **Sign up with GitHub**.
-2. **Add application** ← GitHub ← בוחרים את `idanab741/mokesh` ← **Codemagic YAML** (הקובץ כבר קיים בריפו).
-3. התוכנית החינמית נותנת 500 דקות בנייה בחודש. זה מספיק בשפע.
+1. **Supabase**: Authentication ← URL Configuration ← Redirect URLs ← **Add URL** ← `com.mokesh.game://auth/callback` ← Save. בלי זה, ההתחברות עם Google באפליקציה לא תחזור אליה.
+2. **GitHub**: בריפו `idanab741/mokesh`, נכנסים ל-**Settings** ← **Secrets and variables** ← **Actions** ← **New repository secret**, ומוסיפים 7 סודות.
+
+   אנדרואיד (מהקבצים ששלחתי בצ'אט):
+
+   | שם | ערך |
+   |---|---|
+   | `ANDROID_KEYSTORE_BASE64` | כל התוכן של `ANDROID_KEYSTORE_BASE64.txt` |
+   | `ANDROID_KEYSTORE_PASSWORD` | Keystore password מהקובץ `mokesh-upload-password.txt` |
+   | `ANDROID_KEY_ALIAS` | `mokesh` |
+   | `ANDROID_KEY_PASSWORD` | Key password מאותו קובץ |
+
+   אייפון: **אותם שלושה ערכים בדיוק כמו בריפו של טריפלייס**, כי זה אותו חשבון מפתח. אם לא שמרתם אותם, יוצרים מפתח חדש ב-App Store Connect ← Users and Access ← Integrations ← App Store Connect API ← **+** (הרשאה Admin).
+
+   | שם | ערך |
+   |---|---|
+   | `APPSTORE_API_KEY_ID` | Key ID |
+   | `APPSTORE_API_ISSUER_ID` | Issuer ID |
+   | `APPSTORE_API_KEY_BASE64` | התוכן של קובץ ה-`.p8` (פותחים ב-Notepad ומעתיקים הכל) |
 
 ---
 
@@ -36,33 +55,25 @@
 
 ### A1. פותחים חשבון מפתח
 1. נכנסים ל-https://play.google.com/console/signup.
-2. בוחרים **Yourself** (חשבון אישי), משלמים 25$ ומאמתים זהות עם תעודה. האימות לוקח בין כמה שעות לכמה ימים.
-3. **חשוב:** בחשבון אישי חדש, גוגל דורשת **בדיקה סגורה עם 12 בודקים לפחות במשך 14 יום** לפני שמותר לפרסם לכולם. כדאי לאסוף כבר עכשיו 12 כתובות Gmail של חברים ומשפחה.
+2. בוחרים **Yourself** (חשבון אישי), משלמים 25$ ומאמתים זהות. (אם לטריפלייס כבר יש חשבון Play Console שלכם, אפשר להשתמש בו ולדלג על השלב הזה.)
+3. **חשוב:** בחשבון אישי שנפתח אחרי נובמבר 2023, גוגל דורשת **בדיקה סגורה עם 12 בודקים לפחות במשך 14 יום** לפני שמותר לפרסם לכולם.
 
-### A2. מעלים את מפתח החתימה ל-Codemagic
-את הקובץ `mokesh-upload.jks` והסיסמה קיבלתם ממני בצ'אט. **שמרו את שניהם במקום בטוח.** בלעדיהם אי אפשר לעדכן את האפליקציה.
-
-1. ב-Codemagic: **Teams** ← הצוות שלכם ← **Code signing identities** ← **Android keystores**.
-2. **Upload keystore** ← בוחרים את הקובץ.
-3. ממלאים:
-   - **Keystore password**, **Key alias** (`mokesh`), **Key password**: מהקובץ שקיבלתם.
-   - **Reference name**: `mokesh_upload` (בדיוק ככה).
-4. שומרים.
+### A2. יוצרים את האפליקציה ב-Play Console
+**Create app**:
+- שם: `מוקש! – משחק מסיבות`
+- שפת ברירת מחדל: **עברית – iw-IL**
+- **Game**
+- **Free**
+- מסמנים את ההצהרות.
 
 ### A3. בונים את הקובץ לחנות
-1. ב-Codemagic פותחים את האפליקציה ← **Start new build** ← בוחרים **Android — Google Play** ← **Start**.
-2. אחרי כ-10 דקות, ב-**Artifacts** יש קובץ `app-release.aab`. מורידים אותו.
+1. ב-GitHub: **Actions** ← **Android build** ← **Run workflow** ← **Run workflow**.
+2. אחרי כ-5 דקות, בתחתית עמוד ההרצה, ב-**Artifacts**, יש `mokesh-android-aab`. מורידים ופותחים את ה-zip. בפנים יש `app-release.aab`.
 
-### A4. יוצרים את האפליקציה ב-Play Console
-1. **Create app**:
-   - שם: `מוקש! – משחק מסיבות`
-   - שפת ברירת מחדל: **עברית – iw-IL**
-   - **Game**
-   - **Free**
-   - מסמנים את ההצהרות.
-2. **Testing ← Closed testing ← Create track** (או משתמשים ב-Alpha) ← **Testers**: מוסיפים רשימה עם 12 המיילים.
-3. **Create new release** ← מעלים את ה-`.aab` ← **Next** ← **Save** ← **Send for review**.
-4. שולחים לבודקים את קישור ההצטרפות (**Copy link**). הם צריכים להתקין ולפתוח את האפליקציה כמה פעמים במהלך 14 הימים.
+### A4. בדיקה סגורה
+1. **Testing ← Closed testing ← Create track** (או משתמשים ב-Alpha) ← **Testers**: מוסיפים רשימה עם 12 המיילים.
+2. **Create new release** ← מעלים את ה-`.aab` ← **Next** ← **Save** ← **Send for review**.
+3. שולחים לבודקים את קישור ההצטרפות (**Copy link**). הם צריכים להתקין ולפתוח את האפליקציה כמה פעמים במהלך 14 הימים.
 
 ### A5. מה צריך למלא ב-Play Console (תפריט **App content**)
 
@@ -103,34 +114,15 @@
 
 ## שלב B — App Store (כבר יש לכם חשבון מפתח)
 
-### B1. מפתח API ל-Codemagic
-1. https://appstoreconnect.apple.com ← **Users and Access** ← **Integrations** ← **App Store Connect API** ← **Team Keys** ← **+**.
-2. שם: `Codemagic`, הרשאה: **Admin** ← **Generate**.
-3. מורידים את קובץ ה-`.p8`. **אפשר להוריד אותו רק פעם אחת.** רושמים גם את ה-**Issuer ID** (למעלה) ואת ה-**Key ID**.
-4. ב-Codemagic: **Teams** ← **Team integrations** ← **Developer Portal** ← **Manage keys** ← **Add key**:
-   - **App Store Connect API key name**: `mokesh_asc` (בדיוק ככה)
-   - **Issuer ID** ו-**Key ID** מהשלב הקודם
-   - מעלים את קובץ ה-`.p8`
-   - **Save**
+### B1. מה כבר מוכן
+המפתח של App Store Connect כבר מוגדר (שלב 0). החתימה אוטומטית, כמו בטריפלייס. לא צריך ליצור תעודות ופרופילים ידנית.
 
 ### B2. מזהה אפליקציה
 1. https://developer.apple.com/account/resources/identifiers/list ← **+** ← **App IDs** ← **App** ← **Continue**.
 2. Description: `Mokesh`. Bundle ID: **Explicit** ← `com.mokesh.game`.
-3. לא מסמנים יכולות נוספות ← **Continue** ← **Register**.
+3. **Continue** ← **Register**.
 
-### B3. תעודה ופרופיל חתימה (דרך Codemagic, בלי Mac)
-1. ב-Codemagic: **Code signing identities** ← **iOS certificates** ← **Generate certificate**:
-   - Type: **Apple Distribution**
-   - API key: `mokesh_asc`
-   - Reference name: `mokesh_dist`
-   - **Generate**. Codemagic שומר את התעודה ושולח אותה גם לאפל.
-2. באתר של אפל: https://developer.apple.com/account/resources/profiles/list ← **+**:
-   - **App Store Connect** ← **Continue**
-   - App ID: `com.mokesh.game` ← התעודה שנוצרה עכשיו
-   - שם: `Mokesh App Store` ← **Generate**
-3. חזרה ל-Codemagic: **iOS provisioning profiles** ← **Fetch profiles** ← בוחרים את `Mokesh App Store` ← Reference name: `mokesh_profile` ← **Save**.
-
-### B4. יוצרים את האפליקציה ב-App Store Connect
+### B3. יוצרים את האפליקציה ב-App Store Connect
 1. **Apps** ← **+** ← **New App**:
    - **iOS**
    - Name: `מוקש! – משחק מסיבות`. אם השם תפוס, מנסים `מוקש! משחק ניחושים`.
@@ -142,10 +134,10 @@
    - Category: **Games ← Word**, ומשנית **Games ← Party**.
    - כדי להוסיף שם באנגלית: **Localizable Information** ← מוסיפים **English (U.S.)** ← שם: `Mokesh! – Party Word Game`.
 
-### B5. בונים ושולחים ל-TestFlight
-ב-Codemagic: **Start new build** ← **iOS — App Store**. אחרי כ-15 דקות הבנייה עולה לבד ל-TestFlight. אחרי עוד 10–30 דקות של עיבוד אצל אפל, אפשר להתקין דרך אפליקציית TestFlight באייפון.
+### B4. בונים ושולחים ל-TestFlight
+ב-GitHub: **Actions** ← **iOS build** ← **Run workflow**. אחרי כ-15 דקות הבנייה עולה לבד ל-App Store Connect. אחרי עוד 10–30 דקות של עיבוד אצל אפל, היא מופיעה ב-TestFlight.
 
-### B6. מה צריך למלא לפני שליחה לבדיקה
+### B5. מה צריך למלא לפני שליחה לבדיקה
 - **App Privacy** ← Privacy Policy URL: `https://mokesh-psi.vercel.app/privacy`. Data types:
   - Email Address, Name, Photos, Gameplay Content, Other User Content: לכולם App Functionality, Linked to user, לא Tracking.
   - Product Interaction: Analytics, Not linked.
@@ -172,7 +164,5 @@
 
 ## עדכון גרסה בעתיד
 - **שינוי במשחק:** מעלים לאתר כרגיל. האפליקציות מתעדכנות לבד.
-- **שינוי במעטפת** (אייקון, שם, הרשאות): בונים מחדש ב-Codemagic. מספר הבנייה עולה לבד. ב-Play מעלים את ה-`.aab` החדש. באפל זה מגיע ל-TestFlight ואז שולחים לבדיקה.
-- **גרסה מוצגת** (1.0 ← 1.1):
-  - אנדרואיד: `versionName` בקובץ `android/app/build.gradle`.
-  - אייפון: `MARKETING_VERSION` בקובץ `ios/App/App.xcodeproj/project.pbxproj`.
+- **שינוי במעטפת** (אייקון, שם, הרשאות): מריצים שוב את ה-workflow ב-GitHub Actions. מספר הבנייה עולה לבד. ב-Play מעלים את ה-`.aab` החדש. באפל זה מגיע ל-TestFlight ואז שולחים לבדיקה.
+- **גרסה מוצגת** (1.0.0 ← 1.1.0): כותבים אותה בשדה הגרסה כשלוחצים **Run workflow**.

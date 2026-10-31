@@ -1,0 +1,135 @@
+# בניית אפליקציית האייפון של מוקש! (Capacitor, תיקיית mokesh-app/ios) על שרת Mac של GitHub, חתימה אוטומטית
+# והעלאה ישירה ל-App Store Connect (TestFlight). אותה שיטה כמו בטריפלייס, אותו חשבון מפתח של אפל.
+# מריצים ידנית מ-GitHub: Actions -> "iOS build" -> Run workflow.
+#
+# Secrets נדרשים (Settings -> Secrets and variables -> Actions) - מפתח App Store Connect API (תפקיד Admin).
+# אפשר להשתמש באותו מפתח של טריפלייס - מעתיקים את אותם שלושה ערכים גם לריפו הזה:
+#   APPSTORE_API_KEY_ID       - Key ID של המפתח
+#   APPSTORE_API_ISSUER_ID    - Issuer ID (מופיע מעל רשימת המפתחות)
+#   APPSTORE_API_KEY_BASE64   - תוכן קובץ ה-.p8 (כמו שהוא, או בקידוד base64)
+# בלי ה-Secrets - הבנייה רצה בלי חתימה (רק בדיקה שהקוד מתקמפל), בלי העלאה.
+name: iOS build
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: "מספר גרסה (למשל 1.0.0) - חייב להיות גבוה מהגרסה האחרונה ב-App Store"
+        required: false
+        default: "1.0.0"
+      build_number:
+        description: "מספר בילד - ריק = 100 + מספר ההרצה"
+        required: false
+
+jobs:
+  build:
+    runs-on: macos-15
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: mokesh-app/package-lock.json
+
+      - name: Xcode
+        run: |
+          # אפל מקבלת רק בילדים עם ה-SDK של iOS 26 ומעלה (Xcode 26) - בוחרים את ה-Xcode 26 העדכני שמותקן על השרת
+          ls -d /Applications/Xcode*.app
+          XCODE="$(ls -d /Applications/Xcode_26*.app 2>/dev/null | grep -v -i beta | sort -V | tail -1)"
+          [ -n "$XCODE" ] || { echo "::error::אין Xcode 26 על השרת"; exit 1; }
+          sudo xcode-select -s "$XCODE"
+          xcodebuild -version
+
+      - name: Install
+        working-directory: mokesh-app
+        run: npm ci --no-audit --no-fund
+
+      - name: Sync Capacitor (כולל pod install)
+        working-directory: mokesh-app
+        run: npx cap sync ios
+
+      - name: App Store Connect API key
+        env:
+          APPSTORE_API_KEY_BASE64: ${{ secrets.APPSTORE_API_KEY_BASE64 }}
+          APPSTORE_API_KEY_ID: ${{ secrets.APPSTORE_API_KEY_ID }}
+          APPSTORE_API_ISSUER_ID: ${{ secrets.APPSTORE_API_ISSUER_ID }}
+        run: |
+          if [ -z "$APPSTORE_API_KEY_BASE64" ] || [ -z "$APPSTORE_API_KEY_ID" ] || [ -z "$APPSTORE_API_ISSUER_ID" ]; then
+            echo "::warning::חסרים Secrets של App Store Connect - בונים בלי חתימה (בדיקה בלבד, בלי העלאה)"
+            exit 0
+          fi
+          # ניקוי תווים נסתרים שנכנסים בהדבקה (רווחים, ירידות שורה, סימני כיוון)
+          KEY_ID="$(printf '%s' "$APPSTORE_API_KEY_ID" | LC_ALL=C tr -cd 'A-Za-z0-9')"
+          ISSUER="$(printf '%s' "$APPSTORE_API_ISSUER_ID" | LC_ALL=C tr -cd 'A-Za-z0-9-')"
+          mkdir -p "$RUNNER_TEMP/asc"
+          if printf '%s' "$APPSTORE_API_KEY_BASE64" | grep -q "BEGIN PRIVATE KEY"; then
+            # הודבק תוכן קובץ ה-.p8 עצמו (פתיחה ב-Notepad והעתקה) - בלי המרה
+            printf '%s\n' "$APPSTORE_API_KEY_BASE64" | tr -d '\r' > "$RUNNER_TEMP/asc/AuthKey_$KEY_ID.p8"
+          else
+            printf '%s' "$APPSTORE_API_KEY_BASE64" | LC_ALL=C tr -cd 'A-Za-z0-9+/=' | base64 --decode > "$RUNNER_TEMP/asc/AuthKey_$KEY_ID.p8"
+          fi
+          grep -q "BEGIN PRIVATE KEY" "$RUNNER_TEMP/asc/AuthKey_$KEY_ID.p8" || { echo "::error::APPSTORE_API_KEY_BASE64 לא מכיל קובץ .p8 תקין"; exit 1; }
+          {
+            echo "ASC_KEY_PATH=$RUNNER_TEMP/asc/AuthKey_$KEY_ID.p8"
+            echo "ASC_KEY_ID=$KEY_ID"
+            echo "ASC_ISSUER_ID=$ISSUER"
+          } >> "$GITHUB_ENV"
+
+      - name: מכשיר רשום בחשבון (נדרש לחתימה האוטומטית של Xcode)
+        if: env.ASC_KEY_PATH != ''
+        run: |
+          # בלי אף מכשיר רשום ב-Apple Developer, Xcode לא מצליח ליצור את פרופיל החתימה בשלב ה-archive
+          # ("Your team has no devices"). רושמים מכשיר קבוע אחד (פעם אחת - בהרצות הבאות הוא כבר קיים).
+          # הבילד עצמו נחתם להפצה (App Store) בשלב ה-export.
+          python3 - <<'PY'
+          import json, os
+          key = open(os.environ["ASC_KEY_PATH"]).read()
+          json.dump({"key_id": os.environ["ASC_KEY_ID"], "issuer_id": os.environ["ASC_ISSUER_ID"], "key": key, "in_house": False},
+                    open(os.path.join(os.environ["RUNNER_TEMP"], "asc", "api_key.json"), "w"))
+          PY
+          command -v fastlane >/dev/null || brew install fastlane
+          fastlane run register_device name:"Mokesh CI" udid:"00008030-0019C5A82E31802E" platform:"ios" \
+            api_key_path:"$RUNNER_TEMP/asc/api_key.json" || echo "::warning::רישום המכשיר נכשל - ממשיכים"
+
+      - name: Build
+        env:
+          VERSION: ${{ inputs.version || '1.0.0' }}
+          INPUT_BUILD_NUMBER: ${{ inputs.build_number }}
+        run: |
+          BUILD_NUMBER="${INPUT_BUILD_NUMBER:-$((GITHUB_RUN_NUMBER + 100))}"
+          echo "version=$VERSION build=$BUILD_NUMBER"
+          cd mokesh-app/ios/App
+          if [ -z "$ASC_KEY_PATH" ]; then
+            # בדיקה בלבד: מתקמפל לסימולטור, בלי חתימה
+            xcodebuild -workspace App.xcworkspace -scheme App -configuration Release \
+              -destination 'generic/platform=iOS Simulator' CODE_SIGNING_ALLOWED=NO \
+              MARKETING_VERSION="$VERSION" CURRENT_PROJECT_VERSION="$BUILD_NUMBER" build | tail -40
+            exit "${PIPESTATUS[0]}"
+          fi
+          AUTH=(-allowProvisioningUpdates -authenticationKeyPath "$ASC_KEY_PATH" -authenticationKeyID "$ASC_KEY_ID" -authenticationKeyIssuerID "$ASC_ISSUER_ID")
+          xcodebuild -workspace App.xcworkspace -scheme App -configuration Release \
+            -destination 'generic/platform=iOS' -archivePath "$RUNNER_TEMP/App.xcarchive" \
+            MARKETING_VERSION="$VERSION" CURRENT_PROJECT_VERSION="$BUILD_NUMBER" \
+            "${AUTH[@]}" archive
+          cat > "$RUNNER_TEMP/ExportOptions.plist" <<'PLIST'
+          <?xml version="1.0" encoding="UTF-8"?>
+          <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+          <plist version="1.0">
+          <dict>
+            <key>method</key><string>app-store-connect</string>
+            <key>destination</key><string>upload</string>
+            <key>teamID</key><string>9A2Z56J83W</string>
+            <key>signingStyle</key><string>automatic</string>
+            <key>uploadSymbols</key><true/>
+            <key>manageAppVersionAndBuildNumber</key><false/>
+          </dict>
+          </plist>
+          PLIST
+          # destination=upload: הבילד עולה ישר ל-App Store Connect (מופיע ב-TestFlight אחרי העיבוד של אפל)
+          xcodebuild -exportArchive -archivePath "$RUNNER_TEMP/App.xcarchive" \
+            -exportOptionsPlist "$RUNNER_TEMP/ExportOptions.plist" -exportPath "$RUNNER_TEMP/export" \
+            "${AUTH[@]}"
+          echo "::notice title=iOS::בילד $VERSION ($BUILD_NUMBER) הועלה ל-App Store Connect - יופיע ב-TestFlight תוך כמה דקות"
