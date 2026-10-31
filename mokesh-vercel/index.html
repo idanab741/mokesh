@@ -292,7 +292,7 @@ html.kb .startbar{position:static;background:none}
 .tiles button .ic{width:44px;height:44px;padding:8px;border-radius:50%;background:#fff;border:var(--o);color:var(--ink)}
 
 .topbtn,.hdr button,.hdrm{width:44px;height:44px;border-radius:50%;background:var(--paper2);color:var(--ink);border:var(--o);box-shadow:var(--sh-sm);display:flex;align-items:center;justify-content:center}
-.topbtn{position:absolute;top:14px;left:14px}.topbtn.r{left:auto;right:14px}.topbtn.r2{left:auto;right:66px}
+.topbtn{position:absolute;top:14px;left:14px;z-index:6}.topbtn.r{left:auto;right:14px}.topbtn.r2{left:auto;right:66px}
 .topbtn.accb{width:auto;min-width:44px;padding:0 12px 0 10px;border-radius:999px;gap:6px;font-weight:800;font-size:14px}.topbtn.accb.on{padding:0;width:48px;height:48px;overflow:visible}.topbtn.accb.on>img,.topbtn.accb.on>.cav{width:100%;height:100%;border-radius:50%;object-fit:cover}.topbtn.accb .badge{top:-6px;left:-6px}
 .topbtn:active,.hdr button:active,.hdrm:active{transform:translateY(2px);box-shadow:0 1px 0 var(--ink)}
 .topbtn.off,.hdr button.off,.hdrm.off,.mbtn.off{background:#B9B4D6}
@@ -781,7 +781,7 @@ const teamColor=(S,t)=>{const i=S&&S.settings?S.settings['c'+t]:null;return TPAL
 function applyTeamColors(S){let css='';if(S&&S.settings)for(const t of TEAM_IDS){const i=S.settings['c'+t];if(i==null||i===DEFAULTS['c'+t]||!TPAL[i])continue;const c=TPAL[i][0];
     css+=`.tcol.${t} .tch,.teamcard.${t} .th,.stile.${t},.stmini .sm.${t},.gr.${t},.tdot.${t}{background:${c}}.wintitle.t${t}{color:${c}}`;}
   let el=document.getElementById('tcss');if(!el){el=document.createElement('style');el.id='tcss';document.head.appendChild(el);}if(el.textContent!==css)el.textContent=css;}
-// ערכות עיצוב (פרימיום, בהגדרות החדר — כל הטלפונים בחדר רואים אותה). כל ערכה מחליפה את כל הצבעים, כולל מסכי הפיצוץ והניחוש הנכון
+// ערכות עיצוב (פרימיום, בהגדרות של מסך הבית). כל ערכה מחליפה את כל הצבעים, כולל מסכי הפיצוץ והניחוש הנכון
 const THEMES=[
  {k:'classic',n:'קלאסי',v:{}},
  {k:'halloween',n:'הלוואין',v:{'--bg':'#2A1242','--bg-deep':'#160828','--yellow':'#FF8A1F','--yellow-d':'#D96400','--orange':'#FFC14D','--cyan':'#7CE04E','--pink':'#B65CFF','--lime':'#E9FF70','--paper':'#FFF0DC','--soft':'#6B4F72','--trap-bg':'#FF6A00','--ok-bg':'#6B2FB3'}},
@@ -791,8 +791,8 @@ const THEMES=[
  {k:'jungle',n:"ג'ונגל",v:{'--bg':'#118A50','--bg-deep':'#0A6238','--yellow':'#FFD23F','--yellow-d':'#F2B600','--orange':'#FF8A1F','--cyan':'#55D6FF','--pink':'#FF7A59','--lime':'#D4F75A','--paper':'#FFF6E3','--trap-bg':'#FF5A1F','--ok-bg':'#0FA3A3'}},
  {k:'gold',n:'שחור זהב',v:{'--bg':'#17151C','--bg-deep':'#0B0A0E','--yellow':'#E9C46A','--yellow-d':'#C79A3B','--orange':'#F4A261','--cyan':'#7FD3E6','--pink':'#F28BB0','--lime':'#CDE77F','--paper':'#FAF5EA','--soft':'#6A6152','--trap-bg':'#B3261E','--ok-bg':'#2D6A4F','--boom-f':'sepia(.35) saturate(.9)'}}];
 function myTheme(){try{const v=+localStorage.getItem('mokesh.theme')||0;return THEMES[v]?v:0;}catch(e){return 0;}}
-// בחדר: הערכה של החדר. מחוץ לחדר: הערכה האחרונה שבחרתם (פרימיום)
-function themeOf(S){const v=S&&S.settings&&THEMES[S.settings.theme]?S.settings.theme:(premiumOn(S)?myTheme():0);return THEMES[v]?v:0;}
+// הערכה אישית לכל טלפון: נבחרת בהגדרות שבמסך הבית ונשמרת בטלפון
+function themeOf(S){return premiumOn(S)||A.premium?myTheme():0;}
 function applyTheme(S){const i=themeOf(S);const k=THEMES[i].k;const H=document.documentElement;if(H.dataset.theme===k)return;H.dataset.theme=k;
   let el=document.getElementById('thcss');if(!el){el=document.createElement('style');el.id='thcss';document.head.appendChild(el);}
   el.textContent=':root{'+Object.entries(THEMES[i].v).map(([a,b])=>a+':'+b).join(';')+'}';
@@ -1519,7 +1519,7 @@ function render(){const S=A.S;let html='';applyTeamColors(S);applyTheme(S);if(S&
   if(S&&A.avPick)html+=vAvPick(S);
   if(A.deckEdit)html+=vDeck();
   if(S&&A.packOpen&&S.phase==='LOBBY')html+=vPacks(S);
-  if(S&&A.themeOpen&&S.phase==='LOBBY')html+=vThemes(S);
+  if(A.themeOpen)html+=vThemes(S);
   if(S&&A.menu)html+=vMenu(S);
   if(S&&A.roomChat&&S.mode==='online')html+=vRoomChat(S);
   if(A.newVer)html+=`<button class="newver" onclick="location.reload()">יש גרסה חדשה של המשחק — לחצו לעדכון</button>`;
@@ -1662,7 +1662,7 @@ function vHome(){const c=A.chosen;const m=A.homeMode;if(m==='how'||m==='intro'){
       <button class="btn primary big" onclick="createLocal()">התחל</button><button class="btn ghost" onclick="A.homeMode='menu';render()">חזרה</button></div>`;
   else if(m==='ai')body=`<div class="card col" style="gap:10px"><div class="bold row">${ic('robot',22)} מול המחשב</div><p class="small muted" style="margin:0;line-height:1.5">אתם (עם שותף-מחשב אם אתם לבד) נגד קבוצת מחשב. כשאתם מסבירים — מקלידים רמזים והשותף מנחש. כשהמחשב מסביר — אתם מנחשים. וכשהמחשב בתור — אתם טומנים לו מוקשים. המחשב לא רואה את התשובה כשהוא מנחש.</p>
       <button class="btn primary big" onclick="createAI()">התחל</button><button class="btn ghost" onclick="A.homeMode='menu';render()">חזרה</button></div>`;
-  else if(m==='settings')body=`<div class="card col"><div class="bold row">${ic('gear',22)} הגדרות</div><p class="small muted" style="margin:0;line-height:1.5">הגדרות המשחק (תורים, זמן, קושי) נקבעות בחדר המשחק על ידי מנהל החדר. הכינוי והאווטאר שלך נשמרים במכשיר.</p><p class="xs isub" style="margin:0">גרסה: ${h(A.ver||'')}</p><button class="btn ghost" onclick="A.homeMode='menu';render()">חזרה</button></div>`;
+  else if(m==='settings')body=`<div class="card col"><div class="bold row">${ic('gear',22)} הגדרות</div><p class="small muted" style="margin:0;line-height:1.5">הגדרות המשחק (תורים, זמן, קושי) נקבעות בחדר המשחק על ידי מנהל החדר. הכינוי והאווטאר שלך נשמרים במכשיר.</p>${vThemeHome()}<p class="xs isub" style="margin:0">גרסה: ${h(A.ver||'')}</p><button class="btn ghost" onclick="A.homeMode='menu';render()">חזרה</button></div>`;
   else body=`<div class="card col small" style="line-height:1.6">
       <p style="margin:0"><b class="tA">שתי קבוצות.</b> בכל תור קבוצה אחת מסבירה ומנחשת, והשנייה טומנת מוקשים.</p>
       <p style="margin:0"><b style="color:var(--danger)">היריבים</b> רואים את מילת היעד ובוחרים 3 מילים דומות שיהפכו למוקשים — 25 שניות.</p>
@@ -1760,17 +1760,19 @@ function vSettings(S,extra){const s=S.settings;const host=A.isHost;const lock=!p
   const open=!!A.settingsOpen;const wm=!!s.wordMode;
   const style=`<div class="modepick">${[[0,'timer','על זמן','כמה שיותר מילים בתור'],[1,'swap','תור-תור','מילה אחת וזה עובר']].map(([v,i,l,d])=>`<button class="${(wm?1:0)===v?'on':''}" ${host?`onclick="${set({wordMode:v})}"`:'disabled'}>${ic(i,26)}<b>${l}</b><span>${d}</span></button>`).join('')}</div>`;
   return `<div class="settings"><button class="sum" onclick="A.settingsOpen=!A.settingsOpen;render()">${ic('gear',20)}<span>הגדרות${lock?` <i class="plock">${ic('crown',14)} פרימיום</i>`:''}</span><span class="s">${wm?'תור-תור':'על זמן'} · עד ${s.target||20} נק׳ · ${s.turnsPerTeam} ${wm?'מילים':'תורים'}</span><span class="muted">${open?'▴':'▾'}</span></button>
-    ${open?`<div style="padding:4px 0 10px">${style}</div>`+(extra||'')+r('מנצחים ב-',(s.target||20)+' נק׳',set({target:(s.target||20)-5}),set({target:(s.target||20)+5}))+r(wm?'מילים לכל קבוצה':'תורים לכל קבוצה',s.turnsPerTeam,set({turnsPerTeam:s.turnsPerTeam-1}),set({turnsPerTeam:s.turnsPerTeam+1}))+r(wm?'שניות למילה':'שניות לתור',s.turnSeconds,set({turnSeconds:s.turnSeconds-15}),set({turnSeconds:s.turnSeconds+15}))+r('שניות לבחירת מוקשים',s.trapSeconds,set({trapSeconds:s.trapSeconds-5}),set({trapSeconds:s.trapSeconds+5}))+(S.mode!=='ai'&&!S.vsBots&&!S.public?r('מספר קבוצות',s.teams||2,set({teams:(s.teams||2)-1}),set({teams:(s.teams||2)+1}))+vMyRow(S,host,lock):'')+vPackRow(S,host,lock)+vThemeRow(S,host,lock)+vColorRow(S,host,lock)+r('רמת קושי',dl,set({difficulty:order[(i+3)%4]}),set({difficulty:order[(i+1)%4]}))+r('מוקשים',['רשימה','כותבים לבד','גם וגם'][s.customTraps||0],set({customTraps:((s.customTraps||0)+2)%3}),set({customTraps:((s.customTraps||0)+1)%3})):''}</div>`;}
+    ${open?`<div style="padding:4px 0 10px">${style}</div>`+(extra||'')+r('מנצחים ב-',(s.target||20)+' נק׳',set({target:(s.target||20)-5}),set({target:(s.target||20)+5}))+r(wm?'מילים לכל קבוצה':'תורים לכל קבוצה',s.turnsPerTeam,set({turnsPerTeam:s.turnsPerTeam-1}),set({turnsPerTeam:s.turnsPerTeam+1}))+r(wm?'שניות למילה':'שניות לתור',s.turnSeconds,set({turnSeconds:s.turnSeconds-15}),set({turnSeconds:s.turnSeconds+15}))+r('שניות לבחירת מוקשים',s.trapSeconds,set({trapSeconds:s.trapSeconds-5}),set({trapSeconds:s.trapSeconds+5}))+(S.mode!=='ai'&&!S.vsBots&&!S.public?r('מספר קבוצות',s.teams||2,set({teams:(s.teams||2)-1}),set({teams:(s.teams||2)+1}))+vMyRow(S,host,lock):'')+vPackRow(S,host,lock)+vColorRow(S,host,lock)+r('רמת קושי',dl,set({difficulty:order[(i+3)%4]}),set({difficulty:order[(i+1)%4]}))+r('מוקשים',['רשימה','כותבים לבד','גם וגם'][s.customTraps||0],set({customTraps:((s.customTraps||0)+2)%3}),set({customTraps:((s.customTraps||0)+1)%3})):''}</div>`;}
 // שורת "החפיסה שלי" בהגדרות + עריכת החפיסה (המילים נשמרות בטלפון של מנהל/ת החדר)
 function vMyRow(S,host,lock){const m=myOn(S)?S.settings.myDeck:0;const L=['כבויה','מעורבבת','רק שלי'];const n=host?myDeckLoad().length:(S.myDeck||[]).length;
   const go=v=>lock?`needPremium('settings')`:`setMyDeck(${v})`;
   return `<div class="r"><span class="small muted mycol">החפיסה שלי${host?`<button class="mylnk" onclick="${lock?`needPremium('settings')`:'openDeck()'}">${n?(n===1?'מילה אחת':n+' מילים')+' · ':''}עריכה</button>`:''}</span><div class="row">${host?`<button onclick="${go((m+2)%3)}">−</button>`:''}<span class="v">${L[m]}</span>${host?`<button onclick="${go((m+1)%3)}">+</button>`:''}</div></div>`;}
 function packSummary(S){const pk=packsOf(S);const names=[...(classicOn(S)&&packMask(S)&1?['בסיסית']:[]),...pk.map(k=>PACKS.find(p=>p[0]===k)[1])];return names.length>2?names[0]+' + '+(names.length-1):names.join(' + ');}
+function vThemeHome(){const cur=themeOf(null);const lock=!premiumOn(null);const D={'--bg':'#2B3BFF','--yellow':'#FFD23F','--pink':'#FF4FA3','--cyan':'#19D3FF','--trap-bg':'#FF3B30'};const sw=v=>Object.keys(D).map(k=>`<i style="background:${v[k]||D[k]}"></i>`).join('');
+  return `<div class="col" style="gap:6px"><span class="bold">ערכת עיצוב${lock?` <i class="plock">${ic('crown',14)} פרימיום</i>`:''}</span><div class="pkgrid">${THEMES.map((t,i)=>`<button class="pkchip thchip${i===cur?' on':''}" onclick="setTheme(${i})"><b>${t.n}</b><span class="sw">${sw(t.v)}</span>${i===cur?ic('check',18):''}</button>`).join('')}</div></div>`;}
 function vThemeRow(S,host,lock){const t=THEMES[themeOf(S)];return `<div class="r"><span class="small muted">ערכת עיצוב</span><button class="mini packbtn" onclick="${lock?`needPremium('settings')`:host?'A.themeOpen=true;render()':''}" ${host||lock?'':'disabled'}>${h(t.n)}</button></div>`;}
-function setTheme(i){if(!A.isHost||!A.S)return;try{localStorage.setItem('mokesh.theme',String(i));}catch(e){}act({type:'settings',settings:{theme:i}});}
+function setTheme(i){if(!premiumOn(A.S))return needPremium('theme');try{localStorage.setItem('mokesh.theme',String(i));}catch(e){}haptic&&haptic(20);render();}
 function vThemes(S){const cur=themeOf(S);const D={'--bg':'#2B3BFF','--yellow':'#FFD23F','--pink':'#FF4FA3','--cyan':'#19D3FF','--trap-bg':'#FF3B30'};const sw=v=>Object.keys(D).map(k=>`<i style="background:${v[k]||D[k]}"></i>`).join('');
   return `<div class="sheet-bg top" onclick="A.themeOpen=false;render()"><div class="sheet pop deck" onclick="event.stopPropagation()"><div class="row between"><div class="black" style="font-size:22px">ערכת עיצוב</div><button class="btn ghost" onclick="A.themeOpen=false;render()">סיום</button></div>
-    <div class="small muted">כל הצבעים במשחק מתחלפים, אצל כל מי שבחדר.</div>
+    <div class="small muted">כל הצבעים במשחק מתחלפים. הבחירה נשמרת בטלפון שלכם.</div>
     <div class="pkgrid">${THEMES.map((t,i)=>`<button class="pkchip thchip${i===cur?' on':''}" onclick="setTheme(${i})"><b>${t.n}</b><span class="sw">${sw(t.v)}</span>${i===cur?ic('check',18):''}</button>`).join('')}</div></div></div>`;}
 function vColorRow(S,host,lock){const L=teamsOf(S);const used=L.map(t=>S.settings['c'+t]);
   const nx=t=>{const cur=S.settings['c'+t];for(let k=1;k<=TPAL.length;k++){const v=(cur+k)%TPAL.length;if(!used.includes(v))return v;}return cur;};
