@@ -1178,7 +1178,9 @@ let sb=null;
 async function dbGetRoom(code){const {data,error}=await sb.from('mokesh_rooms').select('state').eq('code',code).maybeSingle();if(error)throw error;return data?data.state:null;}
 async function dbSetRoom(code,state){const {error}=await sb.from('mokesh_rooms').upsert({code,state,updated_at:new Date().toISOString()});if(error)throw error;}
 async function dbAddInbox(code,action){const {error}=await sb.from('mokesh_inbox').insert({id:uid(10),code,action});if(error)throw error;}
-async function dbDeleteInbox(id){try{await sb.from('mokesh_inbox').delete().eq('id',id);}catch(e){}}
+// מחיקה רק דרך פונקציה בשרת שמוחקת שורה אחת (מחיקה ישירה חסומה, כדי שאף אחד לא ימחק את כל החדרים)
+async function dbDeleteInbox(id){try{const r=await sb.rpc('mokesh_inbox_del',{p_id:id});if(r.error)await sb.from('mokesh_inbox').delete().eq('id',id);}catch(e){}}
+async function dbDeleteRoom(code){try{const r=await sb.rpc('mokesh_room_del',{p_code:code});if(r.error)await sb.from('mokesh_rooms').delete().eq('code',code);}catch(e){}}
 async function dbPendingInbox(code){const {data}=await sb.from('mokesh_inbox').select('id,action').eq('code',code).order('at');return data||[];}
 // סטטיסטיקה לעמוד הניהול: מכשיר (מזהה אקראי, בלי מידע אישי), מאיפה הגיע ואיזה משחק פתח. כניסה נספרת פעם ביום
 // מקור: ?s=fb בקישור (לפוסטים), או לפי האתר שממנו הגיעו
@@ -1375,7 +1377,7 @@ function startHostLoop(){startBotLoop();clearInterval(A.hostT);A.hostT=setInterv
   // ניתוקים: 90 שניות בלי נוכחות
   for(const p of A.S.players)if(!p.isHost&&!isBot(p.id)&&p.connected&&Date.now()-(p.lastSeen||0)>90000){p.connected=false;changed=true;}
   if(changed){hostWrite();render();}else if(Date.now()-(A.lastWriteAt||0)>20000)hostWrite();},250);} // דופק כל 20 שניות: האורחים יודעים שהמארח מחובר
-function leaveRoom(){voiceLeave(true);A.roomSeen=null;if(A.S&&!['LOBBY','GAME_OVER'].includes(A.S.phase))ev('quit',{m:A.S.mode,ph:A.S.phase,host:A.isHost?1:0});if(A.mode==='online'&&A.isHost&&A.S&&sb){const c=A.S.code;sb.from('mokesh_rooms').delete().eq('code',c).then(()=>{},()=>{});}clearInterval(A.botT);if(A.mode==='online'&&A.S&&!A.isHost)sendAction(A.S.code,{type:'leave'});A.unsub.forEach(u=>u());A.unsub=[];clearInterval(A.hostT);clearInterval(A.presenceT);
+function leaveRoom(){voiceLeave(true);A.roomSeen=null;if(A.S&&!['LOBBY','GAME_OVER'].includes(A.S.phase))ev('quit',{m:A.S.mode,ph:A.S.phase,host:A.isHost?1:0});if(A.mode==='online'&&A.isHost&&A.S&&sb){const c=A.S.code;sb.rpc('mokesh_room_del',{p_code:c}).then(r=>{if(r&&r.error)sb.from('mokesh_rooms').delete().eq('code',c).then(()=>{},()=>{});},()=>{});}clearInterval(A.botT);if(A.mode==='online'&&A.S&&!A.isHost)sendAction(A.S.code,{type:'leave'});A.unsub.forEach(u=>u());A.unsub=[];clearInterval(A.hostT);clearInterval(A.presenceT);
   localStorage.removeItem('mokesh.session');A.newAv=null;A.avPick=null;A.menu=0;A.S=null;A.mode=null;A.isHost=false;A.homeMode='menu';render();}
 
 // ---------- מצב מקומי (העבר את הטלפון) ----------
@@ -2562,7 +2564,7 @@ function vMenu(S){const host=A.mode==='online'&&A.isHost;const confirm=A.menu===
       ${host?`<button class="btn danger" onclick="A.menu=2;render()">סגור את החדר לכולם</button>`:A.mode==='online'?`<button class="btn danger" onclick="A.menu=0;leaveRoom()">יציאה מהחדר</button>`:`<button class="btn danger" onclick="A.menu=0;leaveRoom()">סיום המשחק</button>`}
       <button class="btn" onclick="A.menu=0;render()">חזרה למשחק</button>`;
   return `<div class="sheet-bg" onclick="A.menu=0;render()"><div class="sheet pop" onclick="event.stopPropagation()">${body}</div></div>`;}
-async function closeRoom(){const code=A.S&&A.S.code;A.menu=0;if(A.mode==='online'&&A.isHost&&code){try{await sb.from('mokesh_rooms').delete().eq('code',code);}catch(e){console.error(e);}}leaveRoom();toast('החדר נסגר');}
+async function closeRoom(){const code=A.S&&A.S.code;A.menu=0;if(A.mode==='online'&&A.isHost&&code){await dbDeleteRoom(code);}leaveRoom();toast('החדר נסגר');}
 function vSummary(S){const t=S.turnSummary;if(!t)return '';
   return `<div class="screen center">${vHud(S)}<div class="card tc pop"><div class="small bold t${t.team}">${t.sim?'🤖 המחשב שיחק את התור שלו':'סיום התור '+TG.of(t.team)}</div><div class="black" style="font-size:60px;margin:8px 0;font-variant-numeric:tabular-nums">${t.points>0?'+'+t.points:t.points}</div>
     <div class="row" style="justify-content:center"><span class="chip ok">${t.correct} נכונות</span><span class="chip danger">${t.traps} מוקשים</span></div>
