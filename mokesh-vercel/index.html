@@ -431,6 +431,7 @@ html.kb .startbar{position:static;background:none}
 .fx{position:relative;display:inline-block;font-family:var(--font-display);font-weight:400;line-height:1.1;white-space:nowrap;color:transparent;padding:0 .08em}
 .fx::before{content:attr(data-t);position:absolute;inset:0;padding:0 .08em;color:var(--ink);-webkit-text-stroke:.16em var(--ink);text-shadow:0 .09em 0 var(--ink),0 .16em .1em rgba(0,0,0,.35)}
 .fx>span{position:relative;background:linear-gradient(180deg,var(--fx1) 0%,var(--fx1) 30%,var(--fx2) 58%,var(--fx3) 100%);-webkit-background-clip:text;background-clip:text;color:transparent;filter:var(--fx-glow,none)}
+.logo.tlimg{width:min(95.5%,378px)}.logo.sm.tlimg{width:min(58%,222px)}.ilogo.tlimg{width:min(55.5vw,211px)!important}@media (max-height:760px){.ilogo.tlimg{width:min(44vw,166px)!important}}@media (max-height:780px){.screen.home .logo.tlimg{width:min(71%,278px)}}@media (max-height:680px){.screen.home .logo.tlimg{width:min(62%,233px)}}
 .tlogo{position:relative;display:block;margin:0 auto;width:min(86%,340px);height:auto;aspect-ratio:340/250}
 .tlogo .tlbomb{position:absolute;width:52%;top:-2%;left:32%;transform:rotate(8deg);filter:drop-shadow(0 6px 0 rgba(21,16,43,.45))}
 .tlogo .tlhat{position:absolute;width:36%;top:22%;left:-2%;transform:rotate(-22deg);z-index:2;filter:drop-shadow(0 5px 0 rgba(21,16,43,.5))}
@@ -805,7 +806,7 @@ const THEMES=[
  {k:'jungle',n:"ג'ונגל",a:{logo:'themes/jungle/logo.webp',boomt:'themes/jungle/boomt.webp',bomb:'themes/jungle/bomb.webp',boom:'themes/jungle/boom.webp',ok:'themes/jungle/ok.webp',bg:'themes/jungle/bg.webp',bgSize:'420px',tint:'rgba(6,50,26,.45)'},v:{'--glow':'rgba(212,247,90,.2)','--bg':'#118A50','--bg-deep':'#0A6238','--yellow':'#FFD23F','--yellow-d':'#F2B600','--orange':'#FF8A1F','--cyan':'#55D6FF','--pink':'#FF7A59','--lime':'#D4F75A','--paper':'#FFF6E3','--trap-bg':'#FF5A1F','--ok-bg':'#0FA3A3','--fx1':'#FFF27A','--fx2':'#B7F24A','--fx3':'#2E9E3A'}},
  {k:'gold',n:'שחור זהב',a:{logo:'themes/gold/logo.webp',boomt:'themes/gold/boomt.webp',bomb:'themes/gold/bomb.webp',ok:'themes/gold/ok.webp',bg:'themes/gold/bg.webp',bgSize:'420px',tint:'rgba(10,8,12,.35)'},v:{'--ink':'#16120A','--glow':'rgba(233,196,106,.22)','--bg':'#17151C','--bg-deep':'#0B0A0E','--yellow':'#E9C46A','--yellow-d':'#C79A3B','--orange':'#F4A261','--cyan':'#7FD3E6','--pink':'#F28BB0','--lime':'#CDE77F','--paper':'#FAF5EA','--soft':'#6A6152','--trap-bg':'#B3261E','--ok-bg':'#2D6A4F','--boom-f':'sepia(.35) saturate(.9)'}}];
 // תמונות של הערכה (פצצה, פיצוץ, ניחוש נכון, כובע, רקע). בלי תמונה — התמונה הרגילה של המשחק
-const TA=n=>{const t=THEMES[themeOf(A&&A.S)];return t.a&&t.a[n]?t.a[n]+'?v=2':ASSETS[n]||'';};const themeHas=n=>{const t=THEMES[themeOf(A&&A.S)];return !!(t.a&&t.a[n]);};
+const TA=n=>{const t=THEMES[themeOf(A&&A.S)];return t.a&&t.a[n]?t.a[n]+'?v=3':ASSETS[n]||'';};const themeHas=n=>{const t=THEMES[themeOf(A&&A.S)];return !!(t.a&&t.a[n]);};
 // פיצוץ: לתמונה של ערכה אין טקסט — כותבים "בום!" מעליה
 function boomImg(cls){if(themeHas('boomt'))return `<img class="${cls}" src="${TA('boomt')}" alt="בום!">`;return themeHas('boom')?`<span class="boomwrap ${cls}"><img src="${TA('boom')}" alt=""><span class="boomtxt">${fxText('בום!')}</span></span>`:`<img class="${cls}" src="${ASSETS.boom}" alt="בום!">`;}
 // כיתוב מאויר (כמו בלוגו): קו מתאר עבה, עומק תלת-ממדי ומילוי בצבעי הערכה
