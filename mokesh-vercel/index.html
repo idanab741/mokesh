@@ -466,7 +466,7 @@ html[data-ov=trap],html[data-ov=trap] body{background:var(--trap-bg)}html[data-o
 .badge{position:absolute;top:-8px;left:-6px;background:var(--red);color:#fff;border-radius:999px;font-size:12px;min-width:20px;height:20px;display:grid;place-items:center;border:2px solid var(--ink)}
 i.dot{display:inline-block;width:9px;height:9px;border-radius:50%;background:#2EE88A;border:1.5px solid var(--ink);vertical-align:middle}
 .sheet.acct{max-height:88vh;overflow-y:auto}
-.gbtn{background:#fff;color:var(--ink);display:flex;align-items:center;justify-content:center;gap:10px}.abtn{background:#000;color:#fff}
+.gbtn{background:#fff;color:var(--ink);display:flex;align-items:center;justify-content:center;gap:10px}.abtn{background:#000;color:#fff;display:flex;align-items:center;justify-content:center;gap:10px}
 .ordiv{display:flex;align-items:center;gap:10px;color:var(--soft);font-size:13px}.ordiv:before,.ordiv:after{content:'';flex:1;height:2px;background:rgba(21,16,43,.12)}
 .stts{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}.stt{background:#fff;border:var(--o);border-radius:14px;padding:8px 4px;text-align:center;display:flex;flex-direction:column}.stt b{font-family:var(--font-display);font-size:26px;line-height:1.1}.stt span{font-size:12px;color:var(--soft);font-weight:700}
 .fcode{background:var(--yellow);border:var(--o);border-radius:16px;padding:12px;display:flex;flex-direction:column;gap:6px;align-items:center}.fcode .code{font-family:var(--font-display);font-size:34px;letter-spacing:.2em}
@@ -1451,7 +1451,7 @@ function nativeAuthListen(){if(!NATIVE||!sb)return;const P=Capacitor.Plugins||{}
       const code=u.searchParams.get('code');if(code){const {error}=await sb.auth.exchangeCodeForSession(code);if(error)throw error;}
       else if(hp.get('access_token')){const {error}=await sb.auth.setSession({access_token:hp.get('access_token'),refresh_token:hp.get('refresh_token')});if(error)throw error;}
       A.sheet=null;render();}catch(e){toast('הכניסה עם Google לא הצליחה: '+(e.message||e));}});}
-const AUTH={apple:false}; // Apple יופעל אחרי שהמפתחות יוגדרו ב-Supabase
+const AUTH={apple:true}; // Apple יופעל אחרי שהמפתחות יוגדרו ב-Supabase
 // ---------- חלון אישור / שאלה בסגנון של המשחק (במקום החלונות של הטלפון) ----------
 function uiAsk(o){return new Promise(res=>{A.dlg=o;A.dlgVal=o.value||'';A.dlgRes=res;render();setTimeout(()=>{const i=document.querySelector('.dlg input');if(i){i.focus();i.select&&i.select();}},80);});}
 function dlgDone(ok){const d=A.dlg,r=A.dlgRes;if(!d)return;A.dlg=null;A.dlgRes=null;render();if(r)r(d.input?(ok?(A.dlgVal||'').trim():null):!!ok);}
@@ -1620,9 +1620,10 @@ async function loadFriends(){if(!A.user)return;const me=A.user.id;
     const {data:me2}=await sb.from('mokesh_profiles').select('stats').eq('id',me).maybeSingle();if(me2&&A.prof)A.prof.stats=me2.stats;
     render();}catch(e){console.warn('friends',e);}}
 const isOnline=f=>f&&f.last_seen&&Date.now()-new Date(f.last_seen).getTime()<ONLINE_MS?1:0;
-async function signInGoogle(){try{if(NATIVE){const P=Capacitor.Plugins||{};const {data,error}=await sb.auth.signInWithOAuth({provider:'google',options:{redirectTo:APP_CB,skipBrowserRedirect:true}});if(error)throw error;if(data&&data.url){if(P.Browser)await P.Browser.open({url:data.url});else location.href=data.url;}return;}
+async function oauthNative(provider){const P=Capacitor.Plugins||{};const {data,error}=await sb.auth.signInWithOAuth({provider,options:{redirectTo:APP_CB,skipBrowserRedirect:true}});if(error)throw error;if(data&&data.url){if(P.Browser)await P.Browser.open({url:data.url});else location.href=data.url;}}
+async function signInGoogle(){try{if(NATIVE){await oauthNative('google');return;}
   const {error}=await sb.auth.signInWithOAuth({provider:'google',options:{redirectTo:location.origin+location.pathname+location.search}});if(error)throw error;}catch(e){toast('הכניסה עם Google לא הצליחה: '+(e.message||e));}}
-async function signInApple(){try{const {error}=await sb.auth.signInWithOAuth({provider:'apple',options:{redirectTo:location.origin+location.pathname+location.search}});if(error)throw error;}catch(e){toast('הכניסה עם Apple לא הצליחה');}}
+async function signInApple(){try{if(NATIVE){await oauthNative('apple');return;}const {error}=await sb.auth.signInWithOAuth({provider:'apple',options:{redirectTo:location.origin+location.pathname+location.search}});if(error)throw error;}catch(e){toast('הכניסה עם Apple לא הצליחה');}}
 async function sendEmailCode(){const em=(A.loginEmail||'').trim();if(!/^\S+@\S+\.\S+$/.test(em))return toast('כתובת מייל לא תקינה');A.loginBusy=true;render();
   try{const {error}=await sb.auth.signInWithOtp({email:em,options:{emailRedirectTo:location.origin+location.pathname+location.search}});if(error)throw error;A.otpSent=true;}catch(e){toast('לא הצלחנו לשלוח מייל: '+(e.message||e));}A.loginBusy=false;render();}
 async function verifyEmailCode(){const t=(A.loginCode||'').replace(/\D/g,'');if(t.length<6)return toast('הקוד צריך להיות 6 ספרות');A.loginBusy=true;render();
@@ -1830,7 +1831,7 @@ function vLoginSheet(){const busy=A.loginBusy?'disabled':'';const up=A.authMode=
     <div class="ltabs"><button class="${up?'on':''}" onclick="A.authMode='signup';A.authMsg='';render()">הרשמה</button><button class="${up?'':'on'}" onclick="A.authMode='login';A.authMsg='';render()">כניסה</button></div>
     ${A.authMsg?`<div class="authmsg">${h(A.authMsg)}</div>`:''}
     ${NATIVE_IOS&&!AUTH.apple?'':`<button class="btn big gbtn" onclick="signInGoogle()" ${busy}>${G} המשך עם Google</button>
-    ${AUTH.apple?`<button class="btn big abtn" onclick="signInApple()" ${busy}> המשך עם Apple</button>`:''}
+    ${AUTH.apple?`<button class="btn big abtn" onclick="signInApple()" ${busy}><svg width="20" height="20" viewBox="0 0 384 512" aria-hidden="true"><path fill="#fff" d="M318.7 268.7c-.2-36.7 16.4-64.4 50-84.8-18.8-26.9-47.2-41.7-84.7-44.6-35.5-2.8-74.3 20.7-88.5 20.7-15 0-49.4-19.7-76.4-19.7C63.3 141.2 4 184.8 4 273.5q0 39.3 14.4 81.2c12.8 36.7 59 126.7 107.2 125.2 25.2-.6 43-17.9 75.8-17.9 31.8 0 48.3 17.9 76.4 17.9 48.6-.7 90.4-82.5 102.6-119.3-65.2-30.7-61.7-90-61.7-91.9zm-56.6-164.2c27.3-32.4 24.8-61.9 24-72.5-24.1 1.4-52 16.4-67.9 34.9-17.5 19.8-27.8 44.3-25.6 71.9 26.1 2 49.9-11.4 69.5-34.3z"/></svg> המשך עם Apple</button>`:''}
     <div class="ordiv"><span>${up?'או הרשמה עם מייל וסיסמה':'או כניסה עם מייל וסיסמה'}</span></div>`}
     <form class="col" style="gap:10px" onsubmit="event.preventDefault();emailAuth()">
       <input class="input" name="email" type="email" dir="ltr" autocomplete="email" placeholder="name@gmail.com" value="${h(A.loginEmail||'')}" oninput="A.loginEmail=this.value">
