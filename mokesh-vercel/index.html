@@ -1644,7 +1644,17 @@ const ROUTE=[
   {n:'ארוחת שישי',d:'רק מילים מ"אוכל ומטבח"',set:{difficulty:'all',target:16,turnSeconds:45,maxSkips:2,packs:512},skill:.62,margin:6},
   {n:'הכל קשה',d:'מילים קשות ודילוג אחד',set:{difficulty:3,target:16,turnSeconds:45,maxSkips:1},skill:.66,margin:6},
   {n:'בוס: השכן מלמעלה',d:'הוא שומע הכל דרך התקרה',set:{difficulty:'all',target:20,turnSeconds:45,maxSkips:1},skill:.75,margin:6,boss:1}]},
- {id:3,name:'העיר הגדולה',need:45,art:{},levels:[]},
+ {id:3,name:'העיר הגדולה',need:45,art:{map:'route/w3/map.webp',ratio:'928/1695',cur:'route/w1/cur.webp',done:'route/w1/done.webp',lock:'route/w1/lock.webp',node:18,pos:[[65.1,85.3],[26.1,75.8],[70.4,66.7],[28.2,58.1],[68.5,50.3],[29.7,42.0],[67.2,34.3],[32.9,26.9],[63.4,20.9],[50.4,15.0]]},levels:[
+  {n:'ברוכים הבאים לעיר',d:'כל רמות הקושי, 50 שניות',set:{difficulty:'all',target:15,turnSeconds:50,maxSkips:2},skill:.55,margin:5},
+  {n:'שעת עומס',d:'40 שניות לתור',set:{difficulty:'all',target:15,turnSeconds:40,maxSkips:2},skill:.58,margin:5},
+  {n:'בכורה בקולנוע',d:'רק "סרטים וסדרות", מילים קשות',set:{difficulty:3,target:14,turnSeconds:50,maxSkips:2,packs:4},skill:.6,margin:5},
+  {n:'מונית בלי דילוגים',d:'אי אפשר לדלג',set:{difficulty:'all',target:16,turnSeconds:45,maxSkips:0},skill:.62,margin:6},
+  {n:'מעל העננים',d:'רק "רשת וטכנולוגיה"',set:{difficulty:'all',target:16,turnSeconds:45,maxSkips:2,packs:1024},skill:.64,margin:6},
+  {n:'תור-תור בעיר',d:'מילה אחת, 25 שניות',set:{wordMode:1,turnsPerTeam:8,target:12,turnSeconds:25,maxSkips:1},skill:.66,margin:4},
+  {n:'מסיבה על הגג',d:'רק "מסיבה ובילויים"',set:{difficulty:'all',target:16,turnSeconds:40,maxSkips:2,packs:64},skill:.68,margin:6},
+  {n:'וול סטריט',d:'מילים קשות, 35 שניות',set:{difficulty:3,target:16,turnSeconds:35,maxSkips:1},skill:.7,margin:6},
+  {n:'לילה לבן',d:'מילים קשות, בלי דילוגים',set:{difficulty:3,target:18,turnSeconds:40,maxSkips:0},skill:.74,margin:6},
+  {n:'בוס: הבוס מהקומה ה-40',d:'הוא לא מחכה לאף אחד',set:{difficulty:'all',target:20,turnSeconds:40,maxSkips:1},skill:.8,margin:6,boss:1}]},
  {id:4,name:'מסיבת לילה',need:75,art:{},levels:[]},
  {id:5,name:'אזור אסור',need:110,art:{},levels:[]}];
 // גישה מלאה למסלול לחשבון של מנהל המשחק (נשמר רק טביעת אצבע של המייל, לא המייל עצמו)
@@ -1663,7 +1673,7 @@ function openRoute(){A.homeMode='route';A.routeW=A.routeW||1;A.routeLv=null;rend
 function vRoute(){const p=routeProg();const w=A.routeW||1;const W=ROUTE.find(x=>x.id===w);const tot=routeTotal(p);const locked=!A.dev&&tot<W.need;const prem=premiumOn(null);
   const cur=routeCur(p,w);const art=W.art||{};
   const node=(lv,i)=>{const st=routeStars(p,w,i);const open=!locked&&routeOpen(p,w,i);const isCur=open&&i===cur&&!st;const [x,y]=(art.pos||ROUTE_POS)[i]||[50,50];
-    const img=lv.boss&&art.boss?art.boss:st?(art.done||''):open?(art.cur||''):(art.lock||'');
+    const img=lv.boss?(art.boss||TA('bomb')):st?(art.done||''):open?(art.cur||''):(art.lock||'');
     const inner=img?`<img src="${img}" alt="">`:st?`<img src="${TA('ok')||TA('bomb')}" alt="" class="rdone">`:open?`<img src="${TA('bomb')}" alt="">`:`<span class="rlock">${ic('lock',26)}</span>`;
     return `<button class="rnode${st?' done':''}${isCur?' cur':''}${open?'':' locked'}${lv.boss?' boss':''}" style="left:${x}%;top:${y}%" ${open?`onclick="A.routeLv=${i};render()"`:''} aria-label="שלב ${i+1}">
       ${st?`<span class="rst">${'<i class="on">★</i>'.repeat(st)}${'<i>★</i>'.repeat(3-st)}</span>`:''}${inner}${st&&!img?`<span class="rok">${ic('check',14)}</span>`:''}<span class="rnum">${lv.boss?'בוס':i+1}</span></button>`;};
