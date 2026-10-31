@@ -445,6 +445,7 @@ html.kb .startbar{position:static;background:none}
 .logo.tlimg{width:min(95.5%,378px)}.logo.sm.tlimg{width:min(58%,222px)}.ilogo.tlimg{width:min(55.5vw,211px)!important}@media (max-height:760px){.ilogo.tlimg{width:min(44vw,166px)!important}}@media (max-height:780px){.screen.home .logo.tlimg{width:min(71%,278px)}}@media (max-height:680px){.screen.home .logo.tlimg{width:min(62%,233px)}}
 .seg2{display:flex;gap:8px}.seg2 button{flex:1;padding:10px;border-radius:14px;border:2.5px solid var(--ink);background:var(--card,#fff);font:inherit;font-weight:800;color:var(--ink)}.seg2 button.on{background:var(--yellow);box-shadow:0 3px 0 var(--ink)}
 .pkchip.mine{background:#fff}.pkchip.mine.on{background:var(--yellow)}
+.doclinks{display:flex;flex-wrap:wrap;gap:6px 16px;font-size:13px;font-weight:800}.doclinks a{color:var(--ink);text-decoration:underline;opacity:.75}
 .tlogo{position:relative;display:block;margin:0 auto;width:min(86%,340px);height:auto;aspect-ratio:340/250}
 .tlogo .tlbomb{position:absolute;width:52%;top:-2%;left:32%;transform:rotate(8deg);filter:drop-shadow(0 6px 0 rgba(21,16,43,.45))}
 .tlogo .tlhat{position:absolute;width:36%;top:22%;left:-2%;transform:rotate(-22deg);z-index:2;filter:drop-shadow(0 5px 0 rgba(21,16,43,.5))}
@@ -2323,7 +2324,7 @@ function vSettingsPage(){if(A.user&&!A.groupsAt||A.user&&Date.now()-A.groupsAt>6
     <div class="row" style="gap:8px"><button class="btn primary" style="flex:1" onclick="${gate}folderNew()">+ חבילה חדשה</button>${f.length?`<button class="btn ghost sgh" style="width:auto" onclick="openDeck()">ניהול</button>`:''}</div>`,lock)}
   ${sec('music','צליל ורטט',sw(MUSIC.on,'מוזיקה וצלילים','','toggleMusic()')+sw(hapOn(),'רטט','כשנופלים על מוקש ובניחוש נכון',"try{localStorage.setItem('mokesh.hap',this.checked?'1':'0')}catch(e){};udPush();if(this.checked)haptic(30)"))}
   ${sec('globe','שפה · Language',`<div class="seg2" data-notr><button class="${LANG==='he'?'on':''}" onclick="setLang('he')">עברית</button><button class="${LANG==='en'?'on':''}" onclick="setLang('en')">English</button></div><div class="xs" style="opacity:.75">החדרים שתפתחו יהיו במילים בשפה הזו</div>`)}
-  ${sec('help','עזרה',`<button class="srow" onclick="A.homeMode='how';render()"><b>איך משחקים</b>${ic('chev',20)}</button><div class="xs" style="opacity:.7">גרסה ${h(A.ver||'')}</div>`)}
+  ${sec('help','עזרה',`<button class="srow" onclick="A.homeMode='how';render()"><b>איך משחקים</b>${ic('chev',20)}</button><div class="doclinks"><a href="/terms" target="_blank" rel="noopener">תנאי שימוש</a><a href="/privacy" target="_blank" rel="noopener">מדיניות פרטיות</a><a href="/accessibility" target="_blank" rel="noopener">הצהרת נגישות</a></div><div class="xs" style="opacity:.7">גרסה ${h(A.ver||'')}</div>`)}
   </div>`;}
 function setLang(l){if(l===LANG)return;try{localStorage.setItem('mokesh.lang',l);}catch(e){}location.reload();}
 function vThemeHome(){const cur=themeOf(null);const lock=!premiumOn(null);const D={'--bg':'#2B3BFF','--yellow':'#FFD23F','--pink':'#FF4FA3','--cyan':'#19D3FF','--trap-bg':'#FF3B30'};const sw=v=>Object.keys(D).map(k=>`<i style="background:${v[k]||D[k]}"></i>`).join('');
