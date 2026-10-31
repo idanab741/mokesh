@@ -791,7 +791,7 @@ function applyTeamColors(S){let css='';if(S&&S.settings)for(const t of TEAM_IDS)
 const THEMES=[
  {k:'classic',n:'קלאסי',v:{}},
  {k:'halloween',n:'הלוואין',a:{bomb:'themes/halloween/bomb.webp',boom:'themes/halloween/boom.webp',ok:'themes/halloween/ok.webp',hat:'themes/halloween/hat.webp',bg:'themes/halloween/bg.webp'},v:{'--bg':'#2A1242','--bg-deep':'#160828','--yellow':'#FF8A1F','--yellow-d':'#D96400','--orange':'#FFC14D','--cyan':'#7CE04E','--pink':'#B65CFF','--lime':'#E9FF70','--paper':'#FFF0DC','--soft':'#6B4F72','--trap-bg':'#FF6A00','--ok-bg':'#6B2FB3'}},
- {k:'neon',n:'לילה ניאון',v:{'--bg':'#15093A','--bg-deep':'#090322','--yellow':'#F4FF3A','--yellow-d':'#C7D300','--orange':'#FF9F1C','--cyan':'#00EEFF','--pink':'#FF2BD6','--lime':'#7CFF4F','--paper':'#F3F0FF','--trap-bg':'#FF2BD6','--ok-bg':'#00B89C','--boom-f':'hue-rotate(285deg) saturate(1.4)'}},
+ {k:'neon',n:'לילה ניאון',a:{bomb:'themes/neon/bomb.webp',boom:'themes/neon/boom.webp',ok:'themes/neon/ok.webp',bg:'themes/neon/bg.webp',bgSize:'420px',tint:'rgba(9,3,34,.7)'},v:{'--bg':'#15093A','--bg-deep':'#090322','--yellow':'#F4FF3A','--yellow-d':'#C7D300','--orange':'#FF9F1C','--cyan':'#00EEFF','--pink':'#FF2BD6','--lime':'#7CFF4F','--paper':'#F3F0FF','--trap-bg':'#FF2BD6','--ok-bg':'#00B89C'}},
  {k:'summer',n:'קיץ בחוף',v:{'--bg':'#00A3C4','--bg-deep':'#00799A','--yellow':'#FFE45C','--yellow-d':'#E8C21F','--orange':'#FF9F43','--cyan':'#9DF3E4','--pink':'#FF6F61','--lime':'#D7F75B','--paper':'#FFF8E7','--trap-bg':'#FF6F61','--ok-bg':'#14B886'}},
  {k:'bubble',n:'מסטיק',v:{'--bg':'#FF5FA2','--bg-deep':'#E23C86','--yellow':'#FFE066','--yellow-d':'#F2C230','--orange':'#FF9F43','--cyan':'#5EE6FF','--pink':'#9B6BFF','--lime':'#C6F432','--paper':'#FFF4FA','--trap-bg':'#8F56FF','--ok-bg':'#12C46A','--boom-f':'hue-rotate(300deg) saturate(1.1)'}},
  {k:'jungle',n:"ג'ונגל",v:{'--bg':'#118A50','--bg-deep':'#0A6238','--yellow':'#FFD23F','--yellow-d':'#F2B600','--orange':'#FF8A1F','--cyan':'#55D6FF','--pink':'#FF7A59','--lime':'#D4F75A','--paper':'#FFF6E3','--trap-bg':'#FF5A1F','--ok-bg':'#0FA3A3'}},
@@ -805,7 +805,7 @@ function myTheme(){try{const v=+localStorage.getItem('mokesh.theme')||0;return T
 function themeOf(S){return premiumOn(S)||A.premium?myTheme():0;}
 function applyTheme(S){const i=themeOf(S);const k=THEMES[i].k;const H=document.documentElement;if(H.dataset.theme===k)return;H.dataset.theme=k;
   let el=document.getElementById('thcss');if(!el){el=document.createElement('style');el.id='thcss';document.head.appendChild(el);}
-  const ta=THEMES[i].a||{};el.textContent=':root{'+Object.entries(THEMES[i].v).map(([a,b])=>a+':'+b).join(';')+'}'+(ta.bg?`html{background:linear-gradient(rgba(26,10,44,.45),rgba(26,10,44,.45)),url(${ta.bg}) 0 0/300px repeat var(--bg)}body{background:transparent}body::before{display:none}`:'');
+  const ta=THEMES[i].a||{};el.textContent=':root{'+Object.entries(THEMES[i].v).map(([a,b])=>a+':'+b).join(';')+'}'+(ta.bg?`html{background:linear-gradient(${ta.tint||'rgba(26,10,44,.45)'},${ta.tint||'rgba(26,10,44,.45)'}),url(${ta.bg}) 0 0/${ta.bgSize||'300px'} repeat var(--bg)}body{background:transparent}body::before{display:none}`:'');
   const m=document.querySelector('meta[name=theme-color]');if(m)m.setAttribute('content',THEMES[i].v['--bg']||'#2B3BFF');
   let d=document.getElementById('decor');if(!d){d=document.createElement('div');d.id='decor';document.body.prepend(d);}d.className='decor '+k;d.innerHTML=(THEMES[i].a||{}).bg?'':themeDecor(k);render&&setTimeout(render,0);}
 // קישוטי רקע לערכה (SVG פשוט, מאחורי הכל)
