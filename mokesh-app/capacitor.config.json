@@ -21,7 +21,7 @@
     "SplashScreen": {
       "launchShowDuration": 1200,
       "launchAutoHide": true,
-      "backgroundColor": "#2B3BFF",
+      "backgroundColor": "#2531FD",
       "showSpinner": false
     },
     "StatusBar": {
