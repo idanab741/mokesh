@@ -261,6 +261,8 @@ html.kb .startbar{position:static;background:none}
 .settings .r button.mini,.settings .mini{width:auto;height:34px;padding:0 10px;font-family:var(--font-body);font-size:13px;font-weight:800}
 .settings .mini:disabled{opacity:.4}
 .btn.big.ok{background:#2EE88A}
+.price s{display:block;font-family:var(--font-display);font-size:30px;color:var(--soft);text-decoration-thickness:3px;text-decoration-color:#FF3B30}.price .free{color:#12A85A}
+.premline s{opacity:.8;text-decoration-color:#FF6A5E;text-decoration-thickness:2px}
 .plock{font-style:normal;display:inline-flex;align-items:center;gap:3px;background:var(--yellow);border:2px solid var(--ink);border-radius:999px;padding:0 8px;font:800 11px var(--font-body);vertical-align:2px}
 .premline{align-self:center;display:flex;align-items:center;gap:6px;background:rgba(21,16,43,.3);color:#fff;border:2px solid rgba(255,255,255,.2);border-radius:999px;padding:6px 14px;font:700 14px var(--font-body)}
 .premline.on{background:var(--yellow);color:var(--ink);border-color:var(--ink)}
@@ -930,7 +932,9 @@ function devKind(){const u=navigator.userAgent;return /iPhone|iPad|iPod/.test(u)
 // כל כניסה נספרת (השרת מצרף לפי מכשיר ויום: כמה מכשירים שונים, וכמה כניסות לכל אחד)
 // ---------- פרימיום (שלב 1): לפי מכשיר עד שיחובר תשלום. בחינם: 3 משחקים ביום ועד 6 שחקנים. חדר של מנהל פרימיום — פרימיום לכולם ----------
 const FREE_GAMES=3,FREE_PLAYERS=6;
-A.premium=(()=>{try{return localStorage.getItem('mokesh.prem')==='1';}catch(e){return false;}})();
+// מבצע השקה: פרימיום בחינם לכולם. להפעלת התשלום — PREMIUM_FREE=false
+const PREMIUM_FREE=true;
+A.premium=PREMIUM_FREE||(()=>{try{return localStorage.getItem('mokesh.prem')==='1';}catch(e){return false;}})();
 function premiumOn(S){return !!(A.premium||(S&&S.premium));}
 function gamesToday(){try{const d=JSON.parse(localStorage.getItem('mokesh.games')||'null');return d&&d.d===new Date().toDateString()?+d.n||0:0;}catch(e){return 0;}}
 function countGame(){try{localStorage.setItem('mokesh.games',JSON.stringify({d:new Date().toDateString(),n:gamesToday()+1}));}catch(e){}}
@@ -938,10 +942,13 @@ function canPlay(S){return premiumOn(S)||gamesToday()<FREE_GAMES;}
 function needPremium(reason){A.premReason=reason||'';A.sheet='premium';ev('prem',{a:'view',r:reason||''});render();}
 // התחלת משחק (מנהל / מכשיר אחד / מול המחשב): בחינם — סופרים, ואחרי 3 ביום מציעים פרימיום
 function gateStart(go){const S=A.S;if(!canPlay(S)){needPremium('limit');return;}if(!premiumOn(S))countGame();go();}
-function checkPremium(){if(!sb)return;sb.rpc('mokesh_is_premium',{p_uid:localStorage.getItem('mokesh.uid')||A.uid}).then(r=>{if(r.error||typeof r.data!=='boolean')return;const on=!!r.data;try{localStorage.setItem('mokesh.prem',on?'1':'0');}catch(e){}
+function checkPremium(){if(!sb||PREMIUM_FREE)return;sb.rpc('mokesh_is_premium',{p_uid:localStorage.getItem('mokesh.uid')||A.uid}).then(r=>{if(r.error||typeof r.data!=='boolean')return;const on=!!r.data;try{localStorage.setItem('mokesh.prem',on?'1':'0');}catch(e){}
   if(on!==A.premium){A.premium=on;if(A.S&&A.isHost&&A.S.phase==='LOBBY'){A.S.premium=on||!!A.S.premium;if(A.mode==='online')hostWrite();}render();}},()=>{});}
 function vPremium(){const lim=A.premReason==='limit';const code=localStorage.getItem('mokesh.uid')||A.uid||'';const left=Math.max(0,FREE_GAMES-gamesToday());
   const F=[['play','משחקים בלי הגבלה','בחינם: 3 משחקים ביום',''],['gear','כל ההגדרות','תור-תור, כמות תורים, נקודות לניצחון, זמנים, קושי, מוקשים כתובים',''],['users','עד 12 שחקנים בחדר','בחינם: עד 6',''],['book','+1,000 מילים בחבילות','שנות ה-90, צבא, מוזיקה, כדורגל, 18+…','בקרוב'],['chat','חפיסה פרטית','כותבים מילים משלכם, בדיחות פנימיות','בקרוב'],['users','3–4 קבוצות','למסיבות גדולות','בקרוב'],['trophy','היסטוריה והישגים','כל המשחקים, תגים וטבלת חברים','בקרוב'],['star','מראה אישי','תמונה אמיתית, צבעים לקבוצות, פיצוצים','בקרוב']];
+  if(PREMIUM_FREE)return `<div class="prem"><div class="pbadge">${ic('crown',22)} מוקש! פרימיום</div><div class="price"><s>29.90 <span class="nis">₪</span></s><b class="free">חינם!</b><span>מבצע השקה · לזמן מוגבל</span></div>
+    <div class="pfeat">${F.map(([i,t,d,soon])=>`<div class="pf"><span class="pi">${ic(i,20)}</span><div><b>${t}</b>${soon?`<em>${soon}</em>`:''}<div class="xs muted">${d}</div></div></div>`).join('')}</div>
+    <button class="btn primary big" onclick="A.sheet=null;render()">מעולה, יאללה משחקים</button></div>`;
   if(A.premium)return `<div class="prem"><div class="pbadge">${ic('crown',22)} פרימיום פעיל</div><h2>אתם בפרימיום!</h2><p class="small muted">כל מי שמשחק בחדר שלכם נהנה מהפרימיום.</p><button class="btn primary big" onclick="A.sheet=null;render()">יאללה, משחקים</button></div>`;
   return `<div class="prem"><div class="pbadge">${ic('crown',22)} מוקש! פרימיום</div>
     ${lim?`<div class="plimit">שיחקתם ${FREE_GAMES} משחקים היום. מחר יש עוד ${FREE_GAMES} בחינם — או שדרגו ותשחקו בלי הגבלה.</div>`:`<p class="small muted" style="margin:0">נשארו לכם היום <b>${left}</b> משחקים בחינם</p>`}
@@ -1534,7 +1541,7 @@ function vHome(){const c=A.chosen;const m=A.homeMode;if(m==='how'||m==='intro'){
       ${hb('q','bolt','משחק מהיר','<i class="ldot"></i>אונליין · 2 קבוצות של 3','quickMatch()')}
       ${hb('y','users','צור משחק','',"A.homeMode='create';render()")}
       ${hb('w','join','הצטרף למשחק','',"A.homeMode='join';render()")}
-      <button type="button" class="premline${A.premium?' on':''}" onclick="needPremium('home')">${A.premium?`${ic('crown',18)} פרימיום פעיל`:`${ic('crown',18)} ${Math.max(0,FREE_GAMES-gamesToday())} משחקים בחינם היום · <u>פרימיום</u>`}</button>
+      <button type="button" class="premline${A.premium?' on':''}" onclick="needPremium('home')">${PREMIUM_FREE?`${ic('crown',18)} פרימיום <s>29.90 ₪</s> <b>חינם!</b>`:A.premium?`${ic('crown',18)} פרימיום פעיל`:`${ic('crown',18)} ${Math.max(0,FREE_GAMES-gamesToday())} משחקים בחינם היום · <u>פרימיום</u>`}</button>
       <div class="hicons"><button onclick="A.homeMode='local';render()"><span style="--c:var(--pink)">${ic('phone',24)}</span>מכשיר אחד</button><button onclick="A.homeMode='ai';render()"><span style="--c:var(--cyan)">${ic('robot',24)}</span>מול המחשב</button><button onclick="tourStart('home')"><span style="--c:var(--lime)">${ic('book',24)}</span>איך משחקים</button></div>
       ${A.dbMissing?'<div class="banner warn">מצב אונליין לא זמין כרגע. ״מכשיר אחד״ עובד תמיד.</div>':''}
     </div>`;
