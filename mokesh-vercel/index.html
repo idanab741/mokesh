@@ -444,6 +444,7 @@ html.kb .startbar{position:static;background:none}
 .fx>span{position:relative;background:linear-gradient(180deg,var(--fx1) 0%,var(--fx1) 30%,var(--fx2) 58%,var(--fx3) 100%);-webkit-background-clip:text;background-clip:text;color:transparent;filter:var(--fx-glow,none)}
 .logo.tlimg{width:min(95.5%,378px)}.logo.sm.tlimg{width:min(58%,222px)}.ilogo.tlimg{width:min(55.5vw,211px)!important}@media (max-height:760px){.ilogo.tlimg{width:min(44vw,166px)!important}}@media (max-height:780px){.screen.home .logo.tlimg{width:min(71%,278px)}}@media (max-height:680px){.screen.home .logo.tlimg{width:min(62%,233px)}}
 .seg2{display:flex;gap:8px}.seg2 button{flex:1;padding:10px;border-radius:14px;border:2.5px solid var(--ink);background:var(--card,#fff);font:inherit;font-weight:800;color:var(--ink)}.seg2 button.on{background:var(--yellow);box-shadow:0 3px 0 var(--ink)}
+.pkchip.mine{background:#fff}.pkchip.mine.on{background:var(--yellow)}
 .tlogo{position:relative;display:block;margin:0 auto;width:min(86%,340px);height:auto;aspect-ratio:340/250}
 .tlogo .tlbomb{position:absolute;width:52%;top:-2%;left:32%;transform:rotate(8deg);filter:drop-shadow(0 6px 0 rgba(21,16,43,.45))}
 .tlogo .tlhat{position:absolute;width:36%;top:22%;left:-2%;transform:rotate(-22deg);z-index:2;filter:drop-shadow(0 5px 0 rgba(21,16,43,.5))}
@@ -655,7 +656,7 @@ html.kb .sheet-bg{top:var(--vt,0px);bottom:auto;height:var(--vh,100%)}
 .ourw{display:flex;flex-direction:column;gap:10px;border:2.5px dashed var(--ink);border-radius:16px;padding:12px;background:#fff}.ourw.on{border-style:solid;background:var(--yellow)}.ourw .muted{color:var(--soft)}
 .ouronly{display:flex;align-items:center;gap:8px;font-weight:700;font-size:14px}.ouronly input{width:20px;height:20px;accent-color:var(--ink)}
 .tjoin.tbot{display:flex;align-items:center;justify-content:center;gap:6px}
-.pkchip b{font-size:15px}.thchip .sw{display:flex;gap:3px;margin-top:4px}.thchip .sw i{width:18px;height:18px;border-radius:50%;border:2px solid var(--ink)}.pkchip span{font-size:12px;color:var(--soft)}.pkchip.on{background:var(--yellow);box-shadow:0 3px 0 var(--ink)}.pkchip svg{position:absolute;top:8px;left:8px}
+.pkchip b{font-size:15px}.thchip .sw{display:flex;gap:3px;margin-top:4px}.thchip .sw i{width:18px;height:18px;border-radius:50%;border:2px solid var(--ink)}.pkchip span{font-size:12px;color:var(--soft)}.pkchip.on{background:var(--yellow);box-shadow:0 3px 0 var(--ink)}.pkchip svg{position:absolute;top:8px;inset-inline-end:8px}.pkchip.mine b svg{position:static}
 .settings .r button.packbtn{max-width:60%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .deck textarea{resize:vertical;font-size:16px}
 .dklist{display:flex;flex-direction:column;gap:6px}.dk{display:flex;align-items:center;justify-content:space-between;gap:8px;background:#fff;border:2.5px solid var(--ink);border-radius:14px;padding:8px 12px}
@@ -2025,9 +2026,9 @@ function render(){const S=A.S;let html='';applyTeamColors(S);applyTheme(S);if(S&
   {const ov=S&&S.phase==='CARD_RESULT'&&S.cardResult?S.cardResult.kind:'';if((document.documentElement.dataset.ov||'')!==ov)document.documentElement.dataset.ov=ov;}
   if(S&&hostAway(S)&&S.phase!=='LOBBY'){const host=S.players.find(p=>p.isHost);html+=`<div class="awaybar">המשחק מושהה: הטלפון של ${h(host?host.name:'מנהל/ת החדר')} לא מחובר. ממתינים שיחזור למשחק…</div>`;}
   if(S&&A.avPick)html+=vAvPick(S);
-  if(A.deckEdit)html+=vDeck();
   deckAutoPush(S);
   if(S&&A.packOpen&&S.phase==='LOBBY')html+=vPacks(S);
+  if(A.deckEdit)html+=vDeck(); // מעל חלון החבילות, כשפותחים "החבילות שלי" מתוכו
   if(A.themeOpen)html+=vThemes(S);
   if(S&&A.menu)html+=vMenu(S);
   if(S&&A.roomChat&&S.mode==='online')html+=vRoomChat(S);
@@ -2316,7 +2317,7 @@ function vSettingsPage(){if(A.user&&!A.groupsAt||A.user&&Date.now()-A.groupsAt>6
   ${sec('users','קבוצות משחק',vGroups())}
   ${sec('star','ערכת עיצוב',vThemeHome(),lock)}
   ${sec('book','החבילות שלי',`<div class="xs" style="margin-top:-4px">חבילות מילים שאתם כותבים, למשל "המשפחה" או "החברים". בחדר הן נכנסות למשחק דרך "חבילות מילים".</div>
-    ${f.length||(A.spacks||[]).length?`<div class="spk">${(A.user?(A.spacks||[]):[]).map(p=>`<button class="spkc sp${spOn(p.id)?' on':''}" onclick="openDeck();A.deckEdit='sp:${p.id}';spWordsLoad('${p.id}');render()"><b>${ic('users',14)} ${h(p.name)}</b><span>משותפת · ${p.mine+p.others} מילים</span></button>`).join('')}${f.map(x=>`<button class="spkc${x.on?' on':''}" onclick="${gate}A.deckEdit='${x.id}';A.deckPaste=false;render()"><b>${h(x.n)}</b><span>${x.w.length===1?'מילה אחת':x.w.length+' מילים'}</span></button>`).join('')}</div>`:''}
+    ${f.length||(A.spacks||[]).length?`<div class="spk">${(A.user?(A.spacks||[]):[]).map(p=>`<button class="spkc sp${spOn(p.id)?' on':''}" onclick="openDeck();A.deckEdit='sp:${p.id}';spWordsLoad('${p.id}');render()"><b>${ic('users',14)} <span data-notr style="font:inherit;color:inherit">${h(p.name)}</span></b><span>משותפת · ${p.mine+p.others} מילים</span></button>`).join('')}${f.map(x=>`<button class="spkc${x.on?' on':''}" onclick="${gate}A.deckEdit='${x.id}';A.deckPaste=false;render()"><b data-notr>${h(x.n)}</b><span>${x.w.length===1?'מילה אחת':x.w.length+' מילים'}</span></button>`).join('')}</div>`:''}
     <div class="row" style="gap:8px"><button class="btn primary" style="flex:1" onclick="${gate}folderNew()">+ חבילה חדשה</button>${f.length?`<button class="btn ghost sgh" style="width:auto" onclick="openDeck()">ניהול</button>`:''}</div>`,lock)}
   ${sec('music','צליל ורטט',sw(MUSIC.on,'מוזיקה וצלילים','','toggleMusic()')+sw(hapOn(),'רטט','כשנופלים על מוקש ובניחוש נכון',"try{localStorage.setItem('mokesh.hap',this.checked?'1':'0')}catch(e){};udPush();if(this.checked)haptic(30)"))}
   ${sec('globe','שפה · Language',`<div class="seg2" data-notr><button class="${LANG==='he'?'on':''}" onclick="setLang('he')">עברית</button><button class="${LANG==='en'?'on':''}" onclick="setLang('en')">English</button></div><div class="xs" style="opacity:.75">החדרים שתפתחו יהיו במילים בשפה הזו</div>`)}
@@ -2346,7 +2347,13 @@ function vOurWords(S){const host=A.isHost;const my=S.settings.myDeck||0;const n=
   return `<div class="ourw${my?' on':''}"><div class="row between" style="gap:10px"><div class="col" style="gap:2px;min-width:0"><b>החבילות שלנו</b><span class="xs muted">החבילות שכל שחקן כתב בטלפון שלו. מילה שלכם לא תגיע לקבוצה שלכם.</span></div>
       ${host?`<label class="pswitch"><input type="checkbox" ${my?'checked':''} onchange="setMyDeck(this.checked?1:0)"><span></span></label>`:`<span class="xs bold">${my?'פעיל':'כבוי'}</span>`}</div>
     ${my&&host?`<label class="ouronly"><input type="checkbox" ${my===2?'checked':''} onchange="setMyDeck(this.checked?2:1)"> רק החבילות שלנו (בלי החבילות של המשחק)</label>`:''}
-    <div class="row between" style="gap:8px"><button class="btn info" style="width:auto;padding:8px 14px" onclick="openDeck()">${ic('book',18)} החבילות שלי${n?` (${n} מילים)`:''}</button>${my&&room?`<span class="xs muted">בחדר: ${room} מילים${ppl>1?` מ-${ppl} שחקנים`:''}</span>`:''}</div></div>`;}
+    ${vMyPackChips()}
+    <div class="row between" style="gap:8px"><button class="btn info" style="width:auto;padding:8px 14px" onclick="openDeck()">${ic('book',18)} ${foldersLoad().length||(A.user&&(A.spacks||[]).length)?'עריכת החבילות שלי':'יצירת חבילה'}</button>${my&&room?`<span class="xs muted">בחדר: ${room} מילים${ppl>1?` מ-${ppl} שחקנים`:''}</span>`:''}</div></div>`;}
+// החבילות שלי (פרטיות ומשותפות) בתוך חלון החבילות של החדר: רואים אותן ובוחרים אילו נכנסות
+function vMyPackChips(){if(A.user&&(!A.spAt||Date.now()-A.spAt>30000)){A.spAt=Date.now();setTimeout(spLoad,0);}
+  const fs=foldersLoad(),sps=A.user?(A.spacks||[]):[];if(!fs.length&&!sps.length)return '';
+  const chip=(on,click,name,sub,icn)=>`<button class="pkchip mine${on?' on':''}" onclick="${click}"><b>${icn?ic(icn,14)+' ':''}<span data-notr style="font-size:inherit;color:inherit">${h(name)}</span></b><span>${sub}</span>${on?ic('check',18):''}</button>`;
+  return `<div class="xs bold" style="margin-top:4px">החבילות שלי · סמנו אילו נכנסות</div><div class="pkgrid">${sps.map(p=>chip(spOn(p.id),`spToggle('${p.id}')`,p.name,`משותפת · ${p.mine+p.others} מילים`,'users')).join('')}${fs.map(f=>chip(f.on,`folderToggle('${f.id}')`,f.n,f.w.length===1?'מילה אחת':f.w.length+' מילים','')).join('')}</div>`;}
 function setMyDeck(v){const S=A.S;if(!S)return;if(!premiumOn(S))return needPremium('settings');if(v&&!myDeckLoad().length&&!(S.myDeck||[]).length){toast('קודם הוסיפו מילים לחפיסה');openDeck();}act({type:'settings',settings:{myDeck:v}});}
 function openDeck(){if(!premiumOn(A.S))return needPremium('folders');A.deckEdit='list';A.deckPaste=false;render();}
 async function folderNew(){const all=foldersLoad();if(all.length>=FOLDER_MAX)return toast('אפשר עד '+FOLDER_MAX+' חבילות');const n=myTxt(await uiAsk({title:'חבילה חדשה',text:'למשל "המשפחה", "החברים" או "העבודה"',input:1,placeholder:'שם החבילה',ok:'יצירה',icon:ic('book',30)})||'');if(!n)return;
@@ -2370,9 +2377,9 @@ function deckPasteGo(){const t=document.querySelector('.deck textarea');if(!t)re
   const n=deckPut(list);toast(n?`נוספו ${n} מילים`:'לא נוספו מילים חדשות');A.deckPaste=false;render();}
 function deckDel(i){folderUpd(f=>{f.w.splice(i,1);});render();}
 function vFolders(){const all=foldersLoad();const inRoom=A.S&&A.S.phase==='LOBBY'&&A.S.mode!=='ai';if(A.user&&(!A.spAt||Date.now()-A.spAt>30000)){A.spAt=Date.now();setTimeout(spLoad,0);}const sps=A.user?(A.spacks||[]):[];
-  const srow=p=>`<div class="fold sp${spOn(p.id)?' on':''}"><button class="fopen" onclick="A.deckEdit='sp:${p.id}';A.deckPaste=false;spWordsLoad('${p.id}');render()"><span class="fic">${ic('users',20)}</span><span class="col" style="gap:1px;min-width:0"><b>${h(p.name)}</b><span class="xs muted">משותפת · ${p.mine} שלי + ${p.others} של אחרים</span></span></button>
+  const srow=p=>`<div class="fold sp${spOn(p.id)?' on':''}"><button class="fopen" onclick="A.deckEdit='sp:${p.id}';A.deckPaste=false;spWordsLoad('${p.id}');render()"><span class="fic">${ic('users',20)}</span><span class="col" style="gap:1px;min-width:0"><b data-notr>${h(p.name)}</b><span class="xs muted">משותפת · ${p.mine} שלי + ${p.others} של אחרים</span></span></button>
     <label class="fsw" title="נכנסת למשחק"><input type="checkbox" ${spOn(p.id)?'checked':''} onchange="spToggle('${p.id}')"><span></span></label></div>`;
-  const row=f=>`<div class="fold${f.on?' on':''}"><button class="fopen" onclick="A.deckEdit='${f.id}';render()"><span class="fic">${ic('book',20)}</span><span class="col" style="gap:1px;min-width:0"><b>${h(f.n)}</b><span class="xs muted">${f.w.length===1?'מילה אחת':f.w.length+' מילים'}</span></span></button>
+  const row=f=>`<div class="fold${f.on?' on':''}"><button class="fopen" onclick="A.deckEdit='${f.id}';render()"><span class="fic">${ic('book',20)}</span><span class="col" style="gap:1px;min-width:0"><b data-notr>${h(f.n)}</b><span class="xs muted">${f.w.length===1?'מילה אחת':f.w.length+' מילים'}</span></span></button>
     <label class="fsw" title="נכנסת למשחק"><input type="checkbox" ${f.on?'checked':''} onchange="folderToggle('${f.id}')"><span></span></label></div>`;
   return `<div class="sheet-bg top" onclick="closeDeck()"><div class="sheet pop deck" onclick="event.stopPropagation()">
     <div class="row between"><div class="black" style="font-size:22px">החבילות שלי</div><button class="btn ghost" onclick="closeDeck()">סיום</button></div>
