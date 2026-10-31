@@ -561,6 +561,15 @@ html.kb .msg .b{padding:6px 12px;font-size:16px}html.kb .msg.clue.cur .b{font-si
 .authmsg{background:var(--green);color:var(--ink);border:2.5px solid var(--ink);border-radius:14px;padding:10px 12px;font-weight:700;font-size:14px;line-height:1.45}
 .authlinks{gap:10px;flex-wrap:wrap}.guestlnk{align-self:center;background:none;border:0;padding:4px;color:var(--soft);font:600 12px var(--font-body);text-decoration:underline;opacity:.75;cursor:pointer}
 .lglogo{width:min(46%,170px)!important;margin:0!important}
+.face{display:flex;flex-direction:column;gap:12px;justify-content:flex-end}.facet{text-align:center;color:#fff;font-weight:700;font-size:14px;opacity:.85}
+.facebtn{display:flex;align-items:center;justify-content:center;gap:12px;min-height:76px;border:var(--o);border-radius:24px;box-shadow:0 6px 0 var(--ink);font-family:var(--font-display);font-size:26px;color:var(--ink);cursor:pointer}
+.facebtn:active{transform:translateY(4px);box-shadow:0 2px 0 var(--ink)}.facebtn:disabled{opacity:.45}.facebtn.ok{background:var(--green)}.facebtn.ok span{width:46px;height:46px;border-radius:50%;background:#fff;border:2.5px solid var(--ink);display:grid;place-items:center}
+.facebtn.boom{background:var(--trap-bg);color:#fff;font-size:22px;min-height:64px}.facebtn.boom img{width:46px;height:46px;object-fit:contain}
+.facewho{display:flex;align-items:center;justify-content:center;gap:8px;color:#fff}.facewho button{background:none;border:0;padding:0;opacity:.5}.facewho button.on{opacity:1;transform:scale(1.15)}
+.facemines{display:grid;gap:10px}.facemines .trap{font-size:22px;padding:16px;cursor:pointer}.faceback{color:#fff}
+.handoff{gap:16px;text-align:center}.hoicon{width:110px;height:110px;border-radius:50%;background:var(--paper);border:var(--o);box-shadow:var(--sh);display:grid;place-items:center;color:var(--ink);margin:0 auto}.hoicon img{width:84px}
+.handoff .hot{font-size:30px;color:#fff;text-shadow:0 3px 0 var(--ink);line-height:1.15}.hos{color:#fff;opacity:.9;font-weight:700}
+.hon{font-family:var(--font-display);font-size:120px;line-height:1;color:var(--yellow);text-shadow:0 6px 0 var(--ink);animation:honp 1s ease-in-out infinite}@keyframes honp{0%{transform:scale(1.15)}60%{transform:scale(.95)}}
 .setpage{gap:14px;padding-bottom:30px}
 .sset{background:var(--paper);color:var(--ink);border:var(--o);border-radius:22px;box-shadow:var(--sh);padding:14px;display:flex;flex-direction:column;gap:12px}
 .sset .xs{color:var(--soft)}.ssh{display:flex;align-items:center;gap:10px;font-family:var(--font-display);font-size:20px}.ssh b{font-weight:400}.ssh .plock{margin-right:auto}
@@ -1267,7 +1276,7 @@ function leaveRoom(){voiceLeave(true);A.roomSeen=null;if(A.S&&!['LOBBY','GAME_OV
   localStorage.removeItem('mokesh.session');A.newAv=null;A.avPick=null;A.menu=0;A.S=null;A.mode=null;A.isHost=false;A.homeMode='menu';render();}
 
 // ---------- מצב מקומי (העבר את הטלפון) ----------
-function startLocalLoop(){clearInterval(A.hostT);A.hostT=setInterval(()=>{if(A.mode==='online'||!A.S||TOUR.pauseAt)return;if(E.tick(A.S)){if(A.S.cardResult&&A.S.phase==='CARD_RESULT')fx(A.S.cardResult.kind);render();}},250);}
+function startLocalLoop(){clearInterval(A.hostT);A.hostT=setInterval(()=>{if(A.mode==='online'||!A.S||TOUR.pauseAt||A.handoff)return;if(E.tick(A.S)){if(A.S.cardResult&&A.S.phase==='CARD_RESULT')fx(A.S.cardResult.kind);render();}},250);}
 function createLocal(){track('local');A.mode='local';A.isHost=true;A.me={id:'local-host',name:'',avatar:''};const S=newState('LOCAL','local');S.premium=!!A.premium;A.S=S;startLocalLoop();startBotLoop();render();}
 
 // ---------- מול המחשב: בוטים שמנחשים לפי מילון מילות הקשר שבקלפים (בלי AI) ----------
@@ -1612,8 +1621,21 @@ function voiceNote(S){if(!voiceOk(S))return '';
   let hint='כולם שומעים את כולם';
   if(S.phase==='TRAP_SELECTION')hint='עכשיו שומעים רק את הקבוצה שלכם';
   return `<div class="vnote"><span class="vlvl">${V.muted?'מושתק':'שקט'}</span><button onclick="voiceMute()">${V.muted?'הפעל מיקרופון':'השתק'}</button>${V.needTap?'<button class="vtap" onclick="voiceUnlock()">לחצו כאן כדי לשמוע</button>':''}${hint}<span class="vwho">${names.length?'בשיחה: '+names.join(', '):'מחכים שעוד מישהו יצטרף…'}</span><button onclick="voiceLeave()">יציאה</button></div>`;}
+// מכשיר אחד: 5 שניות להעביר את הטלפון לפני שהיריבים בוחרים מוקשים, ולפני שהקבוצה מתחילה להסביר. השעון עומד בזמן הזה
+function handoffCheck(S){if(!S||S.mode!=='local'||A.handoff)return;let key=null;
+  if(S.phase==='TRAP_SELECTION'&&S.turnRemainingMs>=S.settings.turnSeconds*1000)key='t'+S.gameId+S.turnIndex+(S.sudden?'s'+S.sudden.played:'');
+  else if(S.phase==='EXPLAINING'&&!isBot(S.explainerId))key='e'+S.gameId+S.turnIndex+(S.sudden?'s'+S.sudden.played:'');
+  if(!key||A.hoDone===key)return;A.hoDone=key;A.handoff={k:key[0],at:Date.now(),until:Date.now()+5000};}
+function handoffEnd(){const h0=A.handoff;if(!h0)return;A.handoff=null;const S=A.S;if(S&&S.phaseEndsAt)S.phaseEndsAt+=Date.now()-h0.at;haptic([40,60,40]);render();}
+function vHandoff(S){const hd=A.handoff;const n=Math.max(1,Math.ceil((hd.until-Date.now())/1000));const opp=TEAM_NAME[oppOf(S)],act0=TEAM_NAME[S.activeTeam];const ex=playerById(S,S.explainerId);
+  const t=hd.k==='t'?`העבירו את הטלפון ל${opp}`:`${ex?h(ex.name):act0} — מתכוננים להסביר`;const sub=hd.k==='t'?`הם טומנים מוקשים ל${act0}. ${act0} — לא להציץ!`:`${act0} מנחשת. רק המסביר מסתכל על המסך`;
+  return `<div class="screen center handoff"><div class="hoicon">${hd.k==='t'?`<img src="${TA('bomb')}" alt="">`:ic('phone',56)}</div><div class="black hot">${t}</div><div class="small hos">${sub}</div><div class="hon">${n}</div><button class="btn primary big" onclick="handoffEnd()">${hd.k==='t'?'הטלפון אצלנו — מתחילים':'מוכנים — יאללה'}</button></div>`;}
 function render(){const S=A.S;let html='';applyTeamColors(S);applyTheme(S);if(S&&S.cardId&&A.seenCard!==S.cardId&&S.phase!=='GAME_OVER'){A.seenCard=S.cardId;seenAdd(S.cardId);}if(S&&A.helpOpen){html=vIntro();const tpl0=document.createElement('div');tpl0.innerHTML=html;morph(app,tpl0);return;}voiceRoute();if(S&&S.phase==='GAME_OVER')recordGame(S);
+  if(S)handoffCheck(S);
+  if(A.handoff&&(!S||S.mode!=='local'||!['TRAP_SELECTION','EXPLAINING'].includes(S.phase)))A.handoff=null;
+  if(A.handoff){if(Date.now()>=A.handoff.until){handoffEnd();return;}clearTimeout(A.hoT);A.hoT=setTimeout(render,250);}
   if(!S)html=vHome();
+  else if(A.handoff)html=vHandoff(S);
   else if(S.phase!=='LOBBY'&&S.phase!=='GAME_OVER'&&!packsReady(S))html=vWait(S,'טוען את חבילות המילים…');
   else switch(S.phase){
     case 'LOBBY':html=vLobby(S);break;
@@ -1744,7 +1766,7 @@ function tourPlace(){const R=TOUR.el;if(!R||!TOUR.steps)return;const s=TOUR.step
   hand.style.opacity=1;hand.style.left=(r.left+r.width*.5-10)+'px';hand.style.top=(r.top+r.height*.55)+'px';
   if(tip){const th=tip.offsetHeight;const below=r.bottom+p+22;const above=r.top-p-22-th;tip.style.top=(below+th<H-130||above<60?Math.min(below,H-130-th):above)+'px';}}
 // טיפים אוטומטיים: בפעם הראשונה שמגיעים לכל מסך
-function tourAuto(){if(TOUR.el||A.sheet||A.menu||A.avPick)return;const S=A.S;let k=null,passive=true;
+function tourAuto(){if(TOUR.el||A.sheet||A.menu||A.avPick||A.handoff)return;const S=A.S;let k=null,passive=true;
   if(!S){if(A.homeMode==='menu'&&!A.joinCode&&!tourSeen('home')){k='home';passive=false;}}
   else if(S.phase==='LOBBY'&&S.mode==='online'&&A.isHost&&!S.public)k='lobby';
   else if(S.phase==='TRAP_SELECTION'&&S.mode!=='ai'&&role(S)==='opponent')k='trap';
@@ -2033,7 +2055,18 @@ function vExplainer(S,c){const live=S.phase==='EXPLAINING';const local=S.mode===
     <div class="wordcard"><div class="l">המילה שלך:</div><div class="target">${h(c?c.target:'')}</div></div>
     <div class="col" style="gap:6px"><div class="sublabel"><span>מוקשים — אסור שינחשו אותם</span></div>${trapHtml}</div>
     <div class="row ctrl"><div class="pill kb-hide"><span class="wave ${live?'':'off'}"><i></i><i></i><i></i><i></i><i></i><i></i><i></i></span><span>${live?'מסבירים — הזמן רץ':'ממתינים למוקשים'}</span></div><button class="btn info" ${!live||S.skipsLeft<=0?'disabled':''} onclick="act({type:'skip',from:'${S.explainerId}'})">${ic('skip',20)} דלג (${S.skipsLeft})${E.skipCost(S)?` · −${E.skipCost(S)}`:''}</button></div>
-    ${ai?vChat(S,'clue',live?'כתבו רמז ראשון לשותף':S.phase==='TRAP_SELECTION'?trapperLine(S):'רגע…')+(live?vClueBar(S,live)+(S.mode!=='online'&&humansOn(S,S.activeTeam).some(p=>p.id!==S.explainerId)?vLocalGuessBar(S,live):''):''):`<div class="grow"><div class="label" style="margin-bottom:6px">ניחושים אחרונים</div>${vGuesses(S,3)}</div>${local?vLocalGuessBar(S,live):''}`}</div>`;}
+    ${ai?vChat(S,'clue',live?'כתבו רמז ראשון לשותף':S.phase==='TRAP_SELECTION'?trapperLine(S):'רגע…')+(live?vClueBar(S,live)+(S.mode!=='online'&&humansOn(S,S.activeTeam).some(p=>p.id!==S.explainerId)?vLocalGuessBar(S,live):''):''):local?vFaceBar(S,live):`<div class="grow"><div class="label" style="margin-bottom:6px">ניחושים אחרונים</div>${vGuesses(S,3)}</div>`}</div>`;}
+// מכשיר אחד: משחקים פנים אל פנים. המסביר מדבר, הקבוצה צועקת ניחושים, והמסביר רק לוחץ מה קרה
+function vFaceBar(S,live){const gs=E.team(S,S.activeTeam).filter(p=>p.id!==S.explainerId);const who=(gs.find(p=>p.id===A.localActor)||gs[0]||{}).id;
+  if(!gs.length)return '';const dis=live&&!S.cardResolved?'':'disabled';
+  if(A.boomPick&&live)return `<div class="face grow"><div class="facet">איזה מוקש נאמר?</div><div class="facemines">${S.traps.map((t,i)=>`<button class="trap" onclick="faceBoom(${i})">${h(t)}</button>`).join('')}</div><button class="btn ghost faceback" onclick="A.boomPick=0;render()">ביטול</button></div>`;
+  return `<div class="face grow"><div class="facet">${live?'מסבירים בקול · הקבוצה צועקת ניחושים':'ממתינים…'}</div>
+    <button class="facebtn ok" ${dis} onclick="faceHit()"><span>${ic('check',30)}</span><b>בול! ניחשו</b></button>
+    <button class="facebtn boom" ${dis} onclick="A.boomPick=1;render()"><img src="${TA('bomb')}" alt=""><b>בום! מישהו אמר מוקש</b></button>
+    ${gs.length>1?`<div class="facewho"><span class="xs">מי ניחש?</span>${gs.map(p=>`<button class="${p.id===who?'on':''}" onclick="A.localActor='${p.id}';render()">${av(p.avatar,'')}</button>`).join('')}</div>`:''}</div>`;}
+function faceGuesser(){const S=A.S;const gs=E.team(S,S.activeTeam).filter(p=>p.id!==S.explainerId);return (gs.find(p=>p.id===A.localActor)||gs[0]||{}).id;}
+function faceHit(){const S=A.S,c=E.card(S);if(!c)return;haptic(30);act({type:'guess',text:c.target,guessId:uid(10),from:faceGuesser()});}
+function faceBoom(i){const S=A.S;const w=S.traps[i];A.boomPick=0;if(!w)return;act({type:'guess',text:w,guessId:uid(10),from:faceGuesser()});}
 // רמזים וניחושים של הקלף הנוכחי כשיחה אחת, לפי סדר הזמן
 function vChat(S,mine,emptyText){const ex=playerById(S,S.explainerId);const from=S.cardAt||0;const lastClue=S.clues.length?S.clues.at(-1):null;
   const me=myId();const online=S.mode==='online';const seen=new Set(S.guesses.map(g=>g.id));
