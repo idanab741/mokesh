@@ -751,7 +751,7 @@ const E = {
     s.turnsPerTeam=cl(s.turnsPerTeam,1,s.wordMode?20:10);s.turnSeconds=cl(s.turnSeconds,30,120);s.trapSeconds=cl(s.trapSeconds,10,40);s.maxSkips=cl(s.maxSkips,0,5);s.target=cl(s.target||20,10,50);
     if(![1,2,3,'all'].includes(s.difficulty))s.difficulty='all';S.settings=s;},
   startGame(S){if(S.phase!=='LOBBY')throw new Error('המשחק כבר התחיל');if(E.team(S,'A').length<2||E.team(S,'B').length<2)throw new Error('צריך לפחות 2 שחקנים בכל קבוצה');
-    E.reset(S);E.beginTurn(S);},
+    E.reset(S);S.startedAt=Date.now();gameEv('start',S);E.beginTurn(S);},
   rematch(S){if(S.phase!=='GAME_OVER')return;E.reset(S);S.phase='LOBBY';S.phaseEndsAt=null;for(const p of S.players)p.ready=false;},
   reset(S){S.gameId=uid(6);S.sudden=null;S.streak=0;S.score={A:0,B:0};S.correctTotal={A:0,B:0};S.trapsTotal={A:0,B:0};S.turnIndex=0;S.activeTeam='A';S.cursor={A:0,B:0};S.gameOver=null;S.turnSummary=null;S.cardResult=null;S.cardId=null;S.traps=[];
     for(const p of S.players){p.stats={correct:0,traps:0,expl:0,miss:0,mine:0};p.turnCorrect=0;}S.fast=null;S.trapBy=null;
@@ -855,8 +855,8 @@ const E = {
     return result;},
   skip(S,playerId){const pl=S.players.find(x=>x.id===playerId);const botEx=isBot(S.explainerId)&&pl&&pl.team===S.activeTeam&&!isBot(playerId);if(playerId!==S.explainerId&&!botEx)throw new Error('רק המסביר יכול לדלג');const c=E.card(S);if(S.phase!=='EXPLAINING'||!c||S.cardResolved)throw new Error('אי אפשר לדלג עכשיו');
     if(S.skipsLeft<=0)throw new Error('נגמרו הדילוגים לתור הזה');S.skipsLeft--;S.streak=0;const k=E.skipCost(S),t=S.activeTeam;if(k){S.score[t]-=k;S.turnStats.points-=k;}E.resolve(S,{kind:'skip',word:c.target,delta:k?{[t]:-k}:{}});E.setPhase(S,'CARD_RESULT',T.SKIP);},
-  resolve(S,info){E.freeze(S);S.cardResolved=true;S.cardResult=info;const c=E.card(S);if(c){S.turnWords=S.turnWords||[];S.turnWords.push({word:c.target,kind:info.kind,at:S.cardAt||0,cardId:S.cardId});}},
-  endTurn(S){E.freeze(S);S.turnRemainingMs=0;{const c=E.card(S);if(c&&!S.cardResolved&&S.phase==='EXPLAINING'){S.turnWords=S.turnWords||[];S.turnWords.push({word:c.target,kind:'missed',at:S.cardAt||0,cardId:S.cardId});}}S.cardResolved=true;const ex=S.players.find(p=>p.id===S.explainerId);
+  resolve(S,info){E.freeze(S);S.cardResolved=true;S.cardResult=info;const c=E.card(S);if(c){ev('card',{id:S.cardId,r:info.kind,ms:Math.max(0,Date.now()-(S.cardLiveAt||Date.now()))});S.turnWords=S.turnWords||[];S.turnWords.push({word:c.target,kind:info.kind,at:S.cardAt||0,cardId:S.cardId});}},
+  endTurn(S){E.freeze(S);S.turnRemainingMs=0;{const c=E.card(S);if(c&&!S.cardResolved&&S.phase==='EXPLAINING'){ev('card',{id:S.cardId,r:'missed'});S.turnWords=S.turnWords||[];S.turnWords.push({word:c.target,kind:'missed',at:S.cardAt||0,cardId:S.cardId});}}S.cardResolved=true;const ex=S.players.find(p=>p.id===S.explainerId);
     const g=E.team(S,S.activeTeam).filter(p=>p.id!==S.explainerId).sort((a,b)=>b.turnCorrect-a.turnCorrect)[0];
     S.turnSummary={team:S.activeTeam,words:(S.turnWords||[]).slice(),explainerName:ex?ex.name:'—',correct:S.turnStats.correct,traps:S.turnStats.traps,points:S.turnStats.points,best:g&&g.turnCorrect>0?{name:g.name,correct:g.turnCorrect}:null};
     S.cardId=null;S.traps=[];S.cardResult=null;E.setPhase(S,'TURN_SUMMARY',S.settings.wordMode?T.SUMMARY_WORD:T.SUMMARY);},
@@ -871,7 +871,7 @@ const E = {
     S.gameOver={winner:win||(S.score.A===S.score.B?'tie':S.score.A>S.score.B?'A':'B'),reason:reason||'',score:{...S.score},correctTotal:{...S.correctTotal},trapsTotal:{...S.trapsTotal},
       mvp:mvp&&mvp.stats.correct>0?{name:mvp.name,correct:mvp.stats.correct}:null,bomber:bomber&&bomber.stats.traps>0?{name:bomber.name,traps:bomber.stats.traps}:null,
       awards:{guess:top('correct'),expl:top('expl'),fast:S.fast?{name:S.fast.name,avatar:(S.players.find(x=>x.name===S.fast.name)||{}).avatar,n:S.fast.ms,word:S.fast.word}:null,miss:top('miss'),bomb:top('traps'),mine:top('mine')}};
-    S.explainerId=null;S.cardId=null;E.setPhase(S,'GAME_OVER',null);},
+    S.explainerId=null;S.cardId=null;E.setPhase(S,'GAME_OVER',null);gameEv('end',S,{dur:S.startedAt?Math.round((Date.now()-S.startedAt)/6000)/10:0,r:reason||'turns'});},
   setPhase(S,phase,ms){S.phase=phase;S.phaseEndsAt=ms==null?null:Date.now()+ms;S.v++;},
   // קריאה תקופתית ע״י המארח — מבצעת מעברים שתלויים בזמן
   tick(S){if(!S.phaseEndsAt||Date.now()<S.phaseEndsAt)return false;
@@ -916,6 +916,13 @@ function trafficSrc(){try{const q=new URLSearchParams(location.search);const s=(
   for(const [k,v] of [['facebook','facebook'],['fb.','facebook'],['instagram','instagram'],['whatsapp','whatsapp'],['google','google'],['tiktok','tiktok'],['t.co','twitter'],['twitter','twitter'],['x.com','twitter']])if(r.includes(k))return v;return r.replace(/^www\./,'').slice(0,20);}catch(e){return '';}}
 function devKind(){const u=navigator.userAgent;return /iPhone|iPad|iPod/.test(u)?'iphone':/Android/.test(u)?'android':'desktop';}
 // כל כניסה נספרת (השרת מצרף לפי מכשיר ויום: כמה מכשירים שונים, וכמה כניסות לכל אחד)
+// אירועים לעמוד הניהול: משחק התחיל/נגמר/עזבו באמצע, מה קרה לכל מילה, משחק מהיר ותקלות. רק המכשיר שמנהל את המשחק שולח
+function ev(kind,data){if(!sb||!A.dbReady)return;try{sb.rpc('mokesh_ev',{p_uid:localStorage.getItem('mokesh.uid')||A.uid,p_kind:kind,p_data:data||{}}).then(()=>{},()=>{});}catch(e){}}
+function gameEv(kind,S,extra){const ps=S.players||[];ev(kind,{m:S.mode,q:S.public?1:0,vb:S.vsBots?1:0,h:ps.filter(p=>!isBot(p.id)).length,b:ps.filter(p=>isBot(p.id)).length,wm:S.settings.wordMode?1:0,ct:S.settings.customTraps||0,tg:S.settings.target||20,...(extra||{})});}
+// תקלות: עד 5 לכל טעינה, בלי כפילויות
+const ERRS=new Set();function errEv(m,src){m=String(m||'').slice(0,160);if(!m||ERRS.has(m)||ERRS.size>=5)return;ERRS.add(m);ev('err',{m,s:String(src||'').slice(0,80),v:String(A.ver||'').slice(0,20),d:devKind()});}
+window.addEventListener('error',e=>errEv(e.message,(e.filename||'').split('/').pop()+':'+(e.lineno||'')));
+window.addEventListener('unhandledrejection',e=>errEv('promise: '+((e.reason&&e.reason.message)||e.reason),''));
 function track(kind){if(!sb)return;sb.rpc('mokesh_hit',{p_uid:localStorage.getItem('mokesh.uid')||A.uid,p_kind:kind,p_src:trafficSrc(),p_dev:devKind()}).then(()=>{},()=>{});}
 async function initRuntime(){
   try{if(window.supabase&&SUPABASE_URL.startsWith('http')){sb=window.supabase.createClient(SUPABASE_URL,SUPABASE_ANON,{realtime:{params:{eventsPerSecond:20}}});A.uid=localStorage.getItem('mokesh.uid')||('u'+uid(10));localStorage.setItem('mokesh.uid',A.uid);A.dbReady=true;}}catch(e){console.error(e);}
@@ -1049,7 +1056,7 @@ function startHostLoop(){startBotLoop();clearInterval(A.hostT);A.hostT=setInterv
   // ניתוקים: 90 שניות בלי נוכחות
   for(const p of A.S.players)if(!p.isHost&&!isBot(p.id)&&p.connected&&Date.now()-(p.lastSeen||0)>90000){p.connected=false;changed=true;}
   if(changed){hostWrite();render();}else if(Date.now()-(A.lastWriteAt||0)>20000)hostWrite();},250);} // דופק כל 20 שניות: האורחים יודעים שהמארח מחובר
-function leaveRoom(){voiceLeave(true);A.roomSeen=null;if(A.mode==='online'&&A.isHost&&A.S&&sb){const c=A.S.code;sb.from('mokesh_rooms').delete().eq('code',c).then(()=>{},()=>{});}clearInterval(A.botT);if(A.mode==='online'&&A.S&&!A.isHost)sendAction(A.S.code,{type:'leave'});A.unsub.forEach(u=>u());A.unsub=[];clearInterval(A.hostT);clearInterval(A.presenceT);
+function leaveRoom(){voiceLeave(true);A.roomSeen=null;if(A.S&&!['LOBBY','GAME_OVER'].includes(A.S.phase))ev('quit',{m:A.S.mode,ph:A.S.phase,host:A.isHost?1:0});if(A.mode==='online'&&A.isHost&&A.S&&sb){const c=A.S.code;sb.from('mokesh_rooms').delete().eq('code',c).then(()=>{},()=>{});}clearInterval(A.botT);if(A.mode==='online'&&A.S&&!A.isHost)sendAction(A.S.code,{type:'leave'});A.unsub.forEach(u=>u());A.unsub=[];clearInterval(A.hostT);clearInterval(A.presenceT);
   localStorage.removeItem('mokesh.session');A.newAv=null;A.avPick=null;A.menu=0;A.S=null;A.mode=null;A.isHost=false;A.homeMode='menu';render();}
 
 // ---------- מצב מקומי (העבר את הטלפון) ----------
@@ -1249,7 +1256,7 @@ async function reportPlayer(id){const S=A.S;const p=S&&playerById(S,id);if(!p||!
   try{await sb.from('mokesh_reports').insert({reporter:myId(),target:id,target_name:p.name,room:S.code,reason:(S.chat||[]).filter(m=>m.by===id).slice(-3).map(m=>m.text).join(' | ').slice(0,300)});}catch(e){}
   A.muted.add(id);saveMuted();toast('תודה! הדיווח נשלח והשחקן הושתק');render();}
 async function quickMatch(){if(!A.dbReady)return toast('מצב אונליין לא זמין כרגע');if(!(A.chosen.name||'').trim()){A.homeMode='quick';render();return;}
-  track('quick');qmStop(false);A.qm={since:Date.now(),waiting:1,err:0};A.homeMode='queue';render();qmPoll();A.qmT=setInterval(qmPoll,2000);A.qmT2=setInterval(()=>{if(A.qm&&A.homeMode==='queue'&&!A.S)render();},1000);}
+  track('quick');qmStop(false);A.qmSince=Date.now();A.qm={since:A.qmSince,waiting:1,err:0};A.homeMode='queue';render();qmPoll();A.qmT=setInterval(qmPoll,2000);A.qmT2=setInterval(()=>{if(A.qm&&A.homeMode==='queue'&&!A.S)render();},1000);}
 async function qmPoll(){const q=A.qm;if(!q||q.busy)return;q.busy=true;
   try{const {data,error}=await sb.rpc('mokesh_match',{p_id:A.uid,p_name:(A.chosen.name||'').trim().slice(0,16),p_avatar:A.chosen.avatar});if(error)throw error;if(A.qm!==q)return;
     if(data&&data.room){qmStop(false);await qmEnter(data);return;}
@@ -1258,8 +1265,8 @@ async function qmPoll(){const q=A.qm;if(!q||q.busy)return;q.busy=true;
   catch(e){console.warn('qm',e);q.err++;if(q.err>=4&&A.qm===q){qmStop(true);A.homeMode='menu';render();toast('החיפוש נכשל — נסו שוב בעוד רגע');}}
   finally{q.busy=false;}}
 function qmStop(unq){clearInterval(A.qmT);clearInterval(A.qmT2);A.qmT=A.qmT2=null;if(unq&&sb)sb.rpc('mokesh_unqueue',{p_id:A.uid}).then(()=>{},()=>{});A.qm=null;}
-function qmCancel(){qmStop(true);A.homeMode='menu';render();}
-async function qmEnter(d){const mem=(Array.isArray(d.members)?d.members:[]).filter(m=>m&&okId(m.id)).slice(0,6);sb.rpc('mokesh_unqueue',{p_id:A.uid}).then(()=>{},()=>{});
+function qmCancel(){if(A.qm)ev('qm',{r:'cancel',w:Math.round((Date.now()-A.qm.since)/1000)});qmStop(true);A.homeMode='menu';render();}
+async function qmEnter(d){const mem=(Array.isArray(d.members)?d.members:[]).filter(m=>m&&okId(m.id)).slice(0,6);if(d.host||mem.length<=1)ev('qm',{r:mem.length<=1?'bots':'match',n:mem.length,w:A.qmSince?Math.round((Date.now()-A.qmSince)/1000):0});sb.rpc('mokesh_unqueue',{p_id:A.uid}).then(()=>{},()=>{});
   if(mem.length<=1){toast('לא נמצאו עוד שחקנים כרגע — משחקים מול המחשב 🤖');createAI();apply(S=>E.addPlayer(S,{id:A.uid,name:A.chosen.name,avatar:A.chosen.avatar}));aiStart();return;}
   if(d.host)await createPublicRoom(String(d.room),mem);else await joinPublic(String(d.room));}
 async function createPublicRoom(code,mem){if(!/^[A-Z0-9]{6}$/.test(code))return;A.me={id:A.uid,name:A.chosen.name,avatar:A.chosen.avatar};A.isHost=true;A.mode='online';

@@ -15,6 +15,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Secular+One&family=Rubik:wght@500;700;800&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.116.0/dist/umd/supabase.js"></script>
+<script src="/cards.js" defer></script>
 <style>
 :root{--bg:#2B3BFF;--ink:#15102B;--paper:#FFF6E3;--soft:#5D5578;--yellow:#FFD23F;--cyan:#19D3FF;--pink:#FF4FA3;--lime:#C6F432;--green:#2EE88A;--red:#FF3B30;--o:3px solid var(--ink);--sh:0 5px 0 var(--ink)}
 *{box-sizing:border-box}
@@ -54,7 +55,7 @@ button{font:inherit;cursor:pointer}
 .axis{display:flex;justify-content:space-between;font:700 11px Rubik;color:var(--soft);margin-top:6px;direction:ltr}
 .tip{position:absolute;top:0;transform:translateX(-50%);background:var(--ink);color:#fff;border-radius:10px;padding:5px 9px;font:700 12px Rubik;white-space:nowrap;pointer-events:none;direction:rtl;z-index:2}
 .hbars{display:flex;flex-direction:column;gap:10px}
-.hb{display:grid;grid-template-columns:104px 1fr 58px;align-items:center;gap:10px}
+.hb{display:grid;grid-template-columns:118px 1fr 58px;align-items:center;gap:10px}
 .hb .n{font-weight:800;font-size:14px;display:flex;align-items:center;gap:6px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .hb .tr{height:22px;background:rgba(21,16,43,.08);border-radius:6px;overflow:hidden}
 .hb .tr i{display:block;height:100%;background:var(--bg);border-radius:0 4px 4px 0}
@@ -80,6 +81,12 @@ input{width:100%;height:54px;border-radius:16px;border:var(--o);padding:0 16px;f
 table{width:100%;border-collapse:collapse;font-size:13px}td,th{padding:4px 6px;border-bottom:1px solid rgba(21,16,43,.12);text-align:right}th{color:var(--soft)}
 .devt td,.devt th{padding:7px 6px}.devt td b{font-size:14px}
 .kpi .s b{color:var(--ink)}
+.sub2{font:800 14px Rubik;color:var(--soft);margin:12px 0 6px}
+.mini-chart{display:flex;align-items:flex-end;gap:3px;height:110px;direction:ltr;border-bottom:2px solid rgba(21,16,43,.35);padding-top:16px}
+.mini-chart .mb{flex:1;height:100%;display:flex;flex-direction:column;justify-content:flex-end;position:relative}
+.mini-chart .mb i{display:block;background:var(--bg);border-radius:4px 4px 0 0;min-height:2px}.mini-chart .mb.t i{background:var(--pink)}
+.mini-chart .mb em{position:absolute;top:-2px;left:0;right:0;text-align:center;font:700 10px Rubik;font-style:normal;color:var(--soft)}
+.mini-axis{display:flex;gap:3px;direction:ltr;margin-top:4px}.mini-axis span{flex:1;text-align:center;font:700 11px Rubik;color:var(--soft)}
 .toggle{background:none;border:0;color:var(--soft);font:800 12px Rubik;text-decoration:underline;padding:0;margin-top:10px}
 </style>
 </head>
@@ -102,7 +109,7 @@ const DEV=[['iphone','אייפון'],['android','אנדרואיד'],['desktop','
 async function load(){if(!ST.key)return;ST.busy=true;render();
   try{const {data,error}=await sb.rpc('mokesh_stats',{p_key:ST.key});if(error)throw error;
     if(data&&data.error==='key'){ST.key=null;ST.data=null;try{localStorage.removeItem('mokesh.adminKey');}catch(e){}ST.err='סיסמה שגויה';}
-    else{ST.data=data;ST.err='';}}
+    else{ST.data=data;ST.err='';try{const r2=await sb.rpc('mokesh_stats2',{p_key:ST.key});ST.d2=r2.data&&!r2.data.error?r2.data:null;}catch(e){ST.d2=null;}}}
   catch(e){ST.err=/mokesh_stats|function/i.test(e.message||'')?'עוד לא הורץ קובץ admin.sql ב-Supabase':'בעיית חיבור. נסו שוב';}
   ST.busy=false;render();}
 function login(f){const k=f.k.value.trim();if(!k)return;ST.key=k;try{localStorage.setItem('mokesh.adminKey',k);}catch(e){}load();}
@@ -123,6 +130,34 @@ function daily(d){const days=d.daily||[];const max=Math.max(4,...days.map(x=>x.u
 // כל מכשיר = טלפון/מחשב אחד (מזהה אקראי, מוצגות 4 אותיות אחרונות). כמה כניסות, בכמה ימים, ומתי לאחרונה
 function topDev(d){const L=d.topDev||[];if(!L.length)return '<div class="empty">עוד אין נתונים</div>';const fmt=s=>{const [y,m,dd]=String(s).split('-');return +dd+'.'+(+m);};const DN={iphone:'אייפון',android:'אנדרואיד',desktop:'מחשב'};
   return `<table class="devt"><tr><th>מכשיר</th><th>כניסות</th><th>ימים</th><th>לאחרונה</th></tr>${L.map(x=>`<tr><td><b>${h(DN[x.dev]||'מכשיר')}</b> <span class="muted">#${h(x.id)}</span></td><td><b>${nf(x.v)}</b></td><td>${nf(x.days)}</td><td>${fmt(x.last)}</td></tr>`).join('')}</table>`;}
+// ---------- חלקים נוספים: משפך, שעות, חזרה, מילים, משחק מהיר, הגדרות, תקלות ----------
+const pct=(a,b)=>b?Math.round(100*a/b)+'%':'—';
+function vbars(vals,labels,hl){const max=Math.max(1,...vals);return `<div class="mini-chart">${vals.map((v,i)=>`<div class="mb${i===hl?' t':''}" title="${labels[i]}: ${v}"><i style="height:${(100*v/max).toFixed(1)}%"></i>${v&&vals.length<=12?`<em>${v}</em>`:''}</div>`).join('')}</div><div class="mini-axis">${labels.map((l,i)=>`<span>${labels.length>12&&i%3?'':l}</span>`).join('')}</div>`;}
+function wordName(id){const c=(window.CARDS_DATA||[]).find(x=>x.id===id);return c?c.target:id;}
+function wordList(rows,val,fmt){if(!rows.length)return '<div class="empty">עוד אין מספיק נתונים (צריך שכל מילה תופיע לפחות 3 פעמים)</div>';
+  return `<table class="devt">${rows.map(r=>`<tr><td><b>${h(wordName(r.id))}</b></td><td>${fmt(r)}</td><td class="muted">${nf(r.n)} הופעות</td></tr>`).join('')}</table>`;}
+function vMore(d){if(!d)return '';const f=d.funnel||{};const steps=[['מכשירים נכנסו',f.devices],['משחקים נפתחו',f.opened],['משחקים התחילו',f.started],['משחקים הסתיימו',f.ended]];const max=Math.max(1,...steps.map(x=>+x[1]||0));
+  const funnel=`<div class="hbars">${steps.map(([n,c])=>`<div class="hb"><span class="n">${n}</span><span class="tr"><i style="width:${(100*(+c||0)/max).toFixed(1)}%"></i></span><span class="c">${nf(c)}</span></div>`).join('')}</div>
+    <div class="kpis" style="margin:14px 0 0"><div class="kpi"><div class="l">סיימו מתוך שהתחילו</div><div class="v">${pct(f.ended,f.started)}</div></div><div class="kpi"><div class="l">עזבו באמצע</div><div class="v">${nf(f.quit)}</div></div><div class="kpi"><div class="l">משחק ממוצע</div><div class="v">${f.avgMin!=null?f.avgMin:'—'}</div><div class="s">דקות</div></div></div>`;
+  const hrs=d.hours||[],dw=d.dows||[];const now=new Date();
+  const peak=`<div class="sub2">לפי שעה (משחקים שהתחילו)</div>${vbars(hrs,hrs.map((_,i)=>String(i)),now.getHours())}<div class="sub2" style="margin-top:14px">לפי יום</div>${vbars(dw,['א','ב','ג','ד','ה','ו','ש'],now.getDay())}`;
+  const rt=d.retention||{};const coh=(rt.cohorts||[]).map(c=>`<tr><td>${(([y,m,dd])=>+dd+'.'+(+m))(String(c.d).split('-'))}</td><td>${nf(c.n)}</td><td>${nf(c.r)}</td><td><b>${pct(c.r,c.n)}</b></td></tr>`).join('');
+  const ret=`<div class="kpis" style="margin:0 0 12px"><div class="kpi hi"><div class="l">חזרו למחרת</div><div class="v">${pct(rt.d1,rt.d1base)}</div><div class="s">מתוך ${nf(rt.d1base)} חדשים</div></div><div class="kpi"><div class="l">חזרו תוך שבוע</div><div class="v">${pct(rt.d7,rt.d7base)}</div><div class="s">מתוך ${nf(rt.d7base)} חדשים</div></div></div>
+    ${coh?`<table class="devt"><tr><th>נכנסו לראשונה</th><th>חדשים</th><th>חזרו</th><th></th></tr>${coh}</table>`:''}`;
+  const cards=(d.cards||[]).filter(c=>c.n>=3);const by=(k)=>[...cards].sort((a,b)=>b[k]/b.n-a[k]/a.n).filter(c=>c[k]>0).slice(0,8);
+  const words=`<div class="sub2">הכי מדלגים עליהן</div>${wordList(by('skip'),'skip',r=>`<b>${pct(r.skip,r.n)}</b> דילוג`)}
+    <div class="sub2">הכי עולים בהן על מוקש</div>${wordList(by('trap'),'trap',r=>`<b>${pct(r.trap,r.n)}</b> מוקש`)}
+    <div class="sub2">הכי קשות (הכי פחות ניחשו)</div>${wordList([...cards].sort((a,b)=>a.ok/a.n-b.ok/b.n).slice(0,8),'ok',r=>`<b>${pct(r.ok,r.n)}</b> ניחשו`)}
+    <div class="sub2">הכי מהירות לניחוש</div>${wordList([...cards].filter(c=>c.ms).sort((a,b)=>a.ms-b.ms).slice(0,5),'ms',r=>`<b>${(r.ms/1000).toFixed(1)}</b> שניות`)}`;
+  const q=d.qm||{};const qt=(+q.match||0)+(+q.bots||0)+(+q.cancel||0);
+  const qm=`<div class="kpis" style="margin:0"><div class="kpi hi"><div class="l">מצאו שחקנים</div><div class="v">${pct(q.match,qt)}</div><div class="s">${nf(q.match)} פעמים</div></div><div class="kpi"><div class="l">עברו למחשב</div><div class="v">${pct(q.bots,qt)}</div><div class="s">${nf(q.bots)} פעמים</div></div><div class="kpi"><div class="l">ויתרו באמצע</div><div class="v">${nf(q.cancel)}</div></div><div class="kpi"><div class="l">המתנה ממוצעת</div><div class="v">${q.wait!=null?q.wait:'—'}</div><div class="s">שניות · ${q.players!=null?q.players:'—'} שחקנים</div></div></div>`;
+  const st=d.settings||{};const g=+st.games||0;
+  const sets=`${hbars([{n:'חדר עם חברים',c:+st.online||0},{n:'משחק מהיר',c:+st.quick||0},{n:'מכשיר אחד',c:+st.local||0},{n:'מול המחשב',c:+st.ai||0}],g)}
+    <div class="hbars" style="margin-top:14px">${[['תור-תור',st.word],['על זמן',g-(+st.word||0)],['מוקשים כתובים',st.ct1],['מוקשים גם וגם',st.ct2]].map(([n,c])=>`<div class="hb"><span class="n">${n}</span><span class="tr"><i style="width:${g?(100*(+c||0)/g).toFixed(1):0}%"></i></span><span class="c">${nf(c)}<small>${pct(+c||0,g)}</small></span></div>`).join('')}</div>
+    <div class="muted" style="margin-top:10px">בממוצע ${st.humans!=null?st.humans:'—'} אנשים ו-${st.bots!=null?st.bots:'—'} מחשבים בכל משחק</div>`;
+  const er=(d.errors||[]);const errs=er.length?`<table class="devt"><tr><th>תקלה</th><th>פעמים</th><th>מכשירים</th><th>לאחרונה</th></tr>${er.map(x=>`<tr><td style="direction:ltr;text-align:left;font:12px ui-monospace,monospace;word-break:break-word">${h(x.m)}<div class="muted">${h(x.s||'')} ${h(x.v||'')}</div></td><td>${nf(x.c)}</td><td>${nf(x.u)}</td><td>${new Date(x.last).toLocaleString('he-IL',{day:'numeric',month:'numeric',hour:'2-digit',minute:'2-digit'})}</td></tr>`).join('')}</table>`:'<div class="empty">אין תקלות ב-14 הימים האחרונים</div>';
+  const card=(t,sub,body)=>`<div class="card"><h2>${t}<small>${sub}</small></h2>${body}</div>`;
+  return card('מכניסה ועד סוף משחק','30 ימים',funnel)+card('שעות שיא','30 ימים · שעון ישראל',peak)+card('כמה חוזרים','מכשירים חדשים',ret)+card('מילים','30 ימים',words)+card('משחק מהיר','30 ימים',qm)+card('איך משחקים','30 ימים · '+nf(g)+' משחקים',sets)+card('תקלות','14 ימים',errs);}
 function vDash(){const d=ST.data;if(!d)return `<div class="card"><div class="empty">${ST.busy?'טוען…':h(ST.err||'')}</div></div>`;
   const today=(d.daily||[]).at(-1)||{n:0};const m=d.modes||{},mt=d.modesToday||{};const games=MODE.reduce((a,[k])=>a+(+m[k]||0),0);
   const src=(d.src||[]).map(x=>({n:SRC[x.s]||x.s,c:+x.c}));const srcT=src.reduce((a,x)=>a+x.c,0);
@@ -142,6 +177,7 @@ function vDash(){const d=ST.data;if(!d)return `<div class="card"><div class="emp
   <div class="card"><h2>מכשירים<small>30 ימים</small></h2>${hbars(dev,devT)}</div>
   <div class="card"><h2>קישורים למעקב</h2><p class="muted" style="margin:0 0 10px">כשמפרסמים, משתמשים בקישור של אותו מקום. ככה רואים כאן בדיוק מאיפה הגיעו האנשים.</p><div class="links">
     ${[['פייסבוק','fb'],['וואטסאפ','wa'],['אינסטגרם','ig'],['טיקטוק','tiktok']].map(([n,s])=>`<div class="lk"><b>${n}</b><code>${h(site)}/?s=${s}</code><button class="ib" style="height:34px;min-width:34px;padding:0 8px" onclick="copyLink('${h(site)}/?s=${s}',this)" aria-label="העתק">${ic('copy')}</button></div>`).join('')}</div></div>
+  ${vMore(ST.d2)}
   <div class="foot">מתעדכן לבד כל 30 שניות · עודכן ${new Date(d.at).toLocaleTimeString('he-IL',{hour:'2-digit',minute:'2-digit'})} · "מכשיר" = טלפון או מחשב אחד, בלי מידע אישי</div>`;}
 
 function vLogin(){return `<div class="login"><img src="/icon-192.png" alt="" style="width:110px;border-radius:26px;border:3px solid var(--ink);box-shadow:0 6px 0 var(--ink)"><h1>מוקש! · ניהול</h1>
