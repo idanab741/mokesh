@@ -2047,7 +2047,10 @@ function render(){const S=A.S;let html='';applyTeamColors(S);applyTheme(S);if(S&
   if(VOICE.on){const vi=app.querySelector(`input[name="${VOICE.field}"]`);if(!vi||vi.disabled)stopVoice(true);else vi.classList.add('listening');}
   tickTimers();tourAuto();if(!S)requestAnimationFrame(fitHome);}
 // מסך הבית בלי גלילה: אם התוכן גבוה מהמסך, מקטינים את אזור הלוגו והשעון עד שהכל נכנס
-function fitHome(){const sc=app.querySelector('.screen.home');if(!sc)return;const hd=sc.querySelector(':scope > header')||sc.children[2];if(!hd)return;hd.style.zoom='';let z=1;for(let i=0;i<4;i++){const over=app.scrollHeight-app.clientHeight;if(over<=1)break;const h=hd.getBoundingClientRect().height;if(!h)break;z=Math.max(.55,z*(h-over-2)/h);hd.style.zoom=z.toFixed(3);if(z<=.55)break;}}
+function fitHome(){const sc=app.querySelector('.screen.home');if(!sc)return;const hd=sc.querySelector(':scope > header');if(!hd)return;
+  // הקטנה עם transform (ולא zoom): ככה המיקום של השעון נמדד נכון גם בספארי, והפיצוץ יוצא בדיוק עליו
+  hd.style.scale='';hd.style.marginBottom='';const over=app.scrollHeight-app.clientHeight;if(over<=1)return;const h=hd.offsetHeight;if(!h)return;
+  const z=Math.max(.55,(h-over-2)/h);hd.style.transformOrigin='50% 0';hd.style.scale=z.toFixed(3);hd.style.marginBottom=(-(h*(1-z))).toFixed(1)+'px';}
 addEventListener('resize',()=>requestAnimationFrame(fitHome));
 // עדכון ה-DOM במקום החלפה מלאה: שדה הקלדה פעיל נשאר אותו אלמנט, כך שהמקלדת לא נסגרת ולא קופצת בכל עדכון
 function morph(from,to){const tc=[...to.childNodes];

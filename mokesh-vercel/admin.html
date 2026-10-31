@@ -152,8 +152,8 @@ function vMore(d){if(!d)return '';const f=d.funnel||{};const steps=[['מכשיר
   const cards=(d.cards||[]).filter(c=>c.n>=3);const by=(k)=>[...cards].sort((a,b)=>b[k]/b.n-a[k]/a.n).filter(c=>c[k]>0).slice(0,8);
   const words=`<div class="sub2">הכי מדלגים עליהן</div>${wordList(by('skip'),'skip',r=>`<b>${pct(r.skip,r.n)}</b> דילוג`)}
     <div class="sub2">הכי עולים בהן על מוקש</div>${wordList(by('trap'),'trap',r=>`<b>${pct(r.trap,r.n)}</b> מוקש`)}
-    <div class="sub2">הכי קשות (הכי פחות ניחשו)</div>${wordList([...cards].sort((a,b)=>a.ok/a.n-b.ok/b.n).slice(0,8),'ok',r=>`<b>${pct(r.ok,r.n)}</b> ניחשו`)}
-    <div class="sub2">הכי מהירות לניחוש</div>${wordList([...cards].filter(c=>c.ms).sort((a,b)=>a.ms-b.ms).slice(0,5),'ms',r=>`<b>${(r.ms/1000).toFixed(1)}</b> שניות`)}`;
+    <div class="sub2">הכי קשות (ניחשו פחות מ-75% מהפעמים)</div>${wordList([...cards].filter(c=>c.ok/c.n<.75).sort((a,b)=>a.ok/a.n-b.ok/b.n).slice(0,8),'ok',r=>`<b>${pct(r.ok,r.n)}</b> ניחשו`)}
+    <div class="sub2">הכי מהירות לניחוש (מתוך אלה שניחשו לפחות 75% מהפעמים)</div>${wordList([...cards].filter(c=>c.ms&&c.ok/c.n>=.75).sort((a,b)=>a.ms-b.ms).slice(0,5),'ms',r=>`<b>${(r.ms/1000).toFixed(1)}</b> שניות`)}`;
   const q=d.qm||{};const qt=(+q.match||0)+(+q.bots||0)+(+q.cancel||0);
   const qm=`<div class="kpis" style="margin:0"><div class="kpi hi"><div class="l">מצאו שחקנים</div><div class="v">${pct(q.match,qt)}</div><div class="s">${nf(q.match)} פעמים</div></div><div class="kpi"><div class="l">עברו למחשב</div><div class="v">${pct(q.bots,qt)}</div><div class="s">${nf(q.bots)} פעמים</div></div><div class="kpi"><div class="l">ויתרו באמצע</div><div class="v">${nf(q.cancel)}</div></div><div class="kpi"><div class="l">המתנה ממוצעת</div><div class="v">${q.wait!=null?q.wait:'—'}</div><div class="s">שניות · ${q.players!=null?q.players:'—'} שחקנים</div></div></div>`;
   const st=d.settings||{};const g=+st.games||0;
