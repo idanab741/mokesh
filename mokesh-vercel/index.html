@@ -293,8 +293,8 @@ html.kb .startbar{position:static;background:none}
 
 .topbtn,.hdr button,.hdrm{width:44px;height:44px;border-radius:50%;background:var(--paper2);color:var(--ink);border:var(--o);box-shadow:var(--sh-sm);display:flex;align-items:center;justify-content:center}
 .topbtn{position:absolute;top:14px;left:14px;z-index:6}.topbtn.l2{left:66px}
-.hello{position:absolute;top:12px;right:12px;z-index:6;display:flex;align-items:center;gap:8px;max-width:calc(100% - 140px);padding:4px 14px 4px 4px;border-radius:999px;background:var(--paper);border:var(--o);box-shadow:var(--sh-sm);color:var(--ink);text-align:right;cursor:pointer;animation:hin .5s cubic-bezier(.2,1.4,.5,1) both}
-.hello .av.hav{width:42px;height:42px;border-width:2.5px}.hello .ht{display:flex;flex-direction:column;min-width:0;line-height:1.15}.hello b{font-family:var(--font-display);font-weight:400;font-size:17px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.hello .ht span{font-size:11px;font-weight:700;color:var(--soft);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.hello{position:absolute;top:10px;right:12px;z-index:6;display:flex;align-items:center;gap:12px;max-width:calc(100% - 84px);min-width:min(240px,calc(100% - 84px));padding:6px 20px 6px 6px;border-radius:999px;background:var(--paper);border:var(--o);box-shadow:var(--sh-sm);color:var(--ink);text-align:right;cursor:pointer;animation:hin .5s cubic-bezier(.2,1.4,.5,1) both}
+.hello .av.hav{width:46px;height:46px;border-width:2.5px}.hello .ht{display:flex;flex-direction:column;gap:3px;min-width:0;line-height:1.2}.hello b{font-family:var(--font-display);font-weight:400;font-size:18px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.hello .ht span{font-size:12px;font-weight:700;color:var(--soft);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .hello:active{transform:translateY(2px);box-shadow:0 1px 0 var(--ink)}@keyframes hin{from{opacity:0;transform:translateY(-10px) scale(.9)}}
 .screen.home header{padding-top:46px}.topbtn.r{left:auto;right:14px}.topbtn.r2{left:auto;right:66px}
 .topbtn.accb{width:auto;min-width:44px;padding:0 12px 0 10px;border-radius:999px;gap:6px;font-weight:800;font-size:14px}.topbtn.accb.on{padding:0;width:48px;height:48px;overflow:visible}.topbtn.accb.on>img,.topbtn.accb.on>.cav{width:100%;height:100%;border-radius:50%;object-fit:cover}.topbtn.accb .badge{top:-6px;left:-6px}
@@ -561,6 +561,17 @@ html.kb .msg .b{padding:6px 12px;font-size:16px}html.kb .msg.clue.cur .b{font-si
 .settings .r button.mylnk,.mylnk{width:auto;height:auto;box-shadow:none;border-radius:0;background:none;border:0;padding:0 2px;font:inherit;font-size:13px;font-weight:800;color:var(--ink);text-decoration:underline;cursor:pointer}
 .sheet-bg.top{align-items:flex-start;padding-top:max(12px,env(safe-area-inset-top))}.deck{max-height:calc(100vh - 24px);max-height:calc(100dvh - 24px);overflow-y:auto;-webkit-overflow-scrolling:touch;overscroll-behavior:contain}.deck .muted{color:var(--soft)}.mycol{display:flex;flex-direction:column;align-items:flex-start;gap:2px}.dkform{display:flex;flex-direction:column;gap:8px}.dkm{display:grid;grid-template-columns:repeat(3,1fr);gap:6px}.dkm .input{font-size:15px;padding:9px 10px}
 .pkgrid{display:grid;grid-template-columns:1fr 1fr;gap:8px}.pkchip{position:relative;display:flex;flex-direction:column;align-items:flex-start;gap:2px;text-align:right;padding:10px 12px;border:2.5px solid var(--ink);border-radius:14px;background:#fff;color:var(--ink);font:inherit;cursor:pointer}
+.dlg-bg{position:fixed;inset:0;z-index:4000;background:rgba(21,16,43,.6);display:flex;align-items:center;justify-content:center;padding:18px}
+.dlg{width:100%;max-width:26rem;background:var(--paper);color:var(--ink);border:var(--o);border-radius:26px;box-shadow:0 8px 0 var(--ink);padding:22px 18px 16px;display:flex;flex-direction:column;gap:12px;text-align:center}
+.dlgi{width:64px;height:64px;margin:-54px auto 0;border-radius:50%;background:var(--yellow);border:var(--o);box-shadow:var(--sh-sm);display:grid;place-items:center}.dlgi.bad{background:var(--trap-bg);color:#fff}
+.dlgt{font-size:24px;line-height:1.15}.dlgp{margin:0;color:var(--soft);font-weight:600;line-height:1.5;font-size:15px}.dlgb{display:flex;flex-direction:column;gap:8px;margin-top:4px}.dlg .btn.ghost.dlgc{color:var(--ink);border:2.5px solid var(--ink)}
+.sheet.acct{max-height:calc(100vh - 24px);max-height:calc(100dvh - 24px);overflow-y:auto;-webkit-overflow-scrolling:touch}
+.lghead{display:flex;align-items:center;gap:12px;text-align:right}.lghead .lglogo{width:110px!important;flex:none}
+.ltabs{display:grid;grid-template-columns:1fr 1fr;gap:4px;padding:4px;border-radius:16px;background:rgba(21,16,43,.1);border:2.5px solid var(--ink)}.ltabs button{border:0;border-radius:12px;padding:10px;font:400 19px var(--font-display);color:var(--soft);background:none;cursor:pointer}.ltabs button.on{background:var(--yellow);color:var(--ink);box-shadow:0 3px 0 var(--ink);border:2px solid var(--ink)}
+.acct .ordiv{text-align:right}.authlinks{display:flex;justify-content:flex-start}
+.sheet .btn.ghost.guestbtn{color:var(--soft);border:2.5px dashed rgba(21,16,43,.35);font-size:15px;min-height:44px}
+.gcard{background:#fff;border:2.5px solid var(--ink);border-radius:18px;padding:10px;display:flex;flex-direction:column;gap:10px}.ghead{display:flex;align-items:center;justify-content:space-between;gap:10px;background:none;border:0;padding:0;color:var(--ink);font:inherit;text-align:right;cursor:pointer}.ghead b{font-size:18px}
+.gcall{min-height:48px}.gmem{display:flex;flex-wrap:wrap;gap:8px}.gm{display:flex;align-items:center;gap:6px;background:rgba(21,16,43,.06);border-radius:999px;padding:3px 10px 3px 3px;font-weight:700;font-size:13px}.gm .av{width:28px;height:28px}
 .sacc{display:flex;align-items:center;justify-content:space-between;gap:10px;background:rgba(21,16,43,.06);border:2.5px dashed var(--ink);border-radius:14px;padding:10px 12px}.sacc.on{border-style:solid;background:#fff}.sacc b{display:flex;align-items:center;gap:6px}
 .authmsg{background:var(--green);color:var(--ink);border:2.5px solid var(--ink);border-radius:14px;padding:10px 12px;font-weight:700;font-size:14px;line-height:1.45}
 .authlinks{gap:10px;flex-wrap:wrap}.guestlnk{align-self:center;background:none;border:0;padding:4px;color:var(--soft);font:600 12px var(--font-body);text-decoration:underline;opacity:.75;cursor:pointer}
@@ -578,7 +589,7 @@ html.kb .msg .b{padding:6px 12px;font-size:16px}html.kb .msg.clue.cur .b{font-si
 .sset{background:var(--paper);color:var(--ink);border:var(--o);border-radius:22px;box-shadow:var(--sh);padding:14px;display:flex;flex-direction:column;gap:12px}
 .sset .xs{color:var(--soft)}.ssh{display:flex;align-items:center;gap:10px;font-family:var(--font-display);font-size:20px}.ssh b{font-weight:400}.ssh .plock{margin-right:auto}
 .ssi{width:34px;height:34px;border-radius:11px;border:2.5px solid var(--ink);background:var(--yellow);display:grid;place-items:center;flex:none}
-.sprof{display:flex;align-items:center;gap:14px}.sav{position:relative;background:none;border:0;padding:0;flex:none;cursor:pointer}.sav>i{position:absolute;bottom:2px;left:2px;width:30px;height:30px;border-radius:50%;background:var(--yellow);border:2.5px solid var(--ink);display:grid;place-items:center;color:var(--ink)}
+.sprof{display:flex;align-items:center;gap:14px;margin-bottom:10px}.sav{position:relative;background:none;border:0;padding:0;flex:none;cursor:pointer}.sav>i{position:absolute;bottom:2px;left:2px;width:30px;height:30px;border-radius:50%;background:var(--yellow);border:2.5px solid var(--ink);display:grid;place-items:center;color:var(--ink)}
 .snote{display:flex;align-items:center;gap:8px;font-size:13px;font-weight:700;background:rgba(21,16,43,.06);border-radius:12px;padding:9px 11px}
 .srow{display:flex;align-items:center;justify-content:space-between;gap:12px;width:100%;background:#fff;border:2.5px solid var(--ink);border-radius:14px;padding:10px 12px;color:var(--ink);font:inherit;text-align:right;cursor:pointer}.srow b{font-size:16px}
 .spk{display:grid;grid-template-columns:1fr 1fr;gap:8px}.spkc{display:flex;flex-direction:column;align-items:flex-start;gap:2px;padding:10px 12px;border:2.5px solid var(--ink);border-radius:14px;background:#fff;color:var(--ink);font:inherit;text-align:right;cursor:pointer}.spkc.on{background:var(--yellow)}.spkc span{font-size:12px;color:var(--soft)}
@@ -1078,6 +1089,7 @@ const A = {
   toast:null,toastT:null,
   chosen:JSON.parse(localStorage.getItem('mokesh.profile')||'null')||{name:'',avatar:AVATARS[Math.floor(Math.random()*AVATARS.length)]},
   pendingFriend:(new URLSearchParams(location.search).get('f')||'').toUpperCase().slice(0,6)||null,
+  pendingGroup:((new URLSearchParams(location.search).get('g')||'').toUpperCase().match(/^[A-Z0-9]{6}$/)||[''])[0]||null,
   homeMode:'menu',joinCode:(new URLSearchParams(location.search).get('room')||'').toUpperCase()||((location.hash||'').replace('#','').match(/^[A-Z0-9]{6}$/)?location.hash.slice(1):''),
 };
 function toast(msg){A.toast=msg;clearTimeout(A.toastT);A.toastT=setTimeout(()=>{A.toast=null;render();},3200);render();}
@@ -1366,10 +1378,56 @@ function avInner(a){if(isPhoto(a))return `<img src="${a}" alt="">`;if(a&&ASSETS[
 function av(a,cls='',off=false){const hat=themeHas('hat');return `<span class="av ${cls} ${off?'off':''}${hat?' hatted':''}">${avInner(a)}${hat?`<img class="avhat" src="${TA('hat')}" alt="">`:''}</span>`;}
 // ---------- חשבון: כניסה (Google / מייל / אורח), פרופיל קבוע, חברים, הזמנות וסטטיסטיקות ----------
 const AUTH={apple:false}; // Apple יופעל אחרי שהמפתחות יוגדרו ב-Supabase
+// ---------- חלון אישור / שאלה בסגנון של המשחק (במקום החלונות של הטלפון) ----------
+function uiAsk(o){return new Promise(res=>{A.dlg=o;A.dlgVal=o.value||'';A.dlgRes=res;render();setTimeout(()=>{const i=document.querySelector('.dlg input');if(i){i.focus();i.select&&i.select();}},80);});}
+function dlgDone(ok){const d=A.dlg,r=A.dlgRes;if(!d)return;A.dlg=null;A.dlgRes=null;render();if(r)r(d.input?(ok?(A.dlgVal||'').trim():null):!!ok);}
+function vDlg(){const d=A.dlg;return `<div class="dlg-bg" onclick="dlgDone(0)"><div class="dlg pop" onclick="event.stopPropagation()">
+  ${d.icon?`<div class="dlgi ${d.danger?'bad':''}">${d.icon}</div>`:''}<div class="black dlgt">${d.title}</div>${d.text?`<p class="dlgp">${d.text}</p>`:''}
+  ${d.input?`<input class="input" maxlength="${d.max||30}" placeholder="${h(d.placeholder||'')}" value="${h(A.dlgVal||'')}" oninput="A.dlgVal=this.value" onkeydown="if(event.key==='Enter')dlgDone(1)">`:''}
+  <div class="dlgb"><button class="btn ${d.danger?'danger':'primary'} big" onclick="dlgDone(1)">${d.ok||'אישור'}</button><button class="btn ghost dlgc" onclick="dlgDone(0)">${d.cancel||'ביטול'}</button></div></div></div>`;}
+// ---------- מיילים: רק של ספקים מוכרים ----------
+const MAIL_OK=['gmail.com','googlemail.com','walla.co.il','walla.com','hotmail.com','hotmail.co.il','outlook.com','outlook.co.il','live.com','live.co.il','msn.com','yahoo.com','yahoo.co.il','ymail.com','icloud.com','me.com','mac.com','012.net.il','netvision.net.il','bezeqint.net','zahav.net.il','smile.net.il','013.net','gmx.com','gmx.net','proton.me','protonmail.com','aol.com','mail.com'];
+function mailOk(em){const m=String(em||'').trim().toLowerCase().match(/^[a-z0-9._%+-]+@([a-z0-9.-]+\.[a-z]{2,})$/);return !!m&&MAIL_OK.includes(m[1]);}
+// ---------- קבוצות משחק: חברים קבועים שמקבלים "בואו נשחק!" ----------
+async function groupsLoad(){if(!A.user||!sb)return;try{const me=A.user.id;const {data:ms}=await sb.from('mokesh_group_members').select('group_id').eq('user_id',me);const ids=(ms||[]).map(x=>x.group_id);
+    if(!ids.length){A.groups=[];render();return;}
+    const [{data:gs},{data:mm}]=await Promise.all([sb.from('mokesh_groups').select('*').in('id',ids),sb.from('mokesh_group_members').select('group_id,user_id').in('group_id',ids)]);
+    const uids=[...new Set((mm||[]).map(x=>x.user_id))];const {data:ps}=uids.length?await sb.from('mokesh_profiles').select('id,name,avatar').in('id',uids):{data:[]};
+    const P=new Map((ps||[]).map(p=>[p.id,p]));A.groups=(gs||[]).map(g=>({...g,members:(mm||[]).filter(x=>x.group_id===g.id).map(x=>P.get(x.user_id)||{id:x.user_id,name:'שחקן',avatar:AVATARS[0]})})).sort((a,b)=>String(a.created_at).localeCompare(String(b.created_at)));render();}catch(e){console.warn('groups',e);}}
+const GERR=e=>{const m=String(e&&e.message||e);return /notfound/.test(m)?'לא מצאנו קבוצה עם הקוד הזה':/full/.test(m)?'הקבוצה מלאה (עד 30)':/limit/.test(m)?'אפשר לפתוח עד 10 קבוצות':/login/.test(m)?'צריך להיכנס לחשבון':'משהו השתבש. נסו שוב';};
+async function groupNew(){if(!A.user){A.sheet='login';A.authMode='signup';A.fromSettings=1;render();return;}
+  const n=await uiAsk({title:'קבוצה חדשה',text:'למשל "החבר׳ה מהעבודה" או "המשפחה". אחרי שתפתחו, תקבלו קישור להזמין חברים.',input:1,placeholder:'שם הקבוצה',ok:'פתיחת קבוצה',icon:ic('users',30)});if(!n)return;
+  try{const {data,error}=await sb.rpc('mokesh_group_create',{p_name:n});if(error)throw error;await groupsLoad();groupShare(data.code,data.name);}catch(e){toast(GERR(e));}}
+async function groupJoin(code){code=String(code||'').trim().toUpperCase();if(!code)return;if(!A.user){A.pendingGroup=code;A.sheet='login';A.authMode='signup';render();return;}
+  try{const {data,error}=await sb.rpc('mokesh_group_join',{p_code:code});if(error)throw error;toast('הצטרפת לקבוצה '+data.name);await groupsLoad();}catch(e){toast(GERR(e));}}
+async function groupJoinAsk(){const c=await uiAsk({title:'הצטרפות לקבוצה',text:'הקלידו את הקוד שחבר שלח לכם',input:1,max:6,placeholder:'למשל: KX7P2M',ok:'הצטרפות',icon:ic('join',30)});if(c)groupJoin(c);}
+function groupShare(code,name){const link=location.origin+location.pathname+'?g='+code;const t=`בואו לקבוצה "${name}" במוקש! כל פעם שמישהו רוצה לשחק — כולם מקבלים הזמנה`;
+  if(navigator.share)navigator.share({title:'מוקש!',text:t,url:link}).catch(()=>{});else{try{navigator.clipboard.writeText(link).then(()=>toast('הקישור הועתק — שלחו לחברים'),()=>toast('קוד הקבוצה: '+code));}catch(e){toast('קוד הקבוצה: '+code);}}}
+async function groupLeave(id){const g=(A.groups||[]).find(x=>x.id===id);if(!g)return;const own=g.owner===A.user.id;
+  const ok=await uiAsk({title:own?`למחוק את "${h(g.name)}"?`:`לצאת מ"${h(g.name)}"?`,text:own?'הקבוצה תימחק לכל החברים.':'לא תקבלו יותר הזמנות מהקבוצה.',ok:own?'מחיקה':'יציאה',danger:1});if(!ok)return;
+  try{const r=own?await sb.from('mokesh_groups').delete().eq('id',id):await sb.from('mokesh_group_members').delete().eq('group_id',id).eq('user_id',A.user.id);if(r.error)throw r.error;A.gOpen=null;await groupsLoad();}catch(e){toast(GERR(e));}}
+// "בואו נשחק!": פותחים חדר, וכל חברי הקבוצה רואים הזמנה (בהמשך גם התראה לטלפון)
+async function groupCall(id){const g=(A.groups||[]).find(x=>x.id===id);if(!g)return;if(!(A.chosen.name||'').trim())return toast('כתבו כינוי בפרופיל');
+  A.homeMode='menu';await createOnline();if(!A.S)return;try{await sb.from('mokesh_group_calls').insert({group_id:id,by_user:A.user.id,room:A.S.code});toast(`ההזמנה נשלחה ל${g.members.length-1} חברים ב"${g.name}"`);}catch(e){}}
+async function groupCallsCheck(){if(!A.user||!sb||!(A.groups||[]).length||A.inviteBar)return;try{const since=new Date(Date.now()-15*60000).toISOString();
+    const {data}=await sb.from('mokesh_group_calls').select('id,group_id,by_user,room,at').in('group_id',A.groups.map(g=>g.id)).neq('by_user',A.user.id).gt('at',since).order('at',{ascending:false}).limit(1);
+    const c=data&&data[0];if(!c)return;let seen='';try{seen=localStorage.getItem('mokesh.gcall')||'';}catch(e){}if(seen===String(c.id)||(A.S&&A.S.code===c.room))return;try{localStorage.setItem('mokesh.gcall',String(c.id));}catch(e){}
+    const g=A.groups.find(x=>x.id===c.group_id);const p=g&&g.members.find(m=>m.id===c.by_user);A.inviteBar={room:c.room,name:(p?p.name:'חבר')+(g?' מ"'+g.name+'"':''),avatar:p?p.avatar:AVATARS[0]};try{beep('correct');haptic([60,40,60]);}catch(e){}render();}catch(e){}}
+function vGroups(){if(!A.user)return `<div class="xs" style="margin-top:-4px">קבוצה קבועה של חברים: כל פעם שמישהו לוחץ "בואו נשחק!", כולם מקבלים הזמנה.</div><button class="btn primary" onclick="groupNew()">פתחו חשבון כדי ליצור קבוצה</button>`;
+  const gs=A.groups||[];
+  const card=g=>{const open=A.gOpen===g.id;return `<div class="gcard${open?' open':''}"><button class="ghead" onclick="A.gOpen=${open?'null':`'${g.id}'`};render()"><span class="col" style="gap:2px;min-width:0;align-items:flex-start"><b>${h(g.name)}</b><span class="xs">${g.members.length===1?'רק אתם עד עכשיו':g.members.length+' חברים'}</span></span>
+      <span class="vstack">${g.members.slice(0,4).map(m=>av(m.avatar,'')).join('')}</span></button>
+    <button class="btn primary gcall" onclick="groupCall('${g.id}')">${ic('play',20)} בואו נשחק!</button>
+    ${open?`<div class="gmem">${g.members.map(m=>`<span class="gm">${av(m.avatar,'')}<span>${h(m.name)}${m.id===g.owner?' '+ic('crown',12):''}</span></span>`).join('')}</div>
+      <div class="row" style="gap:8px"><button class="btn info" style="flex:1" onclick="groupShare('${g.code}','${h(g.name).replace(/'/g,'')}')">${ic('share',18)} הזמנת חברים</button><button class="btn ghost sgh" style="width:auto" onclick="groupLeave('${g.id}')">${g.owner===A.user.id?'מחיקה':'יציאה'}</button></div>
+      <div class="xs tc">קוד הקבוצה: <b dir="ltr">${g.code}</b></div>`:''}</div>`;};
+  return `<div class="xs" style="margin-top:-4px">קבוצה קבועה של חברים: כל פעם שמישהו לוחץ "בואו נשחק!", כולם מקבלים הזמנה.</div>
+    ${gs.length?`<div class="col" style="gap:10px">${gs.map(card).join('')}</div>`:''}
+    <div class="row" style="gap:8px"><button class="btn primary" style="flex:1" onclick="groupNew()">+ קבוצה חדשה</button><button class="btn ghost sgh" style="width:auto" onclick="groupJoinAsk()">יש לי קוד</button></div>`;}
 // ---------- חשבון: מייל+סיסמה / גוגל, וסנכרון ההגדרות האישיות (החבילות שלי, ערכה, צליל, רטט) ----------
 const AUTH_ERR=e=>{const m=String(e&&e.message||e||'');return /Invalid login/i.test(m)?'אימייל או סיסמה לא נכונים':/not confirmed/i.test(m)?'צריך לאשר את המייל קודם (בדקו את תיבת הדואר)':/already registered|already been registered/i.test(m)?'כבר יש חשבון עם המייל הזה. נסו להיכנס':/Password should be|at least 6/i.test(m)?'סיסמה צריכה לפחות 6 תווים':/provider is not enabled|Unsupported provider/i.test(m)?'הכניסה הזו עוד לא מופעלת':/rate limit|too many/i.test(m)?'יותר מדי ניסיונות. נסו שוב בעוד כמה דקות':/network|fetch/i.test(m)?'אין חיבור לאינטרנט':'משהו השתבש. נסו שוב';};
 async function emailAuth(){const em=(A.loginEmail||'').trim(),pw=A.loginPass||'';const up=A.authMode==='signup';
-  if(!/^\S+@\S+\.\S+$/.test(em))return toast('כתובת מייל לא תקינה');if(pw.length<6)return toast('סיסמה צריכה לפחות 6 תווים');
+  if(!/^\S+@\S+\.\S+$/.test(em))return toast('כתובת מייל לא תקינה');if(up&&!mailOk(em))return toast('אפשר להירשם עם מייל של Gmail, Walla, Hotmail/Outlook, Yahoo או iCloud');if(pw.length<6)return toast('סיסמה צריכה לפחות 6 תווים');
   A.loginBusy=true;render();
   try{if(up){const {data,error}=await sb.auth.signUp({email:em,password:pw,options:{emailRedirectTo:location.origin+location.pathname}});if(error)throw error;
       if(!data.session){A.authMsg='כמעט סיימנו! שלחנו מייל ל-'+em+'. לחצו על הקישור במייל כדי לאשר את החשבון, ואז היכנסו.';A.authMode='login';}}
@@ -1383,8 +1441,8 @@ async function setNewPass(){const pw=A.loginPass||'';if(pw.length<6)return toast
   try{const {error}=await sb.auth.updateUser({password:pw});if(error)throw error;A.recovery=false;A.loginPass='';A.sheet=null;toast('הסיסמה עודכנה');}catch(e){toast(AUTH_ERR(e));}
   A.loginBusy=false;render();}
 // אורח: מותר, אבל ברור שמפסידים — ושואלים שוב בכניסה הבאה
-function goGuest(){if(!confirm('בלי חשבון, הכינוי, החבילות שלכם והסטטיסטיקות נשמרים רק בטלפון הזה, ונמחקים אם מחליפים טלפון או מנקים את הדפדפן.\n\nלהמשיך כאורח?'))return;
-  try{sessionStorage.setItem('mokesh.guest','1');}catch(e){}A.sheet=null;render();}
+async function goGuest(){const ok=await uiAsk({title:'להמשיך בלי חשבון?',text:'בלי חשבון, הכינוי, החבילות שלכם והסטטיסטיקות נשמרים רק בטלפון הזה — ונמחקים אם מחליפים טלפון או מנקים את הדפדפן.',ok:'פתיחת חשבון',cancel:'להמשיך כאורח',icon:ic('users',30)});
+  if(ok){A.authMode='signup';render();return;}try{sessionStorage.setItem('mokesh.guest','1');}catch(e){}A.sheet=null;render();}
 function authGate(){if(!sb||!sb.auth||A.user||A.S||A.sheet||A.authAsked||A.homeMode!=='menu'||TOUR.el)return;
   try{if(!localStorage.getItem('mokesh.tour.home')||sessionStorage.getItem('mokesh.guest'))return;}catch(e){return;}
   A.authAsked=true;setTimeout(()=>{if(!A.user&&!A.S&&!A.sheet&&!TOUR.el){A.sheet='login';render();}},700);}
@@ -1404,7 +1462,7 @@ let udT=null;
 function udPush(now){if(!A.user||!sb||!A.udReady)return;clearTimeout(udT);udT=setTimeout(()=>{sb.from('mokesh_userdata').upsert({id:A.user.id,data:udLocal(),updated_at:new Date().toISOString()}).then(()=>{});},now?0:1200);}
 function vAccount(){if(!sb||!sb.auth)return '';
   if(A.user){const em=A.user.email||'';const g=(A.user.app_metadata||{}).provider==='google';
-    return `<div class="sacc on"><div class="col" style="gap:1px;min-width:0"><b>${ic('check',16)} מחובר/ת${g?' עם Google':''}</b><span class="xs" dir="ltr" style="text-align:right;overflow:hidden;text-overflow:ellipsis">${h(em)}</span></div><button class="btn ghost sgh" style="width:auto;padding:6px 12px" onclick="if(confirm('לצאת מהחשבון?'))signOut()">יציאה</button></div>`;}
+    return `<div class="sacc on"><div class="col" style="gap:1px;min-width:0"><b>${ic('check',16)} מחובר/ת${g?' עם Google':''}</b><span class="xs" dir="ltr" style="text-align:right;overflow:hidden;text-overflow:ellipsis">${h(em)}</span></div><button class="btn ghost sgh" style="width:auto;padding:6px 12px" onclick="signOutAsk()">יציאה</button></div>`;}
   return `<div class="sacc"><div class="col" style="gap:2px"><b>אתם משחקים כאורחים</b><span class="xs">פתחו חשבון כדי שהכל יישמר, גם בטלפון אחר</span></div><button class="btn primary" style="width:auto;padding:8px 16px" onclick="A.sheet='login';A.authMode='signup';A.fromSettings=1;render()">פתיחת חשבון</button></div>`;}
 
 const ONLINE_MS=90000;
@@ -1420,11 +1478,12 @@ async function onUser(){if(!A.user){A.prof=null;A.friends=[];A.invites=[];A.udRe
     if(p){A.prof=p;A.chosen={name:p.name,avatar:p.avatar};try{localStorage.setItem('mokesh.profile',JSON.stringify(A.chosen));}catch(e){}}}catch(e){console.warn('profile',e);}
   if(A.sheet==='login'&&!A.recovery)A.sheet=null;startSocial();
   if(A.pendingFriend){const c=A.pendingFriend;A.pendingFriend=null;addFriend(c);}
+  if(A.pendingGroup){const c=A.pendingGroup;A.pendingGroup=null;groupJoin(c);}
   render();}
 let profT=null;
 function syncProf(){if(!A.prof||!sb)return;clearTimeout(profT);profT=setTimeout(()=>{const n=(A.chosen.name||'').trim().slice(0,16);if(!n)return;
   sb.from('mokesh_profiles').update({name:n,avatar:A.chosen.avatar}).eq('id',A.prof.id).then(()=>{A.prof.name=n;A.prof.avatar=A.chosen.avatar;});},700);}
-function startSocial(){stopSocial();if(!A.user)return;heartbeat();loadFriends();A.socialT=setInterval(()=>{heartbeat();loadFriends();},45000);
+function startSocial(){stopSocial();if(!A.user)return;heartbeat();loadFriends();groupsLoad().then(groupCallsCheck);A.socialT=setInterval(()=>{heartbeat();loadFriends();groupCallsCheck();},45000);
   try{A.socialCh=sb.channel('mokesh-social-'+A.user.id)
     .on('postgres_changes',{event:'INSERT',schema:'public',table:'mokesh_invites',filter:'to_id=eq.'+A.user.id},p=>onInvite(p.new))
     .on('postgres_changes',{event:'*',schema:'public',table:'mokesh_friends'},()=>loadFriends()).subscribe();}catch(e){}}
@@ -1444,6 +1503,7 @@ async function sendEmailCode(){const em=(A.loginEmail||'').trim();if(!/^\S+@\S+\
   try{const {error}=await sb.auth.signInWithOtp({email:em,options:{emailRedirectTo:location.origin+location.pathname+location.search}});if(error)throw error;A.otpSent=true;}catch(e){toast('לא הצלחנו לשלוח מייל: '+(e.message||e));}A.loginBusy=false;render();}
 async function verifyEmailCode(){const t=(A.loginCode||'').replace(/\D/g,'');if(t.length<6)return toast('הקוד צריך להיות 6 ספרות');A.loginBusy=true;render();
   try{const {error}=await sb.auth.verifyOtp({email:(A.loginEmail||'').trim(),token:t,type:'email'});if(error)throw error;toast('נכנסת! 🎉');}catch(e){toast('הקוד לא נכון או שפג תוקפו');}A.loginBusy=false;render();}
+async function signOutAsk(){if(await uiAsk({title:'לצאת מהחשבון?',text:'החבילות וההגדרות שלכם שמורות בחשבון ויחזרו כשתיכנסו שוב.',ok:'יציאה',danger:1,icon:ic('back',28)}))signOut();}
 async function signOut(){try{await sb.auth.signOut();}catch(e){}A.user=null;A.prof=null;A.friends=[];stopSocial();A.uid=localStorage.getItem('mokesh.uid')||A.uid;A.sheet=null;render();}
 async function addFriend(code){code=String(code||'').trim().toUpperCase();if(!code)return;if(!A.user){if(!LOGIN_ON)return;A.pendingFriend=code;A.sheet='login';render();return;}
   try{const {data,error}=await sb.rpc('mokesh_add_friend',{p_code:code});if(error)throw error;
@@ -1476,18 +1536,19 @@ function vLoginSheet(){const busy=A.loginBusy?'disabled':'';const up=A.authMode=
     <input class="input" name="pass" type="password" dir="ltr" autocomplete="new-password" placeholder="לפחות 6 תווים" value="${h(A.loginPass||'')}" oninput="A.loginPass=this.value">
     <button class="btn primary big" onclick="setNewPass()" ${busy}>שמירה</button>`;
   const G=`<svg width="22" height="22" viewBox="0 0 48 48" aria-hidden="true"><path fill="#EA4335" d="M24 9.5c3.5 0 6.6 1.2 9 3.5l6.7-6.7C35.6 2.4 30.2 0 24 0 14.6 0 6.6 5.4 2.6 13.2l7.8 6.1C12.3 13.6 17.7 9.5 24 9.5z"/><path fill="#4285F4" d="M46.5 24.5c0-1.6-.1-3.1-.4-4.5H24v9h12.7c-.6 3-2.3 5.5-4.8 7.2l7.5 5.8c4.4-4 7.1-10 7.1-17.5z"/><path fill="#FBBC05" d="M10.4 28.7c-.5-1.4-.8-3-.8-4.7s.3-3.3.8-4.7l-7.8-6.1C1 16.5 0 20.1 0 24s1 7.5 2.6 10.8l7.8-6.1z"/><path fill="#34A853" d="M24 48c6.5 0 11.9-2.1 15.9-5.8l-7.5-5.8c-2.1 1.4-4.8 2.3-8.4 2.3-6.3 0-11.7-4.1-13.6-9.8l-7.8 6.1C6.6 42.6 14.6 48 24 48z"/></svg>`;
-  return `<div class="tc col" style="gap:6px;align-items:center">${logoHTML('logo sm lglogo')}<div class="black" style="font-size:26px">${up?'פותחים חשבון':'כניסה לחשבון'}</div>
-    <div class="small isub">הכינוי, האווטאר, החבילות שלכם וערכת העיצוב נשמרים — בכל טלפון</div></div>
+  return `<div class="lghead">${logoHTML('logo sm lglogo')}<div class="col" style="gap:4px"><div class="black" style="font-size:26px;line-height:1.1">${up?'פותחים חשבון חדש':'ברוכים השבים!'}</div>
+    <div class="small isub">${up?'הכינוי, האווטאר, החבילות שלכם וערכת העיצוב — נשמרים בכל טלפון':'נכנסים לחשבון שכבר פתחתם'}</div></div></div>
+    <div class="ltabs"><button class="${up?'on':''}" onclick="A.authMode='signup';A.authMsg='';render()">הרשמה</button><button class="${up?'':'on'}" onclick="A.authMode='login';A.authMsg='';render()">כניסה</button></div>
     ${A.authMsg?`<div class="authmsg">${h(A.authMsg)}</div>`:''}
     <button class="btn big gbtn" onclick="signInGoogle()" ${busy}>${G} המשך עם Google</button>
     ${AUTH.apple?`<button class="btn big abtn" onclick="signInApple()" ${busy}> המשך עם Apple</button>`:''}
-    <div class="ordiv"><span>או עם מייל וסיסמה</span></div>
+    <div class="ordiv"><span>${up?'או הרשמה עם מייל וסיסמה':'או כניסה עם מייל וסיסמה'}</span></div>
     <form class="col" style="gap:10px" onsubmit="event.preventDefault();emailAuth()">
       <input class="input" name="email" type="email" dir="ltr" autocomplete="email" placeholder="name@gmail.com" value="${h(A.loginEmail||'')}" oninput="A.loginEmail=this.value">
       <input class="input" name="pass" type="password" dir="ltr" autocomplete="${up?'new-password':'current-password'}" placeholder="${up?'סיסמה (לפחות 6 תווים)':'סיסמה'}" value="${h(A.loginPass||'')}" oninput="A.loginPass=this.value">
-      <button class="btn primary big" ${busy}>${up?'פתיחת חשבון':'כניסה'}</button></form>
-    <div class="row between authlinks"><button class="mylnk" onclick="A.authMode='${up?'login':'signup'}';A.authMsg='';render()">${up?'כבר יש לי חשבון — כניסה':'אין לי חשבון — הרשמה'}</button>${up?'':`<button class="mylnk" onclick="forgotPass()">שכחתי סיסמה</button>`}</div>
-    <button class="guestlnk" onclick="${A.S||A.fromSettings?"A.sheet=null;A.fromSettings=0;render()":'goGuest()'}">${A.S||A.fromSettings?'אחר כך':'להמשיך בלי חשבון'}</button>`;}
+      <button class="btn ${up?'primary':'info'} big" ${busy}>${up?'פתיחת חשבון':'כניסה לחשבון'}</button></form>
+    ${up?`<div class="xs isub" style="text-align:right">מייל של Gmail, Walla, Hotmail/Outlook, Yahoo או iCloud</div>`:`<div class="authlinks"><button class="mylnk" onclick="forgotPass()">שכחתי סיסמה</button></div>`}
+    <button class="btn ghost guestbtn" onclick="${A.S||A.fromSettings?"A.sheet=null;A.fromSettings=0;render()":'goGuest()'}">${A.S||A.fromSettings?'אחר כך':'להמשיך בלי חשבון'}</button>`;}
 function vProfileSheet(){const p=A.prof;if(!p)return vLoginSheet();const c=A.chosen;
   return `<div class="row between"><div class="black" style="font-size:24px">הפרופיל שלי</div><button class="btn ghost" style="width:auto" onclick="A.sheet=null;render()">סגור</button></div>
     <label class="col" style="gap:4px"><span class="small isub">הכינוי שלך</span><input class="input" name="pname" maxlength="16" value="${h(c.name)}" oninput="A.chosen.name=this.value;saveProfile()"></label>
@@ -1659,6 +1720,7 @@ function render(){const S=A.S;let html='';applyTeamColors(S);applyTheme(S);if(S&
   if(S&&A.roomChat&&S.mode==='online')html+=vRoomChat(S);
   if(A.newVer)html+=`<button class="newver" onclick="location.reload()">יש גרסה חדשה של המשחק — לחצו לעדכון</button>`;
   if(A.sheet)html+=vSheet();
+  if(A.dlg)html+=vDlg();
   if(A.inviteBar)html+=vInviteBar();
   if(A.toast)html+=`<div class="toast pop" role="alert">${h(A.toast)}</div>`;
   const ae=document.activeElement;const keep=ae&&ae.tagName==='INPUT'&&app.contains(ae)?{key:ae.name||ae.id,value:ae.value,sel:ae.selectionStart}:null;
@@ -1720,8 +1782,8 @@ const TOURS={
     {target:'.hicons button:nth-child(1)',title:'מכשיר אחד',text:'כולם ביחד בחדר עם טלפון אחד, ומעבירים אותו מיד ליד.'},
     {target:'.hicons button:nth-child(2)',title:'מול המחשב',text:'אין עם מי לשחק? משחקים נגד המחשב, גם לבד.'},
     {target:'.hicons button:nth-child(3)',title:'איך משחקים',text:'שכחתם? לוחצים כאן וההסבר הזה חוזר.'},
-    {target:'.topbtn.accb',title:'כניסה',text:'מתחברים עם גוגל כדי לשמור שם, תמונה, סטטיסטיקות וחברים.'},
-    {target:'.topbtn.r',title:'מוזיקה',text:'מדליקים או מכבים את המוזיקה והצלילים.'},
+    {target:'.hello',title:'הפרופיל וההגדרות',text:'לחיצה כאן: הכינוי והתמונה, ערכות עיצוב, החבילות שלכם וקבוצות משחק.'},
+    {target:'.screen.home>.topbtn',title:'מוזיקה',text:'מדליקים או מכבים את המוזיקה והצלילים.'},
     {hero:'done',title:'זהו, אתם מוכנים!',text:'נסו משחק מהיר, או פתחו חדר לחברים.',button:'יאללה, משחקים!',confetti:true}],
   lobby:[
     {target:'.codebox',title:'זה קוד החדר',text:'חברים נכנסים עם הקוד הזה. לחיצה עליו מעתיקה אותו.'},
@@ -1811,7 +1873,7 @@ function vHome(){const c=A.chosen;const m=A.homeMode;if(m==='settings')return vS
   const head=m==='menu'?`<div class="ghostled" aria-hidden="true">00:30</div><i class="hspark" style="top:12%;right:12%"></i><i class="hspark" style="top:44%;left:6%;animation-delay:.5s"></i><i class="hspark" style="top:2%;left:26%;animation-delay:1s"></i>${logoHTML('logo pop')}<div class="ledbox" aria-hidden="true" onclick="homeBoom()"><span class="scr"><span class="seg" id="homeled">${ledText()}</span></span></div>`
     :['create','join','quick'].includes(m)?`${logoHTML('logo pop sm')}`
     :`${logoHTML('logo pop')}<p class="tagline" style="margin:12px auto 0;max-width:310px">משחק הניחושים שבו כל טעות תעלה לכם בפיצוץ!</p>`;
-  return `<div class="screen center${m==='menu'?' home':''}" style="gap:22px;position:relative">${m==='menu'?`${vHello()}<button class="topbtn" onclick="A.homeMode='settings';render()" aria-label="הגדרות">${ic('gear',20)}</button>${musicBtn('topbtn l2')}`:musicBtn('topbtn r')}<header class="tc">${head}</header>${body}${m==='menu'?`<div class="tape" aria-hidden="true"><div>${'זהירות! שטח ממוקש ✕ '.repeat(10)}</div></div>`:''}</div>`;}
+  return `<div class="screen center${m==='menu'?' home':''}" style="gap:22px;position:relative">${m==='menu'?`${vHello()}${musicBtn('topbtn')}`:musicBtn('topbtn r')}<header class="tc">${head}</header>${body}${m==='menu'?`<div class="tape" aria-hidden="true"><div>${'זהירות! שטח ממוקש ✕ '.repeat(10)}</div></div>`:''}</div>`;}
 // שני עמודי הסבר: מה זה מוקש, וניקוד + דרכי משחק. מוצגים בכניסה הראשונה ומ"איך משחקים?"
 function vIntro(){const pg=A.introPage||0;const last=pg===1;
   const step=(n,t,d)=>`<div class="istep"><span class="num">${n}</span><div><div class="bold">${t}</div><div class="small isub">${d}</div></div></div>`;
@@ -1911,7 +1973,7 @@ function packSummary(S){const pk=packsOf(S);const names=[...(classicOn(S)&&packM
 function hello(){const h0=new Date().getHours();return h0>=5&&h0<12?'בוקר טוב':h0>=12&&h0<17?'צהריים טובים':h0>=17&&h0<21?'ערב טוב':'לילה טוב';}
 function vHello(){const c=A.chosen;const nm=(c.name||'').trim().split(/\s+/)[0];
   return `<button class="hello" onclick="A.homeMode='settings';render()" aria-label="הפרופיל וההגדרות">${av(c.avatar,'hav')}<span class="ht"><b>${hello()}${nm?', '+h(nm):''}!</b><span>${A.user?'מוכנים לפוצץ משהו?':'לחצו כדי לפתוח חשבון'}</span></span></button>`;}
-function vSettingsPage(){const c=A.chosen;const prem=premiumOn(null);const f=foldersLoad();
+function vSettingsPage(){if(A.user&&!A.groupsAt||A.user&&Date.now()-A.groupsAt>60000){A.groupsAt=Date.now();setTimeout(groupsLoad,0);}const c=A.chosen;const prem=premiumOn(null);const f=foldersLoad();
   const sec=(icon,title,body,extra)=>`<section class="sset"><div class="ssh"><span class="ssi">${ic(icon,20)}</span><b>${title}</b>${extra||''}</div>${body}</section>`;
   const sw=(on,label,sub,fn)=>`<label class="srow"><span class="col" style="gap:1px"><b>${label}</b>${sub?`<span class="xs">${sub}</span>`:''}</span><span class="fsw"><input type="checkbox" ${on?'checked':''} onchange="${fn}"><span></span></span></label>`;
   const lock=prem?'':` <i class="plock">${ic('crown',14)} פרימיום</i>`;const gate=`if(!premiumOn(null))return needPremium('folders');`;
@@ -1921,6 +1983,7 @@ function vSettingsPage(){const c=A.chosen;const prem=premiumOn(null);const f=fol
     ${A.avOpen?`<div class="avgrid">${avPhotoTile(c.avatar,'me')}${AVATARS.map(a=>`<button class="${a===c.avatar?'on':''}" onclick="A.chosen.avatar='${a}';saveProfile();render()">${avInner(a)}</button>`).join('')}</div>`:''}
     ${vAccount()}`)}
   ${sec('crown','פרימיום',`<button class="srow" onclick="A.premReason='';A.sheet='premium';render()"><span class="col" style="gap:1px"><b>${prem?'פרימיום פעיל':'מוקש! פרימיום'}</b><span class="xs">${PREMIUM_FREE?'בחינם עכשיו · מבצע השקה':prem?'כל האפשרויות פתוחות':'משחקים בלי הגבלה, חבילות, ערכות ועוד'}</span></span>${ic('chev',20)}</button>`)}
+  ${sec('users','קבוצות משחק',vGroups())}
   ${sec('star','ערכת עיצוב',vThemeHome(),lock)}
   ${sec('book','החבילות שלי',`<div class="xs" style="margin-top:-4px">חבילות מילים שאתם כותבים, למשל "המשפחה" או "החברים". בחדר הן נכנסות למשחק דרך "חבילות מילים".</div>
     ${f.length?`<div class="spk">${f.map(x=>`<button class="spkc${x.on?' on':''}" onclick="${gate}A.deckEdit='${x.id}';A.deckPaste=false;render()"><b>${h(x.n)}</b><span>${x.w.length===1?'מילה אחת':x.w.length+' מילים'}</span></button>`).join('')}</div>`:''}
@@ -1954,11 +2017,11 @@ function vOurWords(S){const host=A.isHost;const my=S.settings.myDeck||0;const n=
     <div class="row between" style="gap:8px"><button class="btn info" style="width:auto;padding:8px 14px" onclick="openDeck()">${ic('book',18)} החבילות שלי${n?` (${n} מילים)`:''}</button>${my&&room?`<span class="xs muted">בחדר: ${room} מילים${ppl>1?` מ-${ppl} שחקנים`:''}</span>`:''}</div></div>`;}
 function setMyDeck(v){const S=A.S;if(!S)return;if(!premiumOn(S))return needPremium('settings');if(v&&!myDeckLoad().length&&!(S.myDeck||[]).length){toast('קודם הוסיפו מילים לחפיסה');openDeck();}act({type:'settings',settings:{myDeck:v}});}
 function openDeck(){if(!premiumOn(A.S))return needPremium('folders');A.deckEdit='list';A.deckPaste=false;render();}
-function folderNew(){const all=foldersLoad();if(all.length>=FOLDER_MAX)return toast('אפשר עד '+FOLDER_MAX+' חבילות');const n=myTxt(prompt('שם החבילה (למשל: המשפחה, החברים)')||'');if(!n)return;
-  const f={id:uid(6),n,w:[],on:1};all.push(f);foldersSave(all);A.deckEdit=f.id;A.deckPaste=false;render();}
+async function folderNew(){const all=foldersLoad();if(all.length>=FOLDER_MAX)return toast('אפשר עד '+FOLDER_MAX+' חבילות');const n=myTxt(await uiAsk({title:'חבילה חדשה',text:'למשל "המשפחה", "החברים" או "העבודה"',input:1,placeholder:'שם החבילה',ok:'יצירה',icon:ic('book',30)})||'');if(!n)return;
+  const f={id:uid(6),n,w:[],on:1};const a2=foldersLoad();a2.push(f);foldersSave(a2);A.deckEdit=f.id;A.deckPaste=false;render();}
 function folderToggle(id){const all=foldersLoad();const f=all.find(x=>x.id===id);if(f){f.on=f.on?0:1;foldersSave(all);}render();}
-function folderRename(){const f=curFolder();if(!f)return;const n=myTxt(prompt('שם חדש לחבילה',f.n)||'');if(!n)return;folderUpd(x=>{x.n=n;});render();}
-function folderDelete(){const f=curFolder();if(!f||!confirm(`למחוק את החבילה "${f.n}" עם ${f.w.length} מילים?`))return;foldersSave(foldersLoad().filter(x=>x.id!==f.id));A.deckEdit='list';render();}
+async function folderRename(){const f=curFolder();if(!f)return;const n=myTxt(await uiAsk({title:'שם חדש לחבילה',input:1,value:f.n,ok:'שמירה'})||'');if(!n)return;folderUpd(x=>{x.n=n;});render();}
+async function folderDelete(){const f=curFolder();if(!f)return;if(!await uiAsk({title:`למחוק את "${h(f.n)}"?`,text:`${f.w.length} מילים יימחקו.`,ok:'מחיקה',danger:1}))return;foldersSave(foldersLoad().filter(x=>x.id!==f.id));A.deckEdit='list';render();}
 // אייפון: אחרי שהמקלדת נסגרת הדף נשאר גלול והמסך נראה תקוע — מחזירים למעלה
 document.addEventListener('focusout',e=>{if(e.target&&e.target.closest&&e.target.closest('.deck'))setTimeout(()=>{const a=document.activeElement;if(!a||!a.closest||!a.closest('.deck'))window.scrollTo(0,0);},120);});
 function closeDeck(){A.deckEdit=false;render();}
