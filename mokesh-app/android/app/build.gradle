@@ -7,8 +7,9 @@ android {
         applicationId "com.mokesh.game"
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
-        versionCode((System.getenv("BUILD_NUMBER") ?: "1") as Integer)
-        versionName "1.0"
+        // מספר גרסה עולה בכל בנייה (GitHub Actions) - חייב להיות גבוה מהגרסה האחרונה ב-Google Play
+        versionCode((System.getenv("VERSION_CODE") ?: "1").toInteger())
+        versionName(System.getenv("VERSION_NAME") ?: "1.0.0")
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         aaptOptions {
              // Files and dirs to omit from the packaged assets dir, modified to accommodate modern web apps.
@@ -18,18 +19,19 @@ android {
     }
     signingConfigs {
         release {
-            // Codemagic ממלא את המשתנים האלה מהמפתח שהועלה אליו (android_signing)
-            if (System.getenv("CM_KEYSTORE_PATH")) {
-                storeFile file(System.getenv("CM_KEYSTORE_PATH"))
-                storePassword System.getenv("CM_KEYSTORE_PASSWORD")
-                keyAlias System.getenv("CM_KEY_ALIAS")
-                keyPassword System.getenv("CM_KEY_PASSWORD")
+            // מפתח ההעלאה ל-Google Play - מגיע מ-GitHub Secrets בזמן הבנייה (ר' .github/workflows/android.yml)
+            def keystorePath = System.getenv("ANDROID_KEYSTORE_PATH")
+            if (keystorePath) {
+                storeFile file(keystorePath)
+                storePassword System.getenv("ANDROID_KEYSTORE_PASSWORD")
+                keyAlias System.getenv("ANDROID_KEY_ALIAS")
+                keyPassword System.getenv("ANDROID_KEY_PASSWORD")
             }
         }
     }
     buildTypes {
         release {
-            if (System.getenv("CM_KEYSTORE_PATH")) signingConfig signingConfigs.release
+            if (System.getenv("ANDROID_KEYSTORE_PATH")) signingConfig signingConfigs.release
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }

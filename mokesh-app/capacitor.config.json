@@ -8,10 +8,26 @@
     "androidScheme": "https"
   },
   "backgroundColor": "#2B3BFF",
-  "android": { "allowMixedContent": false },
-  "ios": { "contentInset": "never", "backgroundColor": "#2B3BFF" },
+  "android": {
+    "allowMixedContent": false,
+    "appendUserAgent": "MokeshApp/1.0"
+  },
+  "ios": {
+    "contentInset": "never",
+    "backgroundColor": "#2B3BFF",
+    "appendUserAgent": "MokeshApp/1.0"
+  },
   "plugins": {
-    "SplashScreen": { "launchShowDuration": 1200, "launchAutoHide": true, "backgroundColor": "#2B3BFF", "showSpinner": false },
-    "StatusBar": { "style": "DARK", "backgroundColor": "#2B3BFF", "overlaysWebView": false }
+    "SplashScreen": {
+      "launchShowDuration": 1200,
+      "launchAutoHide": true,
+      "backgroundColor": "#2B3BFF",
+      "showSpinner": false
+    },
+    "StatusBar": {
+      "style": "DARK",
+      "backgroundColor": "#2B3BFF",
+      "overlaysWebView": false
+    }
   }
 }

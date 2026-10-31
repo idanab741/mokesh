@@ -1429,8 +1429,17 @@ const app=document.getElementById('app');
 function avInner(a){if(isPhoto(a))return `<img src="${a}" alt="">`;if(a&&ASSETS[a])return `<img src="${ASSETS[a]}" alt="">`;if(a&&AV_COLORS[a])return `<span class="cav" style="background:${AV_COLORS[a]}"><img src="${TA('bomb')}" alt=""></span>`;if(a==='🤖'||a==='🧠')return `<span class="cav" style="background:${a==='🧠'?'#A855F7':'#3B82F6'}">${ic('robot',22)}</span>`;return `<span class="cav" style="background:#4C2A9E">${ic('users',20)}</span>`;}
 function av(a,cls='',off=false){const hat=themeHas('hat');return `<span class="av ${cls} ${off?'off':''}${hat?' hatted':''}">${avInner(a)}${hat?`<img class="avhat" src="${TA('hat')}" alt="">`:''}</span>`;}
 // ---------- חשבון: כניסה (Google / מייל / אורח), פרופיל קבוע, חברים, הזמנות וסטטיסטיקות ----------
-// באפליקציה (Capacitor) — גוגל חוסם כניסה מתוך WebView, ולכן שם רק מייל וסיסמה
+// באפליקציה (Capacitor, ר' mokesh-app): גוגל חוסם כניסה מתוך WebView — ההתחברות נפתחת בדפדפן המערכת
+// וחוזרת לאפליקציה דרך com.mokesh.game://auth/callback (כמו בטריפלייס)
 const NATIVE=(()=>{try{return !!(window.Capacitor&&Capacitor.isNativePlatform&&Capacitor.isNativePlatform());}catch(e){return false;}})();
+const NATIVE_IOS=NATIVE&&(()=>{try{return Capacitor.getPlatform()==='ios';}catch(e){return false;}})();
+const APP_CB='com.mokesh.game://auth/callback';
+function nativeAuthListen(){if(!NATIVE||!sb)return;const P=Capacitor.Plugins||{};if(!P.App)return;
+  P.App.addListener('appUrlOpen',async({url})=>{if(!url||!url.startsWith(APP_CB))return;try{P.Browser&&P.Browser.close().catch(()=>{});}catch(e){}
+    try{const u=new URL(url.replace(APP_CB,'https://cb.local/'));const hp=new URLSearchParams(u.hash.slice(1));const err=u.searchParams.get('error_description')||hp.get('error_description');if(err)throw new Error(err);
+      const code=u.searchParams.get('code');if(code){const {error}=await sb.auth.exchangeCodeForSession(code);if(error)throw error;}
+      else if(hp.get('access_token')){const {error}=await sb.auth.setSession({access_token:hp.get('access_token'),refresh_token:hp.get('refresh_token')});if(error)throw error;}
+      A.sheet=null;render();}catch(e){toast('הכניסה עם Google לא הצליחה: '+(e.message||e));}});}
 const AUTH={apple:false}; // Apple יופעל אחרי שהמפתחות יוגדרו ב-Supabase
 // ---------- חלון אישור / שאלה בסגנון של המשחק (במקום החלונות של הטלפון) ----------
 function uiAsk(o){return new Promise(res=>{A.dlg=o;A.dlgVal=o.value||'';A.dlgRes=res;render();setTimeout(()=>{const i=document.querySelector('.dlg input');if(i){i.focus();i.select&&i.select();}},80);});}
@@ -1568,7 +1577,7 @@ function vAccount(){if(!sb||!sb.auth)return '';
   return `<div class="sacc"><div class="col" style="gap:2px"><b>אתם משחקים כאורחים</b><span class="xs">פתחו חשבון כדי שהכל יישמר, גם בטלפון אחר</span></div><button class="btn primary" style="width:auto;padding:8px 16px" onclick="A.sheet='login';A.authMode='signup';A.fromSettings=1;render()">פתיחת חשבון</button></div>`;}
 
 const ONLINE_MS=90000;
-async function authInit(){if(!sb||!sb.auth)return;
+async function authInit(){if(!sb||!sb.auth)return;nativeAuthListen();
   sb.auth.onAuthStateChange((ev,session)=>{if(ev==='PASSWORD_RECOVERY'){A.recovery=true;A.sheet='login';setTimeout(render,0);}const u=session&&session.user||null;if((u&&u.id)!==(A.user&&A.user.id)){A.user=u;onUser();}});
   try{const {data}=await sb.auth.getSession();A.user=data&&data.session?data.session.user:null;if(A.user)await onUser();}catch(e){console.warn('auth',e);}}
 // מחובר: מזהה השחקן במשחקים הוא מזהה החשבון, והשם/האווטאר נטענים מהפרופיל
@@ -1600,7 +1609,8 @@ async function loadFriends(){if(!A.user)return;const me=A.user.id;
     const {data:me2}=await sb.from('mokesh_profiles').select('stats').eq('id',me).maybeSingle();if(me2&&A.prof)A.prof.stats=me2.stats;
     render();}catch(e){console.warn('friends',e);}}
 const isOnline=f=>f&&f.last_seen&&Date.now()-new Date(f.last_seen).getTime()<ONLINE_MS?1:0;
-async function signInGoogle(){try{const {error}=await sb.auth.signInWithOAuth({provider:'google',options:{redirectTo:location.origin+location.pathname+location.search}});if(error)throw error;}catch(e){toast('הכניסה עם Google לא הצליחה: '+(e.message||e));}}
+async function signInGoogle(){try{if(NATIVE){const P=Capacitor.Plugins||{};const {data,error}=await sb.auth.signInWithOAuth({provider:'google',options:{redirectTo:APP_CB,skipBrowserRedirect:true}});if(error)throw error;if(data&&data.url){if(P.Browser)await P.Browser.open({url:data.url});else location.href=data.url;}return;}
+  const {error}=await sb.auth.signInWithOAuth({provider:'google',options:{redirectTo:location.origin+location.pathname+location.search}});if(error)throw error;}catch(e){toast('הכניסה עם Google לא הצליחה: '+(e.message||e));}}
 async function signInApple(){try{const {error}=await sb.auth.signInWithOAuth({provider:'apple',options:{redirectTo:location.origin+location.pathname+location.search}});if(error)throw error;}catch(e){toast('הכניסה עם Apple לא הצליחה');}}
 async function sendEmailCode(){const em=(A.loginEmail||'').trim();if(!/^\S+@\S+\.\S+$/.test(em))return toast('כתובת מייל לא תקינה');A.loginBusy=true;render();
   try{const {error}=await sb.auth.signInWithOtp({email:em,options:{emailRedirectTo:location.origin+location.pathname+location.search}});if(error)throw error;A.otpSent=true;}catch(e){toast('לא הצלחנו לשלוח מייל: '+(e.message||e));}A.loginBusy=false;render();}
@@ -1808,7 +1818,7 @@ function vLoginSheet(){const busy=A.loginBusy?'disabled':'';const up=A.authMode=
     <div class="small isub">${up?'הכינוי, האווטאר, החבילות שלכם וערכת העיצוב — נשמרים בכל טלפון':'נכנסים לחשבון שכבר פתחתם'}</div></div></div>
     <div class="ltabs"><button class="${up?'on':''}" onclick="A.authMode='signup';A.authMsg='';render()">הרשמה</button><button class="${up?'':'on'}" onclick="A.authMode='login';A.authMsg='';render()">כניסה</button></div>
     ${A.authMsg?`<div class="authmsg">${h(A.authMsg)}</div>`:''}
-    ${NATIVE?'':`<button class="btn big gbtn" onclick="signInGoogle()" ${busy}>${G} המשך עם Google</button>
+    ${NATIVE_IOS&&!AUTH.apple?'':`<button class="btn big gbtn" onclick="signInGoogle()" ${busy}>${G} המשך עם Google</button>
     ${AUTH.apple?`<button class="btn big abtn" onclick="signInApple()" ${busy}> המשך עם Apple</button>`:''}
     <div class="ordiv"><span>${up?'או הרשמה עם מייל וסיסמה':'או כניסה עם מייל וסיסמה'}</span></div>`}
     <form class="col" style="gap:10px" onsubmit="event.preventDefault();emailAuth()">
