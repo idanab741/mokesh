@@ -1168,7 +1168,11 @@ function devKind(){const u=navigator.userAgent;return /iPhone|iPad|iPod/.test(u)
 const FREE_GAMES=3,FREE_PLAYERS=6;
 // מבצע השקה: פרימיום בחינם לכולם. להפעלת התשלום — PREMIUM_FREE=false
 const PREMIUM_FREE=true;
-A.premium=PREMIUM_FREE||(()=>{try{return localStorage.getItem('mokesh.prem')==='1';}catch(e){return false;}})();
+// פרימיום רק למי שמחובר לחשבון. אורח = הגרסה החינמית (גם במבצע ההשקה)
+function premPaid(){try{return localStorage.getItem('mokesh.prem')==='1';}catch(e){return false;}}
+function premCalc(){return !!A.user&&(PREMIUM_FREE||premPaid());}
+A.premium=false;
+function premRefresh(){const v=premCalc();if(v===A.premium)return;A.premium=v;if(A.S&&A.isHost&&A.S.phase==='LOBBY'){A.S.premium=v;if(A.mode==='online')hostWrite();}try{applyTheme(A.S);}catch(e){}}
 function premiumOn(S){return !!(A.premium||(S&&S.premium));}
 function gamesToday(){try{const d=JSON.parse(localStorage.getItem('mokesh.games')||'null');return d&&d.d===new Date().toDateString()?+d.n||0:0;}catch(e){return 0;}}
 function countGame(){try{localStorage.setItem('mokesh.games',JSON.stringify({d:new Date().toDateString(),n:gamesToday()+1}));}catch(e){}}
@@ -1176,10 +1180,17 @@ function canPlay(S){return premiumOn(S)||gamesToday()<FREE_GAMES;}
 function needPremium(reason){A.premReason=reason||'';A.sheet='premium';ev('prem',{a:'view',r:reason||''});render();}
 // התחלת משחק (מנהל / מכשיר אחד / מול המחשב): בחינם — סופרים, ואחרי 3 ביום מציעים פרימיום
 function gateStart(go){const S=A.S;if(!canPlay(S)){needPremium('limit');return;}if(!premiumOn(S))countGame();go();}
-function checkPremium(){if(!sb||PREMIUM_FREE)return;sb.rpc('mokesh_is_premium',{p_uid:localStorage.getItem('mokesh.uid')||A.uid}).then(r=>{if(r.error||typeof r.data!=='boolean')return;const on=!!r.data;try{localStorage.setItem('mokesh.prem',on?'1':'0');}catch(e){}
-  if(on!==A.premium){A.premium=on;if(A.S&&A.isHost&&A.S.phase==='LOBBY'){A.S.premium=on||!!A.S.premium;if(A.mode==='online')hostWrite();}render();}},()=>{});}
+function checkPremium(){if(!sb||PREMIUM_FREE||!A.user)return;sb.rpc('mokesh_is_premium',{p_uid:localStorage.getItem('mokesh.uid')||A.uid}).then(r=>{if(r.error||typeof r.data!=='boolean')return;const on=!!r.data;try{localStorage.setItem('mokesh.prem',on?'1':'0');}catch(e){}
+  on=on&&!!A.user;if(on!==A.premium){A.premium=on;if(A.S&&A.isHost&&A.S.phase==='LOBBY'){A.S.premium=on||!!A.S.premium;if(A.mode==='online')hostWrite();}render();}},()=>{});}
 function vPremium(){const lim=A.premReason==='limit';const code=localStorage.getItem('mokesh.uid')||A.uid||'';const left=Math.max(0,FREE_GAMES-gamesToday());
   const F=[['play','משחקים בלי הגבלה','בחינם: 3 משחקים ביום',''],['gear','כל ההגדרות','תור-תור, כמות תורים, נקודות לניצחון, זמנים, קושי, מוקשים כתובים',''],['users','עד 12 שחקנים בחדר','בחינם: עד 6',''],['book','+1,000 מילים בחבילות','ישראלי, סרטים, מוזיקה, ספורט, ילדים, מסיבה ועוד',''],['chat','חפיסה פרטית','כותבים מילים משלכם, בדיחות פנימיות',''],['users','3–4 קבוצות','למסיבות גדולות',''],['trophy','היסטוריה והישגים','כל המשחקים, תגים וטבלת חברים','בקרוב'],['star','מראה אישי','תמונה אמיתית, צבעים לקבוצות, פיצוצים','']];
+  if(!A.user)return `<div class="prem"><div class="pbadge">${ic('crown',22)} מוקש! פרימיום</div>
+    ${lim?`<div class="plimit">שיחקתם ${FREE_GAMES} משחקים היום. מחר יש עוד ${FREE_GAMES} בחינם, או שפותחים חשבון ומקבלים פרימיום.</div>`:''}
+    <div class="price">${PREMIUM_FREE?`<s>29.90 <span class="nis">₪</span></s><b class="free">חינם!</b><span>לנרשמים · מבצע השקה</span>`:`<b>29.90 <span class="nis">₪</span></b><span>פעם אחת · לכל החיים</span>`}</div>
+    <p class="small" style="margin:0;color:var(--ink);opacity:.75;font-weight:600">פרימיום שמור לבעלי חשבון. ככה הוא נשמר לכם בכל טלפון.</p>
+    <div class="pfeat">${F.map(([i,t,d,soon])=>`<div class="pf"><span class="pi">${ic(i,20)}</span><div><b>${t}</b>${soon?`<em>${soon}</em>`:''}<div class="xs muted">${d}</div></div></div>`).join('')}</div>
+    <button class="btn primary big" onclick="A.sheet='login';A.authMode='signup';A.fromSettings=1;render()">${PREMIUM_FREE?'פתיחת חשבון ופרימיום בחינם':'פתיחת חשבון'}</button>
+    <button class="btn ghost" onclick="A.sheet=null;render()">אחר כך</button></div>`;
   if(PREMIUM_FREE)return `<div class="prem"><div class="pbadge">${ic('crown',22)} מוקש! פרימיום</div><div class="price"><s>29.90 <span class="nis">₪</span></s><b class="free">חינם!</b><span>מבצע השקה · לזמן מוגבל</span></div>
     <div class="pfeat">${F.map(([i,t,d,soon])=>`<div class="pf"><span class="pi">${ic(i,20)}</span><div><b>${t}</b>${soon?`<em>${soon}</em>`:''}<div class="xs muted">${d}</div></div></div>`).join('')}</div>
     <button class="btn primary big" onclick="A.sheet=null;render()">מעולה, יאללה משחקים</button></div>`;
@@ -1581,7 +1592,7 @@ async function authInit(){if(!sb||!sb.auth)return;nativeAuthListen();
   sb.auth.onAuthStateChange((ev,session)=>{if(ev==='PASSWORD_RECOVERY'){A.recovery=true;A.sheet='login';setTimeout(render,0);}const u=session&&session.user||null;if((u&&u.id)!==(A.user&&A.user.id)){A.user=u;onUser();}});
   try{const {data}=await sb.auth.getSession();A.user=data&&data.session?data.session.user:null;if(A.user)await onUser();}catch(e){console.warn('auth',e);}}
 // מחובר: מזהה השחקן במשחקים הוא מזהה החשבון, והשם/האווטאר נטענים מהפרופיל
-async function onUser(){devCheck();if(!A.user){A.prof=null;A.friends=[];A.invites=[];A.udReady=false;stopSocial();render();return;}A.authMsg='';udPull();
+async function onUser(){devCheck();premRefresh();if(!A.user){A.prof=null;A.friends=[];A.invites=[];A.udReady=false;stopSocial();render();return;}A.authMsg='';udPull();
   if(!A.S){A.uid=A.user.id;}
   try{let {data:p}=await sb.from('mokesh_profiles').select('*').eq('id',A.user.id).maybeSingle();
     if(!p){const md=A.user.user_metadata||{};const nm=((A.chosen.name||md.full_name||md.name||'').trim()||'שחקן').slice(0,16);
@@ -1622,7 +1633,7 @@ async function deleteAccountAsk(){if(!A.user)return;
   try{UD_KEYS.forEach(k=>localStorage.removeItem(k));localStorage.removeItem('mokesh.mydeck');}catch(e){}
   await signOut();toast('החשבון נמחק');}
 async function signOutAsk(){if(await uiAsk({title:'לצאת מהחשבון?',text:'החבילות וההגדרות שלכם שמורות בחשבון ויחזרו כשתיכנסו שוב.',ok:'יציאה',danger:1,icon:ic('back',28)}))signOut();}
-async function signOut(){try{await sb.auth.signOut();}catch(e){}A.user=null;A.prof=null;A.friends=[];stopSocial();A.uid=localStorage.getItem('mokesh.uid')||A.uid;A.sheet=null;render();}
+async function signOut(){try{await sb.auth.signOut();}catch(e){}A.user=null;premRefresh();A.prof=null;A.friends=[];stopSocial();A.uid=localStorage.getItem('mokesh.uid')||A.uid;A.sheet=null;render();}
 async function addFriend(code){code=String(code||'').trim().toUpperCase();if(!code)return;if(!A.user){if(!LOGIN_ON)return;A.pendingFriend=code;A.sheet='login';render();return;}
   try{const {data,error}=await sb.rpc('mokesh_add_friend',{p_code:code});if(error)throw error;
     toast({requested:'בקשת חברות נשלחה ✉️',accepted:'אתם חברים עכשיו! 🎉',already:'אתם כבר חברים',pending:'כבר שלחת בקשה, מחכים שיאשרו',not_found:'לא מצאנו קוד כזה',self:'זה הקוד שלך 🙂'}[data]||'משהו השתבש');A.friendCode='';loadFriends();}catch(e){toast('לא הצלחנו להוסיף חבר');}}
@@ -2136,7 +2147,7 @@ function vHome(){const c=A.chosen;const m=A.homeMode;if(m==='settings')return vS
       ${hb('q','bolt','משחק מהיר','<i class="ldot"></i>אונליין · 2 קבוצות של 3','quickMatch()')}
       ${hb('y','users','צור משחק','',"A.homeMode='create';render()")}
       ${hb('w','join','הצטרף למשחק','',"A.homeMode='join';render()")}
-      <button type="button" class="premline${A.premium?' on':''}" onclick="needPremium('home')">${PREMIUM_FREE?`${ic('crown',18)} פרימיום <s>29.90 ₪</s> <b>חינם!</b>`:A.premium?`${ic('crown',18)} פרימיום פעיל`:`${ic('crown',18)} ${Math.max(0,FREE_GAMES-gamesToday())} משחקים בחינם היום · <u>פרימיום</u>`}</button>
+      <button type="button" class="premline${A.premium?' on':''}" onclick="needPremium('home')">${A.premium?`${ic('crown',18)} פרימיום פעיל`:PREMIUM_FREE?`${ic('crown',18)} פרימיום <s>29.90 ₪</s> <b>חינם לנרשמים!</b>`:A.premium?`${ic('crown',18)} פרימיום פעיל`:`${ic('crown',18)} ${Math.max(0,FREE_GAMES-gamesToday())} משחקים בחינם היום · <u>פרימיום</u>`}</button>
       <div class="hicons"><button onclick="A.homeMode='local';render()"><span style="--c:var(--i1)">${ic('phone',24)}</span>מכשיר אחד</button><button onclick="openRoute()"><span style="--c:var(--i2)">${ic('robot',24)}</span>מול המחשב</button><button onclick="tourStart('home')"><span style="--c:var(--i3)">${ic('book',24)}</span>איך משחקים</button></div>
       ${A.dbMissing?'<div class="banner warn">מצב אונליין לא זמין כרגע. ״מכשיר אחד״ עובד תמיד.</div>':''}
     </div>`;
@@ -2270,7 +2281,7 @@ function vSettingsPage(){if(A.user&&!A.groupsAt||A.user&&Date.now()-A.groupsAt>6
       <label class="col" style="gap:4px;flex:1;min-width:0"><span class="xs">הכינוי שלך</span><input class="input" name="nick" maxlength="16" placeholder="למשל: דנה" value="${h(c.name)}" oninput="A.chosen.name=this.value;saveProfile()"></label></div>
     ${A.avOpen?`<div class="avgrid">${avPhotoTile(c.avatar,'me')}${AVATARS.map(a=>`<button class="${a===c.avatar?'on':''}" onclick="A.chosen.avatar='${a}';saveProfile();render()">${avInner(a)}</button>`).join('')}</div>`:''}
     ${vAccount()}`)}
-  ${sec('crown','פרימיום',`<button class="srow" onclick="A.premReason='';A.sheet='premium';render()"><span class="col" style="gap:1px"><b>${prem?'פרימיום פעיל':'מוקש! פרימיום'}</b><span class="xs">${PREMIUM_FREE?'בחינם עכשיו · מבצע השקה':prem?'כל האפשרויות פתוחות':'משחקים בלי הגבלה, חבילות, ערכות ועוד'}</span></span>${ic('chev',20)}</button>`)}
+  ${sec('crown','פרימיום',`<button class="srow" onclick="A.premReason='';A.sheet='premium';render()"><span class="col" style="gap:1px"><b>${prem?'פרימיום פעיל':'מוקש! פרימיום'}</b><span class="xs">${prem?'כל האפשרויות פתוחות':PREMIUM_FREE?'חינם לנרשמים · מבצע השקה':prem?'כל האפשרויות פתוחות':'משחקים בלי הגבלה, חבילות, ערכות ועוד'}</span></span>${ic('chev',20)}</button>`)}
   ${sec('trophy','הסטטיסטיקות שלי',vStatsSec())}
   ${sec('users','קבוצות משחק',vGroups())}
   ${sec('star','ערכת עיצוב',vThemeHome(),lock)}
