@@ -557,6 +557,15 @@ html.kb .msg .b{padding:6px 12px;font-size:16px}html.kb .msg.clue.cur .b{font-si
 .settings .r button.mylnk,.mylnk{width:auto;height:auto;box-shadow:none;border-radius:0;background:none;border:0;padding:0 2px;font:inherit;font-size:13px;font-weight:800;color:var(--ink);text-decoration:underline;cursor:pointer}
 .sheet-bg.top{align-items:flex-start;padding-top:max(12px,env(safe-area-inset-top))}.deck{max-height:calc(100vh - 24px);max-height:calc(100dvh - 24px);overflow-y:auto;-webkit-overflow-scrolling:touch;overscroll-behavior:contain}.deck .muted{color:var(--soft)}.mycol{display:flex;flex-direction:column;align-items:flex-start;gap:2px}.dkform{display:flex;flex-direction:column;gap:8px}.dkm{display:grid;grid-template-columns:repeat(3,1fr);gap:6px}.dkm .input{font-size:15px;padding:9px 10px}
 .pkgrid{display:grid;grid-template-columns:1fr 1fr;gap:8px}.pkchip{position:relative;display:flex;flex-direction:column;align-items:flex-start;gap:2px;text-align:right;padding:10px 12px;border:2.5px solid var(--ink);border-radius:14px;background:#fff;color:var(--ink);font:inherit;cursor:pointer}
+.setpage{gap:14px;padding-bottom:30px}
+.sset{background:var(--paper);color:var(--ink);border:var(--o);border-radius:22px;box-shadow:var(--sh);padding:14px;display:flex;flex-direction:column;gap:12px}
+.sset .xs{color:var(--soft)}.ssh{display:flex;align-items:center;gap:10px;font-family:var(--font-display);font-size:20px}.ssh b{font-weight:400}.ssh .plock{margin-right:auto}
+.ssi{width:34px;height:34px;border-radius:11px;border:2.5px solid var(--ink);background:var(--yellow);display:grid;place-items:center;flex:none}
+.sprof{display:flex;align-items:center;gap:14px}.sav{position:relative;background:none;border:0;padding:0;flex:none;cursor:pointer}.sav>i{position:absolute;bottom:2px;left:2px;width:30px;height:30px;border-radius:50%;background:var(--yellow);border:2.5px solid var(--ink);display:grid;place-items:center;color:var(--ink)}
+.snote{display:flex;align-items:center;gap:8px;font-size:13px;font-weight:700;background:rgba(21,16,43,.06);border-radius:12px;padding:9px 11px}
+.srow{display:flex;align-items:center;justify-content:space-between;gap:12px;width:100%;background:#fff;border:2.5px solid var(--ink);border-radius:14px;padding:10px 12px;color:var(--ink);font:inherit;text-align:right;cursor:pointer}.srow b{font-size:16px}
+.spk{display:grid;grid-template-columns:1fr 1fr;gap:8px}.spkc{display:flex;flex-direction:column;align-items:flex-start;gap:2px;padding:10px 12px;border:2.5px solid var(--ink);border-radius:14px;background:#fff;color:var(--ink);font:inherit;text-align:right;cursor:pointer}.spkc.on{background:var(--yellow)}.spkc span{font-size:12px;color:var(--soft)}
+.sset .btn.ghost.sgh{color:var(--ink);border:2.5px solid var(--ink)}
 .flist{display:flex;flex-direction:column;gap:8px}.fold{display:flex;align-items:center;gap:8px;background:#fff;border:2.5px solid var(--ink);border-radius:16px;padding:8px 10px}.fold.on{background:var(--yellow)}
 .fopen{flex:1;display:flex;align-items:center;gap:10px;background:none;border:0;padding:0;text-align:right;color:var(--ink);font:inherit;min-width:0;cursor:pointer}.fopen b{font-size:17px}.fopen .muted{color:var(--soft)}
 .fic{flex:none;width:38px;height:38px;border-radius:12px;border:2.5px solid var(--ink);background:var(--paper);display:grid;place-items:center}
@@ -796,7 +805,7 @@ function myDeckClean(d,max){return (Array.isArray(d)?d:[]).slice(0,max||MY_MAX).
 const FOLDER_MAX=20;
 function foldersLoad(){try{let f=JSON.parse(localStorage.getItem('mokesh.folders')||'null');
     if(!Array.isArray(f)){const old=JSON.parse(localStorage.getItem('mokesh.mydeck')||'[]');f=Array.isArray(old)&&old.length?[{id:uid(6),n:'המילים שלי',w:old,on:1}]:[];}
-    return f.slice(0,FOLDER_MAX).map(x=>({id:String((x&&x.id)||uid(6)).replace(/[^A-Za-z0-9]/g,'').slice(0,8)||uid(6),n:myTxt(x&&x.n)||'תיקייה',w:myDeckClean(x&&x.w),on:x&&x.on?1:0}));}catch(e){return [];}}
+    return f.slice(0,FOLDER_MAX).map(x=>({id:String((x&&x.id)||uid(6)).replace(/[^A-Za-z0-9]/g,'').slice(0,8)||uid(6),n:myTxt(x&&x.n)||'חבילה',w:myDeckClean(x&&x.w),on:x&&x.on?1:0}));}catch(e){return [];}}
 function foldersSave(f){try{localStorage.setItem('mokesh.folders',JSON.stringify(f));}catch(e){}}
 // המילים שנשלחות לחדר: כל התיקיות המסומנות, בלי כפילויות
 function myDeckLoad(){const out=[];for(const f of foldersLoad())if(f.on)for(const x of f.w)if(!out.some(y=>normalize(y.w)===normalize(x.w)))out.push(x);return out.slice(0,300);}
@@ -1314,7 +1323,8 @@ async function botGuessFor(S,c){const from=S.cardAt||0;const prev=S.guesses.filt
 let audioCtx=null;
 // רטט: באנדרואיד דרך vibrate. באייפון אין vibrate, אבל לחיצה על מתג (input switch, iOS 18+) נותנת נקישה של המנוע — כל "פעימה" בתבנית = נקישה
 let hapEl=null;
-function haptic(pat){try{const a=Array.isArray(pat)?pat:[pat];if(navigator.vibrate){navigator.vibrate(a);return;}
+function hapOn(){try{return localStorage.getItem('mokesh.hap')!=='0';}catch(e){return true;}}
+function haptic(pat){if(!hapOn())return;try{const a=Array.isArray(pat)?pat:[pat];if(navigator.vibrate){navigator.vibrate(a);return;}
   if(!/iP(hone|ad|od)/.test(navigator.userAgent))return;
   if(!hapEl){hapEl=document.createElement('label');hapEl.setAttribute('aria-hidden','true');hapEl.style.cssText='position:fixed;left:-99px;top:0;opacity:0;pointer-events:none';hapEl.innerHTML='<input type="checkbox" switch tabindex="-1">';document.body.appendChild(hapEl);}
   let t=0;a.forEach((ms,i)=>{if(i%2===0)for(let k=0;k<Math.max(1,Math.round(ms/110));k++)setTimeout(()=>hapEl.click(),t+k*70);t+=ms;});}catch(e){}}
@@ -1690,7 +1700,7 @@ function tourAuto(){if(TOUR.el||A.sheet||A.menu||A.avPick)return;const S=A.S;let
   else if(S.phase==='EXPLAINING'&&role(S)==='guesser'&&typedClues(S))k='guesser';
   if(k&&GAME_TOURS.includes(k)&&!gameTourOk(S))return;
   if(k&&!tourSeen(k)){clearTimeout(A.tourT);A.tourT=setTimeout(()=>{if(!TOUR.el)tourStart(k,{passive});},passive?500:900);}}
-function vHome(){const c=A.chosen;const m=A.homeMode;if(m==='how'||m==='intro'){A.homeMode='menu';setTimeout(()=>tourStart('home'),50);return vHome();}
+function vHome(){const c=A.chosen;const m=A.homeMode;if(m==='settings')return vSettingsPage();if(m==='how'||m==='intro'){A.homeMode='menu';setTimeout(()=>tourStart('home'),50);return vHome();}
   const form=`<div class="card col" style="gap:14px">
     <label class="col" style="gap:4px"><span class="small muted">הכינוי שלך</span><input class="input" name="nick" data-autofocus maxlength="16" placeholder="למשל: דנה" value="${h(c.name)}" oninput="const was=!!A.chosen.name.trim();A.chosen.name=this.value;saveProfile();if(was!==!!this.value.trim())render()"></label>
     <div class="col" style="gap:4px"><span class="small muted">אווטאר</span><div class="avgrid">${avPhotoTile(c.avatar,'me')}${AVATARS.map(a=>`<button class="${a===c.avatar?'on':''}" onclick="A.chosen.avatar='${a}';saveProfile();render()">${avInner(a)}</button>`).join('')}</div></div>`;
@@ -1713,7 +1723,6 @@ function vHome(){const c=A.chosen;const m=A.homeMode;if(m==='how'||m==='intro'){
       <button class="btn primary big" onclick="createLocal()">התחל</button><button class="btn ghost" onclick="A.homeMode='menu';render()">חזרה</button></div>`;
   else if(m==='ai')body=`<div class="card col" style="gap:10px"><div class="bold row">${ic('robot',22)} מול המחשב</div><p class="small muted" style="margin:0;line-height:1.5">אתם (עם שותף-מחשב אם אתם לבד) נגד קבוצת מחשב. כשאתם מסבירים — מקלידים רמזים והשותף מנחש. כשהמחשב מסביר — אתם מנחשים. וכשהמחשב בתור — אתם טומנים לו מוקשים. המחשב לא רואה את התשובה כשהוא מנחש.</p>
       <button class="btn primary big" onclick="createAI()">התחל</button><button class="btn ghost" onclick="A.homeMode='menu';render()">חזרה</button></div>`;
-  else if(m==='settings')body=`<div class="card col"><div class="bold row">${ic('gear',22)} הגדרות</div><p class="small muted" style="margin:0;line-height:1.5">הגדרות המשחק (תורים, זמן, קושי) נקבעות בחדר המשחק על ידי מנהל החדר. הכינוי והאווטאר שלך נשמרים במכשיר.</p>${vThemeHome()}<div class="col" style="gap:6px"><span class="bold">התיקיות שלי${premiumOn(null)?'':` <i class="plock">${ic('crown',14)} פרימיום</i>`}</span><button class="btn info" onclick="openDeck()">${ic('book',20)} ${(()=>{const f=foldersLoad();return f.length?f.length+' תיקיות · '+f.reduce((a,x)=>a+x.w.length,0)+' מילים':'יצירת תיקיית מילים';})()}</button></div><p class="xs isub" style="margin:0">גרסה: ${h(A.ver||'')}</p><button class="btn ghost" onclick="A.homeMode='menu';render()">חזרה</button></div>`;
   else body=`<div class="card col small" style="line-height:1.6">
       <p style="margin:0"><b class="tA">שתי קבוצות.</b> בכל תור קבוצה אחת מסבירה ומנחשת, והשנייה טומנת מוקשים.</p>
       <p style="margin:0"><b style="color:var(--danger)">היריבים</b> רואים את מילת היעד ובוחרים 3 מילים דומות שיהפכו למוקשים — 25 שניות.</p>
@@ -1819,8 +1828,26 @@ function vMyRow(S,host,lock){const m=S.settings.myDeck||0;const L=['כבויות
 function deckAutoPush(S){if(A.deckEdit||!S||S.phase!=='LOBBY'||S.mode==='ai'||S.vsBots||S.public||!S.settings||!S.settings.myDeck)return;const d=myDeckClean(myDeckLoad(),300);const key=S.code+'|'+myId()+'|'+JSON.stringify(d);
   if(A.deckKey===key||(!d.length&&!A.deckKey))return;A.deckKey=key;setTimeout(()=>act({type:'mydeck',deck:d}),0);}
 function packSummary(S){const pk=packsOf(S);const names=[...(classicOn(S)&&packMask(S)&1?['בסיסית']:[]),...pk.map(k=>PACKS.find(p=>p[0]===k)[1])];return names.length>2?names[0]+' + '+(names.length-1):names.join(' + ');}
+// מסך ההגדרות (מגלגל השיניים במסך הבית): פרופיל, פרימיום, ערכת עיצוב, החבילות שלי, צליל ורטט, עזרה
+function vSettingsPage(){const c=A.chosen;const prem=premiumOn(null);const f=foldersLoad();
+  const sec=(icon,title,body,extra)=>`<section class="sset"><div class="ssh"><span class="ssi">${ic(icon,20)}</span><b>${title}</b>${extra||''}</div>${body}</section>`;
+  const sw=(on,label,sub,fn)=>`<label class="srow"><span class="col" style="gap:1px"><b>${label}</b>${sub?`<span class="xs">${sub}</span>`:''}</span><span class="fsw"><input type="checkbox" ${on?'checked':''} onchange="${fn}"><span></span></span></label>`;
+  const lock=prem?'':` <i class="plock">${ic('crown',14)} פרימיום</i>`;const gate=`if(!premiumOn(null))return needPremium('folders');`;
+  return `<div class="screen setpage"><div class="hdr"><button onclick="A.homeMode='menu';A.avOpen=0;render()" aria-label="חזרה">${ic('back',22)}</button><div class="t">הגדרות</div><span style="width:44px"></span></div>
+  ${sec('users','הפרופיל שלי',`<div class="sprof"><button class="sav" onclick="A.avOpen=A.avOpen?0:1;render()" aria-label="החלפת אווטאר">${av(c.avatar,'xl')}<i>${ic('camera',14)}</i></button>
+      <label class="col" style="gap:4px;flex:1;min-width:0"><span class="xs">הכינוי שלך</span><input class="input" name="nick" maxlength="16" placeholder="למשל: דנה" value="${h(c.name)}" oninput="A.chosen.name=this.value;saveProfile()"></label></div>
+    ${A.avOpen?`<div class="avgrid">${avPhotoTile(c.avatar,'me')}${AVATARS.map(a=>`<button class="${a===c.avatar?'on':''}" onclick="A.chosen.avatar='${a}';saveProfile();render()">${avInner(a)}</button>`).join('')}</div>`:''}
+    <div class="snote">${ic('star',16)} בקרוב: חשבון אישי עם אימייל או גוגל, והכל נשמר גם בטלפון אחר</div>`)}
+  ${sec('crown','פרימיום',`<button class="srow" onclick="A.premReason='';A.sheet='premium';render()"><span class="col" style="gap:1px"><b>${prem?'פרימיום פעיל':'מוקש! פרימיום'}</b><span class="xs">${PREMIUM_FREE?'בחינם עכשיו · מבצע השקה':prem?'כל האפשרויות פתוחות':'משחקים בלי הגבלה, חבילות, ערכות ועוד'}</span></span>${ic('chev',20)}</button>`)}
+  ${sec('star','ערכת עיצוב',vThemeHome(),lock)}
+  ${sec('book','החבילות שלי',`<div class="xs" style="margin-top:-4px">חבילות מילים שאתם כותבים, למשל "המשפחה" או "החברים". בחדר הן נכנסות למשחק דרך "חבילות מילים".</div>
+    ${f.length?`<div class="spk">${f.map(x=>`<button class="spkc${x.on?' on':''}" onclick="${gate}A.deckEdit='${x.id}';A.deckPaste=false;render()"><b>${h(x.n)}</b><span>${x.w.length===1?'מילה אחת':x.w.length+' מילים'}</span></button>`).join('')}</div>`:''}
+    <div class="row" style="gap:8px"><button class="btn primary" style="flex:1" onclick="${gate}folderNew()">+ חבילה חדשה</button>${f.length?`<button class="btn ghost sgh" style="width:auto" onclick="openDeck()">ניהול</button>`:''}</div>`,lock)}
+  ${sec('music','צליל ורטט',sw(MUSIC.on,'מוזיקה וצלילים','','toggleMusic()')+sw(hapOn(),'רטט','כשנופלים על מוקש ובניחוש נכון',"try{localStorage.setItem('mokesh.hap',this.checked?'1':'0')}catch(e){};if(this.checked)haptic(30)"))}
+  ${sec('help','עזרה',`<button class="srow" onclick="A.homeMode='how';render()"><b>איך משחקים</b>${ic('chev',20)}</button><div class="xs" style="opacity:.7">גרסה ${h(A.ver||'')}</div>`)}
+  </div>`;}
 function vThemeHome(){const cur=themeOf(null);const lock=!premiumOn(null);const D={'--bg':'#2B3BFF','--yellow':'#FFD23F','--pink':'#FF4FA3','--cyan':'#19D3FF','--trap-bg':'#FF3B30'};const sw=v=>Object.keys(D).map(k=>`<i style="background:${v[k]||D[k]}"></i>`).join('');
-  return `<div class="col" style="gap:6px"><span class="bold">ערכת עיצוב${lock?` <i class="plock">${ic('crown',14)} פרימיום</i>`:''}</span><div class="pkgrid">${THEMES.map((t,i)=>`<button class="pkchip thchip${i===cur?' on':''}" onclick="setTheme(${i})"><b>${t.n}</b><span class="sw">${sw(t.v)}</span>${i===cur?ic('check',18):''}</button>`).join('')}</div></div>`;}
+  return `<div class="col" style="gap:6px"><div class="pkgrid">${THEMES.map((t,i)=>`<button class="pkchip thchip${i===cur?' on':''}" onclick="setTheme(${i})"><b>${t.n}</b><span class="sw">${sw(t.v)}</span>${i===cur?ic('check',18):''}</button>`).join('')}</div></div>`;}
 function vThemeRow(S,host,lock){const t=THEMES[themeOf(S)];return `<div class="r"><span class="small muted">ערכת עיצוב</span><button class="mini packbtn" onclick="${lock?`needPremium('settings')`:host?'A.themeOpen=true;render()':''}" ${host||lock?'':'disabled'}>${h(t.n)}</button></div>`;}
 function setTheme(i){if(!premiumOn(A.S))return needPremium('theme');try{localStorage.setItem('mokesh.theme',String(i));}catch(e){}haptic&&haptic(20);render();}
 function vThemes(S){const cur=themeOf(S);const D={'--bg':'#2B3BFF','--yellow':'#FFD23F','--pink':'#FF4FA3','--cyan':'#19D3FF','--trap-bg':'#FF3B30'};const sw=v=>Object.keys(D).map(k=>`<i style="background:${v[k]||D[k]}"></i>`).join('');
@@ -1830,7 +1857,7 @@ function vThemes(S){const cur=themeOf(S);const D={'--bg':'#2B3BFF','--yellow':'#
 function vColorRow(S,host,lock){const L=teamsOf(S);const used=L.map(t=>S.settings['c'+t]);
   const nx=t=>{const cur=S.settings['c'+t];for(let k=1;k<=TPAL.length;k++){const v=(cur+k)%TPAL.length;if(!used.includes(v))return v;}return cur;};
   return `<div class="r"><span class="small muted">צבעי קבוצות</span><div class="row" style="gap:8px">${L.map(t=>`<button class="tdot ${t}" aria-label="${TEAM_NAME[t]}" ${host||lock?`onclick="${lock?`needPremium('settings')`:`act({type:'settings',settings:{c${t}:${nx(t)}}})`}"`:'disabled'}>${TEAM_NAME_BASE[t].slice(-2)}</button>`).join('')}</div></div>`;}
-function vPackRow(S,host,lock){const my=S.settings.myDeck;const sum=my===2?'רק המילים שלנו':packSummary(S)+(my?' + שלנו':'');return `<div class="r"><span class="small muted">חבילות מילים</span><button class="mini packbtn" onclick="${lock?`needPremium('settings')`:'A.packOpen=true;render()'}">${h(sum)}</button></div>`;}
+function vPackRow(S,host,lock){const my=S.settings.myDeck;const sum=my===2?'רק החבילות שלנו':packSummary(S)+(my?' + שלנו':'');return `<div class="r"><span class="small muted">חבילות מילים</span><button class="mini packbtn" onclick="${lock?`needPremium('settings')`:'A.packOpen=true;render()'}">${h(sum)}</button></div>`;}
 function packToggle(bit){const S=A.S;if(!S||!A.isHost)return;let m=packMask(S)^(1<<bit);if(!(m&((2<<PACKS.length)-1)))m=1;act({type:'settings',settings:{packs:m}});}
 function vPacks(S){const m=packMask(S);const host=A.isHost;const chip=(bit,name,n,sub)=>`<button class="pkchip${m&(1<<bit)?' on':''}" ${host?`onclick="packToggle(${bit})"`:'disabled'}><b>${name}</b><span>${sub}</span>${m&(1<<bit)?ic('check',18):''}</button>`;
   return `<div class="sheet-bg top" onclick="A.packOpen=false;render()"><div class="sheet pop deck" onclick="event.stopPropagation()"><div class="row between"><div class="black" style="font-size:22px">חבילות מילים</div><button class="btn ghost" onclick="A.packOpen=false;render()">סיום</button></div>
@@ -1839,17 +1866,17 @@ function vPacks(S){const m=packMask(S);const host=A.isHost;const chip=(bit,name,
     ${vOurWords(S)}</div></div>`;}
 // "המילים שלנו": כל שחקן כותב מילים בטלפון שלו; מנהל החדר מדליק. מילה לא מגיעה לקבוצה של מי שכתב אותה
 function vOurWords(S){const host=A.isHost;const my=S.settings.myDeck||0;const n=myDeckLoad().length;const room=(S.myDeck||[]).length;const ppl=new Set((S.myDeck||[]).map(x=>x.by).filter(Boolean)).size;
-  return `<div class="ourw${my?' on':''}"><div class="row between" style="gap:10px"><div class="col" style="gap:2px;min-width:0"><b>המילים שלנו</b><span class="xs muted">כל אחד כותב מילים בטלפון שלו. מילה שלכם לא תגיע לקבוצה שלכם.</span></div>
+  return `<div class="ourw${my?' on':''}"><div class="row between" style="gap:10px"><div class="col" style="gap:2px;min-width:0"><b>החבילות שלנו</b><span class="xs muted">החבילות שכל שחקן כתב בטלפון שלו. מילה שלכם לא תגיע לקבוצה שלכם.</span></div>
       ${host?`<label class="pswitch"><input type="checkbox" ${my?'checked':''} onchange="setMyDeck(this.checked?1:0)"><span></span></label>`:`<span class="xs bold">${my?'פעיל':'כבוי'}</span>`}</div>
-    ${my&&host?`<label class="ouronly"><input type="checkbox" ${my===2?'checked':''} onchange="setMyDeck(this.checked?2:1)"> רק המילים שלנו (בלי החבילות)</label>`:''}
-    <div class="row between" style="gap:8px"><button class="btn info" style="width:auto;padding:8px 14px" onclick="openDeck()">${ic('book',18)} התיקיות שלי${n?` (${n})`:''}</button>${my&&room?`<span class="xs muted">בחדר: ${room} מילים${ppl>1?` מ-${ppl} שחקנים`:''}</span>`:''}</div></div>`;}
+    ${my&&host?`<label class="ouronly"><input type="checkbox" ${my===2?'checked':''} onchange="setMyDeck(this.checked?2:1)"> רק החבילות שלנו (בלי החבילות של המשחק)</label>`:''}
+    <div class="row between" style="gap:8px"><button class="btn info" style="width:auto;padding:8px 14px" onclick="openDeck()">${ic('book',18)} החבילות שלי${n?` (${n} מילים)`:''}</button>${my&&room?`<span class="xs muted">בחדר: ${room} מילים${ppl>1?` מ-${ppl} שחקנים`:''}</span>`:''}</div></div>`;}
 function setMyDeck(v){const S=A.S;if(!S)return;if(!premiumOn(S))return needPremium('settings');if(v&&!myDeckLoad().length&&!(S.myDeck||[]).length){toast('קודם הוסיפו מילים לחפיסה');openDeck();}act({type:'settings',settings:{myDeck:v}});}
 function openDeck(){if(!premiumOn(A.S))return needPremium('folders');A.deckEdit='list';A.deckPaste=false;render();}
-function folderNew(){const all=foldersLoad();if(all.length>=FOLDER_MAX)return toast('אפשר עד '+FOLDER_MAX+' תיקיות');const n=myTxt(prompt('שם התיקייה (למשל: המשפחה, החברים)')||'');if(!n)return;
+function folderNew(){const all=foldersLoad();if(all.length>=FOLDER_MAX)return toast('אפשר עד '+FOLDER_MAX+' חבילות');const n=myTxt(prompt('שם החבילה (למשל: המשפחה, החברים)')||'');if(!n)return;
   const f={id:uid(6),n,w:[],on:1};all.push(f);foldersSave(all);A.deckEdit=f.id;A.deckPaste=false;render();}
 function folderToggle(id){const all=foldersLoad();const f=all.find(x=>x.id===id);if(f){f.on=f.on?0:1;foldersSave(all);}render();}
-function folderRename(){const f=curFolder();if(!f)return;const n=myTxt(prompt('שם חדש לתיקייה',f.n)||'');if(!n)return;folderUpd(x=>{x.n=n;});render();}
-function folderDelete(){const f=curFolder();if(!f||!confirm(`למחוק את התיקייה "${f.n}" עם ${f.w.length} מילים?`))return;foldersSave(foldersLoad().filter(x=>x.id!==f.id));A.deckEdit='list';render();}
+function folderRename(){const f=curFolder();if(!f)return;const n=myTxt(prompt('שם חדש לחבילה',f.n)||'');if(!n)return;folderUpd(x=>{x.n=n;});render();}
+function folderDelete(){const f=curFolder();if(!f||!confirm(`למחוק את החבילה "${f.n}" עם ${f.w.length} מילים?`))return;foldersSave(foldersLoad().filter(x=>x.id!==f.id));A.deckEdit='list';render();}
 // אייפון: אחרי שהמקלדת נסגרת הדף נשאר גלול והמסך נראה תקוע — מחזירים למעלה
 document.addEventListener('focusout',e=>{if(e.target&&e.target.closest&&e.target.closest('.deck'))setTimeout(()=>{const a=document.activeElement;if(!a||!a.closest||!a.closest('.deck'))window.scrollTo(0,0);},120);});
 function closeDeck(){A.deckEdit=false;render();}
@@ -1857,7 +1884,7 @@ function deckBack(){A.deckEdit=A.deckEdit==='list'?false:'list';A.deckPaste=fals
 function deckPut(list){const f=curFolder();if(!f)return 0;const d=f.w;let added=0;for(const x of list){const w=myTxt(x.w);if(!w)continue;if(d.length>=MY_MAX){toast('אפשר עד '+MY_MAX+' מילים');break;}
     if(d.some(y=>normalize(y.w)===normalize(w)))continue;d.push({w,o:(x.o||[]).map(myTxt).filter(o=>o&&normalize(o)!==normalize(w))});added++;}folderUpd(x=>{x.w=d;});return added;}
 function deckAdd(e){e.preventDefault();const f=e.target;const w=myTxt(f.dw.value);if(!w){f.dw.focus();return;}
-  if((curFolder()||{w:[]}).w.some(y=>normalize(y.w)===normalize(w))){toast('המילה כבר בתיקייה');return;}
+  if((curFolder()||{w:[]}).w.some(y=>normalize(y.w)===normalize(w))){toast('המילה כבר בחבילה');return;}
   deckPut([{w,o:[f.m1.value,f.m2.value,f.m3.value]}]);haptic&&haptic(15);f.reset();render();}
 // הדבקת רשימה: שורה לכל מילה. מוקשים אחרי נקודתיים, מופרדים בפסיקים
 function deckPasteGo(){const t=document.querySelector('.deck textarea');if(!t)return;const list=t.value.split(/\n+/).map(l=>{const [w,r]=l.split(/:\s*(.*)/s);return {w,o:(r||'').split(/[,،]/)};});
@@ -1867,17 +1894,17 @@ function vFolders(){const all=foldersLoad();const inRoom=A.S&&A.S.phase==='LOBBY
   const row=f=>`<div class="fold${f.on?' on':''}"><button class="fopen" onclick="A.deckEdit='${f.id}';render()"><span class="fic">${ic('book',20)}</span><span class="col" style="gap:1px;min-width:0"><b>${h(f.n)}</b><span class="xs muted">${f.w.length===1?'מילה אחת':f.w.length+' מילים'}</span></span></button>
     <label class="fsw" title="נכנסת למשחק"><input type="checkbox" ${f.on?'checked':''} onchange="folderToggle('${f.id}')"><span></span></label></div>`;
   return `<div class="sheet-bg top" onclick="closeDeck()"><div class="sheet pop deck" onclick="event.stopPropagation()">
-    <div class="row between"><div class="black" style="font-size:22px">התיקיות שלי</div><button class="btn ghost" onclick="closeDeck()">סיום</button></div>
-    <div class="small muted">מכינים תיקיות של מילים משלכם, למשל "המשפחה" או "החברים". ${inRoom?'התיקיות המסומנות נכנסות למשחק כשמנהל החדר מדליק את "המילים שלנו".':'בחדר, מנהל החדר מדליק את "המילים שלנו" והתיקיות המסומנות נכנסות למשחק.'} <b>מילה שלכם לא תגיע לקבוצה שלכם לניחוש.</b></div>
-    ${all.length?`<div class="flist">${all.map(row).join('')}</div>`:`<div class="tc small muted" style="padding:10px 0">עוד אין תיקיות</div>`}
-    <button class="btn primary" onclick="folderNew()">+ תיקייה חדשה</button></div></div>`;}
+    <div class="row between"><div class="black" style="font-size:22px">החבילות שלי</div><button class="btn ghost" onclick="closeDeck()">סיום</button></div>
+    <div class="small muted">חבילות מילים משלכם, למשל "המשפחה" או "החברים". ${inRoom?'החבילות המסומנות נכנסות למשחק כשמנהל החדר מדליק את "החבילות שלנו".':'בחדר, מנהל החדר מדליק את "החבילות שלנו" והחבילות המסומנות נכנסות למשחק.'} <b>מילה שלכם לא תגיע לקבוצה שלכם לניחוש.</b></div>
+    ${all.length?`<div class="flist">${all.map(row).join('')}</div>`:`<div class="tc small muted" style="padding:10px 0">עוד אין חבילות</div>`}
+    <button class="btn primary" onclick="folderNew()">+ חבילה חדשה</button></div></div>`;}
 function vDeck(){if(A.deckEdit==='list')return vFolders();const fo=curFolder();if(!fo){A.deckEdit='list';return vFolders();}const d=fo.w;
   const list=d.map((x,i)=>({x,i})).reverse().map(({x,i})=>`<div class="dk"><div><b>${h(x.w)}</b>${x.o.length?`<span class="xs muted">${x.o.map(h).join(' · ')}</span>`:''}</div><button class="dkx" aria-label="מחיקה" onclick="deckDel(${i})">×</button></div>`).join('');
   return `<div class="sheet-bg top" onclick="closeDeck()"><div class="sheet pop deck" onclick="event.stopPropagation()">
-    <div class="row between"><button class="btn ghost" style="width:auto;padding:6px 8px" onclick="deckBack()">‹ התיקיות</button><button class="btn ghost" onclick="closeDeck()">סיום</button></div>
+    <div class="row between"><button class="btn ghost" style="width:auto;padding:6px 8px" onclick="deckBack()">‹ החבילות שלי</button><button class="btn ghost" onclick="closeDeck()">סיום</button></div>
     <div class="row between" style="gap:8px"><div class="black" style="font-size:24px;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${h(fo.n)} <span class="xs muted">${d.length}/${MY_MAX}</span></div><div class="row" style="gap:6px"><button class="mylnk" onclick="folderRename()">שינוי שם</button><button class="mylnk" style="color:#C81E14" onclick="folderDelete()">מחיקה</button></div></div>
     ${A.deckPaste?`<textarea class="input" rows="6" placeholder="מילה בכל שורה. אפשר להוסיף מוקשים:&#10;פלאפל: חומוס, פיתה, טחינה&#10;סבתא רחל"></textarea><div class="row"><button class="btn primary" style="flex:1" onclick="deckPasteGo()">הוספה</button><button class="btn ghost" onclick="A.deckPaste=false;render()">ביטול</button></div>`
-    :`<form class="dkform" onsubmit="deckAdd(event)"><input class="input" name="dw" maxlength="30" placeholder="המילה" autocomplete="off"><div class="dkm"><input class="input" name="m1" maxlength="30" placeholder="מוקש" autocomplete="off"><input class="input" name="m2" maxlength="30" placeholder="מוקש" autocomplete="off"><input class="input" name="m3" maxlength="30" placeholder="מוקש" autocomplete="off"></div><button class="btn primary">הוספה לתיקייה</button></form>
+    :`<form class="dkform" onsubmit="deckAdd(event)"><input class="input" name="dw" maxlength="30" placeholder="המילה" autocomplete="off"><div class="dkm"><input class="input" name="m1" maxlength="30" placeholder="מוקש" autocomplete="off"><input class="input" name="m2" maxlength="30" placeholder="מוקש" autocomplete="off"><input class="input" name="m3" maxlength="30" placeholder="מוקש" autocomplete="off"></div><button class="btn primary">הוספה לחבילה</button></form>
     <button class="mylnk" style="align-self:center" onclick="A.deckPaste=true;render()">הדבקת רשימה שלמה</button>`}
     ${d.length?`<div class="dklist">${list}</div>`:''}</div></div>`;}
 function vRing(S,live){return `<div class="bombclock"><img src="${TA('bomb')}" alt=""><div class="t">${live?'–':fmt(S.turnRemainingMs)}</div></div>`;}
