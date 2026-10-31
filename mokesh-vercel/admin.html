@@ -78,6 +78,8 @@ input{width:100%;height:54px;border-radius:16px;border:var(--o);padding:0 16px;f
 .sheet .in{background:var(--paper);width:100%;border-radius:24px 24px 0 0;border:var(--o);padding:20px 18px calc(env(safe-area-inset-bottom,0px) + 22px)}
 .sheet ol{padding-inline-start:22px;line-height:1.9;font-weight:700;margin:10px 0 14px}
 table{width:100%;border-collapse:collapse;font-size:13px}td,th{padding:4px 6px;border-bottom:1px solid rgba(21,16,43,.12);text-align:right}th{color:var(--soft)}
+.devt td,.devt th{padding:7px 6px}.devt td b{font-size:14px}
+.kpi .s b{color:var(--ink)}
 .toggle{background:none;border:0;color:var(--soft);font:800 12px Rubik;text-decoration:underline;padding:0;margin-top:10px}
 </style>
 </head>
@@ -114,10 +116,13 @@ function daily(d){const days=d.daily||[];const max=Math.max(4,...days.map(x=>x.u
   const fmt=s=>{const [y,m,dd]=s.split('-');return +dd+'.'+(+m);};const last=days.length-1;
   const tip='<div class="tip" hidden></div>';
   const bars=days.map((x,i)=>`<div class="b ${i===last?'t':''}" data-i="${i}" onmouseenter="tipAt(${i})" onclick="tipAt(${i},1)"><i style="height:${(100*x.u/top).toFixed(1)}%"></i></div>`).join('');
-  const table=ST.table?`<table><tr><th>יום</th><th>מכשירים</th><th>חדשים</th></tr>${[...days].reverse().map(x=>`<tr><td>${fmt(x.d)}</td><td>${nf(x.u)}</td><td>${nf(x.n)}</td></tr>`).join('')}</table>`:'';
+  const table=ST.table?`<table><tr><th>יום</th><th>מכשירים</th><th>כניסות</th><th>חדשים</th></tr>${[...days].reverse().map(x=>`<tr><td>${fmt(x.d)}</td><td>${nf(x.u)}</td><td>${nf(x.v)}</td><td>${nf(x.n)}</td></tr>`).join('')}</table>`:'';
   return `<div class="chart" role="img" aria-label="מכשירים שונים בכל יום, 30 ימים" onmouseleave="tipAt(null)">${lines}${bars}${tip}</div><div class="axis"><span>${days[0]?fmt(days[0].d):''}</span><span>${days[15]?fmt(days[15].d):''}</span><span>היום</span></div>
     <button class="toggle" onclick="ST.table=!ST.table;render()">${ST.table?'הסתר טבלה':'הצג כטבלה'}</button>${table}`;}
 
+// כל מכשיר = טלפון/מחשב אחד (מזהה אקראי, מוצגות 4 אותיות אחרונות). כמה כניסות, בכמה ימים, ומתי לאחרונה
+function topDev(d){const L=d.topDev||[];if(!L.length)return '<div class="empty">עוד אין נתונים</div>';const fmt=s=>{const [y,m,dd]=String(s).split('-');return +dd+'.'+(+m);};const DN={iphone:'אייפון',android:'אנדרואיד',desktop:'מחשב'};
+  return `<table class="devt"><tr><th>מכשיר</th><th>כניסות</th><th>ימים</th><th>לאחרונה</th></tr>${L.map(x=>`<tr><td><b>${h(DN[x.dev]||'מכשיר')}</b> <span class="muted">#${h(x.id)}</span></td><td><b>${nf(x.v)}</b></td><td>${nf(x.days)}</td><td>${fmt(x.last)}</td></tr>`).join('')}</table>`;}
 function vDash(){const d=ST.data;if(!d)return `<div class="card"><div class="empty">${ST.busy?'טוען…':h(ST.err||'')}</div></div>`;
   const today=(d.daily||[]).at(-1)||{n:0};const m=d.modes||{},mt=d.modesToday||{};const games=MODE.reduce((a,[k])=>a+(+m[k]||0),0);
   const src=(d.src||[]).map(x=>({n:SRC[x.s]||x.s,c:+x.c}));const srcT=src.reduce((a,x)=>a+x.c,0);
@@ -125,12 +130,13 @@ function vDash(){const d=ST.data;if(!d)return `<div class="card"><div class="emp
   const site=location.origin;
   return `<div class="live"><i class="dot"></i><span>עכשיו במשחק:</span><b>${nf(d.livePlayers)}</b><span>שחקנים ב-</span><b>${nf(d.liveRooms)}</b><span>חדרים</span></div>
   <div class="kpis">
-    <div class="kpi hi"><div class="l">היום</div><div class="v">${nf(d.today)}</div><div class="s">${nf(today.n)} חדשים</div></div>
-    <div class="kpi"><div class="l">7 ימים</div><div class="v">${nf(d.week)}</div><div class="s">${nf(d.returning)} חזרו יותר מפעם אחת</div></div>
-    <div class="kpi"><div class="l">30 ימים</div><div class="v">${nf(d.month)}</div><div class="s">מכשירים שונים</div></div>
-    <div class="kpi"><div class="l">מאז ההתחלה</div><div class="v">${nf(d.total)}</div><div class="s">מכשירים שונים</div></div>
+    <div class="kpi hi"><div class="l">היום</div><div class="v">${nf(d.today)}</div><div class="s">מכשירים · <b>${nf(d.todayV)}</b> כניסות</div></div>
+    <div class="kpi"><div class="l">7 ימים</div><div class="v">${nf(d.week)}</div><div class="s">מכשירים · <b>${nf(d.weekV)}</b> כניסות</div></div>
+    <div class="kpi"><div class="l">30 ימים</div><div class="v">${nf(d.month)}</div><div class="s">מכשירים · <b>${nf(d.monthV)}</b> כניסות</div></div>
+    <div class="kpi"><div class="l">מאז ההתחלה</div><div class="v">${nf(d.total)}</div><div class="s">מכשירים · <b>${nf(d.totalV)}</b> כניסות</div></div>
   </div>
-  <div class="card"><h2>כניסות ביום<small>מכשירים שונים · 30 ימים</small></h2>${daily(d)}</div>
+  <div class="card"><h2>כניסות ביום<small>מכשירים שונים · 30 ימים</small></h2>${daily(d)}<div class="muted" style="margin-top:6px">היום: ${nf(today.n)} מכשירים חדשים · ${nf(d.returning)} מכשירים חזרו ביותר מיום אחד השבוע</div></div>
+  <div class="card"><h2>המכשירים הכי פעילים<small>30 ימים</small></h2>${topDev(d)}</div>
   <div class="card"><h2>משחקים שנפתחו<small>30 ימים · ${nf(games)} סה״כ</small></h2>${hbars(MODE.map(([k,n])=>({n,c:+m[k]||0,x:mt[k]?`היום ${nf(mt[k])}`:`${games?Math.round(100*(+m[k]||0)/games):0}%`})),games)}</div>
   <div class="card"><h2>מאיפה הגיעו<small>30 ימים</small></h2>${hbars(src,srcT)}</div>
   <div class="card"><h2>מכשירים<small>30 ימים</small></h2>${hbars(dev,devT)}</div>
@@ -152,8 +158,8 @@ function render(){const standalone=matchMedia('(display-mode: standalone)').matc
 // טולטיפ בלי לרנדר את כל העמוד (אחרת הריחוף מהבהב)
 function tipAt(i,toggle){const ch=document.querySelector('.chart');if(!ch||!ST.data)return;if(toggle&&ST.tip===i)i=null;ST.tip=i;const days=ST.data.daily||[];const t=ch.querySelector('.tip');
   ch.querySelectorAll('.b').forEach(b=>b.classList.toggle('on',+b.dataset.i===i));if(i==null||!days[i]){t.hidden=true;return;}
-  const x=days[i],[y,m,dd]=x.d.split('-');t.textContent=`${+dd}.${+m} · ${nf(x.u)} מכשירים · ${nf(x.n)} חדשים`;t.hidden=false;
-  const pct=100*(i+.5)/days.length;t.style.left=Math.min(82,Math.max(18,pct))+'%';}
+  const x=days[i],[y,m,dd]=x.d.split('-');t.textContent=`${+dd}.${+m} · ${nf(x.u)} מכשירים · ${nf(x.v)} כניסות · ${nf(x.n)} חדשים`;t.hidden=false;
+  const pct=100*(i+.5)/days.length;t.style.left=Math.min(68,Math.max(32,pct))+'%';}
 function install(){if(ST.install){ST.install.prompt();ST.install=null;return;}ST.sheet=true;render();}
 function copyLink(t,b){navigator.clipboard&&navigator.clipboard.writeText(t).then(()=>{b.innerHTML=ic('check');setTimeout(()=>{b.innerHTML=ic('copy');},1200);});}
 window.addEventListener('beforeinstallprompt',e=>{e.preventDefault();ST.install=e;});
