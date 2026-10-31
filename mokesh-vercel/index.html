@@ -35,7 +35,7 @@
   /* פלטה: כחול חשמלי, מדבקות קרם, קווי מתאר כהים וצללים קשיחים — סגנון משחקי מסיבה בינלאומיים */
   --bg:#2B3BFF;--bg-deep:#1A22C9;--ink:#15102B;--paper:#FFF6E3;--paper2:#FFFFFF;--soft:#5D5578;
   --yellow:#FFD23F;--yellow-d:#F2B600;--orange:#FF8A1F;--red:#FF3B30;--red-d:#C81E14;
-  --cyan:#19D3FF;--pink:#FF4FA3;--green:#2EE88A;--lime:#C6F432;--trap-bg:#FF3B30;--ok-bg:#12C46A;--boom-f:hue-rotate(0deg);
+  --cyan:#19D3FF;--pink:#FF4FA3;--green:#2EE88A;--lime:#C6F432;--trap-bg:#FF3B30;--ok-bg:#12C46A;--fx1:#FFF27A;--fx2:#FFC21F;--fx3:#FF6A00;--boom-f:hue-rotate(0deg);
   /* שמות ישנים שהקוד עדיין משתמש בהם */
   --navy:var(--ink);--amber:var(--yellow);--amber2:#B97800;--danger:var(--red);--ok:#12A85A;--info:var(--cyan);--muted:rgba(255,255,255,.82);
   --o:3px solid var(--ink);--sh:0 5px 0 var(--ink);--sh-sm:0 3px 0 var(--ink);
@@ -427,7 +427,15 @@ html.kb .startbar{position:static;background:none}
 .overlay .bombbg{position:absolute;width:min(110vw,520px);top:-6%;opacity:.3}
 .overlay .boom{width:min(88vw,380px);filter:var(--boom-f) drop-shadow(0 8px 0 rgba(21,16,43,.6));position:relative}
 .boomwrap{position:relative;display:inline-block}.boomwrap img{width:100%;display:block}.overlay .boomwrap{width:min(88vw,380px);filter:drop-shadow(0 8px 0 rgba(21,16,43,.6))}
-.boomtxt{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-family:var(--font-display);font-weight:400;font-size:clamp(64px,22vw,110px);color:var(--yellow);-webkit-text-stroke:5px var(--ink);paint-order:stroke fill;text-shadow:0 7px 0 var(--ink);transform:rotate(-6deg)}
+.boomtxt{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:clamp(70px,24vw,118px);transform:rotate(-7deg);--fxs:1}
+.fx{position:relative;display:inline-block;font-family:var(--font-display);font-weight:400;line-height:1.1;white-space:nowrap;color:transparent;padding:0 .08em}
+.fx::before{content:attr(data-t);position:absolute;inset:0;padding:0 .08em;color:var(--ink);-webkit-text-stroke:.16em var(--ink);text-shadow:0 .09em 0 var(--ink),0 .16em .1em rgba(0,0,0,.35)}
+.fx>span{position:relative;background:linear-gradient(180deg,var(--fx1) 0%,var(--fx1) 30%,var(--fx2) 58%,var(--fx3) 100%);-webkit-background-clip:text;background-clip:text;color:transparent;filter:var(--fx-glow,none)}
+.tlogo{position:relative;display:block;margin:0 auto;width:min(86%,340px);height:auto;aspect-ratio:340/250}
+.tlogo .tlbomb{position:absolute;width:52%;top:-2%;left:32%;transform:rotate(8deg);filter:drop-shadow(0 6px 0 rgba(21,16,43,.45))}
+.tlogo .tlhat{position:absolute;width:36%;top:22%;left:-2%;transform:rotate(-22deg);z-index:2;filter:drop-shadow(0 5px 0 rgba(21,16,43,.5))}
+.tlogo .tltxt{position:absolute;left:0;right:0;bottom:2%;text-align:center;font-size:clamp(70px,27vw,112px);transform:rotate(-4deg)}
+.tlogo.sm{width:min(52%,200px)}.tlogo.sm .tltxt{font-size:64px}.ilogo.tlogo{width:min(46vw,190px)}.ilogo.tlogo .tltxt{font-size:62px}
 .homeblast .boomwrap.hboom .boomtxt{font-size:72px}
 .av.hatted{position:relative;overflow:visible}.av.hatted>img:first-child,.av.hatted>.cav{border-radius:50%}.avhat{position:absolute;width:95%!important;height:auto!important;top:-52%;left:-18%;transform:rotate(-18deg);pointer-events:none;filter:drop-shadow(0 2px 0 rgba(21,16,43,.5))}
 .logohat{position:absolute;width:118px;top:58px;left:calc(50% - 168px);transform:rotate(-22deg);z-index:2;pointer-events:none;filter:drop-shadow(0 5px 0 rgba(21,16,43,.5))}
@@ -790,8 +798,8 @@ function applyTeamColors(S){let css='';if(S&&S.settings)for(const t of TEAM_IDS)
 // ערכות עיצוב (פרימיום, בהגדרות של מסך הבית). כל ערכה מחליפה את כל הצבעים, כולל מסכי הפיצוץ והניחוש הנכון
 const THEMES=[
  {k:'classic',n:'קלאסי',v:{}},
- {k:'halloween',n:'הלוואין',a:{bomb:'themes/halloween/bomb.webp',boom:'themes/halloween/boom.webp',ok:'themes/halloween/ok.webp',hat:'themes/halloween/hat.webp',bg:'themes/halloween/bg.webp'},v:{'--bg':'#2A1242','--bg-deep':'#160828','--yellow':'#FF8A1F','--yellow-d':'#D96400','--orange':'#FFC14D','--cyan':'#7CE04E','--pink':'#B65CFF','--lime':'#E9FF70','--paper':'#FFF0DC','--soft':'#6B4F72','--trap-bg':'#FF6A00','--ok-bg':'#6B2FB3'}},
- {k:'neon',n:'לילה ניאון',a:{bomb:'themes/neon/bomb.webp',boom:'themes/neon/boom.webp',ok:'themes/neon/ok.webp',bg:'themes/neon/bg.webp',bgSize:'420px',tint:'rgba(9,3,34,.7)'},v:{'--bg':'#15093A','--bg-deep':'#090322','--yellow':'#F4FF3A','--yellow-d':'#C7D300','--orange':'#FF9F1C','--cyan':'#00EEFF','--pink':'#FF2BD6','--lime':'#7CFF4F','--paper':'#F3F0FF','--trap-bg':'#FF2BD6','--ok-bg':'#00B89C'}},
+ {k:'halloween',n:'הלוואין',a:{logo:'themes/halloween/logo.webp',boomt:'themes/halloween/boomt.webp',bomb:'themes/halloween/bomb.webp',boom:'themes/halloween/boom.webp',ok:'themes/halloween/ok.webp',hat:'themes/halloween/hat.webp',bg:'themes/halloween/bg.webp'},v:{'--bg':'#2A1242','--bg-deep':'#160828','--yellow':'#FF8A1F','--yellow-d':'#D96400','--orange':'#FFC14D','--cyan':'#7CE04E','--pink':'#B65CFF','--lime':'#E9FF70','--paper':'#FFF0DC','--soft':'#6B4F72','--trap-bg':'#FF6A00','--ok-bg':'#6B2FB3','--fx1':'#FFE66B','--fx2':'#FF9A1F','--fx3':'#D9400A'}},
+ {k:'neon',n:'לילה ניאון',a:{logo:'themes/neon/logo.webp',boomt:'themes/neon/boomt.webp',bomb:'themes/neon/bomb.webp',boom:'themes/neon/boom.webp',ok:'themes/neon/ok.webp',bg:'themes/neon/bg.webp',bgSize:'420px',tint:'rgba(9,3,34,.7)'},v:{'--bg':'#15093A','--bg-deep':'#090322','--yellow':'#F4FF3A','--yellow-d':'#C7D300','--orange':'#FF9F1C','--cyan':'#00EEFF','--pink':'#FF2BD6','--lime':'#7CFF4F','--paper':'#F3F0FF','--trap-bg':'#FF2BD6','--ok-bg':'#00B89C','--fx1':'#FFFFFF','--fx2':'#FF8BEF','--fx3':'#B026FF','--fx-glow':'drop-shadow(0 0 6px #FF2BD6)'}},
  {k:'summer',n:'קיץ בחוף',v:{'--bg':'#00A3C4','--bg-deep':'#00799A','--yellow':'#FFE45C','--yellow-d':'#E8C21F','--orange':'#FF9F43','--cyan':'#9DF3E4','--pink':'#FF6F61','--lime':'#D7F75B','--paper':'#FFF8E7','--trap-bg':'#FF6F61','--ok-bg':'#14B886'}},
  {k:'bubble',n:'מסטיק',v:{'--bg':'#FF5FA2','--bg-deep':'#E23C86','--yellow':'#FFE066','--yellow-d':'#F2C230','--orange':'#FF9F43','--cyan':'#5EE6FF','--pink':'#9B6BFF','--lime':'#C6F432','--paper':'#FFF4FA','--trap-bg':'#8F56FF','--ok-bg':'#12C46A','--boom-f':'hue-rotate(300deg) saturate(1.1)'}},
  {k:'jungle',n:"ג'ונגל",v:{'--bg':'#118A50','--bg-deep':'#0A6238','--yellow':'#FFD23F','--yellow-d':'#F2B600','--orange':'#FF8A1F','--cyan':'#55D6FF','--pink':'#FF7A59','--lime':'#D4F75A','--paper':'#FFF6E3','--trap-bg':'#FF5A1F','--ok-bg':'#0FA3A3'}},
@@ -799,7 +807,12 @@ const THEMES=[
 // תמונות של הערכה (פצצה, פיצוץ, ניחוש נכון, כובע, רקע). בלי תמונה — התמונה הרגילה של המשחק
 const TA=n=>{const t=THEMES[themeOf(A&&A.S)];return (t.a&&t.a[n])||ASSETS[n]||'';};const themeHas=n=>{const t=THEMES[themeOf(A&&A.S)];return !!(t.a&&t.a[n]);};
 // פיצוץ: לתמונה של ערכה אין טקסט — כותבים "בום!" מעליה
-function boomImg(cls){return themeHas('boom')?`<span class="boomwrap ${cls}"><img src="${TA('boom')}" alt=""><b class="boomtxt">בום!</b></span>`:`<img class="${cls}" src="${ASSETS.boom}" alt="בום!">`;}
+function boomImg(cls){if(themeHas('boomt'))return `<img class="${cls}" src="${TA('boomt')}" alt="בום!">`;return themeHas('boom')?`<span class="boomwrap ${cls}"><img src="${TA('boom')}" alt=""><span class="boomtxt">${fxText('בום!')}</span></span>`:`<img class="${cls}" src="${ASSETS.boom}" alt="בום!">`;}
+// כיתוב מאויר (כמו בלוגו): קו מתאר עבה, עומק תלת-ממדי ומילוי בצבעי הערכה
+const fxText=t=>`<span class="fx" data-t="${t}"><span>${t}</span></span>`;
+// לוגו של ערכה: הפצצה של הערכה + "מוקש!" מאויר (+ כובע אם יש). בלי ערכה — הלוגו המקורי
+function logoHTML(cls){if(themeHas('logo'))return `<img class="${cls}" src="${TA('logo')}" alt="מוקש!">`;if(!themeHas('bomb'))return `<img class="${cls}" src="${ASSETS.logo}" alt="מוקש!">`;
+  return `<div class="tlogo ${cls}" role="img" aria-label="מוקש!"><img class="tlbomb" src="${TA('bomb')}" alt="">${themeHas('hat')?`<img class="tlhat" src="${TA('hat')}" alt="">`:''}<span class="tltxt">${fxText('מוקש!')}</span></div>`;}
 function myTheme(){try{const v=+localStorage.getItem('mokesh.theme')||0;return THEMES[v]?v:0;}catch(e){return 0;}}
 // הערכה אישית לכל טלפון: נבחרת בהגדרות שבמסך הבית ונשמרת בטלפון
 function themeOf(S){return premiumOn(S)||A.premium?myTheme():0;}
@@ -1687,9 +1700,9 @@ function vHome(){const c=A.chosen;const m=A.homeMode;if(m==='how'||m==='intro'){
       <p style="margin:0"><b style="color:var(--ok)">המנחשים</b> מקלידים ניחושים. נכון: +2, ובונוס +1 על ניחוש ב-10 שניות ועל כל רצף של 3. מוקש: −2 לקבוצה ו-+1 ליריבים.</p>
       <p style="margin:0">הראשונים ל-20 נקודות מנצחים. אם אף קבוצה לא הגיעה אחרי 5 תורים — התור האחרון כפול, ותיקו מוכרע במוות פתאומי.</p>
       <button class="btn ghost" onclick="A.homeMode='menu';render()">הבנתי</button></div>`;
-  const head=m==='menu'?`<div class="ghostled" aria-hidden="true">00:30</div><i class="hspark" style="top:12%;right:12%"></i><i class="hspark" style="top:44%;left:6%;animation-delay:.5s"></i><i class="hspark" style="top:2%;left:26%;animation-delay:1s"></i><img class="logo pop" src="${ASSETS.logo}" alt="מוקש!">${themeHas('hat')?`<img class="logohat" src="${TA('hat')}" alt="">`:''}<div class="ledbox" aria-hidden="true" onclick="homeBoom()"><span class="scr"><span class="seg" id="homeled">${ledText()}</span></span></div>`
-    :['create','join','quick'].includes(m)?`<img class="logo pop sm" src="${ASSETS.logo}" alt="מוקש!">`
-    :`<img class="logo pop" src="${ASSETS.logo}" alt="מוקש!"><p class="tagline" style="margin:12px auto 0;max-width:310px">משחק הניחושים שבו כל טעות תעלה לכם בפיצוץ!</p>`;
+  const head=m==='menu'?`<div class="ghostled" aria-hidden="true">00:30</div><i class="hspark" style="top:12%;right:12%"></i><i class="hspark" style="top:44%;left:6%;animation-delay:.5s"></i><i class="hspark" style="top:2%;left:26%;animation-delay:1s"></i>${logoHTML('logo pop')}<div class="ledbox" aria-hidden="true" onclick="homeBoom()"><span class="scr"><span class="seg" id="homeled">${ledText()}</span></span></div>`
+    :['create','join','quick'].includes(m)?`${logoHTML('logo pop sm')}`
+    :`${logoHTML('logo pop')}<p class="tagline" style="margin:12px auto 0;max-width:310px">משחק הניחושים שבו כל טעות תעלה לכם בפיצוץ!</p>`;
   return `<div class="screen center${m==='menu'?' home':''}" style="gap:22px;position:relative">${m==='menu'?`${vAccBtn()}<button class="topbtn r2" onclick="A.homeMode='settings';render()" aria-label="הגדרות">${ic('gear',20)}</button>`:''}${musicBtn('topbtn r')}<header class="tc">${head}</header>${body}${m==='menu'?`<div class="tape" aria-hidden="true"><div>${'זהירות! שטח ממוקש ✕ '.repeat(10)}</div></div>`:''}</div>`;}
 // שני עמודי הסבר: מה זה מוקש, וניקוד + דרכי משחק. מוצגים בכניסה הראשונה ומ"איך משחקים?"
 function vIntro(){const pg=A.introPage||0;const last=pg===1;
@@ -1703,7 +1716,7 @@ function vIntro(){const pg=A.introPage||0;const last=pg===1;
     <div class="card col" style="gap:14px">${row('ok','+2','ניחוש נכון','לקבוצה שניחשה')}${row('bad','−2','עליתם על מוקש','והיריבים מקבלים +1')}${row('ok','+1','בונוס','ניחוש ב-10 שניות, וכל רצף של 3')}${row('skip','⏭','דילוג','2 דילוגים בכל תור, בלי ניקוד (בתור-תור: −1)')}<div class="small isub tc" style="border-top:2px dashed rgba(21,16,43,.2);padding-top:12px">🏁 הראשונים ל-20 מנצחים · אחרי 5 תורים: התור האחרון כפול · תיקו = מוות פתאומי</div></div>
     <div class="imodes">${mode('m1','join','אונליין','כל אחד מהטלפון שלו, עם קוד חדר')}${mode('m2','phone','מכשיר אחד','טלפון אחד שעובר בין כולם')}${mode('m3','robot','מול המחשב','אתם נגד המחשב')}</div>`;
   return `<div class="screen intro" ontouchstart="A.tx=event.touches[0].clientX" ontouchend="introSwipe(event)">
-    <div class="ihead"><span class="ipage">${pg+1}/2</span><img class="ilogo pop" src="${ASSETS.logo}" alt="מוקש!"><button class="btn ghost" onclick="introDone()">דלג</button></div>
+    <div class="ihead"><span class="ipage">${pg+1}/2</span>${logoHTML('ilogo pop')}<button class="btn ghost" onclick="introDone()">דלג</button></div>
     <div class="col ibody pop" style="gap:18px">${pg===0?p1:p2}</div>
     <div class="col ifoot" style="gap:12px;margin-top:auto"><div class="dots"><i class="${pg===0?'on':''}" onclick="A.introPage=0;render()"></i><i class="${pg===1?'on':''}" onclick="A.introPage=1;render()"></i></div>
     <button class="btn primary big" onclick="${last?'introDone()':'A.introPage=1;render()'}">${last?'יאללה, משחקים!':'הבא'}</button>${pg===1?`<button class="btn ghost" style="align-self:center" onclick="A.introPage=0;render()">חזרה</button>`:''}</div></div>`;}
