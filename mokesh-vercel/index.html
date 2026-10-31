@@ -923,10 +923,15 @@ function gameEv(kind,S,extra){const ps=S.players||[];ev(kind,{m:S.mode,q:S.publi
 const ERRS=new Set();function errEv(m,src){m=String(m||'').slice(0,160);if(!m||ERRS.has(m)||ERRS.size>=5)return;ERRS.add(m);ev('err',{m,s:String(src||'').slice(0,80),v:String(A.ver||'').slice(0,20),d:devKind()});}
 window.addEventListener('error',e=>errEv(e.message,(e.filename||'').split('/').pop()+':'+(e.lineno||'')));
 window.addEventListener('unhandledrejection',e=>errEv('promise: '+((e.reason&&e.reason.message)||e.reason),''));
+// כניסה נספרת רק כשיש אדם אמיתי: לחץ על משהו, או השאיר את הדף פתוח וגלוי 4 שניות. רובוטים (תצוגה מקדימה של קישורים, סורקים) מסוננים
+function trackVisit(){const ua=navigator.userAgent||'';if(navigator.webdriver||/bot|crawl|spider|preview|facebookexternalhit|whatsapp|headless|lighthouse|vercel/i.test(ua))return;
+  let done=false;const go=()=>{if(done)return;done=true;clearTimeout(t);['pointerdown','keydown'].forEach(e=>removeEventListener(e,go,true));track('visit');};
+  const t=setTimeout(()=>{if(!document.hidden)go();else document.addEventListener('visibilitychange',()=>{if(!document.hidden)setTimeout(go,4000);},{once:true});},4000);
+  ['pointerdown','keydown'].forEach(e=>addEventListener(e,go,true));}
 function track(kind){if(!sb)return;sb.rpc('mokesh_hit',{p_uid:localStorage.getItem('mokesh.uid')||A.uid,p_kind:kind,p_src:trafficSrc(),p_dev:devKind()}).then(()=>{},()=>{});}
 async function initRuntime(){
   try{if(window.supabase&&SUPABASE_URL.startsWith('http')){sb=window.supabase.createClient(SUPABASE_URL,SUPABASE_ANON,{realtime:{params:{eventsPerSecond:20}}});A.uid=localStorage.getItem('mokesh.uid')||('u'+uid(10));localStorage.setItem('mokesh.uid',A.uid);A.dbReady=true;}}catch(e){console.error(e);}
-  if(!A.dbReady)A.dbMissing=true;else{track('visit');await authInit();}
+  if(!A.dbReady)A.dbMissing=true;else{trackVisit();await authInit();}
   // קישור חבר (?f=קוד): מחובר — נוסף מיד; אורח — מתבקש להתחבר קודם
   if(A.pendingFriend){try{const u=new URL(location.href);u.searchParams.delete('f');history.replaceState(null,'',u.pathname+u.search+u.hash);}catch(e){}if(A.user){const c=A.pendingFriend;A.pendingFriend=null;addFriend(c);}else if(A.dbReady&&LOGIN_ON)A.sheet='login';}
   // חזרה אוטומטית לחדר האחרון (למשל אחרי רענון), אלא אם נכנסו מקישור לחדר אחר: אז הקישור החדש מנצח
