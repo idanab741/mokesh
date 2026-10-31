@@ -584,8 +584,8 @@ html.kb .sheet-bg{top:var(--vt,0px);bottom:auto;height:var(--vh,100%)}
 .rnum{position:absolute;bottom:-6px;left:50%;transform:translateX(-50%);background:var(--paper);border:2.5px solid var(--ink);border-radius:999px;padding:0 9px;font:800 13px var(--font-body);color:var(--ink);box-shadow:0 2px 0 var(--ink)}
 .rst{position:absolute;top:-16px;left:50%;transform:translateX(-50%);display:flex;gap:1px;font-size:16px;white-space:nowrap}.rst i{font-style:normal;color:rgba(21,16,43,.35);-webkit-text-stroke:1px var(--ink)}.rst i.on{color:var(--yellow)}
 .rok{position:absolute;top:4px;right:2px;width:24px;height:24px;border-radius:50%;background:var(--green);border:2.5px solid var(--ink);display:grid;place-items:center;color:var(--ink)}.rnode.done img{filter:saturate(.6) drop-shadow(0 5px 0 rgba(21,16,43,.5))}
-.rmap.art .rnode{width:24%;height:auto;aspect-ratio:1;margin:0;transform:translate(-50%,-72%)}.rmap.art .rnode img{width:100%;height:100%}
-.rmap.art .rnode.boss{width:34%;transform:translate(-50%,-80%)}.rmap.art .rnode.locked img{width:74%;height:74%;margin:13%;filter:drop-shadow(0 4px 0 rgba(21,16,43,.5))}
+.rmap.art .rnode{width:var(--nw,24%);height:auto;aspect-ratio:1;margin:0;transform:translate(-50%,-72%)}.rmap.art .rnode img{width:100%;height:100%}
+.rmap.art .rnode.boss{width:calc(var(--nw,24%)*1.4);transform:translate(-50%,-80%)}.rmap.art .rnode.locked img{width:74%;height:74%;margin:13%;filter:drop-shadow(0 4px 0 rgba(21,16,43,.5))}
 .rmap.art .rnode.locked.boss img{filter:grayscale(.9) brightness(.7) drop-shadow(0 4px 0 rgba(21,16,43,.5))}
 .rmap.art .rnode.cur{animation:rbob2 1.4s ease-in-out infinite}@keyframes rbob2{50%{transform:translate(-50%,-78%)}}
 .rmap.art .rnum{bottom:-2px}.rmap.art .rst{top:-4px;background:rgba(21,16,43,.75);border:2px solid var(--ink);border-radius:999px;padding:0 6px;font-size:17px;line-height:1.3;z-index:2}.rmap.art .rst i{-webkit-text-stroke:0;color:rgba(255,255,255,.3)}.rmap.art .rst i.on{color:var(--yellow)}.rmap.art .rnode.done img{filter:drop-shadow(0 5px 0 rgba(21,16,43,.5))}
@@ -1622,7 +1622,17 @@ const ROUTE=[
   {n:'מילים בינוניות',d:'קצת יותר קשה',set:{difficulty:2,target:15,turnSeconds:60,maxSkips:2},skill:.55,margin:6},
   {n:'הכל הולך',d:'כל רמות הקושי',set:{difficulty:'all',target:16,turnSeconds:50,maxSkips:2},skill:.6,margin:6},
   {n:'בוס: המפקד',d:'המחשב הכי חזק בעולם הזה',set:{difficulty:'all',target:20,turnSeconds:50,maxSkips:1},skill:.7,margin:6,boss:1}]},
- {id:2,name:'השכונה',need:20,art:{},levels:[]},
+ {id:2,name:'השכונה',need:20,art:{map:'route/w2/map.webp',ratio:'841/1870',cur:'route/w1/cur.webp',done:'route/w1/done.webp',lock:'route/w1/lock.webp',boss:'route/w2/boss.webp',node:19,pos:[[52,86.3],[55.1,76.3],[50.4,67.3],[48.8,58.7],[50.6,50.8],[55.8,42.4],[61.8,34.6],[52.7,28.1],[52.8,21],[55.8,14.6]]},levels:[
+  {n:'שלום שכנים',d:'כל רמות הקושי',set:{difficulty:'all',target:14,turnSeconds:60,maxSkips:2},skill:.45,margin:5},
+  {n:'מילים קשות',d:'רק מילים ברמה קשה',set:{difficulty:3,target:12,turnSeconds:60,maxSkips:2},skill:.48,margin:5},
+  {n:'ערב סרטים',d:'רק מילים מ"סרטים וסדרות"',set:{difficulty:'all',target:14,turnSeconds:55,maxSkips:2,packs:4},skill:.5,margin:5},
+  {n:'תור-תור מהיר',d:'מילה אחת, 30 שניות',set:{wordMode:1,turnsPerTeam:8,target:12,turnSeconds:30,maxSkips:2},skill:.52,margin:4},
+  {n:'בלי דילוגים',d:'אי אפשר לדלג על מילה',set:{difficulty:'all',target:15,turnSeconds:50,maxSkips:0},skill:.55,margin:5},
+  {n:'פלייליסט',d:'רק מילים מ"מוזיקה"',set:{difficulty:'all',target:15,turnSeconds:50,maxSkips:2,packs:8},skill:.58,margin:6},
+  {n:'מהר מהר',d:'35 שניות לתור',set:{difficulty:'all',target:15,turnSeconds:35,maxSkips:2},skill:.6,margin:6},
+  {n:'ארוחת שישי',d:'רק מילים מ"אוכל ומטבח"',set:{difficulty:'all',target:16,turnSeconds:45,maxSkips:2,packs:512},skill:.62,margin:6},
+  {n:'הכל קשה',d:'מילים קשות ודילוג אחד',set:{difficulty:3,target:16,turnSeconds:45,maxSkips:1},skill:.66,margin:6},
+  {n:'בוס: השכן מלמעלה',d:'הוא שומע הכל דרך התקרה',set:{difficulty:'all',target:20,turnSeconds:45,maxSkips:1},skill:.75,margin:6,boss:1}]},
  {id:3,name:'העיר הגדולה',need:45,art:{},levels:[]},
  {id:4,name:'מסיבת לילה',need:75,art:{},levels:[]},
  {id:5,name:'אזור אסור',need:110,art:{},levels:[]}];
@@ -1649,7 +1659,7 @@ function vRoute(){const p=routeProg();const w=A.routeW||1;const W=ROUTE.find(x=>
     ${!W.levels.length?`<div class="rsoon card tc"><div class="black" style="font-size:24px">בקרוב!</div><div class="small muted">העולם הזה בבנייה. בינתיים אספו כוכבים בעולמות הקודמים.</div></div>`
      :locked?`<div class="rsoon card tc"><div class="black" style="font-size:24px">${ic('lock',22)} נעול</div><div class="small muted">צריך ${W.need} כוכבים כדי לפתוח את העולם הזה. יש לכם ${tot}.</div></div>`
      :!W.free&&!prem?`<div class="rsoon card tc"><div class="black" style="font-size:24px">${ic('crown',22)} פרימיום</div><div class="small muted">עולם 1 בחינם. שאר העולמות — בפרימיום.</div><button class="btn primary" onclick="needPremium('route')">לפרטים</button></div>`
-     :`<div class="rmap${art.map?' art':''}"${art.map?` style="background-image:url(${art.map});aspect-ratio:${art.ratio||'1080/2400'}"`:''}>${art.map?'':`<svg class="rpath" viewBox="0 0 100 100" preserveAspectRatio="none"><polyline points="${ROUTE_POS.map(([x,y])=>x+','+y).join(' ')}" /></svg>`}${W.levels.map(node).join('')}</div>`}
+     :`<div class="rmap${art.map?' art':''}"${art.map?` style="background-image:url(${art.map});aspect-ratio:${art.ratio||'1080/2400'};--nw:${art.node||24}%"`:''}>${art.map?'':`<svg class="rpath" viewBox="0 0 100 100" preserveAspectRatio="none"><polyline points="${ROUTE_POS.map(([x,y])=>x+','+y).join(' ')}" /></svg>`}${W.levels.map(node).join('')}</div>`}
     <button class="rfree" onclick="createAI()">${ic('robot',18)} משחק חופשי מול המחשב</button>
     ${A.routeLv!=null&&W.levels[A.routeLv]?vRouteLevel(w,A.routeLv):''}</div>`;}
 function vRouteLevel(w,i){const W=ROUTE.find(x=>x.id===w);const lv=W.levels[i];const st=routeStars(routeProg(),w,i);
