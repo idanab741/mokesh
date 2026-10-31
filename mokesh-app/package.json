@@ -1,0 +1,23 @@
+{
+  "name": "mokesh-app",
+  "version": "1.0.0",
+  "private": true,
+  "description": "מוקש! — מעטפת אפליקציה לאנדרואיד ולאייפון (Capacitor)",
+  "scripts": {
+    "assets": "capacitor-assets generate --iconBackgroundColor '#2B3BFF' --iconBackgroundColorDark '#2B3BFF' --splashBackgroundColor '#2B3BFF' --splashBackgroundColorDark '#2B3BFF'",
+    "sync": "cap sync"
+  },
+  "dependencies": {
+    "@capacitor/android": "^8.6.0",
+    "@capacitor/app": "^8.0.0",
+    "@capacitor/core": "^8.6.0",
+    "@capacitor/haptics": "^8.0.0",
+    "@capacitor/ios": "^8.6.0",
+    "@capacitor/splash-screen": "^8.0.0",
+    "@capacitor/status-bar": "^8.0.0"
+  },
+  "devDependencies": {
+    "@capacitor/assets": "^4.0.0",
+    "@capacitor/cli": "^8.6.0"
+  }
+}

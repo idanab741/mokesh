@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">Mokesh!</string>
+    <string name="title_activity_main">Mokesh!</string>
+    <string name="package_name">com.mokesh.game</string>
+    <string name="custom_url_scheme">com.mokesh.game</string>
+</resources>
