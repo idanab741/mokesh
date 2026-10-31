@@ -29,6 +29,11 @@
     var w=document.createTreeWalker(root,NodeFilter.SHOW_TEXT,null),x;var list=[];while((x=w.nextNode()))list.push(x);
     list.forEach(function(t){if(HE.test(t.data)&&!skip(t.parentElement)){var n=tr(t.data);if(n!==t.data)t.data=n;}});}
   window.I18N_TR=tr;window.I18N_WALK=walk;
+  // טקסט שלא נמצא על המסך: תמונת השיתוף (canvas), שיתוף והעתקה
+  try{var C=CanvasRenderingContext2D.prototype;['fillText','strokeText','measureText'].forEach(function(f){var o=C[f];C[f]=function(t){var a=[].slice.call(arguments);a[0]=tr(t);try{this.direction='ltr';}catch(e){}return o.apply(this,a);};});}catch(e){}
+  try{if(navigator.share){var sh=navigator.share.bind(navigator);navigator.share=function(d){if(d){d=Object.assign({},d);if(d.text)d.text=trMulti(d.text);if(d.title)d.title=tr(d.title);}return sh(d);};}}catch(e){}
+  try{if(navigator.clipboard&&navigator.clipboard.writeText){var wt=navigator.clipboard.writeText.bind(navigator.clipboard);navigator.clipboard.writeText=function(t){return wt(trMulti(t));};}}catch(e){}
+  function trMulti(t){return String(t).split('\n').map(function(l){return tr(l);}).join('\n');}
   function start(){walk(document.body);document.title=tr(document.title);
     new MutationObserver(function(ms){ms.forEach(function(m){if(m.type==='characterData')walk(m.target);else if(m.type==='attributes')walk(m.target);else m.addedNodes.forEach(walk);});})
       .observe(document.body,{childList:true,subtree:true,characterData:true,attributes:true,attributeFilter:ATTR});}

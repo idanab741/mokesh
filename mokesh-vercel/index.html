@@ -692,6 +692,7 @@ html.kb .sheet-bg{top:var(--vt,0px);bottom:auto;height:var(--vh,100%)}
 .tape div{display:inline-block;font-family:var(--font-display);font-size:16px;color:var(--ink);padding:5px 0;animation:marquee 22s linear infinite}
 @keyframes marquee{from{transform:translateX(0)}to{transform:translateX(50%)}}
 /* חותמת "סודי" על כרטיס המילה */
+html[lang=en] .wordcard::after{content:"SECRET"}
 .wordcard::after{content:"סודי";position:absolute;top:10px;left:12px;font-family:var(--font-display);font-size:15px;color:#D7261E;border:2.5px solid #D7261E;border-radius:6px;padding:0 7px;transform:rotate(-14deg);opacity:.9}
 html.kb .wordcard::after{display:none}
 html.kb .bombclock{width:56px;height:54px;margin-top:-2px}html.kb .bombclock .t{font-size:12px}
