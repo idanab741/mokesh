@@ -1547,7 +1547,7 @@ function vLoginSheet(){const busy=A.loginBusy?'disabled':'';const up=A.authMode=
       <input class="input" name="email" type="email" dir="ltr" autocomplete="email" placeholder="name@gmail.com" value="${h(A.loginEmail||'')}" oninput="A.loginEmail=this.value">
       <input class="input" name="pass" type="password" dir="ltr" autocomplete="${up?'new-password':'current-password'}" placeholder="${up?'סיסמה (לפחות 6 תווים)':'סיסמה'}" value="${h(A.loginPass||'')}" oninput="A.loginPass=this.value">
       <button class="btn ${up?'primary':'info'} big" ${busy}>${up?'פתיחת חשבון':'כניסה לחשבון'}</button></form>
-    ${up?`<div class="xs isub" style="text-align:right">מייל של Gmail, Walla, Hotmail/Outlook, Yahoo או iCloud</div>`:`<div class="authlinks"><button class="mylnk" onclick="forgotPass()">שכחתי סיסמה</button></div>`}
+    ${up?'':`<div class="authlinks"><button class="mylnk" onclick="forgotPass()">שכחתי סיסמה</button></div>`}
     <button class="btn ghost guestbtn" onclick="${A.S||A.fromSettings?"A.sheet=null;A.fromSettings=0;render()":'goGuest()'}">${A.S||A.fromSettings?'אחר כך':'להמשיך בלי חשבון'}</button>`;}
 function vProfileSheet(){const p=A.prof;if(!p)return vLoginSheet();const c=A.chosen;
   return `<div class="row between"><div class="black" style="font-size:24px">הפרופיל שלי</div><button class="btn ghost" style="width:auto" onclick="A.sheet=null;render()">סגור</button></div>
