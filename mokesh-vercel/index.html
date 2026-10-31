@@ -557,6 +557,10 @@ html.kb .msg .b{padding:6px 12px;font-size:16px}html.kb .msg.clue.cur .b{font-si
 .settings .r button.mylnk,.mylnk{width:auto;height:auto;box-shadow:none;border-radius:0;background:none;border:0;padding:0 2px;font:inherit;font-size:13px;font-weight:800;color:var(--ink);text-decoration:underline;cursor:pointer}
 .sheet-bg.top{align-items:flex-start;padding-top:max(12px,env(safe-area-inset-top))}.deck{max-height:calc(100vh - 24px);max-height:calc(100dvh - 24px);overflow-y:auto;-webkit-overflow-scrolling:touch;overscroll-behavior:contain}.deck .muted{color:var(--soft)}.mycol{display:flex;flex-direction:column;align-items:flex-start;gap:2px}.dkform{display:flex;flex-direction:column;gap:8px}.dkm{display:grid;grid-template-columns:repeat(3,1fr);gap:6px}.dkm .input{font-size:15px;padding:9px 10px}
 .pkgrid{display:grid;grid-template-columns:1fr 1fr;gap:8px}.pkchip{position:relative;display:flex;flex-direction:column;align-items:flex-start;gap:2px;text-align:right;padding:10px 12px;border:2.5px solid var(--ink);border-radius:14px;background:#fff;color:var(--ink);font:inherit;cursor:pointer}
+.sacc{display:flex;align-items:center;justify-content:space-between;gap:10px;background:rgba(21,16,43,.06);border:2.5px dashed var(--ink);border-radius:14px;padding:10px 12px}.sacc.on{border-style:solid;background:#fff}.sacc b{display:flex;align-items:center;gap:6px}
+.authmsg{background:var(--green);color:var(--ink);border:2.5px solid var(--ink);border-radius:14px;padding:10px 12px;font-weight:700;font-size:14px;line-height:1.45}
+.authlinks{gap:10px;flex-wrap:wrap}.guestlnk{align-self:center;background:none;border:0;padding:4px;color:var(--soft);font:600 12px var(--font-body);text-decoration:underline;opacity:.75;cursor:pointer}
+.lglogo{width:min(46%,170px)!important;margin:0!important}
 .setpage{gap:14px;padding-bottom:30px}
 .sset{background:var(--paper);color:var(--ink);border:var(--o);border-radius:22px;box-shadow:var(--sh);padding:14px;display:flex;flex-direction:column;gap:12px}
 .sset .xs{color:var(--soft)}.ssh{display:flex;align-items:center;gap:10px;font-family:var(--font-display);font-size:20px}.ssh b{font-weight:400}.ssh .plock{margin-right:auto}
@@ -806,7 +810,7 @@ const FOLDER_MAX=20;
 function foldersLoad(){try{let f=JSON.parse(localStorage.getItem('mokesh.folders')||'null');
     if(!Array.isArray(f)){const old=JSON.parse(localStorage.getItem('mokesh.mydeck')||'[]');f=Array.isArray(old)&&old.length?[{id:uid(6),n:'המילים שלי',w:old,on:1}]:[];}
     return f.slice(0,FOLDER_MAX).map(x=>({id:String((x&&x.id)||uid(6)).replace(/[^A-Za-z0-9]/g,'').slice(0,8)||uid(6),n:myTxt(x&&x.n)||'חבילה',w:myDeckClean(x&&x.w),on:x&&x.on?1:0}));}catch(e){return [];}}
-function foldersSave(f){try{localStorage.setItem('mokesh.folders',JSON.stringify(f));}catch(e){}}
+function foldersSave(f,quiet){try{localStorage.setItem('mokesh.folders',JSON.stringify(f));}catch(e){}if(!quiet)udPush();}
 // המילים שנשלחות לחדר: כל התיקיות המסומנות, בלי כפילויות
 function myDeckLoad(){const out=[];for(const f of foldersLoad())if(f.on)for(const x of f.w)if(!out.some(y=>normalize(y.w)===normalize(x.w)))out.push(x);return out.slice(0,300);}
 const curFolder=()=>foldersLoad().find(f=>f.id===A.deckEdit);
@@ -1349,18 +1353,59 @@ function avInner(a){if(isPhoto(a))return `<img src="${a}" alt="">`;if(a&&ASSETS[
 function av(a,cls='',off=false){const hat=themeHas('hat');return `<span class="av ${cls} ${off?'off':''}${hat?' hatted':''}">${avInner(a)}${hat?`<img class="avhat" src="${TA('hat')}" alt="">`:''}</span>`;}
 // ---------- חשבון: כניסה (Google / מייל / אורח), פרופיל קבוע, חברים, הזמנות וסטטיסטיקות ----------
 const AUTH={apple:false}; // Apple יופעל אחרי שהמפתחות יוגדרו ב-Supabase
+// ---------- חשבון: מייל+סיסמה / גוגל, וסנכרון ההגדרות האישיות (החבילות שלי, ערכה, צליל, רטט) ----------
+const AUTH_ERR=e=>{const m=String(e&&e.message||e||'');return /Invalid login/i.test(m)?'אימייל או סיסמה לא נכונים':/not confirmed/i.test(m)?'צריך לאשר את המייל קודם (בדקו את תיבת הדואר)':/already registered|already been registered/i.test(m)?'כבר יש חשבון עם המייל הזה. נסו להיכנס':/Password should be|at least 6/i.test(m)?'סיסמה צריכה לפחות 6 תווים':/provider is not enabled|Unsupported provider/i.test(m)?'הכניסה הזו עוד לא מופעלת':/rate limit|too many/i.test(m)?'יותר מדי ניסיונות. נסו שוב בעוד כמה דקות':/network|fetch/i.test(m)?'אין חיבור לאינטרנט':'משהו השתבש. נסו שוב';};
+async function emailAuth(){const em=(A.loginEmail||'').trim(),pw=A.loginPass||'';const up=A.authMode==='signup';
+  if(!/^\S+@\S+\.\S+$/.test(em))return toast('כתובת מייל לא תקינה');if(pw.length<6)return toast('סיסמה צריכה לפחות 6 תווים');
+  A.loginBusy=true;render();
+  try{if(up){const {data,error}=await sb.auth.signUp({email:em,password:pw,options:{emailRedirectTo:location.origin+location.pathname}});if(error)throw error;
+      if(!data.session){A.authMsg='כמעט סיימנו! שלחנו מייל ל-'+em+'. לחצו על הקישור במייל כדי לאשר את החשבון, ואז היכנסו.';A.authMode='login';}}
+    else{const {error}=await sb.auth.signInWithPassword({email:em,password:pw});if(error)throw error;}
+    A.loginPass='';}catch(e){toast(AUTH_ERR(e));}
+  A.loginBusy=false;render();}
+async function forgotPass(){const em=(A.loginEmail||'').trim();if(!/^\S+@\S+\.\S+$/.test(em))return toast('כתבו קודם את המייל שלכם');A.loginBusy=true;render();
+  try{const {error}=await sb.auth.resetPasswordForEmail(em,{redirectTo:location.origin+location.pathname});if(error)throw error;A.authMsg='שלחנו ל-'+em+' קישור לבחירת סיסמה חדשה.';}catch(e){toast(AUTH_ERR(e));}
+  A.loginBusy=false;render();}
+async function setNewPass(){const pw=A.loginPass||'';if(pw.length<6)return toast('סיסמה צריכה לפחות 6 תווים');A.loginBusy=true;render();
+  try{const {error}=await sb.auth.updateUser({password:pw});if(error)throw error;A.recovery=false;A.loginPass='';A.sheet=null;toast('הסיסמה עודכנה');}catch(e){toast(AUTH_ERR(e));}
+  A.loginBusy=false;render();}
+// אורח: מותר, אבל ברור שמפסידים — ושואלים שוב בכניסה הבאה
+function goGuest(){if(!confirm('בלי חשבון, הכינוי, החבילות שלכם והסטטיסטיקות נשמרים רק בטלפון הזה, ונמחקים אם מחליפים טלפון או מנקים את הדפדפן.\n\nלהמשיך כאורח?'))return;
+  try{sessionStorage.setItem('mokesh.guest','1');}catch(e){}A.sheet=null;render();}
+function authGate(){if(!sb||!sb.auth||A.user||A.S||A.sheet||A.authAsked||A.homeMode!=='menu'||TOUR.el)return;
+  try{if(!localStorage.getItem('mokesh.tour.home')||sessionStorage.getItem('mokesh.guest'))return;}catch(e){return;}
+  A.authAsked=true;setTimeout(()=>{if(!A.user&&!A.S&&!A.sheet&&!TOUR.el){A.sheet='login';render();}},700);}
+// סנכרון: מה שנשמר בטלפון עובר לחשבון, ובטלפון חדש נטען מהחשבון
+const UD_KEYS=['mokesh.folders','mokesh.theme','mokesh.hap','mokesh.music'];
+function udLocal(){const d={};try{for(const k of UD_KEYS){const v=localStorage.getItem(k);if(v!=null)d[k]=v;}}catch(e){}return d;}
+async function udPull(){if(!A.user||!sb)return;try{const {data}=await sb.from('mokesh_userdata').select('data').eq('id',A.user.id).maybeSingle();
+    const srv=data&&data.data&&typeof data.data==='object'?data.data:null;
+    if(srv&&Object.keys(srv).length){
+      // חבילות: מאחדים את מה שיש בטלפון עם מה שבחשבון (לא מאבדים מילים)
+      const mine=foldersLoad();let theirs=[];try{theirs=JSON.parse(srv['mokesh.folders']||'[]');}catch(e){}
+      try{for(const k of UD_KEYS)if(k!=='mokesh.folders'&&typeof srv[k]==='string')localStorage.setItem(k,srv[k]);
+        localStorage.setItem('mokesh.folders',JSON.stringify(theirs));const all=foldersLoad();for(const f of mine)if(!all.some(x=>x.id===f.id||x.n===f.n))all.push(f);foldersSave(all,true);}catch(e){}
+      MUSIC.on=localStorage.getItem('mokesh.music')!=='0';}
+    A.udReady=true;udPush(true);render();}catch(e){console.warn('userdata',e);}}
+let udT=null;
+function udPush(now){if(!A.user||!sb||!A.udReady)return;clearTimeout(udT);udT=setTimeout(()=>{sb.from('mokesh_userdata').upsert({id:A.user.id,data:udLocal(),updated_at:new Date().toISOString()}).then(()=>{});},now?0:1200);}
+function vAccount(){if(!sb||!sb.auth)return '';
+  if(A.user){const em=A.user.email||'';const g=(A.user.app_metadata||{}).provider==='google';
+    return `<div class="sacc on"><div class="col" style="gap:1px;min-width:0"><b>${ic('check',16)} מחובר/ת${g?' עם Google':''}</b><span class="xs" dir="ltr" style="text-align:right;overflow:hidden;text-overflow:ellipsis">${h(em)}</span></div><button class="btn ghost sgh" style="width:auto;padding:6px 12px" onclick="if(confirm('לצאת מהחשבון?'))signOut()">יציאה</button></div>`;}
+  return `<div class="sacc"><div class="col" style="gap:2px"><b>אתם משחקים כאורחים</b><span class="xs">פתחו חשבון כדי שהכל יישמר, גם בטלפון אחר</span></div><button class="btn primary" style="width:auto;padding:8px 16px" onclick="A.sheet='login';A.authMode='signup';A.fromSettings=1;render()">פתיחת חשבון</button></div>`;}
+
 const ONLINE_MS=90000;
 async function authInit(){if(!sb||!sb.auth)return;
-  sb.auth.onAuthStateChange((ev,session)=>{const u=session&&session.user||null;if((u&&u.id)!==(A.user&&A.user.id)){A.user=u;onUser();}});
+  sb.auth.onAuthStateChange((ev,session)=>{if(ev==='PASSWORD_RECOVERY'){A.recovery=true;A.sheet='login';setTimeout(render,0);}const u=session&&session.user||null;if((u&&u.id)!==(A.user&&A.user.id)){A.user=u;onUser();}});
   try{const {data}=await sb.auth.getSession();A.user=data&&data.session?data.session.user:null;if(A.user)await onUser();}catch(e){console.warn('auth',e);}}
 // מחובר: מזהה השחקן במשחקים הוא מזהה החשבון, והשם/האווטאר נטענים מהפרופיל
-async function onUser(){if(!A.user){A.prof=null;A.friends=[];A.invites=[];stopSocial();render();return;}
+async function onUser(){if(!A.user){A.prof=null;A.friends=[];A.invites=[];A.udReady=false;stopSocial();render();return;}A.authMsg='';udPull();
   if(!A.S){A.uid=A.user.id;}
   try{let {data:p}=await sb.from('mokesh_profiles').select('*').eq('id',A.user.id).maybeSingle();
     if(!p){const md=A.user.user_metadata||{};const nm=((A.chosen.name||md.full_name||md.name||'').trim()||'שחקן').slice(0,16);
       const r=await sb.from('mokesh_profiles').insert({id:A.user.id,name:nm,avatar:A.chosen.avatar||AVATARS[0]}).select().single();p=r.data;}
     if(p){A.prof=p;A.chosen={name:p.name,avatar:p.avatar};try{localStorage.setItem('mokesh.profile',JSON.stringify(A.chosen));}catch(e){}}}catch(e){console.warn('profile',e);}
-  if(A.sheet==='login')A.sheet=null;startSocial();
+  if(A.sheet==='login'&&!A.recovery)A.sheet=null;startSocial();
   if(A.pendingFriend){const c=A.pendingFriend;A.pendingFriend=null;addFriend(c);}
   render();}
 let profT=null;
@@ -1413,17 +1458,23 @@ const LOGIN_ON=false;
 function vAccBtn(){if(!LOGIN_ON||!sb||!sb.auth)return '';const inc=(A.friends||[]).filter(f=>f.incoming).length;
   return A.user?`<button class="topbtn accb on" onclick="A.sheet='profile';render()" aria-label="הפרופיל שלי">${avInner(A.chosen.avatar)}${inc?`<span class="badge">${inc}</span>`:''}</button>`
     :`<button class="topbtn accb" onclick="A.sheet='login';render()" aria-label="התחברות"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><circle cx="12" cy="8" r="4"/><path d="M4 21c1.5-4 4.5-6 8-6s6.5 2 8 6"/></svg><span class="acclbl">כניסה</span></button>`;}
-function vLoginSheet(){const busy=A.loginBusy?'disabled':'';
-  return `<div class="black" style="font-size:24px">כניסה למוקש!</div><div class="small isub">עם חשבון: הפרופיל, החברים והסטטיסטיקות נשמרים בכל מכשיר.</div>
-    <button class="btn big gbtn" onclick="signInGoogle()" ${busy}><svg width="22" height="22" viewBox="0 0 48 48" aria-hidden="true"><path fill="#EA4335" d="M24 9.5c3.5 0 6.6 1.2 9 3.5l6.7-6.7C35.6 2.4 30.2 0 24 0 14.6 0 6.6 5.4 2.6 13.2l7.8 6.1C12.3 13.6 17.7 9.5 24 9.5z"/><path fill="#4285F4" d="M46.5 24.5c0-1.6-.1-3.1-.4-4.5H24v9h12.7c-.6 3-2.3 5.5-4.8 7.2l7.5 5.8c4.4-4 7.1-10 7.1-17.5z"/><path fill="#FBBC05" d="M10.4 28.7c-.5-1.4-.8-3-.8-4.7s.3-3.3.8-4.7l-7.8-6.1C1 16.5 0 20.1 0 24s1 7.5 2.6 10.8l7.8-6.1z"/><path fill="#34A853" d="M24 48c6.5 0 11.9-2.1 15.9-5.8l-7.5-5.8c-2.1 1.4-4.8 2.3-8.4 2.3-6.3 0-11.7-4.1-13.6-9.8l-7.8 6.1C6.6 42.6 14.6 48 24 48z"/></svg> המשך עם Google</button>
+function vLoginSheet(){const busy=A.loginBusy?'disabled':'';const up=A.authMode==='signup';
+  if(A.recovery)return `<div class="black" style="font-size:24px">סיסמה חדשה</div>
+    <input class="input" name="pass" type="password" dir="ltr" autocomplete="new-password" placeholder="לפחות 6 תווים" value="${h(A.loginPass||'')}" oninput="A.loginPass=this.value">
+    <button class="btn primary big" onclick="setNewPass()" ${busy}>שמירה</button>`;
+  const G=`<svg width="22" height="22" viewBox="0 0 48 48" aria-hidden="true"><path fill="#EA4335" d="M24 9.5c3.5 0 6.6 1.2 9 3.5l6.7-6.7C35.6 2.4 30.2 0 24 0 14.6 0 6.6 5.4 2.6 13.2l7.8 6.1C12.3 13.6 17.7 9.5 24 9.5z"/><path fill="#4285F4" d="M46.5 24.5c0-1.6-.1-3.1-.4-4.5H24v9h12.7c-.6 3-2.3 5.5-4.8 7.2l7.5 5.8c4.4-4 7.1-10 7.1-17.5z"/><path fill="#FBBC05" d="M10.4 28.7c-.5-1.4-.8-3-.8-4.7s.3-3.3.8-4.7l-7.8-6.1C1 16.5 0 20.1 0 24s1 7.5 2.6 10.8l7.8-6.1z"/><path fill="#34A853" d="M24 48c6.5 0 11.9-2.1 15.9-5.8l-7.5-5.8c-2.1 1.4-4.8 2.3-8.4 2.3-6.3 0-11.7-4.1-13.6-9.8l-7.8 6.1C6.6 42.6 14.6 48 24 48z"/></svg>`;
+  return `<div class="tc col" style="gap:6px;align-items:center">${logoHTML('logo sm lglogo')}<div class="black" style="font-size:26px">${up?'פותחים חשבון':'כניסה לחשבון'}</div>
+    <div class="small isub">הכינוי, האווטאר, החבילות שלכם וערכת העיצוב נשמרים — בכל טלפון</div></div>
+    ${A.authMsg?`<div class="authmsg">${h(A.authMsg)}</div>`:''}
+    <button class="btn big gbtn" onclick="signInGoogle()" ${busy}>${G} המשך עם Google</button>
     ${AUTH.apple?`<button class="btn big abtn" onclick="signInApple()" ${busy}> המשך עם Apple</button>`:''}
-    <div class="ordiv"><span>או במייל</span></div>
-    ${A.otpSent?`<div class="small" style="line-height:1.5">שלחנו מייל ל-<b dir="ltr">${h(A.loginEmail)}</b>. לחצו על הקישור במייל, או הקלידו כאן את הקוד אם קיבלתם קוד:</div>
-      <input class="input" name="otp" inputmode="numeric" autocomplete="one-time-code" dir="ltr" maxlength="8" placeholder="123456" style="text-align:center;letter-spacing:.3em;font-size:22px" value="${h(A.loginCode||'')}" oninput="A.loginCode=this.value">
-      <button class="btn primary big" onclick="verifyEmailCode()" ${busy}>כניסה</button><button class="btn ghost" onclick="A.otpSent=false;render()">מייל אחר</button>`
-    :`<input class="input" name="email" type="email" dir="ltr" autocomplete="email" placeholder="name@gmail.com" value="${h(A.loginEmail||'')}" oninput="A.loginEmail=this.value">
-      <button class="btn info big" onclick="sendEmailCode()" ${busy}>שלחו לי קישור כניסה</button>`}
-    <button class="btn ghost" onclick="A.sheet=null;A.pendingFriend=null;render()">המשך כאורח</button>`;}
+    <div class="ordiv"><span>או עם מייל וסיסמה</span></div>
+    <form class="col" style="gap:10px" onsubmit="event.preventDefault();emailAuth()">
+      <input class="input" name="email" type="email" dir="ltr" autocomplete="email" placeholder="name@gmail.com" value="${h(A.loginEmail||'')}" oninput="A.loginEmail=this.value">
+      <input class="input" name="pass" type="password" dir="ltr" autocomplete="${up?'new-password':'current-password'}" placeholder="${up?'סיסמה (לפחות 6 תווים)':'סיסמה'}" value="${h(A.loginPass||'')}" oninput="A.loginPass=this.value">
+      <button class="btn primary big" ${busy}>${up?'פתיחת חשבון':'כניסה'}</button></form>
+    <div class="row between authlinks"><button class="mylnk" onclick="A.authMode='${up?'login':'signup'}';A.authMsg='';render()">${up?'כבר יש לי חשבון — כניסה':'אין לי חשבון — הרשמה'}</button>${up?'':`<button class="mylnk" onclick="forgotPass()">שכחתי סיסמה</button>`}</div>
+    <button class="guestlnk" onclick="${A.S||A.fromSettings?"A.sheet=null;A.fromSettings=0;render()":'goGuest()'}">${A.S||A.fromSettings?'אחר כך':'להמשיך בלי חשבון'}</button>`;}
 function vProfileSheet(){const p=A.prof;if(!p)return vLoginSheet();const c=A.chosen;
   return `<div class="row between"><div class="black" style="font-size:24px">הפרופיל שלי</div><button class="btn ghost" style="width:auto" onclick="A.sheet=null;render()">סגור</button></div>
     <label class="col" style="gap:4px"><span class="small isub">הכינוי שלך</span><input class="input" name="pname" maxlength="16" value="${h(c.name)}" oninput="A.chosen.name=this.value;saveProfile()"></label>
@@ -1446,7 +1497,8 @@ function vFriendsSheet(){const fs=A.friends||[];const inc=fs.filter(f=>f.incomin
     ${out.length?`<div class="xs isub">ממתינים לאישור: ${out.map(f=>h(f.name)).join(', ')}</div>`:''}
     <button class="btn info" onclick="shareFriendCode()">${ic('share',20)} שלחו את קוד החבר שלי</button>`;}
 function vSheet(){const body=A.sheet==='premium'?vPremium():A.sheet==='login'||!A.user?vLoginSheet():A.sheet==='profile'?vProfileSheet():vFriendsSheet();
-  return `<div class="sheet-bg" onclick="A.sheet=null;render()"><div class="sheet pop acct" onclick="event.stopPropagation()">${body}</div></div>`;}
+  const lockBg=A.sheet==='login'&&!A.user&&!A.S&&!A.fromSettings; // לפני שבחרו: אין סגירה בלחיצה בצד, רק "להמשיך בלי חשבון"
+  return `<div class="sheet-bg${A.sheet==='login'?' top':''}" onclick="${lockBg||A.recovery?'':'A.sheet=null;A.fromSettings=0;render()'}"><div class="sheet pop acct" onclick="event.stopPropagation()">${body}</div></div>`;}
 function vInviteBar(){const iv=A.inviteBar;return `<div class="invbar pop"><span class="avw">${avInner(iv.avatar)}</span><div class="col" style="gap:0;flex:1"><b>${h(iv.name)} מזמין/ה אותך למשחק!</b><span class="xs">חדר ${h(iv.room)}</span></div><button class="btn primary sm" onclick="acceptInvite()">הצטרפות</button><button class="x" onclick="A.inviteBar=null;render()" aria-label="סגירה">✕</button></div>`;}
 // ---------- משחק מהיר עם אנשים מהרשת: תור המתנה בשרת, 2 קבוצות של 3, החסרים מושלמים במחשב ----------
 const QM_WAIT=40;
@@ -1700,7 +1752,7 @@ function tourAuto(){if(TOUR.el||A.sheet||A.menu||A.avPick)return;const S=A.S;let
   else if(S.phase==='EXPLAINING'&&role(S)==='guesser'&&typedClues(S))k='guesser';
   if(k&&GAME_TOURS.includes(k)&&!gameTourOk(S))return;
   if(k&&!tourSeen(k)){clearTimeout(A.tourT);A.tourT=setTimeout(()=>{if(!TOUR.el)tourStart(k,{passive});},passive?500:900);}}
-function vHome(){const c=A.chosen;const m=A.homeMode;if(m==='settings')return vSettingsPage();if(m==='how'||m==='intro'){A.homeMode='menu';setTimeout(()=>tourStart('home'),50);return vHome();}
+function vHome(){const c=A.chosen;const m=A.homeMode;if(m==='settings')return vSettingsPage();authGate();if(m==='how'||m==='intro'){A.homeMode='menu';setTimeout(()=>tourStart('home'),50);return vHome();}
   const form=`<div class="card col" style="gap:14px">
     <label class="col" style="gap:4px"><span class="small muted">הכינוי שלך</span><input class="input" name="nick" data-autofocus maxlength="16" placeholder="למשל: דנה" value="${h(c.name)}" oninput="const was=!!A.chosen.name.trim();A.chosen.name=this.value;saveProfile();if(was!==!!this.value.trim())render()"></label>
     <div class="col" style="gap:4px"><span class="small muted">אווטאר</span><div class="avgrid">${avPhotoTile(c.avatar,'me')}${AVATARS.map(a=>`<button class="${a===c.avatar?'on':''}" onclick="A.chosen.avatar='${a}';saveProfile();render()">${avInner(a)}</button>`).join('')}</div></div>`;
@@ -1837,19 +1889,19 @@ function vSettingsPage(){const c=A.chosen;const prem=premiumOn(null);const f=fol
   ${sec('users','הפרופיל שלי',`<div class="sprof"><button class="sav" onclick="A.avOpen=A.avOpen?0:1;render()" aria-label="החלפת אווטאר">${av(c.avatar,'xl')}<i>${ic('camera',14)}</i></button>
       <label class="col" style="gap:4px;flex:1;min-width:0"><span class="xs">הכינוי שלך</span><input class="input" name="nick" maxlength="16" placeholder="למשל: דנה" value="${h(c.name)}" oninput="A.chosen.name=this.value;saveProfile()"></label></div>
     ${A.avOpen?`<div class="avgrid">${avPhotoTile(c.avatar,'me')}${AVATARS.map(a=>`<button class="${a===c.avatar?'on':''}" onclick="A.chosen.avatar='${a}';saveProfile();render()">${avInner(a)}</button>`).join('')}</div>`:''}
-    <div class="snote">${ic('star',16)} בקרוב: חשבון אישי עם אימייל או גוגל, והכל נשמר גם בטלפון אחר</div>`)}
+    ${vAccount()}`)}
   ${sec('crown','פרימיום',`<button class="srow" onclick="A.premReason='';A.sheet='premium';render()"><span class="col" style="gap:1px"><b>${prem?'פרימיום פעיל':'מוקש! פרימיום'}</b><span class="xs">${PREMIUM_FREE?'בחינם עכשיו · מבצע השקה':prem?'כל האפשרויות פתוחות':'משחקים בלי הגבלה, חבילות, ערכות ועוד'}</span></span>${ic('chev',20)}</button>`)}
   ${sec('star','ערכת עיצוב',vThemeHome(),lock)}
   ${sec('book','החבילות שלי',`<div class="xs" style="margin-top:-4px">חבילות מילים שאתם כותבים, למשל "המשפחה" או "החברים". בחדר הן נכנסות למשחק דרך "חבילות מילים".</div>
     ${f.length?`<div class="spk">${f.map(x=>`<button class="spkc${x.on?' on':''}" onclick="${gate}A.deckEdit='${x.id}';A.deckPaste=false;render()"><b>${h(x.n)}</b><span>${x.w.length===1?'מילה אחת':x.w.length+' מילים'}</span></button>`).join('')}</div>`:''}
     <div class="row" style="gap:8px"><button class="btn primary" style="flex:1" onclick="${gate}folderNew()">+ חבילה חדשה</button>${f.length?`<button class="btn ghost sgh" style="width:auto" onclick="openDeck()">ניהול</button>`:''}</div>`,lock)}
-  ${sec('music','צליל ורטט',sw(MUSIC.on,'מוזיקה וצלילים','','toggleMusic()')+sw(hapOn(),'רטט','כשנופלים על מוקש ובניחוש נכון',"try{localStorage.setItem('mokesh.hap',this.checked?'1':'0')}catch(e){};if(this.checked)haptic(30)"))}
+  ${sec('music','צליל ורטט',sw(MUSIC.on,'מוזיקה וצלילים','','toggleMusic()')+sw(hapOn(),'רטט','כשנופלים על מוקש ובניחוש נכון',"try{localStorage.setItem('mokesh.hap',this.checked?'1':'0')}catch(e){};udPush();if(this.checked)haptic(30)"))}
   ${sec('help','עזרה',`<button class="srow" onclick="A.homeMode='how';render()"><b>איך משחקים</b>${ic('chev',20)}</button><div class="xs" style="opacity:.7">גרסה ${h(A.ver||'')}</div>`)}
   </div>`;}
 function vThemeHome(){const cur=themeOf(null);const lock=!premiumOn(null);const D={'--bg':'#2B3BFF','--yellow':'#FFD23F','--pink':'#FF4FA3','--cyan':'#19D3FF','--trap-bg':'#FF3B30'};const sw=v=>Object.keys(D).map(k=>`<i style="background:${v[k]||D[k]}"></i>`).join('');
   return `<div class="col" style="gap:6px"><div class="pkgrid">${THEMES.map((t,i)=>`<button class="pkchip thchip${i===cur?' on':''}" onclick="setTheme(${i})"><b>${t.n}</b><span class="sw">${sw(t.v)}</span>${i===cur?ic('check',18):''}</button>`).join('')}</div></div>`;}
 function vThemeRow(S,host,lock){const t=THEMES[themeOf(S)];return `<div class="r"><span class="small muted">ערכת עיצוב</span><button class="mini packbtn" onclick="${lock?`needPremium('settings')`:host?'A.themeOpen=true;render()':''}" ${host||lock?'':'disabled'}>${h(t.n)}</button></div>`;}
-function setTheme(i){if(!premiumOn(A.S))return needPremium('theme');try{localStorage.setItem('mokesh.theme',String(i));}catch(e){}haptic&&haptic(20);render();}
+function setTheme(i){if(!premiumOn(A.S))return needPremium('theme');try{localStorage.setItem('mokesh.theme',String(i));}catch(e){}udPush();haptic&&haptic(20);render();}
 function vThemes(S){const cur=themeOf(S);const D={'--bg':'#2B3BFF','--yellow':'#FFD23F','--pink':'#FF4FA3','--cyan':'#19D3FF','--trap-bg':'#FF3B30'};const sw=v=>Object.keys(D).map(k=>`<i style="background:${v[k]||D[k]}"></i>`).join('');
   return `<div class="sheet-bg top" onclick="A.themeOpen=false;render()"><div class="sheet pop deck" onclick="event.stopPropagation()"><div class="row between"><div class="black" style="font-size:22px">ערכת עיצוב</div><button class="btn ghost" onclick="A.themeOpen=false;render()">סיום</button></div>
     <div class="small muted">כל הצבעים במשחק מתחלפים. הבחירה נשמרת בטלפון שלכם.</div>
@@ -2135,7 +2187,7 @@ const MUSIC={on:(()=>{try{return localStorage.getItem('mokesh.music')!=='0';}cat
 const mf=m=>440*Math.pow(2,(m-69)/12);
 const CHORDS=[[60,64,67],[59,62,67],[57,60,64],[57,60,65]],ROOTS=[36,43,45,41]; // C G Am F
 function musicBtn(cls){return `<button type="button" class="${cls} ${MUSIC.on?'':'off'}" onclick="toggleMusic()" aria-label="${MUSIC.on?'השתק מוזיקה':'הפעל מוזיקה'}">${ic(MUSIC.on?'music':'musicOff',cls==='mbtn'?16:20)}</button>`;}
-function toggleMusic(){MUSIC.on=!MUSIC.on;try{localStorage.setItem('mokesh.music',MUSIC.on?'1':'0');}catch(e){}if(MUSIC.on)musicStart();else musicStop();render();}
+function toggleMusic(){setTimeout(udPush,50);MUSIC.on=!MUSIC.on;try{localStorage.setItem('mokesh.music',MUSIC.on?'1':'0');}catch(e){}if(MUSIC.on)musicStart();else musicStop();render();}
 function musicStart(){try{audioCtx=audioCtx||new (window.AudioContext||window.webkitAudioContext)();const ctx=audioCtx;if(ctx.state!=='running')ctx.resume();
   if(!MUSIC.master){MUSIC.master=ctx.createGain();MUSIC.master.gain.value=0;MUSIC.master.connect(ctx.destination);
     const b=ctx.createBuffer(1,ctx.sampleRate*.3,ctx.sampleRate),d=b.getChannelData(0);for(let i=0;i<d.length;i++)d[i]=Math.random()*2-1;MUSIC.noise=b;}
