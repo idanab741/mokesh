@@ -1904,7 +1904,7 @@ async function reportPlayer(id){const S=A.S;const p=S&&playerById(S,id);if(!p||!
 async function quickMatch(){if(!A.dbReady)return toast('מצב אונליין לא זמין כרגע');if(!canPlay(null)){needPremium('limit');return;}if(!(A.chosen.name||'').trim()){A.homeMode='quick';render();return;}
   track('quick');qmStop(false);A.qmSince=Date.now();A.qm={since:A.qmSince,waiting:1,err:0};A.homeMode='queue';render();qmPoll();A.qmT=setInterval(qmPoll,2000);A.qmT2=setInterval(()=>{if(A.qm&&A.homeMode==='queue'&&!A.S)render();},1000);}
 async function qmPoll(){const q=A.qm;if(!q||q.busy)return;q.busy=true;
-  try{const {data,error}=await sb.rpc('mokesh_match',{p_id:A.uid,p_name:(A.chosen.name||'').trim().slice(0,16),p_avatar:A.chosen.avatar});if(error)throw error;if(A.qm!==q)return;
+  try{const {data,error}=await sb.rpc('mokesh_match',{p_id:A.uid,p_name:(A.chosen.name||'').trim().slice(0,16),p_avatar:A.chosen.avatar,p_lang:LANG});if(error)throw error;if(A.qm!==q)return;
     if(data&&data.room){qmStop(false);await qmEnter(data);return;}
     if(data&&data.error)throw new Error(data.error);
     if(data){q.waiting=data.waiting||1;if(data.since&&data.now)q.since=Date.now()-(new Date(data.now)-new Date(data.since));q.err=0;render();}}
