@@ -1666,7 +1666,17 @@ const ROUTE=[
   {n:'אפטר פארטי',d:'מילים קשות, בלי דילוגים',set:{difficulty:3,target:17,turnSeconds:40,maxSkips:0},skill:.77,margin:6},
   {n:'הזריחה',d:'מילים קשות, 30 שניות',set:{difficulty:3,target:18,turnSeconds:30,maxSkips:1},skill:.8,margin:6},
   {n:'בוס: הדי-ג׳יי',d:'הוא שולט על הקצב',set:{difficulty:'all',target:20,turnSeconds:35,maxSkips:1},skill:.85,margin:6,boss:1}]},
- {id:5,name:'אזור אסור',need:110,art:{},levels:[]}];
+ {id:5,name:'אזור אסור',need:110,art:{map:'route/w5/map.webp',ratio:'841/1870',cur:'route/w1/cur.webp',done:'route/w1/done.webp',lock:'route/w5/lock.webp',boss:'route/w5/boss.webp',node:18,pos:[[26.8,89.9],[64.9,82.5],[28.2,74.7],[69.8,67.4],[30.7,59.5],[65.8,51.5],[34.5,44.6],[66.1,36.7],[30.8,30.2],[51.2,25.0]]},levels:[
+  {n:'הגדר הראשונה',d:'מילים קשות',set:{difficulty:3,target:16,turnSeconds:40,maxSkips:1},skill:.72,margin:6},
+  {n:'שדה פתוח',d:'כל הרמות, 30 שניות',set:{difficulty:'all',target:17,turnSeconds:30,maxSkips:1},skill:.74,margin:6},
+  {n:'בלי חרטות',d:'אי אפשר לדלג',set:{difficulty:3,target:16,turnSeconds:40,maxSkips:0},skill:.76,margin:6},
+  {n:'מכת ברק',d:'תור-תור, 15 שניות',set:{wordMode:1,turnsPerTeam:8,target:12,turnSeconds:15,maxSkips:1},skill:.78,margin:4},
+  {n:'כל החבילות',d:'כל 10 החבילות יחד',set:{difficulty:'all',target:18,turnSeconds:35,maxSkips:1,packs:2047},skill:.8,margin:6},
+  {n:'קרקע סדוקה',d:'מילים קשות, 25 שניות',set:{difficulty:3,target:18,turnSeconds:25,maxSkips:1},skill:.82,margin:6},
+  {n:'הזרקורים',d:'מילים קשות, בלי דילוגים, 30 שניות',set:{difficulty:3,target:18,turnSeconds:30,maxSkips:0},skill:.84,margin:6},
+  {n:'מגדל השמירה',d:'עד 22 נקודות',set:{difficulty:'all',target:22,turnSeconds:30,maxSkips:1},skill:.86,margin:7},
+  {n:'מול הכספת',d:'מילים קשות, 20 שניות',set:{difficulty:3,target:20,turnSeconds:20,maxSkips:1},skill:.88,margin:7},
+  {n:'בוס: המוקש הגדול',d:'הבוס האחרון. מי שעובר אותו — אלוף מוקש',set:{difficulty:3,target:24,turnSeconds:30,maxSkips:0},skill:.92,margin:7,boss:1}]}];
 // גישה מלאה למסלול לחשבון של מנהל המשחק (נשמר רק טביעת אצבע של המייל, לא המייל עצמו)
 const DEV_H=['04fa8170c4fae3f087a5d4d20a756de45f1a2bb97a2c67efe543b6d04715ec59'];
 async function devCheck(){A.dev=false;const em=A.user&&A.user.email;if(!em||!crypto.subtle)return;try{const b=await crypto.subtle.digest('SHA-256',new TextEncoder().encode(em.trim().toLowerCase()));
