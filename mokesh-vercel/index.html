@@ -810,7 +810,7 @@ const PK_BASE=2000,PK_STEP=200,PK_IDS={},PK_IDX=new Map(),packState={};
 const packMask=S=>{const m=Math.round(+(S&&S.settings&&S.settings.packs)||1);return m>0?m:1;};
 function packsOf(S){const m=packMask(S);return PACKS.map((p,i)=>m&(2<<i)?p[0]:null).filter(Boolean);}
 function classicOn(S){return !!(packMask(S)&1)||!packsOf(S).length;}
-function packLoad(slug){if(packState[slug])return;packState[slug]='loading';const el=document.createElement('script');el.src='packs/'+slug+'.js?v=1';
+function packLoad(slug){if(packState[slug])return;packState[slug]='loading';const el=document.createElement('script');el.src='packs/'+slug+'.js?v=2';
   el.onload=()=>{const k=PACKS.findIndex(p=>p[0]===slug);const L=((window.MOKESH_PACKS||{})[slug]||[]).slice(0,PK_STEP);
     PK_IDS[slug]=L.map((c,j)=>{CARDS.set(c.id,{...c,pk:slug,aliases:c.aliases||[],clues:c.clues||[],keys:c.keys||[]});PK_IDX.set(c.id,PK_BASE+k*PK_STEP+j);return c.id;});packState[slug]='ok';render();};
   el.onerror=()=>{packState[slug]=null;el.remove();setTimeout(()=>{if(A.S&&packsOf(A.S).includes(slug)){packLoad(slug);}},3000);};document.head.appendChild(el);}
