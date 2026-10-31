@@ -564,6 +564,11 @@ html.kb .sheet-bg{top:var(--vt,0px);bottom:auto;height:var(--vh,100%)}
 .spinfo{display:flex;flex-wrap:wrap;gap:6px;font-size:12px;font-weight:700}.spinfo>span{display:inline-flex;align-items:center;gap:4px;background:rgba(21,16,43,.07);border-radius:999px;padding:4px 10px}.spinfo .spb{background:var(--cyan)}
 .fold.sp .fic{background:var(--cyan)}.sheet .btn.ghost.spshare{color:var(--ink);border:2.5px dashed var(--ink)}.deck .muted{color:var(--soft)}.mycol{display:flex;flex-direction:column;align-items:flex-start;gap:2px}.dkform{display:flex;flex-direction:column;gap:8px}.dkm{display:grid;grid-template-columns:repeat(3,1fr);gap:6px}.dkm .input{font-size:15px;padding:9px 10px}
 .pkgrid{display:grid;grid-template-columns:1fr 1fr;gap:8px}.pkchip{position:relative;display:flex;flex-direction:column;align-items:flex-start;gap:2px;text-align:right;padding:10px 12px;border:2.5px solid var(--ink);border-radius:14px;background:#fff;color:var(--ink);font:inherit;cursor:pointer}
+.ta-pk{display:flex;flex-wrap:wrap;justify-content:center;gap:8px;max-width:300px;margin:0 auto}.ta-pc{background:var(--paper);color:var(--ink);border:3px solid var(--ink);border-radius:999px;padding:6px 14px;font:800 15px var(--font-body);box-shadow:0 4px 0 var(--ink);animation:tapop .45s cubic-bezier(.2,1.5,.4,1) both}
+.ta-pc.p0{background:var(--yellow)}.ta-pc.p1{background:var(--cyan)}.ta-pc.p2{background:var(--pink);color:#fff}.ta-pc.mine{background:var(--green);display:inline-flex;align-items:center;gap:5px;border-style:dashed}
+@keyframes tapop{from{transform:scale(0) rotate(-12deg);opacity:0}}
+.ta-rt{position:relative;width:260px;height:170px;margin:0 auto}.ta-rt svg{position:absolute;inset:0;width:100%;height:100%}.ta-rn{position:absolute;width:52px;margin:-10px 0 0 -6px;animation:tapop .45s cubic-bezier(.2,1.5,.4,1) both}.ta-rn img{width:52px;filter:drop-shadow(0 4px 0 rgba(21,16,43,.5))}.ta-rn.boss{width:74px}.ta-rn.boss img{width:74px}
+.ta-rn i{position:absolute;top:-14px;left:50%;transform:translateX(-50%);font-style:normal;color:var(--yellow);-webkit-text-stroke:1px var(--ink);font-size:15px;white-space:nowrap}.ta-rstars{position:absolute;bottom:-6px;right:0;font-size:30px;color:var(--yellow);-webkit-text-stroke:2px var(--ink);letter-spacing:4px}
 .route{gap:10px;padding-bottom:20px}.rtop{display:flex;align-items:center;justify-content:space-between;gap:8px}
 .rbk{width:44px;height:44px;border-radius:50%;background:var(--paper2);border:var(--o);box-shadow:var(--sh-sm);display:grid;place-items:center;color:var(--ink)}
 .rtabs{display:flex;gap:5px}.rtabs button{width:34px;height:34px;border-radius:10px;border:2.5px solid var(--ink);background:var(--paper);font:800 15px var(--font-body);color:var(--ink)}.rtabs button.on{background:var(--yellow);box-shadow:0 3px 0 var(--ink)}.rtabs button.lk{opacity:.5}
@@ -1964,26 +1969,31 @@ const TOUR_ART={
   explain:()=>`<div class="ta-row"><img class="ta-av" src="${ASSETS.u4}" alt=""><div class="ta-bub">כדורים מחומוס, בתוך פיתה…</div></div><div class="wordcard ta-card"><div class="l">המילה:</div><div class="target">פלאפל</div></div><div class="ta-row end"><div class="ta-bub ok">פלאפל! ${ic('check',18)}</div><img class="ta-av" src="${ASSETS.u7}" alt=""></div>`,
   mines:()=>`<div class="ta-mini">המילה: <b>פלאפל</b></div><div class="trapgrid ta-traps"><div class="trap">חומוס</div><div class="trap">פיתה</div><div class="trap">שווארמה</div></div><div class="ta-row end"><div class="ta-bub bad">חומוס?</div><img class="ta-av" src="${ASSETS.u10}" alt=""></div><img class="ta-boom" src="${ASSETS.boom}" alt="">`,
   win:()=>`<div class="ta-scores"><div class="ta-sc ok"><b>+2</b><span>ניחוש נכון</span></div><div class="ta-sc bad"><b>−2</b><span>עליתם על מוקש</span></div></div><div class="ta-goal">${ic('trophy',30)}<b>מי שמגיע ראשון ל-20 מנצח</b></div>`,
+  packs:()=>`<div class="ta-pk">${['סרטים וסדרות','מוזיקה','ספורט','מסיבה ובילויים','ישראלי','ילדים ומשפחה'].map((n,i)=>`<span class="ta-pc p${i%3}" style="animation-delay:${(.15+i*.12).toFixed(2)}s">${n}</span>`).join('')}<span class="ta-pc mine" style="animation-delay:.9s">${ic('users',16)} המשפחה</span></div>`,
+  route:()=>`<div class="ta-rt"><svg viewBox="0 0 200 120"><path d="M20 105 C 60 100, 40 60, 90 60 S 150 30, 180 15" fill="none" stroke="#fff" stroke-width="3" stroke-dasharray="7 7" opacity=".8"/></svg>${[[10,82,3],[38,50,2],[62,42,0],[86,12,-1]].map(([x,y,st],i)=>`<span class="ta-rn${st<0?' boss':''}" style="left:${x}%;top:${y}%;animation-delay:${(.2+i*.25).toFixed(2)}s"><img src="${TA('bomb')}" alt="">${st>0?`<i>${'★'.repeat(st)}</i>`:''}</span>`).join('')}<div class="ta-rstars">★ ★ ★</div></div>`,
   done:()=>`<img class="ta-logo" src="${ASSETS.logo}" alt=""><img class="ta-bomb" src="${TA('bomb')}" alt="">`};
 const TOURS={
   home:[
     {hero:'welcome',title:'ברוכים הבאים ל-מוקש!',text:'משחק לחבר׳ה: אחד מסביר מילה, והקבוצה שלו מנחשת. חצי דקה ואתם מבינים הכל.',button:'יאללה, מתחילים'},
     {hero:'explain',title:'מסבירים, בלי להגיד את המילה',text:'אחד מקבל מילה ומסביר אותה. החברים בקבוצה שלו מנחשים. ניחשו? נקודות!'},
-    {hero:'mines',title:'ומה זה מוקש?',text:'הקבוצה השנייה בוחרת 3 מילים דומות. אם הקבוצה שלכם אומרת אחת מהן – בום! מאבדים נקודות.'},
-    {hero:'win',title:'איך מנצחים?',text:'משחקים בתורות, קבוצה מול קבוצה. הראשונים שמגיעים ל-20 נקודות – מנצחים.'},
+    {hero:'mines',title:'ומה זה מוקש?',text:'הקבוצה השנייה בוחרת 3 מילים דומות. אם הקבוצה שלכם אומרת אחת מהן — בום! מאבדים נקודות.'},
+    {hero:'win',title:'איך מנצחים?',text:'קבוצה מול קבוצה, ואפילו שלוש או ארבע קבוצות. הראשונים שמגיעים ל-20 נקודות — מנצחים.'},
+    {hero:'packs',title:'1,400 מילים — ועוד שלכם',text:'חבילות לפי נושא: סרטים, מוזיקה, ספורט, מסיבה ועוד. ואפשר לכתוב חבילות משלכם — גם ביחד עם חברים.'},
+    {hero:'route',title:'המסלול מול המחשב',text:'אין עם מי לשחק? עוברים שלב אחרי שלב, אוספים כוכבים ומנצחים את הבוסים.'},
     {target:'.hbtn.q',title:'משחק מהיר',text:'לוחצים, ותוך דקה אתם בקבוצה עם עוד אנשים. לא צריך חברים.'},
     {target:'.hbtn.y',title:'צור משחק',text:'פותחים חדר ושולחים לחברים קישור בוואטסאפ. כל אחד משחק מהטלפון שלו.'},
     {target:'.hbtn.w',title:'הצטרף למשחק',text:'חבר שלח לכם קוד? לוחצים כאן ומקלידים אותו.'},
-    {target:'.hicons button:nth-child(1)',title:'מכשיר אחד',text:'כולם ביחד בחדר עם טלפון אחד, ומעבירים אותו מיד ליד.'},
-    {target:'.hicons button:nth-child(2)',title:'מול המחשב',text:'אין עם מי לשחק? משחקים נגד המחשב, גם לבד.'},
+    {target:'.hicons button:nth-child(1)',title:'מכשיר אחד',text:'כולם ביחד עם טלפון אחד. מסבירים בקול, והמסביר רק לוחץ "בול!" או "בום!".'},
+    {target:'.hicons button:nth-child(2)',title:'מול המחשב',text:'המסלול: שלבים, כוכבים ובוסים. יש גם משחק חופשי.'},
     {target:'.hicons button:nth-child(3)',title:'איך משחקים',text:'שכחתם? לוחצים כאן וההסבר הזה חוזר.'},
-    {target:'.hello',title:'הפרופיל וההגדרות',text:'לחיצה כאן: הכינוי והתמונה, ערכות עיצוב, החבילות שלכם וקבוצות משחק.'},
+    {target:'.hello',title:'הפרופיל שלכם',text:'החשבון, ערכות עיצוב, החבילות שלכם, קבוצות משחק, סטטיסטיקות והישגים — הכל כאן.'},
     {target:'.screen.home>.topbtn',title:'מוזיקה',text:'מדליקים או מכבים את המוזיקה והצלילים.'},
-    {hero:'done',title:'זהו, אתם מוכנים!',text:'נסו משחק מהיר, או פתחו חדר לחברים.',button:'יאללה, משחקים!',confetti:true}],
+    {hero:'done',title:'זהו, אתם מוכנים!',text:'נסו משחק מהיר, פתחו חדר לחברים — או התחילו את המסלול.',button:'יאללה, משחקים!',confetti:true}],
   lobby:[
     {target:'.codebox',title:'זה קוד החדר',text:'חברים נכנסים עם הקוד הזה. לחיצה עליו מעתיקה אותו.'},
     {target:'.hdr ~ .row .btn.info, .row.between .btn.info',title:'שלחו לחברים',text:'שולחים את הקישור בוואטסאפ, ומי שלוחץ עליו נכנס ישר לחדר.'},
-    {target:'.teamcard.A',title:'הקבוצות',text:'כל מי שנכנס מצטרף לקבוצה. אפשר להעביר שחקנים בין הקבוצות.'},
+    {target:'.tcol.A',title:'הקבוצות',text:'כל מי שנכנס מצטרף לקבוצה. לחיצה על שחקן מעבירה אותו. חסר מישהו? "הוסיפו מחשב".'},
+    {target:'.settings .sum',title:'הגדרות המשחק',text:'תור-תור או על זמן, מספר קבוצות, חבילות מילים — וגם החבילות שלכם.'},
     {target:'.screen .btn.primary.big',title:'כשכולם כאן – מתחילים',text:'צריך לפחות 2 שחקנים בכל קבוצה.'}],
   trap:[
     {target:'.trapscr .opts, .trapscr .ttype',title:'בחרו 3 מוקשים',text:'מילים שהקבוצה השנייה עלולה להגיד בטעות. אמרו אחת? הם מאבדים נקודות!'},
@@ -1996,13 +2006,14 @@ const TOURS={
   guesser:[
     {target:'.chatbar input[name=g]',title:'כתבו מה אתם חושבים',text:'כל ניחוש נשלח מיד. ניחשתם נכון? נקודות לקבוצה! רק תיזהרו ממוקשים.'}]};
 const TOUR={steps:null,i:0,key:'',el:null,t:null,iv:null,passive:false};
-function tourSeen(k){try{return !!localStorage.getItem('mokesh.tour.'+k);}catch(e){return true;}}
+const TOUR_V={home:2,lobby:2};const tourKey=k=>'mokesh.tour.'+k+(TOUR_V[k]?'.v'+TOUR_V[k]:'');
+function tourSeen(k){try{return !!localStorage.getItem(tourKey(k));}catch(e){return true;}}
 const GAME_TOURS=['trap','explainer','guesser'];
 // הסבר בתוך המשחק: רק במשחק הראשון במכשיר. במכשיר אחד / מול המחשב השעון עוצר בזמן ההסבר
 function gameTourOk(S){if(!S||!S.gameId)return false;try{const g=localStorage.getItem('mokesh.tourgame');if(!g){localStorage.setItem('mokesh.tourgame',S.gameId);return true;}return g===S.gameId;}catch(e){return false;}}
 function tourStart(key,opts){const all=TOURS[key];if(!all)return;tourClose(false);TOUR.pauseAt=GAME_TOURS.includes(key)&&A.S&&A.S.mode!=='online'&&A.S.phaseEndsAt?Date.now():0;
   TOUR.steps=all.filter(s=>s.hero||document.querySelector(s.target));if(!TOUR.steps.length)return;
-  TOUR.key=key;TOUR.i=0;TOUR.passive=!!(opts&&opts.passive);try{localStorage.setItem('mokesh.tour.'+key,'1');}catch(e){}
+  TOUR.key=key;TOUR.i=0;TOUR.passive=!!(opts&&opts.passive);try{localStorage.setItem(tourKey(key),'1');localStorage.setItem('mokesh.tour.'+key,'1');}catch(e){}
   const R=document.createElement('div');R.className='tr-root'+(TOUR.passive?' passive':'');R.innerHTML='<div class="tr-spot"></div><div class="tr-ring"></div><div class="tr-hand">'+HAND+'</div><div class="tr-body"></div>';
   if(!TOUR.passive)R.addEventListener('click',e=>{if(e.target.closest('.tr-skip,.tr-next'))return;tourNext();});
   document.body.appendChild(R);TOUR.el=R;tourShow();TOUR.iv=setInterval(tourPlace,400);window.addEventListener('resize',tourPlace);}
@@ -2079,7 +2090,7 @@ function vIntro(){const pg=A.introPage||0;const last=pg===1;
   const mode=(cls,icon,t,d)=>`<div class="imode ${cls}">${ic(icon,26)}<div class="bold">${t}</div><div class="xs">${d}</div></div>`;
   const p2=`<h1 class="ititle">ניקוד ודרכי משחק</h1>
     <div class="card col" style="gap:14px">${row('ok','+2','ניחוש נכון','לקבוצה שניחשה')}${row('bad','−2','עליתם על מוקש','והיריבים מקבלים +1')}${row('ok','+1','בונוס','ניחוש ב-10 שניות, וכל רצף של 3')}${row('skip','⏭','דילוג','2 דילוגים בכל תור, בלי ניקוד (בתור-תור: −1)')}<div class="small isub tc" style="border-top:2px dashed rgba(21,16,43,.2);padding-top:12px">🏁 הראשונים ל-20 מנצחים · אחרי 5 תורים: התור האחרון כפול · תיקו = מוות פתאומי</div></div>
-    <div class="imodes">${mode('m1','join','אונליין','כל אחד מהטלפון שלו, עם קוד חדר')}${mode('m2','phone','מכשיר אחד','טלפון אחד שעובר בין כולם')}${mode('m3','robot','מול המחשב','אתם נגד המחשב')}</div>`;
+    <div class="imodes">${mode('m1','join','אונליין','כל אחד מהטלפון שלו · עד 4 קבוצות')}${mode('m2','phone','מכשיר אחד','מסבירים בקול, לוחצים "בול!" או "בום!"')}${mode('m3','robot','מול המחשב','מסלול של שלבים, כוכבים ובוסים')}</div>`;
   return `<div class="screen intro" ontouchstart="A.tx=event.touches[0].clientX" ontouchend="introSwipe(event)">
     <div class="ihead"><span class="ipage">${pg+1}/2</span>${logoHTML('ilogo pop')}<button class="btn ghost" onclick="introDone()">דלג</button></div>
     <div class="col ibody pop" style="gap:18px">${pg===0?p1:p2}</div>
