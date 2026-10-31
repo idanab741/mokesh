@@ -564,6 +564,16 @@ html.kb .sheet-bg{top:var(--vt,0px);bottom:auto;height:var(--vh,100%)}
 .spinfo{display:flex;flex-wrap:wrap;gap:6px;font-size:12px;font-weight:700}.spinfo>span{display:inline-flex;align-items:center;gap:4px;background:rgba(21,16,43,.07);border-radius:999px;padding:4px 10px}.spinfo .spb{background:var(--cyan)}
 .fold.sp .fic{background:var(--cyan)}.sheet .btn.ghost.spshare{color:var(--ink);border:2.5px dashed var(--ink)}.deck .muted{color:var(--soft)}.mycol{display:flex;flex-direction:column;align-items:flex-start;gap:2px}.dkform{display:flex;flex-direction:column;gap:8px}.dkm{display:grid;grid-template-columns:repeat(3,1fr);gap:6px}.dkm .input{font-size:15px;padding:9px 10px}
 .pkgrid{display:grid;grid-template-columns:1fr 1fr;gap:8px}.pkchip{position:relative;display:flex;flex-direction:column;align-items:flex-start;gap:2px;text-align:right;padding:10px 12px;border:2.5px solid var(--ink);border-radius:14px;background:#fff;color:var(--ink);font:inherit;cursor:pointer}
+.achh{font-family:var(--font-display);font-weight:400;font-size:17px}.achs{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.ach{position:relative;overflow:hidden;display:flex;flex-direction:column;align-items:center;gap:3px;text-align:center;padding:10px 4px 9px;border:2.5px dashed rgba(21,16,43,.3);border-radius:16px;background:rgba(21,16,43,.04);color:var(--soft)}
+.ach b{font-size:12.5px;line-height:1.15;color:var(--soft)}.ach .achd{font-size:10.5px;font-weight:700;line-height:1.2}.ach .achi{width:38px;height:38px;border-radius:50%;display:grid;place-items:center;background:rgba(21,16,43,.08);color:rgba(21,16,43,.35)}
+.ach.ok{border:2.5px solid var(--ink);background:#fff;color:var(--ink);box-shadow:0 3px 0 var(--ink)}.ach.ok b{color:var(--ink)}.ach.ok .achi{background:var(--yellow);color:var(--ink);border:2px solid var(--ink)}
+.achp{position:absolute;left:0;bottom:0;height:4px;width:calc(var(--p)*100%);background:var(--green)}
+.achpop{position:fixed;top:max(14px,env(safe-area-inset-top));left:14px;right:14px;margin:0 auto;max-width:360px;z-index:3500;display:flex;align-items:center;gap:12px;background:var(--yellow);color:var(--ink);border:var(--o);border-radius:20px;box-shadow:var(--sh);padding:10px 12px}
+.achpop .achi{width:46px;height:46px;border-radius:50%;background:#fff;border:2.5px solid var(--ink);display:grid;place-items:center}.achpop b{font-family:var(--font-display);font-weight:400;font-size:20px}
+.hlist{display:flex;flex-direction:column;gap:8px}.hrow{display:flex;align-items:center;gap:10px;background:#fff;border:2.5px solid var(--ink);border-radius:14px;padding:8px 10px}.hrow .xs{color:var(--soft)}
+.hres{flex:none;width:64px;text-align:center;font-family:var(--font-display);font-size:15px;border-radius:10px;padding:6px 0;border:2px solid var(--ink)}.hrow.win .hres{background:var(--green)}.hrow.lose .hres{background:#FFB4AE}.hrow.tie .hres,.hrow.none .hres{background:var(--yellow)}
+.hc{flex:none;display:flex;align-items:center;gap:3px;font-weight:800;font-size:13px}
 .dlg-bg{position:fixed;inset:0;z-index:4000;background:rgba(21,16,43,.6);display:flex;align-items:center;justify-content:center;padding:18px}
 .dlg{width:100%;max-width:26rem;background:var(--paper);color:var(--ink);border:var(--o);border-radius:26px;box-shadow:0 8px 0 var(--ink);padding:22px 18px 16px;display:flex;flex-direction:column;gap:12px;text-align:center}
 .dlgi{width:64px;height:64px;margin:-54px auto 0;border-radius:50%;background:var(--yellow);border:var(--o);box-shadow:var(--sh-sm);display:grid;place-items:center}.dlgi.bad{background:var(--trap-bg);color:#fff}
@@ -1563,11 +1573,54 @@ function friendLink(){return location.origin+location.pathname+'?f='+(A.prof?A.p
 async function shareFriendCode(){const link=friendLink();const data={title:'מוקש!',text:'בוא/י נהיה חברים במוקש! הקוד שלי: '+A.prof.friend_code,url:link};
   try{if(navigator.share){await navigator.share(data);return;}}catch(e){if(e&&e.name==='AbortError')return;}try{await navigator.clipboard.writeText(link);toast('הקישור הועתק');}catch(e){toast(link);}}
 // סטטיסטיקות: בסוף כל משחק אונליין (או מול המחשב עם שחקן אחד) נרשמת התוצאה פעם אחת לחשבון
-function recordGame(S){if(!A.user||!S||S.phase!=='GAME_OVER'||!S.gameOver)return;let p=S.players.find(x=>x.id===A.user.id);
-  if(!p&&S.mode==='ai'){const hs=S.players.filter(x=>!isBot(x.id));if(hs.length===1)p=hs[0];}if(!p)return;
-  const key=(S.code||'ai')+':'+(S.gameId||'')+':'+S.gameOver.score.A+'-'+S.gameOver.score.B;let done=[];try{done=JSON.parse(localStorage.getItem('mokesh.recorded')||'[]');}catch(e){}if(done.includes(key))return;
-  done=[key,...done].slice(0,30);try{localStorage.setItem('mokesh.recorded',JSON.stringify(done));}catch(e){}
-  const g=S.gameOver;sb.rpc('mokesh_record_game',{p_won:g.winner===p.team,p_correct:p.stats.correct||0,p_traps:p.stats.traps||0,p_mvp:!!(g.mvp&&g.mvp.name===p.name)}).then(()=>loadFriends());}
+// ---------- היסטוריה, סטטיסטיקות והישגים ----------
+// כל משחק שנגמר נשמר בטלפון (גם לאורחים). מחוברים: גם בחשבון, והסטטיסטיקות של החשבון הן העיקריות
+function histLoad(){try{const h=JSON.parse(localStorage.getItem('mokesh.hist')||'[]');return Array.isArray(h)?h:[];}catch(e){return [];}}
+function statsFrom(hist){const s={games:0,wins:0,correct:0,traps:0,expl:0,mvp:0,cur:0,best:0,clean:0,night:0,online:0,local:0,ai:0,big:0};
+  for(const g of hist.slice().reverse()){s.games++;if(g.res==='win'){s.wins++;s.cur++;s.best=Math.max(s.best,s.cur);if(!g.teamTraps)s.clean++;}else if(g.res!=='none')s.cur=0;
+    s.correct+=g.correct||0;s.traps+=g.traps||0;s.expl+=g.expl||0;if(g.mvp)s.mvp++;if(new Date(g.at).getHours()<5)s.night++;if(s[g.mode]!=null)s[g.mode]++;if((g.players||0)>=8)s.big++;}return s;}
+function myStats(){const loc=statsFrom(histLoad());const srv=A.prof&&A.prof.stats&&typeof A.prof.stats==='object'?A.prof.stats:null;if(!srv)return loc;const o={};for(const k of Object.keys(loc))o[k]=Math.max(Number(srv[k])||0,loc[k]);return o;}
+const ACH=[
+  ['first','יריית פתיחה','שיחקתם משחק ראשון',s=>s.games,1,'play'],
+  ['g10','שחקן קבוע','10 משחקים',s=>s.games,10,'star'],
+  ['g50','ותיק','50 משחקים',s=>s.games,50,'trophy'],
+  ['w1','ניצחון ראשון','ניצחתם משחק',s=>s.wins,1,'trophy'],
+  ['w10','מכונת ניצחונות','10 ניצחונות',s=>s.wins,10,'crown'],
+  ['streak3','על הגל','3 ניצחונות ברצף',s=>s.best,3,'flame'],
+  ['c50','קורא מחשבות','50 ניחושים נכונים',s=>s.correct,50,'target'],
+  ['x25','מסביר מלידה','הסברתם 25 מילים שנוחשו',s=>s.expl,25,'chat'],
+  ['mvp5','כוכב המסיבה','5 פעמים השחקן הכי טוב',s=>s.mvp,5,'star'],
+  ['clean','יד נקייה','ניצחון בלי אף מוקש',s=>s.clean,1,'check'],
+  ['boom20','מגנט למוקשים','עליתם על 20 מוקשים',s=>s.traps,20,'flame'],
+  ['night','ינשוף לילה','משחק אחרי חצות',s=>s.night,1,'star'],
+  ['big','מסיבה גדולה','משחק עם 8 שחקנים ומעלה',s=>s.big,1,'users'],
+  ['all','בכל המגרשים','שיחקתם אונליין, במכשיר אחד ומול המחשב',s=>(s.online?1:0)+(s.local?1:0)+(s.ai?1:0),3,'bolt']];
+const achDone=s=>ACH.filter(a=>a[3](s)>=a[4]).map(a=>a[0]);
+function recordGame(S){if(!S||S.phase!=='GAME_OVER'||!S.gameOver)return;const g=S.gameOver;
+  const key=(S.code||S.mode)+':'+(S.gameId||'')+':'+TEAM_IDS.map(t=>g.score[t]||0).join('-');let done=[];try{done=JSON.parse(localStorage.getItem('mokesh.recorded')||'[]');}catch(e){}if(done.includes(key))return;
+  done=[key,...done].slice(0,40);try{localStorage.setItem('mokesh.recorded',JSON.stringify(done));}catch(e){}
+  let p=S.players.find(x=>x.id===myId());if(!p&&S.mode==='ai'){const hs=S.players.filter(x=>!isBot(x.id));if(hs.length===1)p=hs[0];}const local=S.mode==='local';if(S.mode==='local')p=null;
+  const my=p?p.team:null;const res=!my?'none':g.winner==='tie'?'tie':g.winner===my?'win':'lose';const others=t=>S.players.filter(x=>x.team===t&&x.id!==(p&&p.id)).map(x=>isBot(x.id)?'מחשב':x.name);
+  const tl=g.teams||teamsOf(S);const e={at:Date.now(),key,mode:S.mode,res,my,teams:tl.length,score:tl.map(t=>g.score[t]||0),win:g.winner,
+    mates:my?others(my):[],opp:my?tl.filter(t=>t!==my).flatMap(others):S.players.map(x=>x.name),players:S.players.length,
+    correct:p?p.stats.correct||0:0,traps:p?p.stats.traps||0:0,expl:p?p.stats.expl||0:0,mvp:!!(p&&g.mvp&&g.mvp.name===p.name),teamTraps:my?(g.trapsTotal||{})[my]||0:0,local};
+  const before=achDone(myStats());const h=[e,...histLoad()].slice(0,60);try{localStorage.setItem('mokesh.hist',JSON.stringify(h));}catch(x){}
+  const after=()=>{const n=achDone(myStats()).filter(k=>!before.includes(k));if(n.length){const a=ACH.find(x=>x[0]===n[0]);A.newAch=a;haptic([40,60,40]);render();setTimeout(()=>{A.newAch=null;render();},4500);}};
+  if(A.user&&sb){sb.rpc('mokesh_record_game2',{p_key:key,p:e}).then(r=>{if(r&&r.data&&A.prof)A.prof.stats=r.data;after();},()=>after());}else after();}
+function vStatsSec(){const s=myStats();const done=achDone(s);const t=(n,l)=>`<div class="stt"><b>${n}</b><span>${l}</span></div>`;const g=s.games;
+  const tiles=`<div class="stts">${t(g,'משחקים')}${t(s.wins,'ניצחונות')}${t(g&&s.wins?Math.round(s.wins*100/Math.max(1,g-s.local))+'%':'—','אחוז ניצחון')}${t(s.correct,'ניחושים נכונים')}${t(s.expl,'הסברים')}${t(s.best,'רצף שיא')}</div>`;
+  const ach=ACH.map(a=>{const v=Math.min(a[3](s),a[4]);const ok=done.includes(a[0]);return `<div class="ach${ok?' ok':''}" title="${h(a[2])}"><span class="achi">${ic(a[5],22)}</span><b>${a[1]}</b><span class="achd">${ok?a[2]:a[4]>1?`${v}/${a[4]}`:a[2]}</span>${!ok&&a[4]>1?`<i class="achp" style="--p:${v/a[4]}"></i>`:''}</div>`;}).join('');
+  return `${g?tiles:`<div class="xs" style="margin-top:-4px">שחקו משחק ראשון — והסטטיסטיקות וההישגים יופיעו כאן.</div>`}
+    <div class="row between"><b class="achh">הישגים · ${done.length}/${ACH.length}</b>${histLoad().length||A.user?`<button class="mylnk" onclick="openHist()">המשחקים האחרונים</button>`:''}</div>
+    <div class="achs">${ach}</div>${A.user?'':`<div class="xs">${ic('star',12)} פתחו חשבון כדי שההישגים יישמרו גם בטלפון אחר</div>`}`;}
+async function openHist(){A.histOpen=true;A.histRows=null;render();let rows=histLoad();
+  if(A.user&&sb){try{const {data}=await sb.from('mokesh_history').select('at,d').eq('user_id',A.user.id).order('at',{ascending:false}).limit(40);if(data&&data.length){const seen=new Set(rows.map(r=>r.key));rows=[...rows,...data.map(x=>({...x.d,at:Date.parse(x.at)||x.d.at})).filter(r=>!seen.has(r.key))].sort((a,b)=>b.at-a.at);}}catch(e){}}
+  A.histRows=rows.slice(0,40);render();}
+function vHist(){const rows=A.histRows;const ago=ts=>{const m=Math.round((Date.now()-ts)/60000);return m<1?'עכשיו':m<60?`לפני ${m} דק׳`:m<1440?`לפני ${Math.round(m/60)} שע׳`:new Date(ts).toLocaleDateString('he-IL',{day:'numeric',month:'numeric'});};
+  const M={online:'אונליין',local:'מכשיר אחד',ai:'מול המחשב'};const R={win:['ניצחון','win'],lose:['הפסד','lose'],tie:['תיקו','tie'],none:['משחק','none']};
+  const row=g=>{const r=R[g.res]||R.none;const sc0=g.score||[];const mi=g.my?['A','B','C','D'].indexOf(g.my):-1;const sc=mi>=0?[sc0[mi],...sc0.filter((_,i)=>i!==mi)].join(' : '):sc0.join(' : ');return `<div class="hrow ${r[1]}"><div class="hres">${r[0]}</div><div class="col" style="gap:2px;min-width:0;flex:1"><b>${mi>=0?'אנחנו ':''}${sc}</b><span class="xs">${M[g.mode]||''} · ${ago(g.at)}${g.mates&&g.mates.length?' · עם '+g.mates.slice(0,3).map(h).join(', '):''}</span></div>${g.correct?`<span class="hc">${ic('check',14)} ${g.correct}</span>`:''}</div>`;};
+  return `<div class="sheet-bg top" onclick="A.histOpen=false;render()"><div class="sheet pop deck" onclick="event.stopPropagation()"><div class="row between"><div class="black" style="font-size:22px">המשחקים האחרונים</div><button class="btn ghost" onclick="A.histOpen=false;render()">סגירה</button></div>
+    ${rows==null?`<div class="tc small muted pulse" style="padding:20px">טוען…</div>`:rows.length?`<div class="hlist">${rows.map(row).join('')}</div>`:`<div class="tc small muted" style="padding:20px">עוד לא שיחקתם</div>`}</div></div>`;}
 // ---------- מסכי חשבון ----------
 function statTiles(st){st=st||{};const N=x=>Number(x)||0;st={games:N(st.games),wins:N(st.wins),correct:N(st.correct),traps:N(st.traps),mvp:N(st.mvp)};const g=st.games||0,w=st.wins||0;const t=(n,l)=>`<div class="stt"><b>${n}</b><span>${l}</span></div>`;
   return `<div class="stts">${t(g,'משחקים')}${t(w,'ניצחונות')}${t(g?Math.round(w*100/g)+'%':'—','אחוז ניצחון')}${t(st.correct||0,'ניחושים נכונים')}${t(st.traps||0,'מוקשים')}${t(st.mvp||0,'MVP')}</div>`;}
@@ -1765,6 +1818,8 @@ function render(){const S=A.S;let html='';applyTeamColors(S);applyTheme(S);if(S&
   if(S&&A.roomChat&&S.mode==='online')html+=vRoomChat(S);
   if(A.newVer)html+=`<button class="newver" onclick="location.reload()">יש גרסה חדשה של המשחק — לחצו לעדכון</button>`;
   if(A.sheet)html+=vSheet();
+  if(A.histOpen)html+=vHist();
+  if(A.newAch)html+=`<div class="achpop pop"><span class="achi">${ic(A.newAch[5],26)}</span><div class="col" style="gap:1px"><span class="xs">הישג חדש!</span><b>${A.newAch[1]}</b><span class="xs">${A.newAch[2]}</span></div></div>`;
   if(A.dlg)html+=vDlg();
   if(A.inviteBar)html+=vInviteBar();
   if(A.toast)html+=`<div class="toast pop" role="alert">${h(A.toast)}</div>`;
@@ -2030,6 +2085,7 @@ function vSettingsPage(){if(A.user&&!A.groupsAt||A.user&&Date.now()-A.groupsAt>6
     ${A.avOpen?`<div class="avgrid">${avPhotoTile(c.avatar,'me')}${AVATARS.map(a=>`<button class="${a===c.avatar?'on':''}" onclick="A.chosen.avatar='${a}';saveProfile();render()">${avInner(a)}</button>`).join('')}</div>`:''}
     ${vAccount()}`)}
   ${sec('crown','פרימיום',`<button class="srow" onclick="A.premReason='';A.sheet='premium';render()"><span class="col" style="gap:1px"><b>${prem?'פרימיום פעיל':'מוקש! פרימיום'}</b><span class="xs">${PREMIUM_FREE?'בחינם עכשיו · מבצע השקה':prem?'כל האפשרויות פתוחות':'משחקים בלי הגבלה, חבילות, ערכות ועוד'}</span></span>${ic('chev',20)}</button>`)}
+  ${sec('trophy','הסטטיסטיקות שלי',vStatsSec())}
   ${sec('users','קבוצות משחק',vGroups())}
   ${sec('star','ערכת עיצוב',vThemeHome(),lock)}
   ${sec('book','החבילות שלי',`<div class="xs" style="margin-top:-4px">חבילות מילים שאתם כותבים, למשל "המשפחה" או "החברים". בחדר הן נכנסות למשחק דרך "חבילות מילים".</div>
