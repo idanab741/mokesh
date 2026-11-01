@@ -1432,7 +1432,9 @@ function botClue(c,n,S){const tr=((S&&S.traps)||[]).map(normalize).filter(Boolea
 function keyHits(c,clues){const txt=normalize(clues.join(' '));const toks=txt.split(' ').flatMap(t=>{const v=[t];let m=t;for(let i=0;i<2&&/^[והבלמשכ]/.test(m)&&m.length>3;i++){m=m.slice(1);v.push(m);}return v;});
   return c.keys.filter(k0=>{const k=normalize(k0);if(!k)return false;if(k.includes(' '))return txt.includes(k);const st=k.length>=4&&k.endsWith('ה')?k.slice(0,-1):k;return toks.some(t=>t===k||(k.length>=3&&t.startsWith(st)&&t.length-st.length<=3));}).length;}
 async function botGuessFor(S,c){const from=S.cardAt||0;const prev=S.guesses.filter(x=>x.at>=from).map(x=>x.text);const tried=new Set(prev.map(normalize));if(tried.has(normalize(c.target)))return null;
-  const n=S.clues.length;const wrong=()=>{const pool=c.options.filter(o=>!tried.has(normalize(o)));return pool.length?pool[Math.floor(Math.random()*pool.length)]:c.target;};
+  const n=S.clues.length;const mines=new Set((S.traps||[]).map(normalize));
+  // ניחוש שגוי: מילה קרובה מהרשימה, אבל לא מוקש. רק לפעמים (8%) המחשב נופל על מוקש, כמו שחקן אמיתי
+  const wrong=()=>{const free=c.options.filter(o=>!tried.has(normalize(o)));const safe=free.filter(o=>!mines.has(normalize(o)));const pool=safe.length&&Math.random()>=0.08?safe:free;return pool.length?pool[Math.floor(Math.random()*pool.length)]:c.target;};
   // כשהמחשב גם מסביר: תסריט — כמה טעויות ואז מגיע לתשובה
   if(isBot(S.explainerId))return Math.random()<([0.12,0.3,0.5,0.7,0.85,0.95][n-1]??1)?c.target:wrong();
   const hits=keyHits(c,S.clues.map(x=>x.text));if(hits>=2||(hits>=1&&n>=2))return c.target;
