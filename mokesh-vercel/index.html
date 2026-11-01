@@ -7,7 +7,7 @@
 (function(){var L=null;try{L=localStorage.getItem('mokesh.lang');}catch(e){}
   if(L!=='he'&&L!=='en'){var ls=(navigator.languages||[navigator.language||'']).join(',');var tz='';try{tz=Intl.DateTimeFormat().resolvedOptions().timeZone||'';}catch(e){}
     L=/(^|,)(he|iw)/i.test(ls)||/Jerusalem|Tel_Aviv/.test(tz)?'he':'en';}
-  window.LANG=L;if(L==='en'){var d=document.documentElement;d.lang='en';d.dir='ltr';document.write('<script src="i18n/en.js?v=1"><\/script>');}})();
+  window.LANG=L;if(L==='en'){var d=document.documentElement;d.lang='en';d.dir='ltr';document.write('<script src="i18n/en.js?v=2"><\/script>');}})();
 </script>
 <meta name="theme-color" content="#2B3BFF">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, interactive-widget=resizes-content">
@@ -653,7 +653,7 @@ html.kb .sheet-bg{top:var(--vt,0px);bottom:auto;height:var(--vh,100%)}
 .fopen{flex:1;display:flex;align-items:center;gap:10px;background:none;border:0;padding:0;text-align:start;color:var(--ink);font:inherit;min-width:0;cursor:pointer}.fopen b{font-size:17px}.fopen .muted{color:var(--soft)}
 .fic{flex:none;width:38px;height:38px;border-radius:12px;border:2.5px solid var(--ink);background:var(--paper);display:grid;place-items:center}
 .fsw{position:relative;flex:none;width:52px;height:30px}.fsw input{position:absolute;opacity:0;inset:0;margin:0;cursor:pointer;z-index:1}.fsw span{position:absolute;inset:0;border-radius:99px;background:#CFCBE3;border:2.5px solid var(--ink)}
-.fsw span::after{content:"";position:absolute;top:2px;right:2px;width:21px;height:21px;border-radius:50%;background:#fff;border:2px solid var(--ink);transition:transform .15s}.fsw input:checked+span{background:var(--green)}.fsw input:checked+span::after{transform:translateX(-22px)}
+.fsw span::after{content:"";position:absolute;top:2px;right:2px;width:21px;height:21px;border-radius:50%;background:#fff;border:2px solid var(--ink);transition:transform .15s}.fsw input:checked+span{background:var(--green)}.fsw input:checked+span::after{transform:translateX(-22px)}html[dir=ltr] .fsw span::after{right:auto;left:2px}html[dir=ltr] .fsw input:checked+span::after{transform:translateX(22px)}
 .ourw{display:flex;flex-direction:column;gap:10px;border:2.5px dashed var(--ink);border-radius:16px;padding:12px;background:#fff}.ourw.on{border-style:solid;background:var(--yellow)}.ourw .muted{color:var(--soft)}
 .ouronly{display:flex;align-items:center;gap:8px;font-weight:700;font-size:14px}.ouronly input{width:20px;height:20px;accent-color:var(--ink)}
 .tjoin.tbot{display:flex;align-items:center;justify-content:center;gap:6px}
@@ -803,6 +803,15 @@ html.kb .screen{gap:8px;padding:10px 12px}
 .stile .mates .m.ex{box-shadow:0 0 0 2px var(--yellow);z-index:1}
 .stile .mnames{font-size:10px;font-weight:700;margin-top:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%}
 html.kb .stile .mates,html.kb .stile .mnames{display:none}
+/* מסך נמוך (רוב טלפוני האנדרואיד, ובמיוחד עם שורת הכתובת): המשחק נדחס כדי שהרמזים ושורת ההקלדה ייכנסו */
+@media (max-height:760px){.screen.lock{gap:8px;padding:10px 12px}.screen.lock .hud{gap:8px}
+ .screen.lock .stile{padding:4px 8px}.screen.lock .stile .n{font-size:28px}.screen.lock .stile .l{margin:0;font-size:12px}.screen.lock .stile .mnames{display:none}
+ .screen.lock .bombclock{width:70px;height:68px}.screen.lock .bombclock .t{font-size:14px}.screen.lock .fuse{margin-top:4px}
+ .screen.lock .tools .tbtn,.screen.lock .tools>button{width:38px;height:38px}
+ .screen.lock .wordcard{padding:4px 12px 6px}.screen.lock .wordcard .l{font-size:12px}.screen.lock .wordcard .target{font-size:clamp(26px,9vw,38px)}
+ .screen.lock .trapgrid{gap:6px}.screen.lock .trapgrid .trap{padding:6px 4px;font-size:16px}
+ .screen.lock .ctrl .btn,.screen.lock .ctrl .pill{padding:6px 12px;font-size:15px;min-height:0}}
+@media (max-height:680px){.screen.lock .stile .mates{display:none}.screen.lock .rolebar{padding:4px 12px;font-size:14px}.screen.lock .sublabel{display:none}}
 .sheet .isub{color:var(--soft)}
 .stile{position:relative}
 .stile .me{position:absolute;top:-11px;left:50%;transform:translateX(-50%) rotate(-3deg);background:#fff;color:var(--ink);border:2.5px solid var(--ink);border-radius:999px;padding:0 9px;font-size:11px;font-weight:900;white-space:nowrap;box-shadow:0 2px 0 var(--ink)}
@@ -842,7 +851,7 @@ const avOk=a=>AVATARS.includes(a)||isPhoto(a);
 const AV_COLORS={c1:'#FFB800',c2:'#3B82F6',c3:'#FF4757',c4:'#2ECC71',c5:'#A855F7',c6:'#F97316',c7:'#14B8A6'};
 const ICONS={globe:'<circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c3.2 3.6 3.2 14.4 0 18M12 3c-3.2 3.6-3.2 14.4 0 18"/>',lock:'<rect x="5" y="10.5" width="14" height="10" rx="2.5"/><path d="M8 10.5V8a4 4 0 0 1 8 0v2.5"/>',camera:'<path d="M4 8.5A2.5 2.5 0 0 1 6.5 6h1.8l1.4-2h4.6l1.4 2h1.8A2.5 2.5 0 0 1 20 8.5v8A2.5 2.5 0 0 1 17.5 19h-11A2.5 2.5 0 0 1 4 16.5z"/><circle cx="12" cy="12.5" r="3.4"/>',star:'<path d="M12 3l2.7 5.6 6.1.9-4.4 4.3 1 6.1L12 17l-5.4 2.9 1-6.1-4.4-4.3 6.1-.9z"/>',check:'<path d="M5 12.5l4.5 4.5L19 7.5"/>',bolt:'<path d="M13 2 4 14h7l-1 8 9-12h-7z" fill="currentColor" stroke="none"/>',chev:'<path d="M15 6l-6 6 6 6"/>',flame:'<path d="M12 21.5c3.9 0 6.5-2.6 6.5-6.3 0-3.9-3-6.2-4.4-10.7-2.3 1.6-3.4 3.9-3.3 6.4-1.3-.6-2.1-1.9-2.2-3.2-1.9 1.9-3.1 4.6-3.1 7.4 0 3.8 2.6 6.4 6.5 6.4z"/>',timer:'<circle cx="12" cy="13.5" r="7.5"/><path d="M12 9.5v4l2.5 2M9.5 2.5h5M12 2.5V6M18.5 6.5l1.5-1.5"/>',swap:'<path d="M4 9h13l-3.5-3.5M20 15H7l3.5 3.5"/>',chat:'<path d="M20.5 11.5a8 8 0 0 1-11.7 7.1L3.5 20l1.4-4.9a8 8 0 1 1 15.6-3.6z"/><path d="M8.5 11.5h.01M12.5 11.5h.01M16.5 11.5h.01" stroke-width="3"/>',headset:'<path d="M4 14v-2a8 8 0 0 1 16 0v2"/><rect x="3" y="13.5" width="4.5" height="6.5" rx="1.6"/><rect x="16.5" y="13.5" width="4.5" height="6.5" rx="1.6"/>',micOff:'<rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5.5 11.5a6.5 6.5 0 0 0 13 0M12 18v3M9 21h6M3.5 3.5l17 17"/>',more:'<circle cx="5.5" cy="12" r="1.7" fill="currentColor"/><circle cx="12" cy="12" r="1.7" fill="currentColor"/><circle cx="18.5" cy="12" r="1.7" fill="currentColor"/>',music:'<path d="M9 18V5l11-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="17" cy="16" r="3"/>',musicOff:'<path d="M9 18V5l11-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="17" cy="16" r="3"/><path d="M3 3l18 18"/>',users:'<path d="M16 19v-1.5a3.5 3.5 0 0 0-3.5-3.5h-5A3.5 3.5 0 0 0 4 17.5V19"/><circle cx="10" cy="7.5" r="3.5"/><path d="M20 19v-1.5a3.5 3.5 0 0 0-2.6-3.4M15.5 4.2a3.5 3.5 0 0 1 0 6.6"/>',join:'<rect x="3.5" y="3.5" width="7" height="7" rx="1.5"/><rect x="13.5" y="3.5" width="7" height="7" rx="1.5"/><rect x="3.5" y="13.5" width="7" height="7" rx="1.5"/><path d="M14 14h2.5v2.5H14zM18.5 14H21M14 18.5v2.5M18.5 18.5H21v2.5"/>',book:'<path d="M4 5.5A2.5 2.5 0 0 1 6.5 3H20v15H6.5A2.5 2.5 0 0 0 4 20.5z"/><path d="M4 18A2.5 2.5 0 0 1 6.5 15.5H20M9 7.5h7M9 11h5"/>',robot:'<rect x="4" y="8" width="16" height="12" rx="3"/><circle cx="9" cy="14" r="1.4" fill="currentColor" stroke="none"/><circle cx="15" cy="14" r="1.4" fill="currentColor" stroke="none"/><path d="M12 8V5M2 13v3M22 13v3M9.5 17.5h5"/><circle cx="12" cy="4" r="1.2" fill="currentColor" stroke="none"/>',phone:'<rect x="6.5" y="2.5" width="11" height="19" rx="2.5"/><path d="M10.5 18.5h3M10 2.5h4"/>',gear:'<circle cx="12" cy="12" r="3"/><path d="M12 2.5v2.3M12 19.2v2.3M2.5 12h2.3M19.2 12h2.3M5.3 5.3l1.6 1.6M17.1 17.1l1.6 1.6M5.3 18.7l1.6-1.6M17.1 6.9l1.6-1.6"/>',play:'<path d="M7 4.5v15l12-7.5z" fill="currentColor" stroke="none"/>',share:'<circle cx="18" cy="5.5" r="2.5"/><circle cx="6" cy="12" r="2.5"/><circle cx="18" cy="18.5" r="2.5"/><path d="M8.2 10.8l7.6-4.1M8.2 13.2l7.6 4.1"/>',copy:'<rect x="9" y="9" width="11" height="11" rx="2"/><path d="M5 15V5.5A1.5 1.5 0 0 1 6.5 4H15"/>',back:'<path d="M15 5l-7 7 7 7"/>',help:'<circle cx="12" cy="12" r="9"/><path d="M9.5 9.5a2.5 2.5 0 1 1 3.5 2.3c-.7.3-1 .8-1 1.5V14"/><circle cx="12" cy="17" r="1" fill="currentColor" stroke="none"/>',skip:'<path d="M4 5.5v13l8-6.5zM12 5.5v13l8-6.5z" fill="currentColor" stroke="none"/>',mic:'<rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5.5 11.5a6.5 6.5 0 0 0 13 0M12 18v3M9 21h6"/>',keyboard:'<rect x="2.5" y="6" width="19" height="12" rx="2"/><path d="M6 10h.01M10 10h.01M14 10h.01M18 10h.01M6 14h.01M9 14h6M18 14h.01"/>',send:'<path d="M3.5 12L20.5 4l-3.5 16-5-6.5zM12 13.5l8.5-9.5"/>',crown:'<path d="M3 17l1.5-10 5 4.5L12 5l2.5 6.5 5-4.5L21 17z" fill="currentColor" stroke="none"/><path d="M4 19.5h16"/>',target:'<circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="5"/><circle cx="12" cy="12" r="1.5" fill="currentColor" stroke="none"/>',trophy:'<path d="M8 4h8v5a4 4 0 0 1-8 0zM8 6H5a3 3 0 0 0 3 4M16 6h3a3 3 0 0 1-3 4M12 13v4M8.5 20h7M10 17h4v3h-4z"/>'};
 function ic(n,size=22,cls=''){if(n==='chev')cls+=' flipx';return `<svg class="ic ${cls}" width="${size}" height="${size}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${ICONS[n]||''}</svg>`;}
-const TEAM_NAME_BASE={A:'קבוצה א׳',B:'קבוצה ב׳',C:'קבוצה ג׳',D:'קבוצה ד׳'};
+const TEAM_NAME_BASE=window.LANG==='en'?{A:'Team A',B:'Team B',C:'Team C',D:'Team D'}:{A:'קבוצה א׳',B:'קבוצה ב׳',C:'קבוצה ג׳',D:'קבוצה ד׳'};
 // 2–4 קבוצות (פרימיום): התור עובר לפי הסדר, והקבוצה הבאה בתור היא זו שטומנת מוקשים לקבוצה שמשחקת
 const TEAM_IDS=['A','B','C','D'];
 function teamsOf(S){const n=S&&S.mode!=='ai'&&!S.vsBots&&!S.public?Math.max(2,Math.min(4,+(S.settings&&S.settings.teams)||2)):2;return TEAM_IDS.slice(0,n);}
@@ -850,10 +859,15 @@ function nextTeam(S,t,list){const L=list||teamsOf(S);const i=L.indexOf(t);return
 function oppOf(S,t){return nextTeam(S,t||S.activeTeam);}
 // צורות דקדוקיות לשמות הקבוצות: במצב מול המחשב הקבוצות הן "אתם" ו"המחשב", ואי אפשר להדביק להן "של"/"ל"
 const isAIgame=()=>!!(A&&A.S&&(A.S.mode==='ai'||A.S.vsBots));
-const TG={of:t=>isAIgame()?(t==='A'?'שלכם':'של המחשב'):'של '+TEAM_NAME_BASE[t],
+// באנגלית: הצורות כבר באנגלית, והתבנית שסביבן מתורגמת דרך המילון
+const TG_EN={of:t=>isAIgame()?(t==='A'?'of your team':'of the computer'):'of '+TEAM_NAME_BASE[t],
+  to:t=>isAIgame()?(t==='A'?'for your team':'for the computer'):'for '+TEAM_NAME_BASE[t],
+  won:t=>isAIgame()?(t==='A'?'You won!':'The computer won!'):TEAM_NAME_BASE[t]+' wins!',
+  needs:t=>isAIgame()?(t==='A'?'You need to guess':'The computer needs to guess'):TEAM_NAME_BASE[t]+' needs to guess'};
+const TG=window.LANG==='en'?TG_EN:{of:t=>isAIgame()?(t==='A'?'שלכם':'של המחשב'):'של '+TEAM_NAME_BASE[t],
   to:t=>isAIgame()?(t==='A'?'לכם':'למחשב'):'ל'+TEAM_NAME_BASE[t],
   won:t=>isAIgame()?(t==='A'?'ניצחתם!':'המחשב ניצח!'):TEAM_NAME_BASE[t]+' ניצחה!',
-  needs:t=>isAIgame()?(t==='A'?'אתם צריכים לנחש':'המחשב צריך לנחש'):TEAM_NAME_BASE[t]+' צריכה לנחש'};const TEAM_NAME=new Proxy({},{get:(_,t)=>A&&A.S&&(A.S.mode==='ai'||A.S.vsBots)?(t==='A'?'אתם':'המחשב'):TEAM_NAME_BASE[t]});
+  needs:t=>isAIgame()?(t==='A'?'אתם צריכים לנחש':'המחשב צריך לנחש'):TEAM_NAME_BASE[t]+' צריכה לנחש'};const TEAM_NAME=new Proxy({},{get:(_,t)=>A&&A.S&&(A.S.mode==='ai'||A.S.vsBots)?(t==='A'?(window.LANG==='en'?'You':'אתם'):(window.LANG==='en'?'Computer':'המחשב')):TEAM_NAME_BASE[t]});
 const DEFAULTS = {turnsPerTeam:5,turnSeconds:60,trapSeconds:25,difficulty:'all',maxSkips:2,target:20,wordMode:0,customTraps:0,teams:2,myDeck:0,packs:1,cA:0,cB:1,cC:2,cD:3,theme:0};
 const T = {CORRECT:2200,TRAP:5000,SKIP:1100,SUMMARY:6000,SUMMARY_WORD:3500,PREP:1500,MAX_HISTORY:12};
 
@@ -862,7 +876,7 @@ const T = {CORRECT:2200,TRAP:5000,SKIP:1100,SUMMARY:6000,SUMMARY_WORD:3500,PREP:
 function hasPhrase(n,m){if(!n||!m)return false;const a=n.split(' '),b=m.split(' ');
   for(let i=0;i+b.length<=a.length;i++){if(b.every((w,j)=>{const x=a[i+j];return x===w||(j===0&&x.length===w.length+1&&'והבלכמש'.includes(x[0])&&x.slice(1)===w);}))return true;}return false;}
 const FINALS = {'ך':'כ','ם':'מ','ן':'נ','ף':'פ','ץ':'צ'};
-function normalize(s){return String(s).toLowerCase().replace(/[\u0591-\u05C7]/g,'').replace(/[^\u05D0-\u05EA0-9a-z\s]/g,' ').replace(/[ךםןףץ]/g,c=>FINALS[c]).replace(/\s+/g,' ').trim();}
+function normalize(s){return String(s).toLowerCase().replace(/[\u0591-\u05C7]/g,'').replace(/['"`\u05F3\u05F4\u2018\u2019\u201C\u201D]/g,'').replace(/[^\u05D0-\u05EA0-9a-z\s]/g,' ').replace(/[ךםןףץ]/g,c=>FINALS[c]).replace(/\s+/g,' ').trim();}
 function variants(n){const out=new Set([n]);const w=n.split(' ');const fill=new Set(['זה','זאת','אולי','אה','אממ','הממ','או','יש']);
   if(w.length>1&&fill.has(w[0]))out.add(w.slice(1).join(' '));
   for(const v of [...out]){if(v.length>3&&(v[0]==='ו'||v[0]==='ה'))out.add(v.slice(1));if(v.length>4&&v.startsWith('וה'))out.add(v.slice(2));}
@@ -870,8 +884,15 @@ function variants(n){const out=new Set([n]);const w=n.split(' ');const fill=new 
 function matchGuess(raw,card,traps){const n=normalize(raw);if(!n)return{kind:'miss'};const c=new Set(variants(n));const w=n.split(' ');
   if(w.length<=3)for(const x of w)for(const v of variants(x))c.add(v);
   const tf=new Set([card.target,...card.aliases].map(normalize));for(const x of c)if(tf.has(x))return{kind:'correct'};
-  for(const t of traps){const tn=normalize(t);for(const x of c)if(x===tn)return{kind:'trap',word:t};}
+  // כתיב גמיש: בלי רווחים, יי/וו כפולים, ולמילה ארוכה גם טעות הקלדה אחת (מייקל גקסון = מייקל ג'קסון)
+  const tl=[...tf].map(loose);for(const x of c){const lx=loose(x);if(tl.some(t=>t===lx||(t.length>=5&&lx.length>=5&&lev1(t,lx))))return{kind:'correct'};}
+  for(const t of traps){const tn=normalize(t),lt=loose(tn);for(const x of c)if(x===tn||loose(x)===lt)return{kind:'trap',word:t};}
   return{kind:'miss'};}
+function loose(x){return String(x).replace(/א(?= |$)/g,'ה').replace(/ /g,'').replace(/יי+/g,'י').replace(/וו+/g,'ו');}
+// האם שתי מחרוזות שונות בדיוק באות אחת (החלפה, הוספה או מחיקה)
+function lev1(a,b){if(a===b)return true;const la=a.length,lb=b.length;if(Math.abs(la-lb)>1)return false;let i=0,j=0,d=0;
+  while(i<la&&j<lb){if(a[i]===b[j]){i++;j++;continue;}if(++d>1)return false;if(la>lb)i++;else if(lb>la)j++;else{i++;j++;}}
+  return d+(la-i)+(lb-j)<=1;}
 
 // ---------- מנוע (פונקציות טהורות על אובייקט מצב) ----------
 function shuffle(a){a=[...a];for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}return a;}
@@ -1293,7 +1314,14 @@ async function joinOnline(code,asHost,resume){
   A.S=S;subscribeRoom(code);if(A.isHost)startHostLoop();render();
 }
 async function sendAction(code,a){if(A.isHost&&A.S){handleAction({...a,from:A.uid});return;}
-  try{await dbAddInbox(code,{...a,from:A.uid,at:Date.now()});}catch(e){console.error(e);toast('שליחה נכשלה');}}
+  try{await dbAddInbox(code,{...a,from:A.uid,k:roomKey(code),at:Date.now()});}catch(e){console.error(e);toast('שליחה נכשלה');}}
+// מפתח סודי לכל טלפון בכל חדר: המארח זוכר אותו (רק בזיכרון, לא במצב המשותף), וכך אי אפשר לשלוח פעולה בשם שחקן אחר
+function roomKey(code){const k='mokesh.k.'+code;try{let v=localStorage.getItem(k);if(!v){v=uid(16);localStorage.setItem(k,v);}return v;}catch(e){return A.rk||(A.rk=uid(16));}}
+function inboxAction(a){if(!a||!okId(a.from))return;
+  // המארח ובוטים לא שולחים לתיבה: פעולה כזאת היא תמיד זיוף
+  if(a.from===myId()||a.from===A.uid||isBot(a.from))return;
+  const K=A.keys||(A.keys={});const k=typeof a.k==='string'?a.k.slice(0,40):'';if(K[a.from]){if(K[a.from]!==k)return;}else if(k)K[a.from]=k;
+  delete a.k;handleAction(a);}
 function act(a){ // פעולה שלי (מארח או אורח)
   if(A.mode!=='online'){try{handleAction({...a,from:a.from||A.localActor||myId()});}catch(e){toast(e.message);}render();return;}
   sendAction(A.S.code,a);}
@@ -1311,8 +1339,16 @@ function cleanState(S){if(!S||typeof S!=='object'||!/^[A-Z0-9]{6}$/.test(String(
   if(S.gameOver){nn(S.gameOver.score);nn(S.gameOver.correctTotal);nn(S.gameOver.trapsTotal);if(S.gameOver.mvp)S.gameOver.mvp.correct=n(S.gameOver.mvp.correct);if(S.gameOver.bomber)S.gameOver.bomber.traps=n(S.gameOver.bomber.traps);}
   if(S.cardResult&&S.cardResult.delta)nn(S.cardResult.delta);
   S.players=(Array.isArray(S.players)?S.players:[]).filter(p=>p&&okId(p.id)).map(p=>({...p,name:String(p.name||'').slice(0,16),avatar:avOk(p.avatar)||['🤖','🧠'].includes(p.avatar)||AV_COLORS[p.avatar]?p.avatar:'u1',team:TEAM_IDS.includes(p.team)?p.team:'A',stats:{correct:n(p.stats&&p.stats.correct),traps:n(p.stats&&p.stats.traps),expl:n(p.stats&&p.stats.expl),miss:n(p.stats&&p.stats.miss),mine:n(p.stats&&p.stats.mine)}}));
+  // רשימות טקסט מהשרת: ערכים שנכנסים ל-class רק מתוך רשימה סגורה, טקסטים מקוצרים
+  const KINDS=['correct','trap','miss','missed','skip'];const kd=(v,d)=>KINDS.includes(v)?v:d;const st=(v,l)=>String(v==null?'':v).slice(0,l);const arr=(v,m)=>(Array.isArray(v)?v:[]).filter(x=>x&&typeof x==='object').slice(-m);
+  S.guesses=arr(S.guesses,80).map(g=>({id:st(g.id,24),playerId:okId(g.playerId)?g.playerId:'',playerName:st(g.playerName,16),text:st(g.text,60),result:kd(g.result,'miss'),at:n(g.at),cardId:g.cardId==null?null:st(g.cardId,30),t:n(g.t)}));
+  S.clues=arr(S.clues,25).map(c=>({by:okId(c.by)?c.by:'',text:st(c.text,160),at:n(c.at)}));
+  if(S.chat)S.chat=arr(S.chat,30).map(m=>({id:st(m.id,12),by:okId(m.by)?m.by:'',name:st(m.name,16),text:st(m.text,200),at:n(m.at),...(TEAM_IDS.includes(m.team)?{team:m.team}:{})}));
+  const tw=w=>({...w,word:st(w.word,40),kind:kd(w.kind,'missed'),...(w.mine!=null?{mine:st(w.mine,40)}:{}),at:n(w.at),cardId:w.cardId==null?null:st(w.cardId,30)});
+  if(S.turnWords)S.turnWords=arr(S.turnWords,60).map(tw);if(S.turnSummary&&S.turnSummary.words)S.turnSummary.words=arr(S.turnSummary.words,60).map(tw);
+  if(S.cardResult&&typeof S.cardResult==='object')S.cardResult.kind=kd(S.cardResult.kind,'miss');
   S.myDeck=myDeckClean(S.myDeck,ROOM_MY_MAX);myDeckSync(S);if(S.route&&!(ROUTE.find(x=>x.id===+S.route.w)||{levels:[]}).levels[+S.route.l])S.route=null;if(S.botSkill!=null)S.botSkill=Math.max(0,Math.min(1,+S.botSkill||0));
-  if(typeof S.deck==='string'&&!/^[0-9a-z]*$/.test(S.deck))S.deck='';if(S.explainerId&&!okId(S.explainerId))S.explainerId=null;if(S.cardId&&!CARDS.has(S.cardId)&&!/^pk-[a-z]+-\d+$/.test(S.cardId))S.cardId=null;packsReady(S);return S;}
+  if(typeof S.deck==='string'&&!/^[0-9a-z]*$/.test(S.deck))S.deck='';if(S.explainerId&&!okId(S.explainerId))S.explainerId=null;if(S.cardId&&!CARDS.has(S.cardId)&&!/^(pk-[a-z]+-|en-)\d+$/.test(S.cardId))S.cardId=null;packsReady(S);return S;}
 function handleAction(a){const S=A.S;if(!S||!a||!okId(a.from))return;const quiet=a.type==='presence'&&!!(S.players.find(x=>x.id===a.from)||{}).connected;if(a.avatar!=null&&!avOk(a.avatar))a.avatar=AVATARS[0];
   const run=()=>{switch(a.type){
     case 'join':{if(a.at&&Date.now()-a.at>10*60*1000)break;if(typeof a.seen==='string'&&A.isHost){const add=(a.seen.match(/[0-9a-z]{3}/g)||[]).slice(-200);A.roomSeen=[...new Set([...add,...(A.roomSeen||[])])].slice(0,1200);} // ההיסטוריה של מי שהצטרף: גם המילים שהוא כבר ראה יגיעו בסוף החפיסה // בקשה ישנה (למשל מלפני שהמארח חזר) — מתעלמים
@@ -1351,7 +1387,10 @@ function handleAction(a){const S=A.S;if(!S||!a||!okId(a.from))return;const quiet
   hostWrite();render();}
 function isHostAct(S,a){return A.mode!=='online'||!!S.players.find(p=>p.id===a.from&&p.isHost);}
 function subscribeRoom(code){A.unsub.forEach(u=>u());A.unsub=[];
-  const applyState=(S0)=>{const S=cleanState(S0);if(!S)return;if(A.S&&A.S.code===S.code&&(A.isHost?S.v<=A.S.v:S.v<A.S.v))return;syncClock(S);const prev=A.S;A.S=S;chatNotify(prev,S);if(prev&&prev.cardResult!==S.cardResult&&S.cardResult&&S.phase==='CARD_RESULT')fx(S.cardResult.kind);render();};
+  const applyState=(S0)=>{const S=cleanState(S0);if(!S)return;
+    // הטלפון של המארח התעורר, אבל בינתיים מישהו אחר לקח את הניהול: מפסיקים לנהל ומקבלים את המצב שלו
+    if(A.isHost&&A.S&&A.S.code===S.code&&S.players.some(p=>p.isHost&&p.id!==myId())&&!S.players.some(p=>p.isHost&&p.id===myId())){A.isHost=false;}
+    else if(A.S&&A.S.code===S.code&&(A.isHost?S.v<=A.S.v:S.v<A.S.v))return;syncClock(S);const prev=A.S;A.S=S;chatNotify(prev,S);if(prev&&prev.cardResult!==S.cardResult&&S.cardResult&&S.phase==='CARD_RESULT')fx(S.cardResult.kind);render();};
   const ch=sb.channel('room-'+code)
     .on('postgres_changes',{event:'*',schema:'public',table:'mokesh_rooms',filter:'code=eq.'+code},(payload)=>{A.lastRtAt=Date.now();if(payload.eventType==='DELETE'){leaveRoom();toast('החדר נסגר');return;}applyState(payload.new&&payload.new.state);})
     .on('broadcast',{event:'voice'},({payload})=>onVoice(payload))
@@ -1360,7 +1399,7 @@ function subscribeRoom(code){A.unsub.forEach(u=>u());A.unsub=[];
   A.roomCh=ch;A.unsub.push(()=>{sb.removeChannel(ch);if(A.roomCh===ch)A.roomCh=null;});
   if(V.on)setTimeout(()=>vSend({type:'hello'}),1200); // חזרה לחדר (רענון חיבור): מתחברים מחדש לשיחה
   if(A.isHost){
-    const take=(row)=>{if(!row||A.processed.has(row.id))return;A.processed.add(row.id);handleAction(JSON.parse(JSON.stringify(row.action)));dbDeleteInbox(row.id);};
+    const take=(row)=>{if(!row||A.processed.has(row.id))return;A.processed.add(row.id);inboxAction(JSON.parse(JSON.stringify(row.action)));dbDeleteInbox(row.id);};
     const chi=sb.channel('inbox-'+code).on('postgres_changes',{event:'INSERT',schema:'public',table:'mokesh_inbox',filter:'code=eq.'+code},(payload)=>take(payload.new)).subscribe();
     A.unsub.push(()=>sb.removeChannel(chi));
     dbPendingInbox(code).then(rows=>rows.forEach(take));
@@ -1368,7 +1407,7 @@ function subscribeRoom(code){A.unsub.forEach(u=>u());A.unsub=[];
   // גיבוי ל-Realtime: סקירה כל 3 שניות
   clearInterval(A.pollT);A.pollT=setInterval(async()=>{if(!A.S||A.mode!=='online')return;const now=Date.now();
     if(A.isHost){if(now-(A.lastPollAt||0)<6000)return;}else if(now-(A.lastRtAt||0)<30000&&now-(A.lastPollAt||0)<30000)return;A.lastPollAt=now;try{
-    if(A.isHost){(await dbPendingInbox(code)).forEach(row=>{if(!A.processed.has(row.id)){A.processed.add(row.id);handleAction(JSON.parse(JSON.stringify(row.action)));dbDeleteInbox(row.id);}});}
+    if(A.isHost){(await dbPendingInbox(code)).forEach(row=>{if(!A.processed.has(row.id)){A.processed.add(row.id);inboxAction(JSON.parse(JSON.stringify(row.action)));dbDeleteInbox(row.id);}});}
     else{const st=await dbGetRoom(code);if(!st&&A.S&&A.mode==='online'){leaveRoom();toast('מנהל/ת החדר סגר/ה את החדר');return;}applyState(st);}}catch(e){}},3000);
   A.unsub.push(()=>clearInterval(A.pollT));
   clearInterval(A.presenceT);A.presenceT=setInterval(()=>{if(A.S&&A.mode==='online'&&!A.isHost)sendAction(code,{type:'presence'});},20000);
@@ -1426,8 +1465,8 @@ async function botThink(){const S=A.S;if(!S||(A.mode==='online'&&!A.isHost)||!ha
 function botPickTraps(c){return shuffle(c.options.slice(0,4)).slice(0,3);}
 // המחשב לא אומר מוקש: מדלגים על כל רמז שיש בו אחת מהמילים שהוטמנו (באותה בדיקה שהמשחק עושה לרמז)
 function botClue(c,n,S){const tr=((S&&S.traps)||[]).map(normalize).filter(Boolean);const ok=x=>{const t=normalize(x);return !tr.some(w=>hasPhrase(t,w));};
-  const cl=c.clues.filter(ok);const cat=ok(c.category)?'משהו שקשור ל'+c.category:'נסו לחשוב על זה שוב';if(!cl.length)return cat;
-  if(n<cl.length)return cl[n];const again='שוב: '+cl[Math.max(0,cl.length-4)+(n-cl.length)%Math.min(4,cl.length)];return ok(again)?again:cat;}
+  const en=!!(S&&roomLang(S)==='en');const cl=c.clues.filter(ok);const cat=ok(c.category)?(en?'Something to do with '+c.category:'משהו שקשור ל'+c.category):(en?'Think about it again':'נסו לחשוב על זה שוב');if(!cl.length)return cat;
+  if(n<cl.length)return cl[n];const again=(en?'Again: ':'שוב: ')+cl[Math.max(0,cl.length-4)+(n-cl.length)%Math.min(4,cl.length)];return ok(again)?again:cat;}
 // כמה ממילות הקשר של המילה מופיעות ברמזים (כולל תחיליות ו/ה/ב/ל/מ/ש/כ, רבים וסמיכות)
 function keyHits(c,clues){const txt=normalize(clues.join(' '));const toks=txt.split(' ').flatMap(t=>{const v=[t];let m=t;for(let i=0;i<2&&/^[והבלמשכ]/.test(m)&&m.length>3;i++){m=m.slice(1);v.push(m);}return v;});
   return c.keys.filter(k0=>{const k=normalize(k0);if(!k)return false;if(k.includes(' '))return txt.includes(k);const st=k.length>=4&&k.endsWith('ה')?k.slice(0,-1):k;return toks.some(t=>t===k||(k.length>=3&&t.startsWith(st)&&t.length-st.length<=3));}).length;}
@@ -1625,8 +1664,8 @@ async function onUser(){devCheck();premRefresh();if(!A.user){A.prof=null;A.frien
   if(!A.S){A.uid=A.user.id;}
   try{let {data:p}=await sb.from('mokesh_profiles').select('*').eq('id',A.user.id).maybeSingle();
     if(!p){const md=A.user.user_metadata||{};const nm=((A.chosen.name||md.full_name||md.name||'').trim()||'שחקן').slice(0,16);
-      const r=await sb.from('mokesh_profiles').insert({id:A.user.id,name:nm,avatar:A.chosen.avatar||AVATARS[0]}).select().single();p=r.data;}
-    if(p){A.prof=p;A.chosen={name:p.name,avatar:p.avatar};try{localStorage.setItem('mokesh.profile',JSON.stringify(A.chosen));}catch(e){}}}catch(e){console.warn('profile',e);}
+      const r=await sb.from('mokesh_profiles').insert({id:A.user.id,name:nm,avatar:srvAv(A.chosen.avatar||AVATARS[0])}).select().single();p=r.data;}
+    if(p){A.prof=p;A.chosen={name:p.name,avatar:isPhoto(A.chosen.avatar)?A.chosen.avatar:p.avatar};try{localStorage.setItem('mokesh.profile',JSON.stringify(A.chosen));}catch(e){}}}catch(e){console.warn('profile',e);}
   if(A.sheet==='login'&&!A.recovery)A.sheet=null;startSocial();
   if(A.pendingFriend){const c=A.pendingFriend;A.pendingFriend=null;addFriend(c);}
   if(A.pendingGroup){const c=A.pendingGroup;A.pendingGroup=null;groupJoin(c);}
@@ -1634,7 +1673,9 @@ async function onUser(){devCheck();premRefresh();if(!A.user){A.prof=null;A.frien
   render();}
 let profT=null;
 function syncProf(){if(!A.prof||!sb)return;clearTimeout(profT);profT=setTimeout(()=>{const n=(A.chosen.name||'').trim().slice(0,16);if(!n)return;
-  sb.from('mokesh_profiles').update({name:n,avatar:A.chosen.avatar}).eq('id',A.prof.id).then(()=>{A.prof.name=n;A.prof.avatar=A.chosen.avatar;});},700);}
+  const av=srvAv(A.chosen.avatar);sb.from('mokesh_profiles').update({name:n,avatar:av}).eq('id',A.prof.id).then(r=>{if(r&&r.error)return console.warn('profile',r.error);A.prof.name=n;A.prof.avatar=av;});},700);}
+// תמונת פרופיל נשמרת רק בטלפון. בשרת (חברים, קבוצות) נשמר אווטאר רגיל, כי שם מותר רק קוד קצר
+function srvAv(a){const ok=x=>typeof x==='string'&&/^[a-z0-9]{1,8}$/.test(x);return ok(a)?a:(A.prof&&ok(A.prof.avatar)?A.prof.avatar:AVATARS[0]);}
 function startSocial(){stopSocial();if(!A.user)return;heartbeat();loadFriends();groupsLoad().then(groupCallsCheck);spLoad();A.socialT=setInterval(()=>{heartbeat();loadFriends();groupCallsCheck();},45000);
   try{A.socialCh=sb.channel('mokesh-social-'+A.user.id)
     .on('postgres_changes',{event:'INSERT',schema:'public',table:'mokesh_invites',filter:'to_id=eq.'+A.user.id},p=>onInvite(p.new))
@@ -2010,7 +2051,9 @@ function handoffCheck(S){if(!S||S.mode!=='local'||A.handoff)return;let key=null;
   if(S.phase==='TRAP_SELECTION'&&S.turnRemainingMs>=S.settings.turnSeconds*1000)key='t'+S.gameId+S.turnIndex+(S.sudden?'s'+S.sudden.played:'');
   else if(S.phase==='EXPLAINING'&&!isBot(S.explainerId))key='e'+S.gameId+S.turnIndex+(S.sudden?'s'+S.sudden.played:'');
   if(!key||A.hoDone===key)return;A.hoDone=key;A.handoff={k:key[0],at:Date.now(),until:Date.now()+5000};}
-function handoffEnd(){const h0=A.handoff;if(!h0)return;A.handoff=null;const S=A.S;if(S&&S.phaseEndsAt)S.phaseEndsAt+=Date.now()-h0.at;haptic([40,60,40]);render();}
+function handoffEnd(){const h0=A.handoff;if(!h0)return;A.handoff=null;const S=A.S;const d=Date.now()-h0.at;if(S&&S.phaseEndsAt){S.phaseEndsAt+=d;
+  // הזמן שבו העבירו את הטלפון לא נחשב: גם תחילת ההסבר והקלף זזים, כדי שהתור לא יתקצר ובונוס המהירות יהיה נכון
+  if(S.phase==='EXPLAINING'){if(S.explainStartedAt)S.explainStartedAt+=d;if(S.cardLiveAt)S.cardLiveAt+=d;}}haptic([40,60,40]);render();}
 function vHandoff(S){const hd=A.handoff;const n=Math.max(1,Math.ceil((hd.until-Date.now())/1000));const opp=TEAM_NAME[oppOf(S)],act0=TEAM_NAME[S.activeTeam];const ex=playerById(S,S.explainerId);
   const t=hd.k==='t'?`העבירו את הטלפון ל${opp}`:`${ex?h(ex.name):act0} — מתכוננים להסביר`;const sub=hd.k==='t'?`הם טומנים מוקשים ל${act0}. ${act0} — לא להציץ!`:`${act0} מנחשת. רק המסביר מסתכל על המסך`;
   return `<div class="screen center handoff"><div class="hoicon">${hd.k==='t'?`<img src="${TA('bomb')}" alt="">`:ic('phone',56)}</div><div class="black hot">${t}</div><div class="small hos">${sub}</div><div class="hon">${n}</div><button class="btn primary big" onclick="handoffEnd()">${hd.k==='t'?'הטלפון אצלנו — מתחילים':'מוכנים — יאללה'}</button></div>`;}
@@ -2576,9 +2619,9 @@ function vSummary(S){const t=S.turnSummary;if(!t)return '';
     <div class="tc small muted pulse">התור עובר ${TG.to(S.sudden?nextTeam(S,S.activeTeam,S.sudden.teams):nextTeam(S,S.activeTeam))}…</div></div>`;}
 // תארי סוף המשחק: לא רק מי שניחש הכי הרבה — גם המסביר, המהיר, מי שטמן הכי טוב, ומי שנפל הכי הרבה
 function vAwards(g){const aw=g.awards;if(!aw)return '';
-  const L=[['guess','מלך הניחושים',x=>`${x.n} ניחושים נכונים`,ic('target',22),'y'],['expl','המסביר הכי טוב',x=>`הסביר/ה ${x.n} מילים שנוחשו`,ic('chat',22),'c'],
-    ['fast','הכי מהיר/ה',x=>`״${h(x.word)}״ תוך ${(x.n/1000).toFixed(1)} שניות`,ic('bolt',22),'l'],['mine','הטומן הערמומי',x=>`המוקשים שלו/ה התפוצצו ${x.n} פעמים`,`<img src="${TA('bomb')}" alt="">`,'p'],
-    ['bomb','מגנט למוקשים',x=>`עלה/תה על ${x.n} מוקשים`,`<img src="${EN?ASSETS.bomb:ASSETS.boom}" alt="">`,'r'],['miss','יורה לכל הכיוונים',x=>`${x.n} ניחושים שגויים`,ic('help',22),'w']];
+  const L=[['guess','מלך הניחושים',x=>x.n===1?'ניחוש נכון אחד':`${x.n} ניחושים נכונים`,ic('target',22),'y'],['expl','המסביר הכי טוב',x=>x.n===1?'הסביר/ה מילה אחת שנוחשה':`הסביר/ה ${x.n} מילים שנוחשו`,ic('chat',22),'c'],
+    ['fast','הכי מהיר/ה',x=>`״${h(x.word)}״ תוך ${(x.n/1000).toFixed(1)} שניות`,ic('bolt',22),'l'],['mine','הטומן הערמומי',x=>x.n===1?'המוקשים שלו/ה התפוצצו פעם אחת':`המוקשים שלו/ה התפוצצו ${x.n} פעמים`,`<img src="${TA('bomb')}" alt="">`,'p'],
+    ['bomb','מגנט למוקשים',x=>x.n===1?'עלה/תה על מוקש אחד':`עלה/תה על ${x.n} מוקשים`,`<img src="${EN?ASSETS.bomb:ASSETS.boom}" alt="">`,'r'],['miss','יורה לכל הכיוונים',x=>x.n===1?'ניחוש שגוי אחד':`${x.n} ניחושים שגויים`,ic('help',22),'w']];
   const items=L.filter(([k])=>aw[k]).map(([k,t,d,icon,c])=>`<div class="award ${c}"><span class="aic">${icon}</span><div class="aw-t">${t}</div><div class="aw-p">${av(aw[k].avatar,'')}<b>${h(aw[k].name)}</b></div><div class="aw-d">${d(aw[k])}</div></div>`);
   return items.length?`<div class="awards">${items.join('')}</div>`:'';}
 function vGameOver(S){const g=S.gameOver;if(!g)return '';prepCard(S);const title=g.winner==='tie'?'תיקו!':TG.won(g.winner);
@@ -2682,7 +2725,7 @@ function toggleVoice(field){if(VOICE.on)stopVoice();else startVoice(field);}
 function startVoice(field){if(!SR)return toast('הדפדפן הזה לא תומך בזיהוי דיבור');if(V.on)return toast('בזמן שיחה קולית מקלידים את הניחוש');
   if(document.activeElement&&document.activeElement.blur)document.activeElement.blur();
   VOICE.field=field;VOICE.want=true;VOICE.on=true;listen();render();}
-function listen(){const r=new SR();r.lang='he-IL';r.continuous=false;r.interimResults=true;r.maxAlternatives=1;VOICE.rec=r;
+function listen(){const r=new SR();r.lang=A.S&&roomLang(A.S)==='en'?'en-US':'he-IL';r.continuous=false;r.interimResults=true;r.maxAlternatives=1;VOICE.rec=r;
   const inp=()=>app.querySelector(`input[name="${VOICE.field}"]`);
   r.onresult=e=>{let fin='',inter='';for(let i=e.resultIndex;i<e.results.length;i++){const x=e.results[i];if(x.isFinal)fin+=x[0].transcript;else inter+=x[0].transcript;}
     const el=inp();if(!el||el.disabled)return;
