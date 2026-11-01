@@ -8,7 +8,10 @@ export default async function handler(req, res) {
   res.setHeader('Cache-Control', 'no-store');
   const origin = req.headers.origin || req.headers.referer || '';
   const host = req.headers['x-forwarded-host'] || req.headers.host || '';
-  if (origin && !origin.includes(host)) return res.status(403).json({ error: 'origin' });
+  // רק מהאתר עצמו: משווים את שם השרת במדויק (לא "מכיל", כדי ש-mokesh.vercel.app.evil.com לא יעבור)
+  let oh = '';
+  try { oh = origin ? new URL(origin).host : ''; } catch (e) { oh = '?'; }
+  if (origin && oh !== host) return res.status(403).json({ error: 'origin' });
   const id = process.env.CF_TURN_KEY_ID, token = process.env.CF_TURN_API_TOKEN;
   if (!id || !token) return res.status(200).json({ iceServers: STUN, turn: false });
   // אותם פרטים לכמה שעות: חוסך קריאות ל-Cloudflare
