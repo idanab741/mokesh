@@ -128,8 +128,8 @@ function daily(d){const days=d.daily||[];const max=Math.max(4,...days.map(x=>x.u
   const fmt=s=>{const [y,m,dd]=s.split('-');return +dd+'.'+(+m);};const last=days.length-1;
   const tip='<div class="tip" hidden></div>';
   const bars=days.map((x,i)=>`<div class="b ${i===last?'t':''}" data-i="${i}" onmouseenter="tipAt(${i})" onclick="tipAt(${i},1)"><i style="height:${(100*x.u/top).toFixed(1)}%"></i></div>`).join('');
-  const table=ST.table?`<table><tr><th>יום</th><th>מכשירים</th><th>כניסות</th><th>חדשים</th></tr>${[...days].reverse().map(x=>`<tr><td>${fmt(x.d)}</td><td>${nf(x.u)}</td><td>${nf(x.v)}</td><td>${nf(x.n)}</td></tr>`).join('')}</table>`:'';
-  return `<div class="chart" role="img" aria-label="מכשירים שונים בכל יום, 30 ימים" onmouseleave="tipAt(null)">${lines}${bars}${tip}</div><div class="axis"><span>${days[0]?fmt(days[0].d):''}</span><span>${days[15]?fmt(days[15].d):''}</span><span>היום</span></div>
+  const table=ST.table?`<table><tr><th>יום</th><th>אנשים</th><th>כניסות</th><th>חדשים</th></tr>${[...days].reverse().map(x=>`<tr><td>${fmt(x.d)}</td><td>${nf(x.u)}</td><td>${nf(x.v)}</td><td>${nf(x.n)}</td></tr>`).join('')}</table>`:'';
+  return `<div class="chart" role="img" aria-label="אנשים שונים בכל יום, 30 ימים" onmouseleave="tipAt(null)">${lines}${bars}${tip}</div><div class="axis"><span>${days[0]?fmt(days[0].d):''}</span><span>${days[15]?fmt(days[15].d):''}</span><span>היום</span></div>
     <button class="toggle" onclick="ST.table=!ST.table;render()">${ST.table?'הסתר טבלה':'הצג כטבלה'}</button>${table}`;}
 
 // כל מכשיר = טלפון/מחשב אחד (מזהה אקראי, מוצגות 4 אותיות אחרונות). כמה כניסות, בכמה ימים, ומתי לאחרונה
@@ -141,7 +141,7 @@ function vbars(vals,labels,hl){const max=Math.max(1,...vals);return `<div class=
 function wordName(id){const c=(window.CARDS_DATA||[]).find(x=>x.id===id);return c?c.target:id;}
 function wordList(rows,val,fmt){if(!rows.length)return '<div class="empty">עוד אין מספיק נתונים (צריך שכל מילה תופיע לפחות 3 פעמים)</div>';
   return `<table class="devt">${rows.map(r=>`<tr><td><b>${h(wordName(r.id))}</b></td><td>${fmt(r)}</td><td class="muted">${nf(r.n)} הופעות</td></tr>`).join('')}</table>`;}
-function vMore(d){if(!d)return '';const f=d.funnel||{};const steps=[['מכשירים נכנסו',f.devices],['משחקים נפתחו',f.opened],['משחקים התחילו',f.started],['משחקים הסתיימו',f.ended]];const max=Math.max(1,...steps.map(x=>+x[1]||0));
+function vMore(d){if(!d)return '';const f=d.funnel||{};const steps=[['אנשים נכנסו',f.devices],['משחקים נפתחו',f.opened],['משחקים התחילו',f.started],['משחקים הסתיימו',f.ended]];const max=Math.max(1,...steps.map(x=>+x[1]||0));
   const funnel=`<div class="hbars">${steps.map(([n,c])=>`<div class="hb"><span class="n">${n}</span><span class="tr"><i style="width:${(100*(+c||0)/max).toFixed(1)}%"></i></span><span class="c">${nf(c)}</span></div>`).join('')}</div>
     <div class="kpis" style="margin:14px 0 0"><div class="kpi"><div class="l">סיימו מתוך שהתחילו</div><div class="v">${pct(f.ended,f.started)}</div></div><div class="kpi"><div class="l">עזבו באמצע</div><div class="v">${nf(f.quit)}</div></div><div class="kpi"><div class="l">משחק ממוצע</div><div class="v">${f.avgMin!=null?f.avgMin:'—'}</div><div class="s">דקות</div></div></div>`;
   const hrs=d.hours||[],dw=d.dows||[];const now=new Date();
@@ -162,7 +162,7 @@ function vMore(d){if(!d)return '';const f=d.funnel||{};const steps=[['מכשיר
     <div class="muted" style="margin-top:10px">בממוצע ${st.humans!=null?st.humans:'—'} אנשים ו-${st.bots!=null?st.bots:'—'} מחשבים בכל משחק</div>`;
   const er=(d.errors||[]);const errs=er.length?`<table class="devt"><tr><th>תקלה</th><th>פעמים</th><th>מכשירים</th><th>לאחרונה</th></tr>${er.map(x=>`<tr><td style="direction:ltr;text-align:left;font:12px ui-monospace,monospace;word-break:break-word">${h(x.m)}<div class="muted">${h(x.s||'')} ${h(x.v||'')}</div></td><td>${nf(x.c)}</td><td>${nf(x.u)}</td><td>${new Date(x.last).toLocaleString('he-IL',{day:'numeric',month:'numeric',hour:'2-digit',minute:'2-digit'})}</td></tr>`).join('')}</table>`:'<div class="empty">אין תקלות ב-14 הימים האחרונים</div>';
   const card=(t,sub,body)=>`<div class="card"><h2>${t}<small>${sub}</small></h2>${body}</div>`;
-  return card('מכניסה ועד סוף משחק','30 ימים',funnel)+card('שעות שיא','30 ימים · שעון ישראל',peak)+card('כמה חוזרים','מכשירים חדשים',ret)+card('מילים','30 ימים',words)+card('משחק מהיר','30 ימים',qm)+card('איך משחקים','30 ימים · '+nf(g)+' משחקים',sets)+card('תקלות','14 ימים',errs);}
+  return card('מכניסה ועד סוף משחק','30 ימים',funnel)+card('שעות שיא','30 ימים · שעון ישראל',peak)+card('כמה חוזרים','אנשים חדשים',ret)+card('מילים','30 ימים',words)+card('משחק מהיר','30 ימים',qm)+card('איך משחקים','30 ימים · '+nf(g)+' משחקים',sets)+card('תקלות','14 ימים',errs);}
 // משתמשים רשומים: שם, מייל, איך נכנסו, מתי נרשמו, מתי היו לאחרונה, משחקים וכניסות
 function vUsers(){const U=ST.users;if(!U)return '';const q=(ST.uq||'').trim().toLowerCase();
   const ago=t=>{if(!t)return '—';const m=Math.round((Date.now()-Date.parse(t))/60000);return m<2?'עכשיו':m<60?`לפני ${m} דק׳`:m<1440?`לפני ${Math.round(m/60)} שע׳`:m<43200?`לפני ${Math.round(m/1440)} ימים`:new Date(t).toLocaleDateString('he-IL')};
@@ -188,12 +188,12 @@ function vDash(){const d=ST.data;if(!d)return `<div class="card"><div class="emp
   const site=location.origin;
   return `<div class="live"><i class="dot"></i><span>עכשיו במשחק:</span><b>${nf(d.livePlayers)}</b><span>שחקנים ב-</span><b>${nf(d.liveRooms)}</b><span>חדרים</span></div>
   <div class="kpis">
-    <div class="kpi hi"><div class="l">היום</div><div class="v">${nf(d.today)}</div><div class="s">מכשירים · <b>${nf(d.todayV)}</b> כניסות</div></div>
-    <div class="kpi"><div class="l">7 ימים</div><div class="v">${nf(d.week)}</div><div class="s">מכשירים · <b>${nf(d.weekV)}</b> כניסות</div></div>
-    <div class="kpi"><div class="l">30 ימים</div><div class="v">${nf(d.month)}</div><div class="s">מכשירים · <b>${nf(d.monthV)}</b> כניסות</div></div>
-    <div class="kpi"><div class="l">מאז ההתחלה</div><div class="v">${nf(d.total)}</div><div class="s">מכשירים · <b>${nf(d.totalV)}</b> כניסות</div></div>
+    <div class="kpi hi"><div class="l">היום</div><div class="v">${nf(d.today)}</div><div class="s">אנשים · <b>${nf(d.todayV)}</b> כניסות</div></div>
+    <div class="kpi"><div class="l">7 ימים</div><div class="v">${nf(d.week)}</div><div class="s">אנשים · <b>${nf(d.weekV)}</b> כניסות</div></div>
+    <div class="kpi"><div class="l">30 ימים</div><div class="v">${nf(d.month)}</div><div class="s">אנשים · <b>${nf(d.monthV)}</b> כניסות</div></div>
+    <div class="kpi"><div class="l">מאז ההתחלה</div><div class="v">${nf(d.total)}</div><div class="s">אנשים · <b>${nf(d.totalV)}</b> כניסות</div></div>
   </div>
-  <div class="card"><h2>כניסות ביום<small>מכשירים שונים · 30 ימים</small></h2>${daily(d)}<div class="muted" style="margin-top:6px">היום: ${nf(today.n)} מכשירים חדשים · ${nf(d.returning)} מכשירים חזרו ביותר מיום אחד השבוע</div></div>
+  <div class="card"><h2>כניסות ביום<small>אנשים שונים · 30 ימים</small></h2>${daily(d)}<div class="muted" style="margin-top:6px">היום: ${nf(today.n)} אנשים חדשים · ${nf(d.returning)} חזרו ביותר מיום אחד השבוע · משתמש רשום נספר פעם אחת מכל המכשירים שלו</div></div>
   <div class="card"><h2>המכשירים הכי פעילים<small>30 ימים</small></h2>${topDev(d)}</div>
   <div class="card"><h2>משחקים שנפתחו<small>30 ימים · ${nf(games)} סה״כ</small></h2>${hbars(MODE.map(([k,n])=>({n,c:+m[k]||0,x:mt[k]?`היום ${nf(mt[k])}`:`${games?Math.round(100*(+m[k]||0)/games):0}%`})),games)}</div>
   <div class="card"><h2>מאיפה הגיעו<small>30 ימים</small></h2>${hbars(src,srcT)}</div>
@@ -217,7 +217,7 @@ function render(){const standalone=matchMedia('(display-mode: standalone)').matc
 // טולטיפ בלי לרנדר את כל העמוד (אחרת הריחוף מהבהב)
 function tipAt(i,toggle){const ch=document.querySelector('.chart');if(!ch||!ST.data)return;if(toggle&&ST.tip===i)i=null;ST.tip=i;const days=ST.data.daily||[];const t=ch.querySelector('.tip');
   ch.querySelectorAll('.b').forEach(b=>b.classList.toggle('on',+b.dataset.i===i));if(i==null||!days[i]){t.hidden=true;return;}
-  const x=days[i],[y,m,dd]=x.d.split('-');t.textContent=`${+dd}.${+m} · ${nf(x.u)} מכשירים · ${nf(x.v)} כניסות · ${nf(x.n)} חדשים`;t.hidden=false;
+  const x=days[i],[y,m,dd]=x.d.split('-');t.textContent=`${+dd}.${+m} · ${nf(x.u)} אנשים · ${nf(x.v)} כניסות · ${nf(x.n)} חדשים`;t.hidden=false;
   const pct=100*(i+.5)/days.length;t.style.left=Math.min(68,Math.max(32,pct))+'%';}
 function install(){if(ST.install){ST.install.prompt();ST.install=null;return;}ST.sheet=true;render();}
 function copyLink(t,b){navigator.clipboard&&navigator.clipboard.writeText(t).then(()=>{b.innerHTML=ic('check');setTimeout(()=>{b.innerHTML=ic('copy');},1200);});}

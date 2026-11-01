@@ -1666,6 +1666,8 @@ async function onUser(){devCheck();premRefresh();if(!A.user){A.prof=null;A.frien
     if(!p){const md=A.user.user_metadata||{};const nm=((A.chosen.name||md.full_name||md.name||'').trim()||'שחקן').slice(0,16);
       const r=await sb.from('mokesh_profiles').insert({id:A.user.id,name:nm,avatar:srvAv(A.chosen.avatar||AVATARS[0])}).select().single();p=r.data;}
     if(p){A.prof=p;A.chosen={name:p.name,avatar:isPhoto(A.chosen.avatar)?A.chosen.avatar:p.avatar};try{localStorage.setItem('mokesh.profile',JSON.stringify(A.chosen));}catch(e){}}}catch(e){console.warn('profile',e);}
+  // מקשרים את הטלפון לחשבון: בלוח הבקרה כל המכשירים של אותו אדם נספרים פעם אחת
+  try{const du=localStorage.getItem('mokesh.uid');if(du)sb.rpc('mokesh_link',{p_uid:du}).then(()=>{},()=>{});}catch(e){}
   if(A.sheet==='login'&&!A.recovery)A.sheet=null;startSocial();
   if(A.pendingFriend){const c=A.pendingFriend;A.pendingFriend=null;addFriend(c);}
   if(A.pendingGroup){const c=A.pendingGroup;A.pendingGroup=null;groupJoin(c);}
