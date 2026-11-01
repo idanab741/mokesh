@@ -66,3 +66,35 @@ Split into teams. Each turn, one player explains a secret word to their team. Bu
 1,400+ Hebrew words, 10 themed packs, your own custom and shared word packs, themes, achievements and no ads.
 
 Note: the game is in Hebrew.
+
+---
+
+## English listing: Blast! (Google Play en-US)
+
+**App name:** Blast! – Party Word Game
+
+**Short description:** Explain the secret word to your team. But say a mine, and BOOM!
+
+**Feature graphic:** `store/feature-en-1024x500.png`
+
+**Full description:**
+
+Blast! is the party word game where one wrong word blows up your whole round.
+
+HOW TO PLAY
+Split into teams. Each turn, one player explains a secret word to their team, and they guess as many words as they can before time runs out. But wait: the other team has already planted 3 mines, words they're sure you'll say by accident. Say a mine? BOOM! There go your points.
+
+THREE WAYS TO PLAY
+• One device: pass a single phone around the room. Perfect for the living room, road trips and family dinners.
+• Online: everyone plays on their own phone, with a private room, a join code and voice chat.
+• Vs. the computer: a journey of 5 worlds and 50 levels, with a boss at the end of each world.
+
+WHAT ELSE?
+• Hundreds of English words, ready to play.
+• Your own word packs: write custom words, inside jokes and your friends' names.
+• Shared packs with family and friends.
+• Themes: Halloween, Neon, Jungle, Christmas, Gold and more.
+• Achievements, stats and game history.
+• No ads.
+
+Perfect for game nights, parties, family time, vacations and anywhere with more than two people who love to shout.
