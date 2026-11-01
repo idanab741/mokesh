@@ -1122,5 +1122,8 @@
 "הסביר/ה מילה אחת שנוחשה": "Explained 1 word that was guessed",
 "המוקשים שלו/ה התפוצצו פעם אחת": "Their mines went off once",
 "עלה/תה על מוקש אחד": "Stepped on 1 mine",
-"ניחוש שגוי אחד": "1 wrong guess"
+"ניחוש שגוי אחד": "1 wrong guess",
+"{x} חושב/ת על רמז…": "{x} is thinking of a clue…",
+"הפרש {x}+ (היה {x})": "Margin {x}+ (was {x})",
+"בלי מוקשים למילה הזו": "No mines on this word"
 }
