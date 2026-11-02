@@ -237,6 +237,20 @@ section{padding-block:clamp(90px,12vw,150px)}
 
 
 @media (prefers-reduced-motion:reduce){*,*::before,*::after{animation:none!important;transition:none!important}.rv.pre{transform:none}.hs{opacity:1!important;transform:none!important}}
+
+.live small .sh{display:none}
+@media (max-width:640px){
+ .hero .bottom{margin-top:28px;flex-direction:column;align-items:stretch}
+ .live{flex-wrap:nowrap;gap:8px}
+ .live a{flex:1 1 0;min-width:0;padding:7px 10px 7px 7px;gap:8px}
+ .live a div{min-width:0;flex:1}
+ .live img{width:30px;height:30px}
+ .live b{font-size:13px}
+ .live small{font-size:11px;white-space:nowrap;display:block;line-height:1.3}.live small .lg{display:none}.live small .sh{display:inline}
+ .live small i{display:inline-block;vertical-align:middle;margin-left:4px}
+ .scue{display:none}
+}
+
 </style>
 </head>
 <body>
@@ -272,8 +286,8 @@ section{padding-block:clamp(90px,12vw,150px)}
       <div class="word" id="word"><img src="/studio-assets/word.webp" alt="IA STUDIO" width="2000" height="348" fetchpriority="high"></div>
       <div class="bottom hs d4">
         <div class="live">
-          <a href="#triplace"><img src="/studio-assets/tp_icon.webp?v=2" alt=""><div><b>Triplace</b><small><i></i>App Store · Google Play</small></div></a>
-          <a href="#mokesh"><img src="/studio-assets/mk_icon.webp" alt=""><div><b>מוקש!</b><small><i></i>App Store · Google Play</small></div></a>
+          <a href="#triplace"><img src="/studio-assets/tp_icon.webp?v=2" alt=""><div><b>Triplace</b><small><i></i><span class="lg">App Store · Google Play</span><span class="sh">iOS · Android</span></small></div></a>
+          <a href="#mokesh"><img src="/studio-assets/mk_icon.webp" alt=""><div><b>מוקש!</b><small><i></i><span class="lg">App Store · Google Play</span><span class="sh">iOS · Android</span></small></div></a>
         </div>
         <span class="scue"><i></i>גללו לעבודות</span>
       </div>
@@ -382,7 +396,7 @@ section{padding-block:clamp(90px,12vw,150px)}
   // השם הענק: נכנס אות-אות, ממלא את הרוחב, ומתקרב בגלילה
   var word=document.getElementById('word');
 
-  var raf=0;function sc(){raf=0;var p=Math.min(1,scrollY/600);word.style.transform='scale('+(1+p*.12)+') translateY('+(p*-30)+'px)';word.style.opacity=String(1-p*.6);}
+  var raf=0;function sc(){raf=0;var p=Math.min(1,scrollY/600);word.style.transform='translateY('+(p*-24)+'px)';word.style.opacity=String(1-p*.6);}
   if(!reduce)addEventListener('scroll',function(){if(!raf)raf=requestAnimationFrame(sc);},{passive:true});
   // כפתורים מגנטיים
   if(matchMedia('(pointer:fine)').matches&&!reduce)document.querySelectorAll('.btn,.store').forEach(function(el){el.addEventListener('pointermove',function(e){var r=el.getBoundingClientRect();el.style.transform='translate('+((e.clientX-r.left-r.width/2)*.2)+'px,'+((e.clientY-r.top-r.height/2)*.3)+'px)';});el.addEventListener('pointerleave',function(){el.style.transform='';});});
