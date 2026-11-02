@@ -7,7 +7,7 @@
 (function(){var L=null;try{L=localStorage.getItem('mokesh.lang');}catch(e){}
   if(L!=='he'&&L!=='en'){var ls=(navigator.languages||[navigator.language||'']).join(',');var tz='';try{tz=Intl.DateTimeFormat().resolvedOptions().timeZone||'';}catch(e){}
     L=/(^|,)(he|iw)/i.test(ls)||/Jerusalem|Tel_Aviv/.test(tz)?'he':'en';}
-  window.LANG=L;if(L==='en'){var d=document.documentElement;d.lang='en';d.dir='ltr';document.write('<script src="i18n/en.js?v=3"><\/script>');}})();
+  window.LANG=L;if(L==='en'){var d=document.documentElement;d.lang='en';d.dir='ltr';document.write('<script src="i18n/en.js?v=4"><\/script>');}})();
 </script>
 <meta name="theme-color" content="#2B3BFF">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, interactive-widget=resizes-content">
@@ -1377,7 +1377,7 @@ function handleAction(a){const S=A.S;if(!S||!a||!okId(a.from))return;const quiet
     case 'clue':E.clue(S,a.from,a.text);break;
     case 'trap_vote':E.trapVote(S,a.from,a.words||[]);break;
     case 'trap_lock':E.trapLock(S,a.from,a.words);break;
-    case 'say':{E.say(S,a.from,a.text,a.scope);const m=(S.chat||[]).at(-1);if(m&&a.from!==A.uid&&!A.roomChat&&A.mode==='online'&&canSee(S,m))toast(`💬 ${m.team?'(קבוצה) ':''}${m.name}: ${m.text}`);break;}
+    case 'say':{E.say(S,a.from,a.text,a.scope);const m=(S.chat||[]).at(-1);if(m&&a.from!==A.uid&&!A.roomChat&&A.mode==='online'&&canSee(S,m)&&!(A.muted&&A.muted.has(m.by)))toast(`💬 ${m.team?'(קבוצה) ':''}${m.name}: ${m.text}`);break;}
     case 'rematch':if(isHostAct(S,a))E.rematch(S);break;}};
   const before=S.cardResult;
   if(A.mode!=='online'){run();if(S.cardResult&&S.cardResult!==before)fx(S.cardResult.kind);return;}
@@ -1948,10 +1948,10 @@ function cleanWords(t){return String(t||'').replace(/[א-תa-zA-Z']+/g,w=>{const
 const pubText=(S,t)=>S&&S.public?cleanWords(t):t;
 try{A.muted=new Set(JSON.parse(localStorage.getItem('mokesh.muted')||'[]'));}catch(e){A.muted=new Set();}
 function saveMuted(){try{localStorage.setItem('mokesh.muted',JSON.stringify([...A.muted].slice(-200)));}catch(e){}}
-function muteToggle(id){if(!okId(id))return;A.muted.has(id)?A.muted.delete(id):A.muted.add(id);saveMuted();toast(A.muted.has(id)?'השחקן הושתק — לא תראו את ההודעות שלו':'ההשתקה בוטלה');render();}
+function muteToggle(id){if(!okId(id))return;A.muted.has(id)?A.muted.delete(id):A.muted.add(id);saveMuted();toast(A.muted.has(id)?'השחקן נחסם — לא תראו יותר את ההודעות שלו':'החסימה בוטלה');render();}
 async function reportPlayer(id){const S=A.S;const p=S&&playerById(S,id);if(!p||!okId(id))return;
   try{await sb.from('mokesh_reports').insert({reporter:myId(),target:id,target_name:p.name,room:S.code,reason:(S.chat||[]).filter(m=>m.by===id).slice(-3).map(m=>m.text).join(' | ').slice(0,300)});}catch(e){}
-  A.muted.add(id);saveMuted();toast('תודה! הדיווח נשלח והשחקן הושתק');render();}
+  A.muted.add(id);saveMuted();toast('תודה! הדיווח נשלח והשחקן נחסם');render();}
 async function quickMatch(){if(!A.dbReady)return toast('מצב אונליין לא זמין כרגע');if(!canPlay(null)){needPremium('limit');return;}if(!(A.chosen.name||'').trim()){A.homeMode='quick';render();return;}
   track('quick');qmStop(false);A.qmSince=Date.now();A.qm={since:A.qmSince,waiting:1,err:0};A.homeMode='queue';render();qmPoll();A.qmT=setInterval(qmPoll,2000);A.qmT2=setInterval(()=>{if(A.qm&&A.homeMode==='queue'&&!A.S)render();},1000);}
 async function qmPoll(){const q=A.qm;if(!q||q.busy)return;q.busy=true;
@@ -2600,12 +2600,12 @@ function vBlast(){const C=['var(--ink)','var(--yellow)','var(--orange)','#fff','
 // צ׳אט החדר: כל המשתתפים, משתי הקבוצות
 function canSee(S,m){if(!m.team)return true;const me=playerById(S,myId());return !!me&&me.team===m.team;}
 function visibleChat(S){return (S.chat||[]).filter(m=>canSee(S,m)&&!(A.muted&&A.muted.has(m.by)));}
-function chatNotify(prev,S){const a=(prev&&prev.chat||[]).length,b=(S.chat||[]);if(b.length>a&&!A.roomChat){const m=b.at(-1);if(m.by!==myId()&&canSee(S,m))toast(`💬 ${m.team?'(קבוצה) ':''}${m.name}: ${m.text}`);}}
+function chatNotify(prev,S){const a=(prev&&prev.chat||[]).length,b=(S.chat||[]);if(b.length>a&&!A.roomChat){const m=b.at(-1);if(m.by!==myId()&&canSee(S,m)&&!(A.muted&&A.muted.has(m.by)))toast(`💬 ${m.team?'(קבוצה) ':''}${m.name}: ${m.text}`);}}
 function chatBtn(S){if(S.mode!=='online')return '';const n=visibleChat(S).length-(A.chatSeen||0);return `<button type="button" class="tbtn" onclick="A.roomChat=1;render()" aria-label="צ׳אט">${ic('chat',20)}${n>0?`<span class="badge">${n}</span>`:''}</button>`;}
 function vRoomChat(S){A.chatSeen=visibleChat(S).length;const me=myId();const tab=A.chatTab||'all';const my=playerById(S,me);const items=visibleChat(S).filter(m=>tab==='team'?!!m.team:!m.team);
   return `<div class="sheet-bg" onclick="A.roomChat=0;render()"><div class="sheet pop roomchat" onclick="event.stopPropagation()"><div class="row between"><div class="black" style="font-size:22px">💬 צ׳אט</div><button class="btn ghost" onclick="A.roomChat=0;render()">סגור</button></div>
     <div class="tabs"><button class="${tab==='all'?'on':''}" onclick="A.chatTab='all';render()">כולם</button><button class="${tab==='team'?'on':''}" onclick="A.chatTab='team';render()">הקבוצה שלי${my?` (${TEAM_NAME[my.team]})`:''}</button></div>
-    <div class="chat rc" data-autoscroll>${items.length?items.map(m=>{const p=playerById(S,m.by);return `<div class="msg${m.by===me?'':' them'}"><span class="au">${h(m.name)}${p?` · ${TEAM_NAME[p.team]}`:''}${S.public&&m.by!==me&&okId(m.by)&&!isBot(m.by)?`<button class="mod" onclick="muteToggle('${m.by}')" title="השתק">🔇</button><button class="mod" onclick="reportPlayer('${m.by}')" title="דווח">🚩</button>`:''}</span><div class="b">${h(m.text)}</div></div>`;}).join(''):`<div class="empty">${tab==='team'?'רק חברי הקבוצה שלכם רואים כאן. תתאמו מוקשים 🤫':'עדיין אין הודעות. תגידו שלום 👋'}</div>`}</div>
+    <div class="chat rc" data-autoscroll>${items.length?items.map(m=>{const p=playerById(S,m.by);return `<div class="msg${m.by===me?'':' them'}"><span class="au">${h(m.name)}${p?` · ${TEAM_NAME[p.team]}`:''}${m.by!==me&&okId(m.by)&&!isBot(m.by)?`<button class="mod" onclick="muteToggle('${m.by}')" title="חסום" aria-label="חסום">🚫</button><button class="mod" onclick="reportPlayer('${m.by}')" title="דווח" aria-label="דווח">🚩</button>`:''}</span><div class="b">${h(m.text)}</div></div>`;}).join(''):`<div class="empty">${tab==='team'?'רק חברי הקבוצה שלכם רואים כאן. תתאמו מוקשים 🤫':'עדיין אין הודעות. תגידו שלום 👋'}</div>`}</div>
     <form class="chatbar" onsubmit="event.preventDefault();const i=this.say;const t=i.value.trim();if(t){act({type:'say',text:t,scope:A.chatTab||'all'});i.value='';}"><input class="input" name="say" maxlength="200" autocomplete="off" enterkeyhint="send" placeholder="${tab==='team'?'כתבו לקבוצה…':'כתבו לכולם…'}"><button class="btn primary">שלח</button></form></div></div>`;}
 function vMenu(S){const host=A.mode==='online'&&A.isHost;const confirm=A.menu===2;
   const body=confirm?`<div class="black" style="font-size:24px">לסגור את החדר לכולם?</div><div class="small isub">כל השחקנים ייצאו מהמשחק, והחדר יימחק.</div>
