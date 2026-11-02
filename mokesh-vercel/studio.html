@@ -298,6 +298,17 @@ section{padding-block:clamp(90px,12vw,150px)}
 .word .wfill{width:100%;aspect-ratio:2000/348;background:url(/studio-assets/collage.webp) 0 50%/auto 115% repeat-x;-webkit-mask:url(/studio-assets/word-mask.png) center/100% 100% no-repeat;mask:url(/studio-assets/word-mask.png) center/100% 100% no-repeat;animation:wpan 70s linear infinite}
 @keyframes wpan{to{background-position:var(--pw,-3000px) 50%}}
 @media (prefers-reduced-motion:reduce){.word .wfill{animation:none}}
+
+/* בלוק "יש לכם רעיון?" על מסך מלא */
+.bonebox{min-height:100svh;display:flex;flex-direction:column;box-sizing:border-box}
+.bonebox>.wrap{flex:1;display:flex;flex-direction:column;width:100%}
+.bonebox .giant{margin-top:auto!important;padding-top:clamp(40px,6vw,90px)}
+.bonebox .eyebrow{letter-spacing:.02em}
+@media (max-width:640px){
+ .bonebox{padding-top:max(110px,calc(env(safe-area-inset-top,0px) + 96px))!important;padding-bottom:max(24px,env(safe-area-inset-bottom,0px))!important}
+ .bonebox h2{margin-top:22px!important}
+ .bonebox .lead2{margin-top:18px}
+}
 </style>
 </head>
 <body>
