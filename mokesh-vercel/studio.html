@@ -15,7 +15,7 @@
 <link rel="icon" type="image/png" sizes="32x32" href="/studio-assets/favicon-32.png">
 <link rel="apple-touch-icon" href="/studio-assets/apple-touch-icon.png">
 <meta name="theme-color" content="#09090A">
-<link rel="preload" as="image" href="/studio-assets/word.webp">
+<link rel="preload" as="image" href="/studio-assets/collage.webp"><link rel="preload" as="image" href="/studio-assets/word-mask.png">
 <style>:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}body{margin:0}img{max-width:100%}[hidden]{display:none!important}</style>
 <title>IA STUDIO</title>
 
@@ -294,6 +294,10 @@ section{padding-block:clamp(90px,12vw,150px)}
  .tool{padding:12px;gap:8px}
  .tool span{font-size:13px}
 }
+
+.word .wfill{width:100%;aspect-ratio:2000/348;background:url(/studio-assets/collage.webp) 0 50%/auto 115% repeat-x;-webkit-mask:url(/studio-assets/word-mask.png) center/100% 100% no-repeat;mask:url(/studio-assets/word-mask.png) center/100% 100% no-repeat;animation:wpan 70s linear infinite}
+@keyframes wpan{to{background-position:var(--pw,-3000px) 50%}}
+@media (prefers-reduced-motion:reduce){.word .wfill{animation:none}}
 </style>
 </head>
 <body>
@@ -326,7 +330,7 @@ section{padding-block:clamp(90px,12vw,150px)}
           <div class="cta"><a class="btn bone" href="#contact">התחילו פרויקט <span class="ar">←</span></a><a class="btn ghost" href="#work">לעבודות</a></div>
         </div>
       </div>
-      <div class="word" id="word"><img src="/studio-assets/word.webp" alt="IA STUDIO" width="2000" height="348" fetchpriority="high"></div>
+      <div class="word" id="word" role="img" aria-label="IA STUDIO"><div class="wfill" id="wfill"></div></div>
       <div class="bottom hs d4">
         <div class="live">
           <a href="#triplace"><img src="/studio-assets/tp_icon.webp?v=2" alt=""><div><b>Triplace</b><small><i></i><span class="lg">App Store · Google Play</span><span class="sh">iOS · Android</span></small></div></a>
@@ -439,6 +443,7 @@ section{padding-block:clamp(90px,12vw,150px)}
   // השם הענק: נכנס אות-אות, ממלא את הרוחב, ומתקרב בגלילה
   var word=document.getElementById('word');
 
+  var wf=document.getElementById('wfill');function pw(){var h=wf.getBoundingClientRect().height*1.15;var d=h*3600/435;wf.style.setProperty('--pw',(-d).toFixed(1)+'px');wf.style.animationDuration=Math.max(18,d/40).toFixed(1)+'s';}pw();addEventListener('resize',pw);
   var raf=0;function sc(){raf=0;var p=Math.min(1,scrollY/600);word.style.transform='translateY('+(p*-24)+'px)';word.style.opacity=String(1-p*.6);}
   if(!reduce)addEventListener('scroll',function(){if(!raf)raf=requestAnimationFrame(sc);},{passive:true});
   // כפתורים מגנטיים
