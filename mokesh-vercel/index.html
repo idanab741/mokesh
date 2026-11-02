@@ -7,7 +7,7 @@
 (function(){var L=null;try{L=localStorage.getItem('mokesh.lang');}catch(e){}
   if(L!=='he'&&L!=='en'){var ls=(navigator.languages||[navigator.language||'']).join(',');var tz='';try{tz=Intl.DateTimeFormat().resolvedOptions().timeZone||'';}catch(e){}
     L=/(^|,)(he|iw)/i.test(ls)||/Jerusalem|Tel_Aviv/.test(tz)?'he':'en';}
-  window.LANG=L;if(L==='en'){var d=document.documentElement;d.lang='en';d.dir='ltr';document.write('<script src="i18n/en.js?v=5"><\/script>');}})();
+  window.LANG=L;if(L==='en'){var d=document.documentElement;d.lang='en';d.dir='ltr';document.write('<script src="i18n/en.js?v=6"><\/script>');}})();
 </script>
 <meta name="theme-color" content="#2B3BFF">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, interactive-widget=resizes-content">
@@ -1669,7 +1669,9 @@ async function authInit(){if(!sb||!sb.auth)return;nativeAuthListen();
 async function onUser(){devCheck();premRefresh();if(!A.user){A.prof=null;A.friends=[];A.invites=[];A.udReady=false;stopSocial();render();return;}A.authMsg='';udPull();
   if(!A.S){A.uid=A.user.id;}
   try{let {data:p}=await sb.from('mokesh_profiles').select('*').eq('id',A.user.id).maybeSingle();
-    if(!p){const md=A.user.user_metadata||{};const nm=((A.chosen.name||md.full_name||md.name||'').trim()||'שחקן').slice(0,16);
+    if(!p){const md=A.user.user_metadata||{};
+      // חשבון חדש: לא לוקחים את הכינוי של האורח. שואלים שם, עם הצעה מהחשבון (גוגל/אפל) אם יש
+      const sug=String(md.full_name||md.name||'').trim().split(' ')[0].slice(0,16);const typed=await askName(sug);const nm=((typed||sug||'').trim()||'שחקן').slice(0,16);
       const r=await sb.from('mokesh_profiles').insert({id:A.user.id,name:nm,avatar:srvAv(A.chosen.avatar||AVATARS[0])}).select().single();p=r.data;}
     if(p){A.prof=p;A.chosen={name:p.name,avatar:isPhoto(A.chosen.avatar)?A.chosen.avatar:p.avatar};try{localStorage.setItem('mokesh.profile',JSON.stringify(A.chosen));}catch(e){}}}catch(e){console.warn('profile',e);}
   // מקשרים את הטלפון לחשבון: בלוח הבקרה כל המכשירים של אותו אדם נספרים פעם אחת
@@ -1712,7 +1714,12 @@ async function deleteAccountAsk(){if(!A.user)return;
   try{UD_KEYS.forEach(k=>localStorage.removeItem(k));localStorage.removeItem('mokesh.mydeck');}catch(e){}
   await signOut();toast('החשבון נמחק');}
 async function signOutAsk(){if(await uiAsk({title:'לצאת מהחשבון?',text:'החבילות וההגדרות שלכם שמורות בחשבון ויחזרו כשתיכנסו שוב.',ok:'יציאה',danger:1,icon:ic('back',28)}))signOut();}
-async function signOut(){try{await sb.auth.signOut();}catch(e){}A.user=null;premRefresh();A.prof=null;A.friends=[];stopSocial();A.uid=localStorage.getItem('mokesh.uid')||A.uid;A.sheet=null;render();}
+async function signOut(){try{await sb.auth.signOut();}catch(e){}A.user=null;premRefresh();A.prof=null;A.friends=[];stopSocial();A.uid=localStorage.getItem('mokesh.uid')||A.uid;A.sheet=null;
+  // בלי חשבון אין שם: הכינוי של החשבון לא נשאר בטלפון. מבקשים שם חדש לאורח
+  A.chosen={name:'',avatar:AVATARS.includes(A.chosen.avatar)?A.chosen.avatar:AVATARS[0]};try{localStorage.setItem('mokesh.profile',JSON.stringify(A.chosen));}catch(e){}render();
+  const n=await askName('');if(n){A.chosen.name=n;saveProfile();render();}}
+// חלון "איך קוראים לך?" – מחזיר את השם, או ריק אם דילגו
+async function askName(sug){const v=await uiAsk({icon:ic('users',28),title:'איך קוראים לך?',text:'הכינוי שיופיע לשאר השחקנים במשחק',input:true,max:16,placeholder:'הכינוי שלך',value:sug||'',ok:'שמירה',cancel:'אחר כך'});return (v||'').trim().slice(0,16);}
 async function addFriend(code){code=String(code||'').trim().toUpperCase();if(!code)return;if(!A.user){if(!LOGIN_ON)return;A.pendingFriend=code;A.sheet='login';render();return;}
   try{const {data,error}=await sb.rpc('mokesh_add_friend',{p_code:code});if(error)throw error;
     toast({requested:'בקשת חברות נשלחה ✉️',accepted:'אתם חברים עכשיו! 🎉',already:'אתם כבר חברים',pending:'כבר שלחת בקשה, מחכים שיאשרו',not_found:'לא מצאנו קוד כזה',self:'זה הקוד שלך 🙂'}[data]||'משהו השתבש');A.friendCode='';loadFriends();}catch(e){toast('לא הצלחנו להוסיף חבר');}}
