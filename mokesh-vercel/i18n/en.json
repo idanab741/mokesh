@@ -1125,5 +1125,9 @@
 "ניחוש שגוי אחד": "1 wrong guess",
 "{x} חושב/ת על רמז…": "{x} is thinking of a clue…",
 "הפרש {x}+ (היה {x})": "Margin {x}+ (was {x})",
-"בלי מוקשים למילה הזו": "No mines on this word"
+"בלי מוקשים למילה הזו": "No mines on this word",
+"השחקן נחסם — לא תראו יותר את ההודעות שלו": "Player blocked — you won't see their messages anymore",
+"החסימה בוטלה": "Unblocked",
+"תודה! הדיווח נשלח והשחקן נחסם": "Thanks! Report sent and the player is blocked",
+"חסום": "Block"
 }
