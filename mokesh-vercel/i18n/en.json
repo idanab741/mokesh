@@ -1129,5 +1129,17 @@
 "השחקן נחסם — לא תראו יותר את ההודעות שלו": "Player blocked — you won't see their messages anymore",
 "החסימה בוטלה": "Unblocked",
 "תודה! הדיווח נשלח והשחקן נחסם": "Thanks! Report sent and the player is blocked",
-"חסום": "Block"
+"חסום": "Block",
+"למה לדווח על {x}?": "Why report {x}?",
+"הדיווח נשלח אלינו לבדיקה. השחקן לא יודע מי דיווח.": "The report is sent to us for review. The player won't know who reported.",
+"קללות או העלבות": "Swearing or insults",
+"תוכן מיני או לא הולם": "Sexual or inappropriate content",
+"הטרדה או איומים": "Harassment or threats",
+"ספאם": "Spam",
+"אחר": "Other",
+"תודה! הדיווח נשלח": "Thanks! Report sent",
+"לחסום גם את {x}?": "Also block {x}?",
+"לא תראו יותר את ההודעות שלו. אפשר לבטל בכל רגע.": "You won't see their messages anymore. You can undo this anytime.",
+"לא עכשיו": "Not now",
+"שחקן הוצא מהחדר בעקבות דיווחים": "A player was removed from the room after reports"
 }

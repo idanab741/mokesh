@@ -75,3 +75,16 @@ begin
   d := replace(d, 'select 1 from mokesh_hits h where h.uid = f.uid', 'select 1 from mokesh_hits_p h where h.pid = f.uid');
   execute d;
 end $$;
+
+-- משחק מהיר: מחזירים גם את האווטארים של מי שמחכה, כדי שמסך החיפוש יראה את הדמויות שלהם (הורץ)
+do $$
+declare d text;
+begin
+  d := pg_get_functiondef('public.mokesh_match(text,text,text,text)'::regprocedure);
+  if position('''avs''' in d) = 0 then
+    d := replace(d, $q$return jsonb_build_object('waiting', waiting, 'since', me.joined_at, 'now', now());$q$,
+      $q$return jsonb_build_object('waiting', waiting, 'since', me.joined_at, 'now', now(),
+      'avs', (select coalesce(jsonb_agg(x.avatar order by x.joined_at), '[]'::jsonb) from (select q.avatar, q.joined_at from public.mokesh_queue q where q.room is null and q.lang = lg and q.id <> p_id order by q.joined_at limit 5) x));$q$);
+    execute d;
+  end if;
+end $$;

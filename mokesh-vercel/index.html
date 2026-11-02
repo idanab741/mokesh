@@ -7,7 +7,7 @@
 (function(){var L=null;try{L=localStorage.getItem('mokesh.lang');}catch(e){}
   if(L!=='he'&&L!=='en'){var ls=(navigator.languages||[navigator.language||'']).join(',');var tz='';try{tz=Intl.DateTimeFormat().resolvedOptions().timeZone||'';}catch(e){}
     L=/(^|,)(he|iw)/i.test(ls)||/Jerusalem|Tel_Aviv/.test(tz)?'he':'en';}
-  window.LANG=L;if(L==='en'){var d=document.documentElement;d.lang='en';d.dir='ltr';document.write('<script src="i18n/en.js?v=4"><\/script>');}})();
+  window.LANG=L;if(L==='en'){var d=document.documentElement;d.lang='en';d.dir='ltr';document.write('<script src="i18n/en.js?v=5"><\/script>');}})();
 </script>
 <meta name="theme-color" content="#2B3BFF">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, interactive-widget=resizes-content">
@@ -619,7 +619,7 @@ html.kb .sheet-bg{top:var(--vt,0px);bottom:auto;height:var(--vh,100%)}
 .dlg-bg{position:fixed;inset:0;z-index:4000;background:rgba(21,16,43,.6);display:flex;align-items:center;justify-content:center;padding:18px}
 .dlg{width:100%;max-width:26rem;background:var(--paper);color:var(--ink);border:var(--o);border-radius:26px;box-shadow:0 8px 0 var(--ink);padding:22px 18px 16px;display:flex;flex-direction:column;gap:12px;text-align:center}
 .dlgi{width:64px;height:64px;margin:-54px auto 0;border-radius:50%;background:var(--yellow);border:var(--o);box-shadow:var(--sh-sm);display:grid;place-items:center}.dlgi.bad{background:var(--trap-bg);color:#fff}
-.dlgt{font-size:24px;line-height:1.15}.dlgp{margin:0;color:var(--soft);font-weight:600;line-height:1.5;font-size:15px}.dlgb{display:flex;flex-direction:column;gap:8px;margin-top:4px}.dlg .btn.ghost.dlgc{color:var(--ink);border:2.5px solid var(--ink)}
+.dlgt{font-size:24px;line-height:1.15}.dlgp{margin:0;color:var(--soft);font-weight:600;line-height:1.5;font-size:15px}.dlgch{display:grid;gap:8px;margin-top:10px}.dlgch .btn{background:#fff;color:var(--ink);border:2.5px solid var(--ink);box-shadow:0 3px 0 var(--ink);text-decoration:none;font-size:16px;padding:10px 12px}.dlgb{display:flex;flex-direction:column;gap:8px;margin-top:4px}.dlg .btn.ghost.dlgc{color:var(--ink);border:2.5px solid var(--ink)}
 .sheet.acct{max-height:calc(100vh - 24px);max-height:calc(100dvh - 24px);overflow-y:auto;-webkit-overflow-scrolling:touch}
 .lghead{display:flex;align-items:center;gap:12px;text-align:start}.lghead .lglogo{width:110px!important;flex:none}
 .ltabs{display:grid;grid-template-columns:1fr 1fr;gap:4px;padding:4px;border-radius:16px;background:rgba(21,16,43,.1);border:2.5px solid var(--ink)}.ltabs button{border:0;border-radius:12px;padding:10px;font:400 19px var(--font-display);color:var(--soft);background:none;cursor:pointer}.ltabs button.on{background:var(--yellow);color:var(--ink);box-shadow:0 3px 0 var(--ink);border:2px solid var(--ink)}
@@ -1359,6 +1359,8 @@ function handleAction(a){const S=A.S;if(!S||!a||!okId(a.from))return;const quiet
       const isNew=!S.players.find(x=>x.id===a.from);E.addPlayer(S,{id:a.from,name:a.name,avatar:a.avatar});if(S.vsBots){const np=S.players.find(x=>x.id===a.from);if(np)np.team='A';}if(isNew&&A.mode==='online'&&a.from!==A.uid)toast(`${nm||'שחקן'} הצטרף/ה!`);break;}
     case 'move':if(isHostAct(S,a))E.switchTeam(S,a.target);break;
     case 'vsbots':if(isHostAct(S,a)&&S.phase==='LOBBY'){if('partner' in a)S.vsPartner=!!a.partner;setVsBots(S,!a.off);}break;
+    case 'report':{const t=S.players.find(x=>x.id===a.target);if(!t||t.isHost||isBot(t.id)||a.target===a.from)break;const R=A.reps||(A.reps={});const set=R[a.target]||(R[a.target]=new Set());set.add(a.from);
+      if(S.public&&set.size>=2){E.removePlayer(S,a.target);toast('שחקן הוצא מהחדר בעקבות דיווחים');}break;}
     case 'kick':if(isHostAct(S,a)){const t=S.players.find(x=>x.id===a.target);if(t&&!t.isHost)E.removePlayer(S,a.target);}break;
     case 'shuffle':if(isHostAct(S,a)&&S.phase==='LOBBY'){const ps=shuffle([...S.players]);const tl=teamsOf(S);ps.forEach((x,i)=>{x.team=tl[i%tl.length];x.ready=false;});}break;
     case 'presence':{const p=S.players.find(x=>x.id===a.from);if(p){p.connected=true;p.lastSeen=Date.now();}break;}
@@ -1525,10 +1527,12 @@ const AUTH={apple:true}; // Apple יופעל אחרי שהמפתחות יוגד�
 // ---------- חלון אישור / שאלה בסגנון של המשחק (במקום החלונות של הטלפון) ----------
 function uiAsk(o){return new Promise(res=>{A.dlg=o;A.dlgVal=o.value||'';A.dlgRes=res;render();setTimeout(()=>{const i=document.querySelector('.dlg input');if(i){i.focus();i.select&&i.select();}},80);});}
 function dlgDone(ok){const d=A.dlg,r=A.dlgRes;if(!d)return;A.dlg=null;A.dlgRes=null;render();if(r)r(d.input?(ok?(A.dlgVal||'').trim():null):!!ok);}
+function dlgPick(i){const d=A.dlg,r=A.dlgRes;if(!d)return;A.dlg=null;A.dlgRes=null;render();if(r)r(i);}
 function vDlg(){const d=A.dlg;return `<div class="dlg-bg" onclick="dlgDone(0)"><div class="dlg pop" onclick="event.stopPropagation()">
   ${d.icon?`<div class="dlgi ${d.danger?'bad':''}">${d.icon}</div>`:''}<div class="black dlgt">${d.title}</div>${d.text?`<p class="dlgp">${d.text}</p>`:''}
+  ${d.choices?`<div class="dlgch">${d.choices.map((c,i)=>`<button class="btn ghost" onclick="dlgPick(${i})">${c}</button>`).join('')}</div>`:''}
   ${d.input?`<input class="input" maxlength="${d.max||30}" placeholder="${h(d.placeholder||'')}" value="${h(A.dlgVal||'')}" oninput="A.dlgVal=this.value" onkeydown="if(event.key==='Enter')dlgDone(1)">`:''}
-  <div class="dlgb"><button class="btn ${d.danger?'danger':'primary'} big" onclick="dlgDone(1)">${d.ok||'אישור'}</button><button class="btn ghost dlgc" onclick="dlgDone(0)">${d.cancel||'ביטול'}</button></div></div></div>`;}
+  <div class="dlgb">${d.choices?'':`<button class="btn ${d.danger?'danger':'primary'} big" onclick="dlgDone(1)">${d.ok||'אישור'}</button>`}<button class="btn ghost dlgc" onclick="dlgDone(0)">${d.cancel||'ביטול'}</button></div></div></div>`;}
 // ---------- מיילים: רק של ספקים מוכרים ----------
 const MAIL_OK=['gmail.com','googlemail.com','walla.co.il','walla.com','hotmail.com','hotmail.co.il','outlook.com','outlook.co.il','live.com','live.co.il','msn.com','yahoo.com','yahoo.co.il','ymail.com','icloud.com','me.com','mac.com','012.net.il','netvision.net.il','bezeqint.net','zahav.net.il','smile.net.il','013.net','gmx.com','gmx.net','proton.me','protonmail.com','aol.com','mail.com'];
 function mailOk(em){const m=String(em||'').trim().toLowerCase().match(/^[a-z0-9._%+-]+@([a-z0-9.-]+\.[a-z]{2,})$/);return !!m&&MAIL_OK.includes(m[1]);}
@@ -1949,16 +1953,22 @@ const pubText=(S,t)=>S&&S.public?cleanWords(t):t;
 try{A.muted=new Set(JSON.parse(localStorage.getItem('mokesh.muted')||'[]'));}catch(e){A.muted=new Set();}
 function saveMuted(){try{localStorage.setItem('mokesh.muted',JSON.stringify([...A.muted].slice(-200)));}catch(e){}}
 function muteToggle(id){if(!okId(id))return;A.muted.has(id)?A.muted.delete(id):A.muted.add(id);saveMuted();toast(A.muted.has(id)?'השחקן נחסם — לא תראו יותר את ההודעות שלו':'החסימה בוטלה');render();}
+// דיווח: בוחרים סיבה, הדיווח נשמר לבדיקה, ורק אם רוצים – גם חוסמים. במשחק מהיר, שני מדווחים שונים = השחקן יוצא מהחדר
+const REP_REASONS=['קללות או העלבות','תוכן מיני או לא הולם','הטרדה או איומים','ספאם','אחר'];
 async function reportPlayer(id){const S=A.S;const p=S&&playerById(S,id);if(!p||!okId(id))return;
-  try{await sb.from('mokesh_reports').insert({reporter:myId(),target:id,target_name:p.name,room:S.code,reason:(S.chat||[]).filter(m=>m.by===id).slice(-3).map(m=>m.text).join(' | ').slice(0,300)});}catch(e){}
-  A.muted.add(id);saveMuted();toast('תודה! הדיווח נשלח והשחקן נחסם');render();}
+  const r=await uiAsk({icon:'🚩',title:'למה לדווח על '+h(p.name)+'?',text:'הדיווח נשלח אלינו לבדיקה. השחקן לא יודע מי דיווח.',choices:REP_REASONS,cancel:'ביטול'});
+  if(r==null||r===false||r===true||!REP_REASONS[r])return;
+  try{await sb.from('mokesh_reports').insert({reporter:myId(),target:id,target_name:p.name,room:S.code,reason:('['+REP_REASONS[r]+'] '+(S.chat||[]).filter(m=>m.by===id).slice(-3).map(m=>m.text).join(' | ')).slice(0,300)});}catch(e){}
+  if(S.mode==='online')act({type:'report',target:id});
+  toast('תודה! הדיווח נשלח');
+  if(!A.muted.has(id)&&await uiAsk({icon:'🚫',title:'לחסום גם את '+h(p.name)+'?',text:'לא תראו יותר את ההודעות שלו. אפשר לבטל בכל רגע.',ok:'חסום',cancel:'לא עכשיו'})){A.muted.add(id);saveMuted();toast('השחקן נחסם — לא תראו יותר את ההודעות שלו');render();}}
 async function quickMatch(){if(!A.dbReady)return toast('מצב אונליין לא זמין כרגע');if(!canPlay(null)){needPremium('limit');return;}if(!(A.chosen.name||'').trim()){A.homeMode='quick';render();return;}
   track('quick');qmStop(false);A.qmSince=Date.now();A.qm={since:A.qmSince,waiting:1,err:0};A.homeMode='queue';render();qmPoll();A.qmT=setInterval(qmPoll,2000);A.qmT2=setInterval(()=>{if(A.qm&&A.homeMode==='queue'&&!A.S)render();},1000);}
 async function qmPoll(){const q=A.qm;if(!q||q.busy)return;q.busy=true;
   try{const {data,error}=await sb.rpc('mokesh_match',{p_id:A.uid,p_name:(A.chosen.name||'').trim().slice(0,16),p_avatar:A.chosen.avatar,p_lang:LANG});if(error)throw error;if(A.qm!==q)return;
     if(data&&data.room){qmStop(false);await qmEnter(data);return;}
     if(data&&data.error)throw new Error(data.error);
-    if(data){q.waiting=data.waiting||1;if(data.since&&data.now)q.since=Date.now()-(new Date(data.now)-new Date(data.since));q.err=0;render();}}
+    if(data){q.waiting=data.waiting||1;q.avs=(Array.isArray(data.avs)?data.avs:[]).filter(a=>AVATARS.includes(a)).slice(0,5);if(data.since&&data.now)q.since=Date.now()-(new Date(data.now)-new Date(data.since));q.err=0;render();}}
   catch(e){console.warn('qm',e);q.err++;if(q.err>=4&&A.qm===q){qmStop(true);A.homeMode='menu';render();toast('החיפוש נכשל — נסו שוב בעוד רגע');}}
   finally{q.busy=false;}}
 function qmStop(unq){clearInterval(A.qmT);clearInterval(A.qmT2);A.qmT=A.qmT2=null;if(unq&&sb)sb.rpc('mokesh_unqueue',{p_id:A.uid}).then(()=>{},()=>{});A.qm=null;}
@@ -1983,7 +1993,7 @@ async function joinPublic(code){A.homeMode='queue';A.qmJoining=true;render();
 function vQueue(){const q=A.qm;const left=q?Math.max(0,QM_WAIT-Math.floor((Date.now()-q.since)/1000)):0;const w=q?Math.min(6,q.waiting||1):1;
   return `<div class="card col tc qm" style="gap:14px"><div class="radar"><img src="${TA('bomb')}" alt=""></div>
     <div class="black" style="font-size:26px">${A.qmJoining?'נמצאה קבוצה! מצטרפים…':'מחפשים שחקנים…'}</div>
-    ${A.qmJoining?'':`<div class="qslots">${Array.from({length:6},(_,i)=>`<span class="${i<w?'on':''}">${i===0?avInner(A.chosen.avatar):i<w?'👤':''}</span>`).join('')}</div>
+    ${A.qmJoining?'':`<div class="qslots">${Array.from({length:6},(_,i)=>`<span class="${i<w?'on':''}">${i===0?avInner(A.chosen.avatar):i<w?((q&&q.avs&&q.avs[i-1])?avInner(q.avs[i-1]):avInner(AVATARS[(i*4)%AVATARS.length])):''}</span>`).join('')}</div>
     <div class="small"><b>${w}</b> מתוך 6 שחקנים · 2 קבוצות של 3</div>
     <div class="xs isub">${left>0?`אם לא יגיעו מספיק — בעוד <b>${left}</b> שניות נשלים את החסרים במחשב`:'מתחילים עם מי שיש…'}</div>`}
     <button class="btn ghost" onclick="qmCancel()">ביטול</button></div>`;}
