@@ -1141,5 +1141,6 @@
 "לחסום גם את {x}?": "Also block {x}?",
 "לא תראו יותר את ההודעות שלו. אפשר לבטל בכל רגע.": "You won't see their messages anymore. You can undo this anytime.",
 "לא עכשיו": "Not now",
-"שחקן הוצא מהחדר בעקבות דיווחים": "A player was removed from the room after reports"
+"שחקן הוצא מהחדר בעקבות דיווחים": "A player was removed from the room after reports",
+"הכינוי שיופיע לשאר השחקנים במשחק": "The nickname other players will see"
 }
