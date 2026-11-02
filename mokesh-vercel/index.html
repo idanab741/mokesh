@@ -1238,7 +1238,7 @@ function vPremium(){const lim=A.premReason==='limit';const code=localStorage.get
     <div class="pfeat">${F.map(([i,t,d,soon])=>`<div class="pf"><span class="pi">${ic(i,20)}</span><div><b>${t}</b>${soon?`<em>${soon}</em>`:''}<div class="xs muted">${d}</div></div></div>`).join('')}</div>
     <button class="btn primary big" onclick="A.sheet='login';A.authMode='signup';A.fromSettings=1;render()">${PREMIUM_FREE?'פתיחת חשבון ופרימיום בחינם':'פתיחת חשבון'}</button>
     <button class="btn ghost" onclick="A.sheet=null;render()">אחר כך</button></div>`;
-  if(PREMIUM_FREE)return `<div class="prem"><div class="pbadge">${ic('crown',22)} מוקש! פרימיום</div><div class="price"><s>29.90 <span class="nis">₪</span></s><b class="free">חינם!</b><span>מבצע השקה · לזמן מוגבל</span></div>
+  if(PREMIUM_FREE)return `<div class="prem"><div class="pbadge">${ic('crown',22)} מוקש! פרימיום</div><div class="price">${NATIVE_IOS?'':'<s>29.90 <span class="nis">₪</span></s>'}<b class="free">חינם!</b><span>מבצע השקה · לזמן מוגבל</span></div>
     <div class="pfeat">${F.map(([i,t,d,soon])=>`<div class="pf"><span class="pi">${ic(i,20)}</span><div><b>${t}</b>${soon?`<em>${soon}</em>`:''}<div class="xs muted">${d}</div></div></div>`).join('')}</div>
     <button class="btn primary big" onclick="A.sheet=null;render()">מעולה, יאללה משחקים</button></div>`;
   if(A.premium)return `<div class="prem"><div class="pbadge">${ic('crown',22)} פרימיום פעיל</div><h2>אתם בפרימיום!</h2><p class="small muted">כל מי שמשחק בחדר שלכם נהנה מהפרימיום.</p><button class="btn primary big" onclick="A.sheet=null;render()">יאללה, משחקים</button></div>`;
@@ -2240,7 +2240,7 @@ function vHome(){const c=A.chosen;const m=A.homeMode;if(m==='settings')return vS
       ${hb('q','bolt','משחק מהיר','<i class="ldot"></i>אונליין · 2 קבוצות של 3','quickMatch()')}
       ${hb('y','users','צור משחק','',"A.homeMode='create';render()")}
       ${hb('w','join','הצטרף למשחק','',"A.homeMode='join';render()")}
-      <button type="button" class="premline${A.premium?' on':''}" onclick="needPremium('home')">${A.premium?`${ic('crown',18)} פרימיום פעיל`:PREMIUM_FREE?`${ic('crown',18)} פרימיום <s>29.90 ₪</s> <b>חינם לנרשמים!</b>`:A.premium?`${ic('crown',18)} פרימיום פעיל`:`${ic('crown',18)} ${Math.max(0,FREE_GAMES-gamesToday())} משחקים בחינם היום · <u>פרימיום</u>`}</button>
+      <button type="button" class="premline${A.premium?' on':''}" onclick="needPremium('home')">${A.premium?`${ic('crown',18)} פרימיום פעיל`:PREMIUM_FREE?`${ic('crown',18)} פרימיום ${NATIVE_IOS?'':'<s>29.90 ₪</s> '}<b>חינם לנרשמים!</b>`:A.premium?`${ic('crown',18)} פרימיום פעיל`:`${ic('crown',18)} ${Math.max(0,FREE_GAMES-gamesToday())} משחקים בחינם היום · <u>פרימיום</u>`}</button>
       <div class="hicons"><button onclick="A.homeMode='local';render()"><span style="--c:var(--i1)">${ic('phone',24)}</span>מכשיר אחד</button><button onclick="openRoute()"><span style="--c:var(--i2)">${ic('robot',24)}</span>מול המחשב</button><button onclick="tourStart('home')"><span style="--c:var(--i3)">${ic('book',24)}</span>איך משחקים</button></div>
       ${A.dbMissing?'<div class="banner warn">מצב אונליין לא זמין כרגע. ״מכשיר אחד״ עובד תמיד.</div>':''}
     </div>`;
