@@ -158,6 +158,29 @@ section{padding-block:clamp(90px,12vw,150px)}
   .case .vis .small{--w:clamp(130px,35vw,175px);margin-bottom:24px}
 }
 
+
+/* ---------- landing pages ---------- */
+.lps{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:18px}
+.lp{display:flex;flex-direction:column;gap:14px;min-width:0;background:var(--card);box-shadow:inset 0 0 0 1px var(--line);border-radius:28px;padding:14px 14px 22px;transition:transform .6s var(--ease),box-shadow .4s}
+.lp:hover{transform:translateY(-5px);box-shadow:inset 0 0 0 1px var(--line2)}
+.lp .scr{position:relative;padding-bottom:18px}
+.lp .brw{width:84%}.lp.flip .brw{margin-inline-start:auto}
+.lp .brw{border-radius:16px;overflow:hidden;background:#000;box-shadow:inset 0 0 0 1px var(--line2),0 30px 60px -30px rgba(0,0,0,.8)}
+.lp .brw .tb{display:flex;align-items:center;gap:6px;height:28px;padding:0 10px;background:#1c1c1f;direction:ltr}
+.lp .brw .tb i{width:8px;height:8px;border-radius:50%;background:#3a3a3e;display:block}
+.lp .brw .tb span{flex:1;margin-inline-start:8px;height:18px;border-radius:6px;background:#2a2a2e;color:var(--fg2);font-size:10.5px;line-height:18px;text-align:center;overflow:hidden;white-space:nowrap;text-overflow:ellipsis}
+.lp .brw img{width:100%;aspect-ratio:16/10;object-fit:cover;object-position:top;display:block}
+.lp .ph{position:absolute;bottom:0;left:0;width:24%;aspect-ratio:300/650;border-radius:14px;padding:3px;background:#0c0c10;box-shadow:0 0 0 1px var(--line2),0 20px 40px -10px rgba(0,0,0,.9);transition:transform .6s var(--ease)}
+.lp.flip .ph{left:auto;right:0}
+.lp:hover .ph{transform:translateY(-6px) rotate(-2deg)}
+.lp .ph img{width:100%;height:100%;object-fit:cover;object-position:top;border-radius:11px;display:block}
+.lp .nm{display:flex;align-items:center;gap:10px;padding:0 6px}
+.lp .nm img{width:30px;height:30px;border-radius:8px}
+.lp h3{font-size:21px;letter-spacing:-.03em}
+.lp .lang{margin-inline-start:auto;font-size:12px;font-weight:600;color:var(--fg2);padding:4px 10px;border-radius:999px;box-shadow:inset 0 0 0 1px var(--line2)}
+.lp p{color:var(--fg2);font-size:15px;padding:0 6px;flex:1}
+.lp .go{padding:0 6px;font-weight:600;font-size:15px;color:var(--bone)}
+@media (max-width:900px){.lps{display:flex;overflow-x:auto;scroll-snap-type:x mandatory;gap:12px;margin-inline:calc(-1*max(20px,env(safe-area-inset-left,0px)));padding-inline:max(20px,env(safe-area-inset-left,0px));scrollbar-width:none}.lps::-webkit-scrollbar{display:none}.lp{flex:0 0 82%;scroll-snap-align:center}}
 /* ---------- approach / services ---------- */
 .cards{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px}
 .cd{background:var(--card);box-shadow:inset 0 0 0 1px var(--line);border-radius:26px;padding:28px;display:flex;flex-direction:column;gap:10px;min-width:0;transition:transform .6s var(--ease),box-shadow .4s}
@@ -323,7 +346,7 @@ section{padding-block:clamp(90px,12vw,150px)}
 
 <header class="nav" id="nav"><div class="wrap">
   <a class="logo" href="#top" aria-label="IA Studio"><b class="wm">IA STUDIO</b></a>
-  <ul><li><a href="#work">עבודות</a></li><li><a href="#services">שירותים</a></li><li><a href="#process">תהליך</a></li><li><a href="#tools">כלים</a></li><li><a href="#faq">שאלות</a></li></ul>
+  <ul><li><a href="#work">עבודות</a></li><li><a href="#landing">עמודי נחיתה</a></li><li><a href="#services">שירותים</a></li><li><a href="#process">תהליך</a></li><li><a href="#tools">כלים</a></li><li><a href="#faq">שאלות</a></li></ul>
   <a class="btn bone sm" href="#contact">התחילו פרויקט</a>
 </div></header>
 
@@ -386,6 +409,30 @@ section{padding-block:clamp(90px,12vw,150px)}
           <div class="device small"><div class="bz"><div class="sc"><img loading="lazy" decoding="async" src="/studio-assets/m_boom.webp" alt="מוקש!: מסך הבום"></div><div class="di"></div><div class="gl"></div></div></div>
         </div>
       </article>
+    </section>
+
+    <section id="landing" style="padding-top:0">
+      <div class="sh rv"><p class="eyebrow">עמודי נחיתה</p><h2>עמודים שמביאים<br>הורדות.</h2><p>לכל אפליקציה עמוד משלה: מהיר, מותאם לטלפון ומוכן לשיתוף.</p></div>
+      <div class="lps">
+        <a class="lp rv" href="https://beta.triplace.co.il/download" target="_blank" rel="noopener">
+          <div class="scr"><div class="brw"><div class="tb"><i></i><i></i><i></i><span>beta.triplace.co.il/download</span></div><img loading="lazy" decoding="async" src="/studio-assets/lp_tp_d.webp" alt="Triplace: עמוד הנחיתה במחשב"></div><div class="ph"><img loading="lazy" decoding="async" src="/studio-assets/lp_tp_m.webp" alt="Triplace: עמוד הנחיתה בטלפון"></div></div>
+          <div class="nm"><img loading="lazy" decoding="async" src="/studio-assets/tp_icon.webp?v=2" alt=""><h3>Triplace</h3><span class="lang">עברית</span></div>
+          <p>עמוד הורדה לאפליקציית הטיולים, עם צילומי מסך מהאפליקציה וכפתורים לשתי החנויות.</p>
+          <span class="go">לצפייה בעמוד <span class="ar">←</span></span>
+        </a>
+        <a class="lp rv" href="/app" target="_blank" rel="noopener">
+          <div class="scr"><div class="brw"><div class="tb"><i></i><i></i><i></i><span>mokesh-psi.vercel.app/app</span></div><img loading="lazy" decoding="async" src="/studio-assets/lp_mk_d.webp" alt="מוקש!: עמוד הנחיתה במחשב"></div><div class="ph"><img loading="lazy" decoding="async" src="/studio-assets/lp_mk_m.webp" alt="מוקש!: עמוד הנחיתה בטלפון"></div></div>
+          <div class="nm"><img loading="lazy" decoding="async" src="/studio-assets/mk_icon.webp" alt=""><h3>מוקש!</h3><span class="lang">עברית</span></div>
+          <p>עמוד עם משחק אמיתי בתוכו. בוחרים רמזים, נזהרים מהמוקשים ומרגישים את הבום.</p>
+          <span class="go">לצפייה בעמוד <span class="ar">←</span></span>
+        </a>
+        <a class="lp rv flip" href="/app-en" target="_blank" rel="noopener">
+          <div class="scr"><div class="brw"><div class="tb"><i></i><i></i><i></i><span>mokesh-psi.vercel.app/app-en</span></div><img loading="lazy" decoding="async" src="/studio-assets/lp_mken_d.webp" alt="Blast!: עמוד הנחיתה במחשב"></div><div class="ph"><img loading="lazy" decoding="async" src="/studio-assets/lp_mken_m.webp" alt="Blast!: עמוד הנחיתה בטלפון"></div></div>
+          <div class="nm"><img loading="lazy" decoding="async" src="/studio-assets/mk_icon.webp" alt=""><h3 dir="ltr">Blast!</h3><span class="lang"><span class="ltr">English</span></span></div>
+          <p>אותו עמוד באנגלית, עם צילומי מסך מהגרסה האנגלית של המשחק, לשוק הבינלאומי.</p>
+          <span class="go">לצפייה בעמוד <span class="ar">←</span></span>
+        </a>
+      </div>
     </section>
 
     <section id="services" style="padding-top:0">
