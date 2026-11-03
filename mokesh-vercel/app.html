@@ -44,7 +44,7 @@ button{font:inherit;color:inherit}
 /* ---------- buttons ---------- */
 .store{display:inline-flex;align-items:center;gap:10px;height:58px;padding:0 20px;border-radius:16px;background:#000;color:#fff;border:3px solid var(--ink);box-shadow:0 6px 0 var(--ink),0 0 0 3px rgba(255,255,255,.12);direction:ltr;font-size:12px;line-height:1.1;transition:transform .2s,box-shadow .2s}
 .store:hover,.store:active{transform:translateY(3px);box-shadow:0 3px 0 var(--ink)}
-.store b{display:block;font-size:19px;font-weight:600;letter-spacing:-.01em}
+.store span{white-space:nowrap}.store b{white-space:nowrap;display:block;font-size:19px;font-weight:600;letter-spacing:-.01em}
 .store svg{width:26px;height:26px;fill:#fff}
 .store.soon{background:#262a55;color:#c9cbf0}.store.soon svg{fill:#c9cbf0}
 .store.soon:hover{transform:none;box-shadow:0 6px 0 var(--ink)}
@@ -60,7 +60,7 @@ button{font:inherit;color:inherit}
 .bar .brand img{width:38px;height:38px;border-radius:10px;border:2px solid var(--ink);box-shadow:0 3px 0 var(--ink)}
 .bar .play{font-family:var(--f-d);font-size:16px;padding:9px 16px;border-radius:12px;background:rgba(255,255,255,.12);border:2px solid rgba(255,255,255,.25)}
 .hin{position:relative;z-index:2;display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:30px;align-items:center;padding-block:10px 60px}
-.kicker{display:inline-flex;align-items:center;gap:8px;font-weight:700;font-size:14px;background:var(--yellow);color:var(--ink);border:2px solid var(--ink);border-radius:999px;padding:5px 12px;box-shadow:0 3px 0 var(--ink)}
+.kicker{white-space:nowrap;display:inline-flex;align-items:center;gap:8px;font-weight:700;font-size:14px;background:var(--yellow);color:var(--ink);border:2px solid var(--ink);border-radius:999px;padding:5px 12px;box-shadow:0 3px 0 var(--ink)}
 .kicker i{width:8px;height:8px;border-radius:50%;background:var(--green);border:1.5px solid var(--ink);display:block}
 .hero h1{font-size:clamp(50px,5.6vw,92px);margin-top:20px;letter-spacing:-.01em;text-shadow:0 5px 0 var(--ink)}
 .hero h1 .l{display:block}.hero h1 .l:last-child{white-space:nowrap}
@@ -83,6 +83,10 @@ button{font:inherit;color:inherit}
 .stage .b1{background:var(--green);color:var(--ink);bottom:22%;left:2%;transform:rotate(-6deg);animation:bob2 5s ease-in-out infinite}
 .stage .b2{background:var(--red);color:#fff;top:30%;left:6%;transform:rotate(5deg);animation:bob2 6s ease-in-out infinite reverse;background-image:repeating-linear-gradient(135deg,rgba(0,0,0,.14) 0 7px,transparent 7px 14px)}
 .stage .b3{background:#fff;color:var(--ink);bottom:8%;right:6%;transform:rotate(4deg);animation:bob2 5.5s ease-in-out infinite}
+.tbomb{position:absolute;left:28%;width:44%;top:32%;height:10%;border:0;padding:0;background:transparent;border-radius:14px;cursor:pointer;z-index:3;-webkit-tap-highlight-color:transparent}
+.tbomb::after{content:"";position:absolute;inset:-4px;border-radius:16px;border:3px solid #FFD23F;opacity:0;animation:tping 2.4s 2s ease-out infinite}
+@keyframes tping{0%{opacity:.9;transform:scale(.9)}70%,100%{opacity:0;transform:scale(1.25)}}
+#hphone.shake{animation:shake .5s}
 @keyframes bob2{0%,100%{translate:0 0}50%{translate:0 -10px}}
 @media (max-width:860px){
   .hin{grid-template-columns:1fr;text-align:center;padding-bottom:30px;gap:10px}
@@ -232,7 +236,7 @@ footer a:hover{color:#fff}
       </div>
       <div class="stage" id="stage" aria-hidden="true">
         <div class="glow"></div>
-        <div class="device" id="hphone"><img src="/app-assets/home.webp" alt=""><span class="di"></span></div>
+        <div class="device" id="hphone"><img src="/app-assets/home.webp" alt=""><span class="di"></span><button type="button" class="tbomb" id="tbomb" aria-label="בום"></button></div>
         <span class="badge b1">+2 ניחשו!</span>
         <span class="badge b2">מוקש!</span>
         <span class="badge b3">00:27</span>
@@ -378,6 +382,10 @@ footer a:hover{color:#fff}
     if(safe>=3){A+=2;sa.textContent=A;tst('ניחשו! +2');burst(innerWidth/2,innerHeight*.4,['#FFD23F','#2EE88A','#19D3FF','#FF4FA3','#fff'],120,10);vib([30,40,30]);end('הקבוצה ניחשה "פיצה"! עברתם בלי לדרוך על מוקש.');}
     else pr.textContent=safe===1?'יפה! עוד רמז…':'כמעט! עוד רמז אחד…';}
   again.onclick=build;build();
+  var tb=document.getElementById('tbomb'),hph=document.getElementById('hphone');
+  tb.onclick=function(){var r=tb.getBoundingClientRect();vib([180,60,260]);hph.classList.remove('shake');void hph.offsetWidth;hph.classList.add('shake');
+    if(!reduce){blast.classList.remove('on');void blast.offsetWidth;blast.classList.add('on');}
+    burst(r.left+r.width/2,r.top+r.height/2,['#FF3B30','#FFD23F','#FF6A00','#15102B'],90,12);};
 
   /* ---- reveal on scroll + count up ---- */
   if(reduce||!('IntersectionObserver' in window))return;
