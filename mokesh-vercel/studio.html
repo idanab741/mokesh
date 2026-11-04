@@ -183,13 +183,17 @@ section{padding-block:clamp(40px,4vw,56px)}
 @media (max-width:900px){.lps{display:flex;overflow-x:auto;scroll-snap-type:x mandatory;gap:12px;margin-inline:calc(-1*max(20px,env(safe-area-inset-left,0px)));padding-inline:max(20px,env(safe-area-inset-left,0px));scrollbar-width:none}.lps::-webkit-scrollbar{display:none}.lp{flex:0 0 82%;scroll-snap-align:center}}
 
 /* ---------- about ---------- */
-.about{max-width:760px;margin:0 auto;text-align:center;background:var(--bg2);box-shadow:inset 0 0 0 1px var(--line);border-radius:36px;padding:clamp(32px,5vw,56px) clamp(22px,5vw,64px)}
-.about .ph{width:132px;height:132px;margin:0 auto 22px;border-radius:50%;overflow:hidden;box-shadow:0 0 0 1px var(--line2),0 24px 50px -24px rgba(0,0,0,.9)}
+.about{max-width:780px;margin:0 auto;background:var(--bg2);box-shadow:inset 0 0 0 1px var(--line);border-radius:36px;padding:clamp(32px,5vw,60px) clamp(22px,5vw,64px)}
+.about .head{text-align:center}
+.about .ph{width:132px;height:132px;margin:0 auto 20px;border-radius:50%;overflow:hidden;box-shadow:0 0 0 1px var(--line2),0 24px 50px -24px rgba(0,0,0,.9)}
 .about .ph img{width:100%;height:100%;object-fit:cover;object-position:50% 18%;display:block}
 .about h2{font-size:clamp(32px,4vw,48px);line-height:1.05;font-weight:800;letter-spacing:-.04em;margin-top:10px}
-.about .role{color:var(--fg3);font-size:15px;font-weight:600;margin-top:6px}
-.about p.lead{color:var(--fg2);font-size:clamp(16px,1.5vw,19px);line-height:1.7;margin:18px auto 0;max-width:56ch}
-.about p.lead+p.lead{margin-top:12px}
+.about .role{color:var(--fg3);font-size:15px;font-weight:600;margin-top:8px;line-height:1.5}
+.about .quote{font-size:clamp(22px,2.6vw,30px);font-weight:800;letter-spacing:-.025em;line-height:1.3;text-align:center;margin:clamp(26px,3.5vw,40px) auto 0;max-width:24ch}
+.about .body{margin-top:clamp(24px,3vw,36px);padding-top:clamp(24px,3vw,36px);border-top:1px solid var(--line)}
+.about .body p{color:var(--fg2);font-size:clamp(16px,1.4vw,18px);line-height:1.75;margin:0 0 16px}
+.about .body p.beat{color:var(--fg);font-weight:700;font-size:clamp(17px,1.6vw,20px)}
+.about .body p:last-child{margin-bottom:0}
 @media (max-width:640px){.about{border-radius:28px}.about .ph{width:110px;height:110px}}
 /* ---------- approach / services ---------- */
 .cards{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px}
@@ -483,12 +487,23 @@ section{padding-block:clamp(40px,4vw,56px)}
   <div class="wrap">
     <section id="about">
       <div class="about rv">
-        <div class="ph"><img loading="lazy" decoding="async" src="/studio-assets/idan.webp?v=2" alt="עידן עבודי, מייסד IA STUDIO"></div>
-        <p class="eyebrow">מי אני</p>
-        <h2>עידן עבודי</h2>
-        <p class="role">מייסד <span class="ltr" dir="ltr">IA STUDIO</span></p>
-        <p class="lead">התחלתי בדיוק כמו רוב מי שפונה אליי: עם רעיון, ועם מפתחים ומנהלי פרויקטים, בארץ ובהודו, שהיו אמורים לבנות אותו. זה לא עבד, ושום דבר לא עלה לאוויר.</p>
-        <p class="lead">אז למדתי לבנות בעצמי, עם Claude. היום Triplace ומוקש! נמצאות בחנויות ומשרתות משתמשים אמיתיים, ואת אותה דרך אני עושה עכשיו עם הלקוחות שלי.</p>
+        <div class="head">
+          <div class="ph"><img loading="lazy" decoding="async" src="/studio-assets/idan.webp?v=2" alt="עידן עבודי, מייסד IA STUDIO"></div>
+          <p class="eyebrow">מי אני</p>
+          <h2>עידן עבודי</h2>
+          <p class="role">מייסד <span dir="ltr">IA STUDIO</span> · יזם, איש תקשורת ומפתח מוצרים דיגיטליים</p>
+        </div>
+        <p class="quote">אני יודע מה צריך כדי להפוך רעיון למציאות. כי הייתי בדיוק במקום שלכם.</p>
+        <div class="body">
+          <p>את הקריירה שלי בניתי בעולם התקשורת, התוכן והאסטרטגיה. שימשתי כדובר ויועץ תקשורת בכנסת, עבדתי כעורך בערוצי הטלוויזיה 13 ו-<span dir="ltr">i24NEWS</span>, וכיום אני עומד בראש מערכת ״מדד גלבוע״, מתוכניות הצרכנות הבולטות בישראל.</p>
+          <p>השנים האלה לימדו אותי משהו שלא לומדים בקורס פיתוח: איך להבין אנשים, לזהות מה באמת חשוב להם, לספר סיפור נכון ולגרום לרעיון לבלוט בעולם מלא ברעש.</p>
+          <p class="beat">אבל תמיד רציתי גם ליצור משהו משלי.</p>
+          <p>נכנסתי לעולם היזמות עם רעיונות גדולים והרבה מוטיבציה. עבדתי עם מפתחים ומנהלי פרויקטים בישראל, בהודו ובאירופה, השקעתי זמן ומשאבים, וגיליתי כמה מתסכל יכול להיות המרחק בין רעיון מצוין לבין מוצר שבאמת עובד.</p>
+          <p class="beat">אז החלטתי ללמוד לעשות את זה בעצמי.</p>
+          <p>בעזרת כלי AI מתקדמים נכנסתי לעומק עולם הפיתוח, התכנון וחוויית המשתמש, והפכתי רעיונות למוצרים אמיתיים. מתוך הדרך הזאת הקמתי את <span dir="ltr">IA STUDIO</span>: סטודיו שמשלב את שני העולמות שלי, חשיבה יצירתית ושיווקית מצד אחד, ויכולת טכנולוגית להפוך רעיון למוצר עובד מצד שני.</p>
+          <p>אני מביא לכל פרויקט לא רק את היכולת לפתח, אלא גם ניסיון בהבנת קהלים, בניית מסרים, חשיבה מוצרית וירידה לפרטים הקטנים. כי מבחינתי, אפליקציה טובה היא לא רק אפליקציה שעובדת. היא מוצר שאנשים מבינים, אוהבים ורוצים להשתמש בו.</p>
+          <p class="beat">והיום אני עוזר ליזמים ולעסקים לעשות את מה שלמדתי לעשות בעצמי: לקחת רעיון, להפסיק לדבר עליו, ולהפוך אותו למשהו אמיתי.</p>
+        </div>
       </div>
     </section>
   </div>
