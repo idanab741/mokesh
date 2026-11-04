@@ -22,11 +22,9 @@
 (function(){
   var IOS='https://apps.apple.com/app/id6829290776';
   var PLAY='https://play.google.com/store/apps/details?id=com.mokesh.game';
-  var PLAY_LIVE=true;
   var ua=navigator.userAgent||'';
   if(/iPhone|iPad|iPod/i.test(ua)||(/Macintosh/.test(ua)&&'ontouchend' in document)){location.replace(IOS);return;}
-  if(PLAY_LIVE&&/Android/i.test(ua)){location.replace(PLAY);return;}
-  window.__PLAY_LIVE=PLAY_LIVE;
+  if(/Android/i.test(ua)){location.replace(PLAY);return;}
 })();
 </script>
 <style>
@@ -56,8 +54,5 @@ p{color:#DCE1FF;font-size:17px;margin-top:8px}
   </div>
   <a class="web" href="/">או לשחק עכשיו בדפדפן ←</a>
 </div>
-<script>
-if(!window.__PLAY_LIVE){var p=document.getElementById('play');p.classList.add('off');p.removeAttribute('href');document.getElementById('playt').innerHTML='Coming soon<b>Google Play</b>';}
-</script>
 </body>
 </html>
