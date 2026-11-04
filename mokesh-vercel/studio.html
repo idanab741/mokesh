@@ -183,19 +183,14 @@ section{padding-block:clamp(40px,4vw,56px)}
 @media (max-width:900px){.lps{display:flex;overflow-x:auto;scroll-snap-type:x mandatory;gap:12px;margin-inline:calc(-1*max(20px,env(safe-area-inset-left,0px)));padding-inline:max(20px,env(safe-area-inset-left,0px));scrollbar-width:none}.lps::-webkit-scrollbar{display:none}.lp{flex:0 0 82%;scroll-snap-align:center}}
 
 /* ---------- about ---------- */
-.about{display:grid;grid-template-columns:minmax(0,220px) minmax(0,1fr);gap:clamp(28px,5vw,72px);align-items:center;background:var(--bg2);box-shadow:inset 0 0 0 1px var(--line);border-radius:36px;padding:clamp(18px,2.4vw,28px);overflow:hidden}
-.about .ph{position:relative;border-radius:50%;overflow:hidden;aspect-ratio:1/1;background:#111;max-width:220px;width:100%;margin-inline:auto;box-shadow:0 0 0 1px var(--line2),0 30px 60px -30px rgba(0,0,0,.8)}
-.about .ph img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:50% 20%}
-.about .ph .tag{position:absolute;right:14px;bottom:14px;padding:8px 14px;border-radius:999px;background:rgba(9,9,10,.6);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);font-size:13px;font-weight:700;color:var(--fg)}
-.about .tx{padding:clamp(4px,2vw,28px) clamp(4px,2vw,28px) clamp(4px,2vw,28px) 0}
-.about h2{font-size:clamp(32px,3.8vw,54px);line-height:1.02;font-weight:800;letter-spacing:-.04em;margin-top:12px}
-.about h2 .dim{color:var(--fg3)}
-.about p.lead{color:var(--fg2);font-size:clamp(16px,1.4vw,19px);line-height:1.65;margin-top:14px;max-width:52ch}
-.about .facts{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin-top:26px}
-.about .facts div{border-radius:18px;padding:14px 14px;min-width:0;box-shadow:inset 0 0 0 1px var(--line2)}
-.about .facts b{display:block;white-space:nowrap;font-size:clamp(16px,1.6vw,21px);direction:ltr;text-align:right;font-weight:800;letter-spacing:-.03em;color:var(--fg)}
-.about .facts span{display:block;font-size:13px;color:var(--fg2);margin-top:2px}
-@media (max-width:820px){.about{grid-template-columns:1fr;border-radius:28px}.about .facts{grid-template-columns:1fr;gap:8px}.about .facts div{padding:12px 14px;display:flex;justify-content:space-between;align-items:baseline;gap:10px}.about .facts b{font-size:17px}.about .facts span{font-size:13px;margin-top:0}.about .ph{max-width:150px}.about .ph .tag{display:none}.about .tx{text-align:center}.about .facts div{text-align:right}.about .tx{padding:4px 6px 10px}}
+.about{max-width:760px;margin:0 auto;text-align:center;background:var(--bg2);box-shadow:inset 0 0 0 1px var(--line);border-radius:36px;padding:clamp(32px,5vw,56px) clamp(22px,5vw,64px)}
+.about .ph{width:132px;height:132px;margin:0 auto 22px;border-radius:50%;overflow:hidden;box-shadow:0 0 0 1px var(--line2),0 24px 50px -24px rgba(0,0,0,.9)}
+.about .ph img{width:100%;height:100%;object-fit:cover;object-position:50% 18%;display:block}
+.about h2{font-size:clamp(32px,4vw,48px);line-height:1.05;font-weight:800;letter-spacing:-.04em;margin-top:10px}
+.about .role{color:var(--fg3);font-size:15px;font-weight:600;margin-top:6px}
+.about p.lead{color:var(--fg2);font-size:clamp(16px,1.5vw,19px);line-height:1.7;margin:18px auto 0;max-width:56ch}
+.about p.lead+p.lead{margin-top:12px}
+@media (max-width:640px){.about{border-radius:28px}.about .ph{width:110px;height:110px}}
 /* ---------- approach / services ---------- */
 .cards{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px}
 .cd{background:var(--card);box-shadow:inset 0 0 0 1px var(--line);border-radius:26px;padding:28px;display:flex;flex-direction:column;gap:10px;min-width:0;transition:transform .6s var(--ease),box-shadow .4s}
@@ -361,7 +356,7 @@ section{padding-block:clamp(40px,4vw,56px)}
 
 <header class="nav" id="nav"><div class="wrap">
   <a class="logo" href="#top" aria-label="IA Studio"><b class="wm">IA STUDIO</b></a>
-  <ul><li><a href="#about">מי אני</a></li><li><a href="#work">עבודות</a></li><li><a href="#landing">עמודי נחיתה</a></li><li><a href="#services">שירותים</a></li><li><a href="#process">תהליך</a></li><li><a href="#tools">כלים</a></li><li><a href="#faq">שאלות</a></li></ul>
+  <ul><li><a href="#work">עבודות</a></li><li><a href="#landing">עמודי נחיתה</a></li><li><a href="#services">שירותים</a></li><li><a href="#process">תהליך</a></li><li><a href="#tools">כלים</a></li><li><a href="#faq">שאלות</a></li><li><a href="#about">מי אני</a></li></ul>
   <a class="btn bone sm" href="#contact">התחילו פרויקט</a>
 </div></header>
 
@@ -388,24 +383,6 @@ section{padding-block:clamp(40px,4vw,56px)}
         <span class="scue"><i></i>גללו לעבודות</span>
       </div>
     </div>
-  </div>
-
-  <div class="wrap">
-    <section id="about" style="padding-top:clamp(40px,6vw,80px)">
-      <div class="about rv">
-        <div class="ph"><img loading="lazy" decoding="async" src="/studio-assets/idan.webp?v=2" alt="עידן עבודי, מייסד IA STUDIO"></div>
-        <div class="tx">
-          <p class="eyebrow">מי אני</p>
-          <h2>עידן עבודי.<br><span class="dim">גם אני התחלתי מרעיון.</span></h2>
-          <p class="lead">כמו רוב מי שמגיע אליי, גם אני התחלתי עם רעיון ועם אנשים אחרים שיבנו אותו: מפתחים, מנהלי פרויקטים, צוותים בארץ ובהודו. זה לא הסתדר, ושום דבר טוב לא עלה לאוויר.</p><p class="lead">אז התחלתי לבנות בעצמי, עם Claude. ללמוד, לנסות, לתקן ולהשיק. כנגד כל הסיכויים, שתי אפליקציות שלי חיות היום ב-App Store וב-Google Play. את הדרך הזאת אני עושה עכשיו איתכם.</p>
-          <div class="facts">
-            <div><b>2</b><span>אפליקציות בחנויות</span></div>
-            <div><b>iOS · Android</b><span>מקוד אחד</span></div>
-            <div><b>עברית · English</b><span>מהיום הראשון</span></div>
-          </div>
-        </div>
-      </div>
-    </section>
   </div>
 
   <div class="wrap">
@@ -499,6 +476,19 @@ section{padding-block:clamp(40px,4vw,56px)}
         <details><summary>כמה זה עולה?</summary><p>תלוי בהיקף. אחרי שיחת אפיון קצרה מקבלים הצעה במחיר קבוע לגרסה הראשונה, עם רשימה ברורה של מה כלול.</p></details>
         <details><summary>אתם מעלים את האפליקציה לחנויות?</summary><p>כן. דפי חנות, צילומי מסך, מדיניות פרטיות ותשובות לבודקים, עד האישור ב-App Store וב-Google Play.</p></details>
         <details><summary>של מי הקוד והאפליקציה?</summary><p>שלכם. האפליקציה עולה תחת חשבון המפתח שלכם, והקוד מועבר אליכם במלואו.</p></details>
+      </div>
+    </section>
+  </div>
+
+  <div class="wrap">
+    <section id="about">
+      <div class="about rv">
+        <div class="ph"><img loading="lazy" decoding="async" src="/studio-assets/idan.webp?v=2" alt="עידן עבודי, מייסד IA STUDIO"></div>
+        <p class="eyebrow">מי אני</p>
+        <h2>עידן עבודי</h2>
+        <p class="role">מייסד <span class="ltr" dir="ltr">IA STUDIO</span></p>
+        <p class="lead">התחלתי בדיוק כמו רוב מי שפונה אליי: עם רעיון, ועם מפתחים ומנהלי פרויקטים, בארץ ובהודו, שהיו אמורים לבנות אותו. זה לא עבד, ושום דבר לא עלה לאוויר.</p>
+        <p class="lead">אז למדתי לבנות בעצמי, עם Claude. היום Triplace ומוקש! נמצאות בחנויות ומשרתות משתמשים אמיתיים, ואת אותה דרך אני עושה עכשיו עם הלקוחות שלי.</p>
       </div>
     </section>
   </div>
