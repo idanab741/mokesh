@@ -22,7 +22,7 @@
 (function(){
   var IOS='https://apps.apple.com/app/id6829290776';
   var PLAY='https://play.google.com/store/apps/details?id=com.mokesh.game';
-  var PLAY_LIVE=false; // להפוך ל-true אחרי האישור של Google Play
+  var PLAY_LIVE=true;
   var ua=navigator.userAgent||'';
   if(/iPhone|iPad|iPod/i.test(ua)||(/Macintosh/.test(ua)&&'ontouchend' in document)){location.replace(IOS);return;}
   if(PLAY_LIVE&&/Android/i.test(ua)){location.replace(PLAY);return;}
