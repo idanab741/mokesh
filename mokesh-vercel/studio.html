@@ -727,8 +727,8 @@ html.ax-f body,html.ax-f body *{font-family:Arial,"Arial Hebrew","Helvetica Neue
 <script>
 (function(){
   /* ===== טופס פנייה =====
-     W3F_KEY: מפתח הגישה של Web3Forms (מפתח ציבורי, מיועד להופיע בקוד האתר). כשהוא ריק, הטופס נשלח בוואטסאפ. */
-  var W3F_KEY=''; // המפתח שהוגדר נדחה על ידי השירות (לא קיים אצלם). עד שיהיה מפתח תקין, הטופס נשלח בוואטסאפ.
+     W3F_KEY: מפתח הגישה של SplitForms (מפתח ציבורי, מיועד להופיע בקוד האתר). כשהוא ריק, הטופס נשלח בוואטסאפ. */
+  var W3F_KEY='a129a8ecbb734ba0a2f54bb8c0047007';
   var WA='https://wa.me/972548315055?text=';
   var f=document.getElementById('cform');if(f){
     var st=document.getElementById('cf-status'),btn=document.getElementById('cf-send');
@@ -753,15 +753,11 @@ html.ax-f body,html.ax-f body *{font-family:Arial,"Arial Hebrew","Helvetica Neue
       if(!W3F_KEY){say('פותחים את וואטסאפ עם הפרטים שמילאתם. נשאר רק ללחוץ שם על "שליחה".','good');window.open(WA+encodeURIComponent(waText()),'_blank','noopener');return;}
       btn.disabled=true;var old=btn.textContent;btn.textContent='שולחים…';say('','');
       var data={subject:'פנייה חדשה מהאתר של IA STUDIO',from_name:'האתר של IA STUDIO',name:F.name.value.trim(),phone:F.phone.value.trim(),email:F.email.value.trim(),message:F.message.value.trim()};
-      // המפתח נשלח גם בכתיב עם מקפים (כמו שהשירות מנפיק אותו), למקרה שהועתק בלעדיהם
-      var keys=[W3F_KEY],h=W3F_KEY.replace(/-/g,'');if(/^[0-9a-f]{32}$/i.test(h)){var dashed=h.replace(/^(.{8})(.{4})(.{4})(.{4})(.{12})$/,'$1-$2-$3-$4-$5');if(keys.indexOf(dashed)<0)keys.unshift(dashed);if(keys.indexOf(h)<0)keys.push(h);}
-      function attempt(k){var body={access_key:k};for(var x in data)body[x]=data[x];
-        return fetch('https://api.web3forms.com/submit',{method:'POST',headers:{'Content-Type':'application/json',Accept:'application/json'},body:JSON.stringify(body)})
+      function attempt(){var body={access_key:W3F_KEY};for(var x in data)body[x]=data[x];
+        return fetch('https://splitforms.com/api/submit',{method:'POST',headers:{'Content-Type':'application/json',Accept:'application/json'},body:JSON.stringify(body)})
           .then(function(r){return r.text().then(function(t){var d=null;try{d=JSON.parse(t);}catch(e){}return {ok:!!(r.ok&&d&&d.success),info:(d&&d.message)?String(d.message):('HTTP '+r.status)};});});}
-      // שומרים את התשובה של כל ניסיון, כדי שבכישלון יוצגו כולן (ולא רק האחרונה)
-      var infos=[];function run(i){return attempt(keys[i]).then(function(res){infos.push(res.info);if(res.ok||i>=keys.length-1){res.info=infos.join(' | ');return res;}return run(i+1);});}
-      function fail(msg,info){waFallback(msg);if(info){var sm=document.createElement('small');sm.style.cssText='display:block;font-weight:500;opacity:.75;direction:ltr;text-align:right;margin-top:4px';sm.textContent='פרטי התקלה: '+info;st.appendChild(sm);}try{console.warn('contact form:',info);}catch(e){}}
-      run(0).then(function(res){btn.disabled=false;btn.textContent=old;
+      function fail(msg,info){waFallback(msg);try{console.warn('contact form:',info);}catch(e){}}
+      attempt().then(function(res){btn.disabled=false;btn.textContent=old;
           if(res.ok){f.reset();say('קיבלנו את הפנייה. נחזור אליכם בהקדם.','good');st.setAttribute('tabindex','-1');st.focus();}
           else fail('השליחה לא הצליחה. אפשר לנסות שוב, או',res.info);})
         .catch(function(e){btn.disabled=false;btn.textContent=old;fail('אין חיבור לשרת כרגע. אפשר לנסות שוב, או',String(e&&e.message||e));});
