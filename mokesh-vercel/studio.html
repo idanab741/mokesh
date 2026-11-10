@@ -34,7 +34,8 @@
   color-scheme:dark;
 }
 *{box-sizing:border-box}
-html{direction:rtl;scroll-behavior:smooth}
+/* קפיצה לחלק מהתפריט: משאירים מקום לסרגל העליון הקבוע (64px) ועוד רווח, כדי שהכותרת לא תיחתך מתחתיו */
+html{direction:rtl;scroll-behavior:smooth;scroll-padding-top:calc(64px + env(safe-area-inset-top,0px) + 28px)}
 body{background:var(--bg);color:var(--fg);font-family:var(--sys);font-size:17px;line-height:1.55;letter-spacing:-.01em;overflow-x:hidden;-webkit-font-smoothing:antialiased}
 .wrap{max-width:1200px;margin:0 auto;padding-left:max(22px,env(safe-area-inset-left,0px));padding-right:max(22px,env(safe-area-inset-right,0px))}
 h1,h2,h3,h4,p{margin:0}
