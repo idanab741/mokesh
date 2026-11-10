@@ -758,7 +758,8 @@ html.ax-f body,html.ax-f body *{font-family:Arial,"Arial Hebrew","Helvetica Neue
       function attempt(k){var body={access_key:k};for(var x in data)body[x]=data[x];
         return fetch('https://api.web3forms.com/submit',{method:'POST',headers:{'Content-Type':'application/json',Accept:'application/json'},body:JSON.stringify(body)})
           .then(function(r){return r.text().then(function(t){var d=null;try{d=JSON.parse(t);}catch(e){}return {ok:!!(r.ok&&d&&d.success),info:(d&&d.message)?String(d.message):('HTTP '+r.status)};});});}
-      function run(i){return attempt(keys[i]).then(function(res){return (res.ok||i>=keys.length-1)?res:run(i+1);});}
+      // שומרים את התשובה של כל ניסיון, כדי שבכישלון יוצגו כולן (ולא רק האחרונה)
+      var infos=[];function run(i){return attempt(keys[i]).then(function(res){infos.push(res.info);if(res.ok||i>=keys.length-1){res.info=infos.join(' | ');return res;}return run(i+1);});}
       function fail(msg,info){waFallback(msg);if(info){var sm=document.createElement('small');sm.style.cssText='display:block;font-weight:500;opacity:.75;direction:ltr;text-align:right;margin-top:4px';sm.textContent='פרטי התקלה: '+info;st.appendChild(sm);}try{console.warn('contact form:',info);}catch(e){}}
       run(0).then(function(res){btn.disabled=false;btn.textContent=old;
           if(res.ok){f.reset();say('קיבלנו את הפנייה. נחזור אליכם בהקדם.','good');st.setAttribute('tabindex','-1');st.focus();}
