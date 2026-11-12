@@ -3,9 +3,9 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta name="description" content="IA STUDIO – סטודיו למוצרים דיגיטליים. אפיון, עיצוב, פיתוח והשקה של אפליקציות ומשחקים ב-App Store וב-Google Play.">
+<meta name="description" content="IA STUDIO – אנחנו בונים אפליקציות שזוכות למקום במסך הבית. אפיון, עיצוב, פיתוח והשקה של אפליקציות ומשחקים ב-App Store וב-Google Play.">
 <meta property="og:title" content="IA STUDIO">
-<meta property="og:description" content="אתם מביאים רעיון. אנחנו מביאים אותו לחנות. אפיון, עיצוב, פיתוח והשקה.">
+<meta property="og:description" content="אנחנו בונים אפליקציות שזוכות למקום במסך הבית. אפיון, עיצוב, פיתוח והשקה.">
 <meta property="og:type" content="website">
 <meta property="og:url" content="https://mokesh-psi.vercel.app/studio">
 <meta property="og:image" content="https://mokesh-psi.vercel.app/studio-assets/og.jpg">
@@ -18,6 +18,7 @@
 <link rel="preload" as="image" href="/studio-assets/collage.webp"><link rel="preload" as="image" href="/studio-assets/word-mask.png">
 <style>:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}body{margin:0}img{max-width:100%}[hidden]{display:none!important}</style>
 <title>IA STUDIO</title>
+<link rel="alternate" hreflang="he" href="https://mokesh-psi.vercel.app/studio"><link rel="alternate" hreflang="en" href="https://mokesh-psi.vercel.app/studio-en">
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -65,6 +66,8 @@ a{color:inherit;text-decoration:none}
 .nav .wrap{display:flex;align-items:center;justify-content:space-between;height:64px;gap:16px}
 .nav ul{display:flex;gap:30px;list-style:none;margin:0;padding:0;font-size:14px;color:var(--fg2)}
 .nav ul a{transition:color .3s}.nav ul a:hover{color:var(--fg)}
+.nav .nr{display:flex;align-items:center;gap:12px}
+.nav .lng{display:inline-flex;align-items:center;height:34px;padding:0 12px;border-radius:999px;font-size:13px;font-weight:700;letter-spacing:.04em;color:var(--fg2);box-shadow:inset 0 0 0 1px var(--line2);transition:color .3s,box-shadow .3s}.nav .lng:hover{color:var(--fg);box-shadow:inset 0 0 0 1px var(--fg3)}
 .btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;height:48px;padding:0 24px;border-radius:999px;font-size:16px;font-weight:600;border:0;cursor:pointer;font-family:inherit;transition:transform .4s var(--ease),background .3s,color .3s;will-change:transform}
 .btn .ar{transition:transform .4s var(--ease)}.btn:hover .ar{transform:translateX(-4px)}
 .btn.bone{background:var(--bone);color:var(--ink)}
@@ -443,7 +446,7 @@ html.ax-f body,html.ax-f body *{font-family:Arial,"Arial Hebrew","Helvetica Neue
 <header class="nav" id="nav"><div class="wrap">
   <a class="logo" href="#top" aria-label="IA Studio"><b class="wm">IA STUDIO</b></a>
   <ul><li><a href="#work">עבודות</a></li><li><a href="#landing">עמודי נחיתה</a></li><li><a href="#services">שירותים</a></li><li><a href="#process">תהליך</a></li><li><a href="#tools">כלים</a></li><li><a href="#faq">שאלות</a></li></ul>
-  <a class="btn bone sm" href="#contact">התחילו פרויקט</a>
+  <div class="nr"><a class="lng" href="/studio-en" hreflang="en" lang="en" aria-label="English version">EN</a><a class="btn bone sm" href="#contact">התחילו פרויקט</a></div>
 </div></header>
 
 <main id="top" tabindex="-1">
@@ -452,11 +455,11 @@ html.ax-f body,html.ax-f body *{font-family:Arial,"Arial Hebrew","Helvetica Neue
     <div class="wrap">
       <div class="top">
         <div>
-          <p class="eyebrow hs">סטודיו למוצרים דיגיטליים</p>
-          <h1 style="margin-top:18px"><span class="l hs d1"><span>אתם מביאים רעיון.</span></span><span class="l hs d2"><span class="dim">אנחנו מביאים אותו לחנות.</span></span></h1>
+          <p class="eyebrow hs">סטודיו לאפליקציות ומוצרים דיגיטליים</p>
+          <h1 style="margin-top:18px"><span class="l hs d1"><span>אנחנו בונים אפליקציות</span></span><span class="l hs d2"><span class="dim">שזוכות למקום במסך הבית.</span></span></h1>
         </div>
         <div class="side hs d3">
-          <p class="lede">אפיון, עיצוב, פיתוח והשקה.<br>מוצר אחד, צוות אחד, מהרעיון ועד החנות.</p>
+          <p class="lede">סטודיו קטן שעושה הכל בעצמו: אפיון, עיצוב, פיתוח והשקה.<br>מהרעיון הראשון ועד החנות.</p>
           <div class="cta"><a class="btn bone" href="#contact">התחילו פרויקט <span class="ar">←</span></a><a class="btn ghost" href="#work">לעבודות</a></div>
         </div>
       </div>
