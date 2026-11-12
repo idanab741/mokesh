@@ -3,15 +3,15 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta name="description" content="IA STUDIO – אנחנו בונים אפליקציות שזוכות למקום במסך הבית. אפיון, עיצוב, פיתוח והשקה של אפליקציות ומשחקים ב-App Store וב-Google Play.">
+<meta name="description" content="IA STUDIO – אנחנו בונים אפליקציות שלא מוחקים. אפיון, עיצוב, פיתוח והשקה של אפליקציות ומשחקים ב-App Store וב-Google Play.">
 <meta property="og:title" content="IA STUDIO">
-<meta property="og:description" content="אנחנו בונים אפליקציות שזוכות למקום במסך הבית. אפיון, עיצוב, פיתוח והשקה.">
+<meta property="og:description" content="אנחנו בונים אפליקציות שלא מוחקים. אפיון, עיצוב, פיתוח והשקה.">
 <meta property="og:type" content="website">
 <meta property="og:url" content="https://mokesh-psi.vercel.app/studio">
-<meta property="og:image" content="https://mokesh-psi.vercel.app/studio-assets/og.jpg">
+<meta property="og:image" content="https://mokesh-psi.vercel.app/studio-assets/og-he.jpg">
 <meta property="og:image:width" content="1200"><meta property="og:image:height" content="630">
 <meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:image" content="https://mokesh-psi.vercel.app/studio-assets/og.jpg">
+<meta name="twitter:image" content="https://mokesh-psi.vercel.app/studio-assets/og-he.jpg">
 <link rel="icon" type="image/png" sizes="32x32" href="/studio-assets/favicon-32.png">
 <link rel="apple-touch-icon" href="/studio-assets/apple-touch-icon.png">
 <meta name="theme-color" content="#09090A">
@@ -67,7 +67,7 @@ a{color:inherit;text-decoration:none}
 .nav ul{display:flex;gap:30px;list-style:none;margin:0;padding:0;font-size:14px;color:var(--fg2)}
 .nav ul a{transition:color .3s}.nav ul a:hover{color:var(--fg)}
 .nav .nr{display:flex;align-items:center;gap:12px}
-.nav .lng{display:inline-flex;align-items:center;height:34px;padding:0 12px;border-radius:999px;font-size:13px;font-weight:700;letter-spacing:.04em;color:var(--fg2);box-shadow:inset 0 0 0 1px var(--line2);transition:color .3s,box-shadow .3s}.nav .lng:hover{color:var(--fg);box-shadow:inset 0 0 0 1px var(--fg3)}
+.flags{display:flex;gap:4px;padding:3px;border-radius:999px;box-shadow:inset 0 0 0 1px var(--line2)}.flags a{width:30px;height:30px;border-radius:50%;display:grid;place-items:center;opacity:.5;transition:opacity .3s,background .3s}.flags a:hover{opacity:1}.flags a.on{opacity:1;background:rgba(255,255,255,.1)}.flags svg{width:20px;height:14px;border-radius:2.5px;display:block;box-shadow:0 0 0 .5px rgba(0,0,0,.35)}
 .btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;height:48px;padding:0 24px;border-radius:999px;font-size:16px;font-weight:600;border:0;cursor:pointer;font-family:inherit;transition:transform .4s var(--ease),background .3s,color .3s;will-change:transform}
 .btn .ar{transition:transform .4s var(--ease)}.btn:hover .ar{transform:translateX(-4px)}
 .btn.bone{background:var(--bone);color:var(--ink)}
@@ -446,7 +446,7 @@ html.ax-f body,html.ax-f body *{font-family:Arial,"Arial Hebrew","Helvetica Neue
 <header class="nav" id="nav"><div class="wrap">
   <a class="logo" href="#top" aria-label="IA Studio"><b class="wm">IA STUDIO</b></a>
   <ul><li><a href="#work">עבודות</a></li><li><a href="#landing">עמודי נחיתה</a></li><li><a href="#services">שירותים</a></li><li><a href="#process">תהליך</a></li><li><a href="#tools">כלים</a></li><li><a href="#faq">שאלות</a></li></ul>
-  <div class="nr"><a class="lng" href="/studio-en" hreflang="en" lang="en" aria-label="English version">EN</a><a class="btn bone sm" href="#contact">התחילו פרויקט</a></div>
+  <div class="nr"><div class="flags" role="group" aria-label="שפה"><a class="on" href="/studio" hreflang="he" lang="he" aria-label="עברית" aria-current="page"><svg viewBox="0 0 22 16" aria-hidden="true"><rect width="22" height="16" fill="#fff"/><rect y="2" width="22" height="2.3" fill="#0038B8"/><rect y="11.7" width="22" height="2.3" fill="#0038B8"/><path d="M11 4.9l2.5 4.35h-5zM11 11.1l-2.5-4.35h5z" fill="none" stroke="#0038B8" stroke-width=".75"/></svg></a><a href="/studio-en" hreflang="en" lang="en" aria-label="English"><svg viewBox="0 0 22 16" aria-hidden="true"><rect width="22" height="16" fill="#fff"/><g fill="#B22234"><rect width="22" height="1.23"/><rect y="2.46" width="22" height="1.23"/><rect y="4.92" width="22" height="1.23"/><rect y="7.38" width="22" height="1.23"/><rect y="9.85" width="22" height="1.23"/><rect y="12.31" width="22" height="1.23"/><rect y="14.77" width="22" height="1.23"/></g><rect width="9.6" height="8.6" fill="#3C3B6E"/><g fill="#fff"><circle cx="1.6" cy="1.5" r=".45"/><circle cx="4.8" cy="1.5" r=".45"/><circle cx="8" cy="1.5" r=".45"/><circle cx="3.2" cy="3.4" r=".45"/><circle cx="6.4" cy="3.4" r=".45"/><circle cx="1.6" cy="5.3" r=".45"/><circle cx="4.8" cy="5.3" r=".45"/><circle cx="8" cy="5.3" r=".45"/><circle cx="3.2" cy="7.1" r=".45"/><circle cx="6.4" cy="7.1" r=".45"/></g></svg></a></div><a class="btn bone sm" href="#contact">התחילו פרויקט</a></div>
 </div></header>
 
 <main id="top" tabindex="-1">
@@ -456,7 +456,7 @@ html.ax-f body,html.ax-f body *{font-family:Arial,"Arial Hebrew","Helvetica Neue
       <div class="top">
         <div>
           <p class="eyebrow hs">סטודיו לאפליקציות ומוצרים דיגיטליים</p>
-          <h1 style="margin-top:18px"><span class="l hs d1"><span>אנחנו בונים אפליקציות</span></span><span class="l hs d2"><span class="dim">שזוכות למקום במסך הבית.</span></span></h1>
+          <h1 style="margin-top:18px"><span class="l hs d1"><span>אנחנו בונים אפליקציות</span></span><span class="l hs d2"><span class="dim">שלא מוחקים.</span></span></h1>
         </div>
         <div class="side hs d3">
           <p class="lede">סטודיו קטן שעושה הכל בעצמו: אפיון, עיצוב, פיתוח והשקה.<br>מהרעיון הראשון ועד החנות.</p>
