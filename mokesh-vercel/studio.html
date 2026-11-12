@@ -685,6 +685,13 @@ html.ax-f body,html.ax-f body *{font-family:Arial,"Arial Hebrew","Helvetica Neue
      W3F_KEY: מפתח הגישה של SplitForms (מפתח ציבורי, מיועד להופיע בקוד האתר). כשהוא ריק, הטופס נשלח בוואטסאפ. */
   var W3F_KEY='a129a8ecbb734ba0a2f54bb8c0047007';
   var WA='https://wa.me/972548315055?text=';
+  /* מאיפה הגיע הגולש: קישור כמו /studio?src=ig מסמן את הפנייה, כדי לדעת אילו פרסומים מביאים פניות */
+  var SRC_NAMES={ig:'אינסטגרם',fb:'פייסבוק',wa:'וואטסאפ',tt:'טיקטוק',li:'לינקדאין'};
+  var SRC='';try{var q=new URLSearchParams(location.search);SRC=(q.get('src')||q.get('utm_source')||'').toLowerCase().replace(/[^a-z0-9_-]/g,'').slice(0,30);
+    if(SRC)sessionStorage.setItem('ia.src',SRC);else SRC=sessionStorage.getItem('ia.src')||'';}catch(e){}
+  var SRC_LABEL=SRC?(SRC_NAMES[SRC]||SRC):'';
+  if(SRC_LABEL)[].forEach.call(document.querySelectorAll('a[href^="https://wa.me/972548315055?text="]'),function(a){
+    try{var u=new URL(a.href);u.searchParams.set('text',(u.searchParams.get('text')||'')+' (דרך '+SRC_LABEL+')');a.href=u.toString();}catch(e){}});
   var f=document.getElementById('cform');if(f){
     var st=document.getElementById('cf-status'),btn=document.getElementById('cf-send');
     var F={name:document.getElementById('cf-name'),phone:document.getElementById('cf-phone'),email:document.getElementById('cf-email'),message:document.getElementById('cf-msg')};
@@ -700,14 +707,14 @@ html.ax-f body,html.ax-f body *{font-family:Arial,"Arial Hebrew","Helvetica Neue
       if(first)first.focus();return ok;}
     Object.keys(F).forEach(function(k){F[k].addEventListener('input',function(){if(F[k].hasAttribute('aria-invalid'))setErr(F[k],'');});});
     function say(msg,cls){st.className='fstatus '+(cls||'');st.textContent='';st.appendChild(document.createTextNode(msg));}
-    function waText(){return 'פנייה מהאתר של IA STUDIO\nשם: '+F.name.value.trim()+'\nטלפון: '+F.phone.value.trim()+(F.email.value.trim()?'\nמייל: '+F.email.value.trim():'')+'\n\n'+F.message.value.trim();}
+    function waText(){return 'פנייה מהאתר של IA STUDIO\nשם: '+F.name.value.trim()+'\nטלפון: '+F.phone.value.trim()+(F.email.value.trim()?'\nמייל: '+F.email.value.trim():'')+'\n\n'+F.message.value.trim()+(SRC_LABEL?'\n\n(דרך '+SRC_LABEL+')':'');}
     function waFallback(msg){say(msg,'bad');var a=document.createElement('a');a.href=WA+encodeURIComponent(waText());a.target='_blank';a.rel='noopener';a.textContent=' לשליחה בוואטסאפ';st.appendChild(a);}
     f.addEventListener('submit',function(ev){ev.preventDefault();
       if(f.botcheck&&f.botcheck.checked)return; // מילוי של רובוט
       if(!check()){say('יש שדות שצריך לתקן.','bad');return;}
       if(!W3F_KEY){say('פותחים את וואטסאפ עם הפרטים שמילאתם. נשאר רק ללחוץ שם על "שליחה".','good');window.open(WA+encodeURIComponent(waText()),'_blank','noopener');return;}
       btn.disabled=true;var old=btn.textContent;btn.textContent='שולחים…';say('','');
-      var data={subject:'פנייה חדשה מהאתר של IA STUDIO',from_name:'האתר של IA STUDIO',name:F.name.value.trim(),phone:F.phone.value.trim(),email:F.email.value.trim(),message:F.message.value.trim()};
+      var data={subject:'פנייה חדשה מהאתר של IA STUDIO'+(SRC_LABEL?' · '+SRC_LABEL:''),from_name:'האתר של IA STUDIO',name:F.name.value.trim(),phone:F.phone.value.trim(),email:F.email.value.trim(),message:F.message.value.trim()};if(SRC_LABEL)data.source=SRC_LABEL;
       function attempt(){var body={access_key:W3F_KEY};for(var x in data)body[x]=data[x];
         return fetch('https://splitforms.com/api/submit',{method:'POST',headers:{'Content-Type':'application/json',Accept:'application/json'},body:JSON.stringify(body)})
           .then(function(r){return r.text().then(function(t){var d=null;try{d=JSON.parse(t);}catch(e){}return {ok:!!(r.ok&&d&&d.success),info:(d&&d.message)?String(d.message):('HTTP '+r.status)};});});}
