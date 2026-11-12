@@ -183,22 +183,6 @@ section{padding-block:clamp(40px,4vw,56px)}
 .lp .go{padding:0 6px;font-weight:600;font-size:15px;color:var(--bone)}
 @media (max-width:900px){.lps{display:flex;overflow-x:auto;scroll-snap-type:x mandatory;gap:12px;margin-inline:calc(-1*max(20px,env(safe-area-inset-left,0px)));padding-inline:max(20px,env(safe-area-inset-left,0px));scrollbar-width:none}.lps::-webkit-scrollbar{display:none}.lp{flex:0 0 82%;scroll-snap-align:center}}
 
-/* ---------- about ---------- */
-.about{max-width:780px;margin:0 auto;background:var(--bg2);box-shadow:inset 0 0 0 1px var(--line);border-radius:36px;padding:clamp(32px,5vw,60px) clamp(22px,5vw,64px)}
-.about .head{text-align:center}
-.about .ph{width:132px;height:132px;margin:0 auto 20px;border-radius:50%;overflow:hidden;box-shadow:0 0 0 1px var(--line2),0 24px 50px -24px rgba(0,0,0,.9)}
-.about .ph img{width:100%;height:100%;object-fit:cover;object-position:50% 18%;display:block}
-.about h2{font-size:clamp(32px,4vw,48px);line-height:1.05;font-weight:800;letter-spacing:-.04em;margin-top:10px}
-.about .role{color:var(--fg3);font-size:15px;font-weight:600;margin-top:8px;line-height:1.5}
-.about .quote{font-size:clamp(22px,2.6vw,30px);font-weight:800;letter-spacing:-.025em;line-height:1.3;text-align:center;margin:clamp(26px,3.5vw,40px) auto 0;max-width:24ch}
-.about .body{margin-top:clamp(24px,3vw,36px);padding-top:clamp(24px,3vw,36px);border-top:1px solid var(--line)}
-.about .body p{color:var(--fg2);font-size:clamp(16px,1.4vw,18px);line-height:1.75;margin:0 0 16px}
-.about .body p.beat{color:var(--fg);font-weight:700;font-size:clamp(17px,1.6vw,20px)}
-.about .body p:last-child{margin-bottom:0}
-.about .body b{color:var(--fg);font-weight:700}
-.about .cta-line{margin-top:26px!important;text-align:center}
-.about .cta-line a{display:inline-flex;align-items:center;gap:8px;padding:12px 20px;border-radius:999px;background:var(--bone);color:var(--ink);font-weight:700;font-size:16px}
-@media (max-width:640px){.about{border-radius:28px}.about .ph{width:110px;height:110px}}
 /* ---------- approach / services ---------- */
 /* ---------- שירותים: כרטיסים גדולים שנערמים בגלילה ---------- */
 .stack{display:flex;flex-direction:column;gap:22px}
@@ -458,7 +442,7 @@ html.ax-f body,html.ax-f body *{font-family:Arial,"Arial Hebrew","Helvetica Neue
 
 <header class="nav" id="nav"><div class="wrap">
   <a class="logo" href="#top" aria-label="IA Studio"><b class="wm">IA STUDIO</b></a>
-  <ul><li><a href="#work">עבודות</a></li><li><a href="#landing">עמודי נחיתה</a></li><li><a href="#services">שירותים</a></li><li><a href="#process">תהליך</a></li><li><a href="#tools">כלים</a></li><li><a href="#faq">שאלות</a></li><li><a href="#about">מי אני</a></li></ul>
+  <ul><li><a href="#work">עבודות</a></li><li><a href="#landing">עמודי נחיתה</a></li><li><a href="#services">שירותים</a></li><li><a href="#process">תהליך</a></li><li><a href="#tools">כלים</a></li><li><a href="#faq">שאלות</a></li></ul>
   <a class="btn bone sm" href="#contact">התחילו פרויקט</a>
 </div></header>
 
@@ -623,35 +607,6 @@ html.ax-f body,html.ax-f body *{font-family:Arial,"Arial Hebrew","Helvetica Neue
         <details><summary>כמה זה עולה?</summary><p>תלוי בהיקף. אחרי שיחת אפיון קצרה מקבלים הצעה במחיר קבוע לגרסה הראשונה, עם רשימה ברורה של מה כלול.</p></details>
         <details><summary>אתם מעלים את האפליקציה לחנויות?</summary><p>כן. דפי חנות, צילומי מסך, מדיניות פרטיות ותשובות לבודקים, עד האישור ב-App Store וב-Google Play.</p></details>
         <details><summary>של מי הקוד והאפליקציה?</summary><p>שלכם. האפליקציה עולה תחת חשבון המפתח שלכם, והקוד מועבר אליכם במלואו.</p></details>
-      </div>
-    </section>
-  </div>
-
-  <div class="wrap">
-    <section id="about">
-      <div class="about rv">
-        <div class="head">
-          <div class="ph"><img loading="lazy" decoding="async" src="/studio-assets/idan.webp?v=2" alt="עידן עבודי, מייסד IA STUDIO"></div>
-          <p class="eyebrow">מי אני</p>
-          <h2>עידן עבודי</h2>
-          <p class="role">מייסד <span dir="ltr">IA STUDIO</span> · יזם, איש תקשורת ומפתח מוצרים דיגיטליים</p>
-        </div>
-        <p class="quote">אני יודע מה צריך כדי להפוך רעיון למציאות. כי הייתי בדיוק במקום שלכם.</p>
-        <div class="body">
-          <p>את הקריירה שלי בניתי בעולם התקשורת, התוכן והאסטרטגיה. שימשתי כדובר ויועץ תקשורת בכנסת, עבדתי כעורך בערוצי הטלוויזיה חדשות 13 ו-<span dir="ltr">i24NEWS</span>, וכיום אני עומד בראש מערכת <b>״מדד גלבוע״, מתוכניות הצרכנות הבולטות בישראל.</b></p>
-          <p>הניסיון הזה העניק לי הרבה יותר מהבנה בתקשורת. הוא לימד אותי לזהות מה מניע אנשים, להבין קהלים, לזקק רעיונות מורכבים למסרים פשוטים וליצור תוכן שתופס תשומת לב ומייצר השפעה.</p>
-          <p class="beat">אבל לצד הקריירה בתקשורת, תמיד בער בי הרצון ליצור משהו משלי.</p>
-          <p>נכנסתי לעולם היזמות עם רעיונות גדולים ושאיפות גדולות לא פחות. עבדתי עם מפתחים ומנהלי פרויקטים בישראל, בהודו ובאירופה, השקעתי זמן, כסף ואנרגיה, וגיליתי מקרוב כמה מורכבת ומתסכלת יכולה להיות הדרך בין רעיון מצוין למוצר שבאמת עובד.</p>
-          <p>בשלב מסוים החלטתי לשנות גישה: במקום להיות תלוי באחרים כדי להגשים את הרעיונות שלי, אלמד לבנות אותם בעצמי.</p>
-          <p>נכנסתי לעולם הפיתוח באמצעות כלי AI מתקדמים, העמקתי בתכנון מוצרים, אפיון, עיצוב וחוויית משתמש, ולמדתי להפוך רעיונות למוצרים דיגיטליים אמיתיים.</p>
-          <p class="beat">מהדרך האישית הזאת נולד <span dir="ltr">IA STUDIO</span>.</p>
-          <p>סטודיו לפיתוח אפליקציות ומוצרים דיגיטליים, שמחבר בין שני עולמות שלרוב פועלים בנפרד: <b>חשיבה יצירתית, שיווקית ועסקית, לצד יכולת טכנולוגית להפוך חזון למוצר עובד.</b></p>
-          <p>אני מביא לכל פרויקט את הניסיון שלי משני צידי השולחן: גם כיזם שהתמודד עם האתגרים של פיתוח מוצר מאפס, וגם כאיש תקשורת שמבין איך אנשים חושבים, מה מושך אותם ואיך יוצרים חוויה שנשארת איתם.</p>
-          <p>אני מאמין שפיתוח טוב מתחיל הרבה לפני שורת הקוד הראשונה. הוא מתחיל בהבנת הרעיון, האנשים שעומדים מאחוריו והמשתמשים שעבורם הוא נועד.</p>
-          <p class="beat">כי אפליקציה טובה היא לא רק אפליקציה שעובדת. היא מוצר שאנשים מבינים, אוהבים ורוצים לחזור אליו.</p>
-          <p>היום, באמצעות <span dir="ltr">IA STUDIO</span>, אני מלווה יזמים ועסקים בדרך מרעיון ראשוני למוצר דיגיטלי אמיתי, עם חשיבה יצירתית, מעורבות אישית והבנה של התמונה הגדולה.</p>
-          <p class="cta-line"><a href="#contact">יש לכם רעיון לאפליקציה? בואו נהפוך אותו למציאות. <span class="ar">←</span></a></p>
-        </div>
       </div>
     </section>
   </div>
