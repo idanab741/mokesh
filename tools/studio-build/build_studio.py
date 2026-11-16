@@ -47,6 +47,7 @@ T = {
   lp_tp_desc='TripMatch שאפשר להחליק עליו, והצבעה חיה על מסלול.', lp_mk_desc='משחק אמיתי בתוך העמוד, בעברית ובאנגלית.',
   lp_mk_href='/app', lp_mk_url='mokesh-psi.vercel.app/app', lp_mk_img='/studio-assets/lp_mk_d.webp', lp_mk_m='/studio-assets/lp_mk_m.webp', lp_view='לצפייה בעמוד',
   lp_tp_alt='Triplace: עמוד הנחיתה', lp_mk_alt='מוקש!: עמוד הנחיתה',
+  cd_name='קפטן דמיון', lp_cd_desc='סדרת ספרי ילדים. עמוד חשוך שמדליקים בפנס.', lp_cd_alt='קפטן דמיון: עמוד הנחיתה',
   sv_h='מה אנחנו בונים.', sv_g='ואיך.', sv_p='כל פרויקט מתחיל בשיחה ונגמר בחנות. באמצע: אפיון, עיצוב ופיתוח, באותן ידיים.',
   sv=[('אפליקציות לחנויות', 'אפליקציה אחת לאייפון ולאנדרואיד, עם כניסה דרך Apple ו-Google, דפי חנות ולוח בקרה. עד האישור של אפל וגוגל.', 'Triplace · מוקש!'),
       ('גרסה ראשונה', 'רק מה שצריך כדי לבדוק את הרעיון מול משתמשים אמיתיים. הצעה במחיר קבוע, עם רשימה ברורה של מה נכנס.', 'מחיר קבוע'),
@@ -92,6 +93,7 @@ T = {
   lp_tp_desc='A swipeable TripMatch and live voting on an itinerary.', lp_mk_desc='A real game inside the page, in English and Hebrew.',
   lp_mk_href='/app-en', lp_mk_url='mokesh-psi.vercel.app/app-en', lp_mk_img='/studio-assets/lp_mken_d.webp', lp_mk_m='/studio-assets/lp_mken_m.webp', lp_view='View the page',
   lp_tp_alt='Triplace: landing page', lp_mk_alt='Blast!: landing page',
+  cd_name='Captain Dimyon', lp_cd_desc='A children\'s book series. A dark page you light up with a flashlight.', lp_cd_alt='Captain Dimyon: landing page',
   sv_h='What we build.', sv_g='And how.', sv_p='Every project starts with a conversation and ends in the store. In between: strategy, design and development, by the same hands.',
   sv=[('Apps for the stores', 'One app for iPhone and Android, with Sign in with Apple and Google, store listings and an admin dashboard. All the way to Apple and Google approval.', 'Triplace · Blast!'),
       ('A first version', 'Only what you need to test the idea with real users. A fixed-price proposal, with a clear list of what’s in.', 'Fixed price'),
@@ -234,6 +236,7 @@ body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset
 
 /* landing pages */
 .lps{margin-top:clamp(20px,2.8vw,34px);display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:clamp(16px,2.2vw,28px)}
+@media (min-width:961px){.lps{grid-template-columns:repeat(3,minmax(0,1fr))}}
 .lp{display:flex;flex-direction:column;gap:12px;min-width:0}
 .lp .scr{position:relative;background:var(--coal);border-radius:clamp(18px,2vw,26px);padding:clamp(18px,2.6vw,30px);overflow:hidden}
 .lp .brw{width:82%;margin-left:auto;border-radius:10px;overflow:hidden;box-shadow:0 0 0 1px rgba(255,255,255,.1);transition:transform .8s var(--ease)}
@@ -585,6 +588,11 @@ def build(L):
           <div class="scr"><div class="brw"><img loading="lazy" decoding="async" src="{t['lp_mk_img']}" alt="{t['lp_mk_alt']}"></div><div class="ph"><img loading="lazy" decoding="async" src="{t['lp_mk_m']}" alt=""></div></div>
           <div class="row"><h3>{t['mk_name']}</h3><span class="go">{t['lp_view']} <span aria-hidden="true">{ar}</span></span></div>
           <p>{t['lp_mk_desc']}</p>
+        </a>
+        <a class="lp rv" href="/captain-dimyon/" target="_blank" rel="noopener">
+          <div class="scr"><div class="brw"><img loading="lazy" decoding="async" src="/studio-assets/lp_cd_d.webp" alt="{t['lp_cd_alt']}"></div><div class="ph"><img loading="lazy" decoding="async" src="/studio-assets/lp_cd_m.webp" alt=""></div></div>
+          <div class="row"><h3>{t['cd_name']}</h3><span class="go">{t['lp_view']} <span aria-hidden="true">{ar}</span></span></div>
+          <p>{t['lp_cd_desc']}</p>
         </a>
       </div>
     </section>
