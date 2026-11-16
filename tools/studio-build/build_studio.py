@@ -589,7 +589,7 @@ def build(L):
           <div class="row"><h3>{t['mk_name']}</h3><span class="go">{t['lp_view']} <span aria-hidden="true">{ar}</span></span></div>
           <p>{t['lp_mk_desc']}</p>
         </a>
-        <a class="lp rv" href="/captain-dimyon/" target="_blank" rel="noopener">
+        <a class="lp flip rv" href="/captain-dimyon/" target="_blank" rel="noopener">
           <div class="scr"><div class="brw"><img loading="lazy" decoding="async" src="/studio-assets/lp_cd_d.webp" alt="{t['lp_cd_alt']}"></div><div class="ph"><img loading="lazy" decoding="async" src="/studio-assets/lp_cd_m.webp" alt=""></div></div>
           <div class="row"><h3>{t['cd_name']}</h3><span class="go">{t['lp_view']} <span aria-hidden="true">{ar}</span></span></div>
           <p>{t['lp_cd_desc']}</p>
