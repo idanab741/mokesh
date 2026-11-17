@@ -1,0 +1,102 @@
+# Jobs
+# Target|aliases|difficulty|8 trap words|5 clues (vague to specific), separated by ~
+Astronomer|astronomers|3|stars,telescope,space,planets,night,science,sky,observatory|Studies the stars~Looks through a telescope~Works at night in an observatory~Discovers new planets~Galileo was one
+Baker|bakers|1|bread,cakes,oven,early,flour,bakery,dough,morning|Makes bread and cakes~Starts work very early~Covered in flour~Works with an oven~Has a shop that smells great
+Butcher|butchers|2|meat,knife,shop,apron,steak,sausages,cut,chop|Sells meat in a shop~Uses big knives~Wears a white apron~Cuts steaks and sausages~Chops on a wooden block
+Carpenter|carpenters|2|wood,hammer,nails,saw,furniture,build,table,tools|Works with wood~Uses a hammer and saw~Builds furniture~Measures twice, cuts once~Jesus was one
+Electrician|electricians|2|wires,electricity,lights,power,shock,install,cables,fix|Fixes wires and power~Installs lights and sockets~Must avoid shocks~Turns off the power first~Works with cables
+Painter|painters|1|paint,brush,walls,colors,ladder,art,canvas,roller|Uses brushes and paint~Paints walls or canvas~Climbs a ladder~Picasso was a famous one~Overalls covered in colours
+Builder|construction worker|1|bricks,helmet,house,build,cement,crane,site,hard hat|Builds houses~Wears a hard hat~Works with bricks and cement~On a construction site~Bob is a famous one
+Gardener|gardeners|2|plants,flowers,garden,grass,dig,water,trees,green fingers|Takes care of plants~Mows the lawn~Plants flowers and trees~Has green fingers~Works outside all day
+Cleaner|janitor|1|clean,mop,broom,floor,office,dust,bucket,trash|Keeps places tidy~Uses a mop and bucket~Empties the trash~Works in offices and schools~Sweeps the floor
+Waiter|waitress|1|restaurant,food,tray,order,tip,menu,serve,table|Works in a restaurant~Takes your order~Carries plates on a tray~Hopes for a good tip~Brings the bill
+Bartender|barman|2|drinks,bar,cocktails,pour,shake,night,glass,tips|Makes drinks at a bar~Shakes cocktails~Listens to people's problems~Works at night~Pours beer from taps
+Barista|baristas|2|coffee,cafe,latte,milk,foam,espresso,cup,art|Makes coffee in a cafe~Draws hearts in the foam~Knows every type of latte~Writes your name on the cup~Works an espresso machine
+Cashier|cashiers|2|shop,money,register,checkout,scan,receipt,change,till|Works at the checkout~Scans your items~Gives you change~Hands you a receipt~Sits at the till
+Postman|mail carrier|1|letters,mail,deliver,bag,stamps,van,houses,dog|Delivers letters~Carries a big bag~Walks from house to house~Dogs bark at him~A famous children's TV show is about Pat and his black and white cat
+Delivery driver|courier|2|packages,van,deliver,door,parcel,fast,Amazon,knock|Brings packages to your door~Drives a van~Rings the bell and leaves~Works for Amazon~Very busy before Christmas
+Truck driver|trucker|2|truck,road,long,highway,deliver,big,night,cargo|Drives a huge vehicle~Spends days on the highway~Delivers cargo~Sleeps in the cab~Honks the horn
+Taxi driver|cabbie|2|taxi,car,meter,passengers,city,yellow,drive,fare|Drives people around the city~Has a meter~Yellow cars in New York~Knows every street~Takes you to the airport
+Bus driver|bus driver|1|bus,passengers,stops,route,tickets,school,drive,big|Drives a big vehicle with many seats~Stops at every station~Takes kids to school~Checks tickets~Follows a route
+Train driver|engine driver|3|train,tracks,railway,station,horn,cab,timetable,locomotive|Drives a locomotive~Follows the rails~Stops at every station~Sounds a horn~Thomas the Tank Engine's boss
+Flight attendant|cabin crew|2|plane,uniform,drinks,safety,passengers,trolley,seatbelt,smile|Works on a plane~Serves drinks from a trolley~Shows safety instructions~Wears a smart uniform~Please fasten your seatbelt
+Captain|ship captain|2|ship,boat,sea,hat,steer,crew,command,sail|Commands a ship~Wears a special hat~Gives orders to the crew~Last to leave a sinking ship~Steers at the helm
+Sailor|sailors|2|sea,ship,navy,boat,ocean,knots,anchor,Popeye|Works on a ship~Ties knots~Wears a white hat in the navy~Popeye is one~Lives at sea
+Soldier|soldiers|1|army,uniform,war,gun,helmet,salute,fight,camouflage|Serves in the army~Wears a uniform and helmet~Salutes officers~Trains very hard~Camouflage clothes
+Spy|secret agent|1|secret,agent,James Bond,mission,disguise,gadgets,undercover,code|Works in secret~Uses disguises and gadgets~Goes undercover~James Bond is one~Has a code name
+Detective|detectives|1|clues,crime,mystery,investigate,police,magnifying glass,solve,suspect|Solves crimes~Looks for clues~Questions suspects~Uses a magnifying glass~Sherlock Holmes
+Judge|judges|2|court,law,hammer,guilty,robe,trial,lawyer,decide|Decides in court~Wears a black robe~Bangs a gavel~Says guilty or not guilty~Order in the court
+Security guard|bouncer|2|guard,protect,uniform,building,night,door,watch,cameras|Protects a building~Watches the cameras~Works at night~Stands at the door~Wears a uniform
+Bodyguard|bodyguards|2|protect,celebrity,sunglasses,big,security,suit,danger,earpiece|Protects famous people~Wears dark glasses and a suit~Has an earpiece~Stands very close~Whitney Houston starred in a film about one
+Scientist|scientists|1|lab,experiment,coat,research,test tube,discover,microscope,science|Works in a lab~Wears a white coat~Does experiments~Uses test tubes~Einstein was one
+Engineer|engineers|2|build,design,machines,bridges,math,technical,problem,plans|Designs machines and bridges~Uses maths every day~Solves technical problems~Draws plans~Works with builders
+Programmer|developer,coder|2|code,computer,software,bugs,apps,keyboard,coffee,laptop|Writes code all day~Builds apps and websites~Fixes bugs~Drinks lots of coffee~Works on a laptop
+Designer|designers|2|creative,draw,fashion,graphics,colors,style,computer,ideas|Creates how things look~Fashion or graphics~Picks colours and fonts~Draws ideas~Works with a computer
+Photographer|photographers|1|camera,photos,click,flash,wedding,lens,pictures,model|Takes pictures for a living~Holds a big camera~Works at weddings~Says smile~Changes lenses
+Artist|artists|1|paint,draw,canvas,museum,create,brush,sculpture,gallery|Creates paintings or sculptures~Shows work in galleries~Uses brushes and canvas~Picasso and Van Gogh~Very creative
+Actor|actress|1|movies,stage,role,film,Hollywood,famous,script,Oscar|Plays characters in films~Learns lines from a script~Wins Oscars~Performs on stage~Tom Hanks is one
+Model|models|2|fashion,runway,photos,pose,beautiful,clothes,magazine,catwalk|Walks on the runway~Poses for photos~Wears designer clothes~On magazine covers~Fashion week
+Writer|author|1|books,write,pen,story,novel,typewriter,publish,words|Writes books~Creates stories~Stares at a blank page~Publishes novels~J.K. Rowling is one
+Professor|professors|2|university,lecture,students,teach,smart,books,research,glasses|Teaches at a university~Gives lectures~Does research~Very smart~Often absent-minded in movies
+Principal|headmaster|2|school,boss,office,students,teachers,rules,detention,head|The boss of a school~Has an office~Students are sent there for trouble~Gives speeches at assemblies~Also called head teacher
+Babysitter|nanny|1|kids,children,watch,parents,night,play,money,care|Looks after children~Comes when parents go out~Puts kids to bed~Paid by the hour~Mary Poppins is a magical one
+Veterinarian|vet|2|animals,doctor,pets,dog,cat,clinic,sick,injection|A doctor for animals~Treats sick pets~Works in a clinic~Gives injections to dogs~Cats hate visiting
+Surgeon|surgeons|2|operation,hospital,doctor,knife,scalpel,mask,heart,gloves|Performs operations~Uses a scalpel~Wears a mask and gloves~Works in a hospital~Grey's Anatomy is about them
+Pharmacist|chemist|2|medicine,pills,pharmacy,prescription,doctor,drugs,shop,counter|Gives out medicine~Works in a pharmacy~Reads prescriptions~Advises on pills~Stands behind a counter
+Paramedic|paramedics|2|ambulance,emergency,medical,help,siren,first aid,hospital,rescue|Drives an ambulance~First at emergencies~Gives first aid~Rushes to the hospital~Siren on
+Psychologist|therapist|3|mind,talk,feelings,couch,therapy,brain,listen,problems|Helps with feelings~Listens to your problems~You lie on a couch~Studies the mind~Freud was famous
+Accountant|accountants|3|money,numbers,taxes,calculator,office,boring,company,spreadsheet|Works with numbers and money~Handles taxes~Uses spreadsheets~Busy at the end of the year~Counts every penny
+Banker|bankers|2|bank,money,loan,suit,rich,account,finance,office|Works in a bank~Gives out loans~Wears a suit~Handles lots of money~Wall Street
+Real estate agent|realtor|3|houses,sell,buy,keys,show,property,commission,apartment|Sells houses~Shows apartments~Holds the keys~Earns a commission~Location, location, location
+Salesman|salesperson|2|sell,customer,shop,deal,product,talk,commission,smile|Sells things for a living~Talks a lot~Tries to close the deal~Earns commission~Door to door
+Secretary|assistant|2|office,phone,typing,boss,calendar,desk,meetings,emails|Works for a boss~Answers the phone~Manages the calendar~Types emails~Sits at the front desk
+Receptionist|receptionist|2|front desk,hotel,phone,welcome,check in,office,smile,visitors|Sits at the front desk~Welcomes visitors~Answers phones~Checks you in at hotels~First person you meet
+Manager|boss|1|boss,office,team,meeting,decisions,employees,lead,responsible|In charge of a team~Runs meetings~Makes decisions~Can I speak to the...~Everyone reports to them
+CEO|chief executive|2|boss,company,top,business,money,suit,office,leader|The boss of a whole company~Earns the most~Makes big decisions~Elon Musk is one~Three letters
+Politician|politicians|2|government,election,vote,speech,parliament,promises,campaign,president|Runs for election~Gives speeches~Makes promises~Works in parliament~Shakes hands and kisses babies
+President|presidents|1|country,leader,White House,election,USA,speech,government,power|Leader of a country~Lives in the White House in the USA~Elected by votes~Gives speeches~Lincoln was one
+King|kings|1|crown,castle,throne,queen,royal,rule,kingdom,palace|Wears a crown~Sits on a throne~Rules over the land~Lives in a castle~Married to a queen
+Prince|princes|1|king,royal,son,castle,princess,crown,frog,charming|Son of a king~Rides a white horse~Kisses a sleeping beauty~Charming in fairy tales~Harry and William
+Clown|clowns|1|circus,red nose,funny,makeup,wig,shoes,balloon,laugh|Works at the circus~Red nose and big shoes~Funny makeup~Makes balloon animals~Some people are scared of them
+Comedian|comedians|2|jokes,funny,stand-up,laugh,stage,microphone,show,humor|Tells jokes on stage~Makes people laugh~Stand-up shows~Holds a microphone~Jim Carrey started as one
+Juggler|jugglers|3|balls,throw,circus,catch,street,skill,clubs,air|Throws and catches many balls~Keeps them in the air~Performs in the street~Part of the circus~Uses clubs and knives
+Acrobat|acrobats|3|circus,flip,trapeze,balance,jump,flexible,show,swing|Does flips at the circus~Swings on a trapeze~Very flexible~Balances on others~Cirque du Soleil
+Tour guide|guide|2|tourists,city,walk,history,group,flag,museum,explain|Shows tourists around~Holds up a flag or umbrella~Explains history~Leads a group~Speaks many languages
+Translator|interpreter|3|languages,words,translate,speak,foreign,dictionary,meeting,English|Changes words from one language to another~Speaks many languages~Works at meetings~Uses dictionaries~Lost in translation
+News anchor|newsreader|3|news,TV,camera,report,desk,suit,evening,headlines|Reads the news on TV~Sits at a desk~Says good evening~Reports the headlines~Looks into the camera
+Reporter|reporters|2|news,microphone,story,TV,interview,newspaper,journalist,live|Covers news stories~Holds a microphone~Reports live from the scene~Interviews people~Works for a newspaper or TV
+YouTuber|YouTubers|1|videos,channel,subscribers,camera,like,vlog,internet,famous|Makes videos online~Asks you to like and subscribe~Has a channel~Earns from views~MrBeast is one
+Influencer|influencers|1|Instagram,followers,social media,posts,brands,famous,selfie,sponsored|Famous on social media~Has many followers~Posts sponsored content~Takes lots of selfies~Instagram and TikTok
+Gamer|gamers|1|video games,console,play,controller,headset,Twitch,stream,online|Plays video games~Uses a controller~Streams on Twitch~Wears a headset~Plays online with friends
+Fashion designer|fashion designer|3|clothes,runway,style,sew,Paris,brand,fabric,Chanel|Creates new clothes~Shows them on the runway~Paris fashion week~Coco Chanel was one~Sketches dresses
+Tailor|tailors|3|sew,suit,measure,fabric,needle,clothes,fit,scissors|Makes suits to measure~Uses a needle and thread~Measures your arms~Fixes clothes that don't fit~Works with fabric
+Shoemaker|cobbler|3|shoes,fix,leather,hammer,sole,boots,repair,elves|Makes and fixes shoes~Works with leather~Changes the soles~Elves helped one in a fairy tale~Uses a small hammer
+Fisherman|fishermen|2|fish,boat,net,sea,rod,catch,early,hook|Catches fish~Goes out on a boat~Uses nets or a rod~Starts very early~Sells the catch at market
+Miner|miners|3|underground,coal,dig,gold,helmet,lamp,cave,pickaxe|Works underground~Digs for coal or gold~Wears a helmet with a lamp~Uses a pickaxe~Seven dwarfs did it
+Lumberjack|lumberjacks|3|trees,axe,wood,forest,cut,flannel,beard,Canada|Cuts down trees~Uses an axe~Wears a checked shirt~Has a big beard~Works in Canadian forests
+Beekeeper|beekeepers|3|bees,honey,hive,suit,smoke,sting,net,collect|Takes care of bees~Collects honey~Wears a full suit and net~Uses smoke to calm them~Manages hives
+Zookeeper|zookeeper|2|zoo,animals,feed,cages,clean,lions,care,keeper|Works at the zoo~Feeds the animals~Cleans the cages~Knows every animal's name~Gives talks to visitors
+Dog walker|dog walker|2|dogs,park,leash,walk,many,poop,bags,exercise|Takes other people's dogs out~Holds many leashes~Walks in the park~Picks up after them~Gets paid per walk
+Pizza delivery|pizza guy|2|pizza,scooter,deliver,box,hot,door,tip,night|Brings pizza to your door~Rides a scooter~Hot boxes~Thirty minutes or free~Hopes for a tip
+Personal chef|private chef|3|cook,private,home,rich,menu,meals,food,kitchen|Cooks for one family~Works in a private home~Plans the menu~Rich people hire one~Cooks every meal
+Wedding planner|wedding planner|3|wedding,bride,organize,flowers,venue,party,details,day|Organises the big day~Works with the bride~Picks flowers and venue~Every detail must be perfect~Jennifer Lopez played one
+Life coach|coach|3|goals,motivate,advice,success,talk,help,change,life|Helps you reach goals~Gives advice~Motivates you~Talks about success~Not a therapist
+Inventor|inventors|2|invent,idea,new,machine,patent,Edison,create,genius|Creates new things~Has a big idea~Gets a patent~Edison and the light bulb~Works in a workshop
+Explorer|explorers|2|discover,adventure,map,travel,unknown,Columbus,expedition,jungle|Discovers new places~Goes on expeditions~Draws maps~Columbus and Magellan~Brave and curious
+Hunter|hunters|2|gun,animals,forest,deer,bow,trap,shoot,camouflage|Tracks animals in the forest~Uses a bow or rifle~Wears camouflage~Waits very quietly~Elmer Fudd is a cartoon one
+Monk|monks|3|temple,pray,robe,bald,quiet,religion,meditate,Tibet|Lives in a temple~Wears a robe~Shaves his head~Prays and meditates~Tibet and Thailand
+Priest|priests|2|church,religion,pray,Mass,collar,God,wedding,confession|Leads services in a church~Wears a white collar~Hears confession~Marries couples~Says Mass
+Rabbi|rabbis|3|Jewish,synagogue,Torah,teacher,kippah,beard,prayer,wedding|A Jewish religious teacher~Leads a synagogue~Reads the Torah~Officiates weddings~Wears a kippah
+Window cleaner|window washer|3|windows,glass,ladder,squeegee,bucket,skyscraper,clean,high|Cleans glass~Climbs ladders~Uses a squeegee~Hangs off skyscrapers~Works with a bucket
+Animator|animators|3|cartoons,draw,Pixar,frames,movement,computer,Disney,film|Brings drawings to life~Works at Pixar or Disney~Draws frame by frame~Uses computers~Makes cartoons
+Game designer|game developer|3|video games,create,levels,design,players,fun,code,ideas|Creates video games~Designs levels~Thinks about what is fun~Works with programmers~Shigeru Miyamoto is one
+Ice cream seller|ice cream man|2|ice cream,truck,music,summer,cones,kids,van,cold|Sells frozen treats~Drives a van with music~Kids run to him~Busy in summer~Gives cones and lollies
+Street sweeper|road sweeper|3|street,clean,broom,city,trash,early,orange,truck|Cleans the city streets~Uses a big broom~Works very early~Wears orange~Drives a special truck
+Emperor|emperors|2|crown,empire,Rome,Japan,throne,rule,Napoleon,king|Rules an empire~More powerful than a king~Roman ones wore laurel crowns~Japan still has one~Napoleon became one
+Optician|optometrist|3|glasses,eyes,test,letters,lenses,frames,sight,chart|Checks your eyes~Reads letters on a chart~Sells glasses and lenses~Helps you choose frames~Works in an eye shop
+Locksmith|locksmiths|3|keys,locks,door,open,copy,locked out,tools,safe|Opens locked doors~Copies keys~Called when you're locked out~Fixes locks~Can open a safe
+Florist|florists|2|flowers,bouquet,roses,shop,wedding,Valentine's,arrange,plants|Sells flowers~Makes bouquets~Busiest on Valentine's Day~Works for weddings~Arranges roses
+Air traffic controller|air traffic controller|3|planes,airport,tower,radar,pilots,radio,landing,stress|Guides planes from a tower~Watches radar screens~Talks to pilots on the radio~Tells planes when to land~A very stressful job
+Tattoo artist|tattooist|3|tattoo,ink,needle,skin,design,parlor,arm,art|Draws on skin with ink~Uses a buzzing needle~Works in a parlour~Designs for arms and backs~Permanent art
+Sommelier|wine waiter|3|wine,restaurant,taste,bottle,grapes,expert,glass,smell|A wine expert in a restaurant~Recommends a bottle~Swirls and sniffs the glass~Knows every grape~A French word
+Massage therapist|masseuse|3|massage,back,relax,spa,hands,oil,muscles,table|Rubs your back~Works in a spa~Uses oils~Relaxes tight muscles~You lie on a table

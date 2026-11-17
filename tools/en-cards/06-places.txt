@@ -1,0 +1,102 @@
+# Places
+# Target|aliases|difficulty|8 trap words|5 clues (vague to specific), separated by ~
+London|London|1|England,Big Ben,Queen,red bus,Thames,UK,rain,tea|Capital of England~Red double-decker buses~Big Ben and the Thames~Rainy and full of tea~Buckingham Palace is there
+New York|NYC,Big Apple|1|Big Apple,Manhattan,Statue of Liberty,Times Square,taxi,USA,skyscrapers,Broadway|The Big Apple~Yellow taxis everywhere~Times Square and Broadway~The city that never sleeps~Manhattan skyscrapers
+Rome|Roma|1|Italy,Colosseum,Vatican,pizza,ancient,gladiator,pope,Trevi|Capital of Italy~The Colosseum is there~All roads lead to it~Throw a coin in the Trevi Fountain~Not built in a day
+Barcelona|Barcelona|2|Spain,Gaudí,football,beach,Sagrada Familia,Messi,Catalonia,tapas|A Spanish city by the sea~Gaudí's buildings~The Sagrada Familia~Messi played for its club~Capital of Catalonia
+Tokyo|Tokyo|1|Japan,sushi,neon,crowded,Mount Fuji,anime,capital,trains|Capital of Japan~Bright neon lights~The busiest crossing in the world~Sushi and anime~Bullet trains leave from here
+Dubai|Dubai|2|UAE,desert,Burj Khalifa,rich,tall,shopping,gold,luxury|A city in the desert~The tallest building in the world~Luxury shopping malls~Indoor ski slope~In the United Arab Emirates
+Amsterdam|Amsterdam|2|Netherlands,canals,bikes,tulips,Holland,boats,windmills,Anne Frank|Capital of the Netherlands~Full of canals~Everyone rides bikes~Tulips and windmills nearby~Anne Frank's house
+Berlin|Berlin|2|Germany,wall,capital,beer,techno,history,gate,currywurst|Capital of Germany~A famous wall divided it~Brandenburg Gate~Techno clubs~Currywurst
+Moscow|Moscow|2|Russia,Kremlin,Red Square,cold,onion domes,capital,snow,metro|Capital of Russia~Red Square~The Kremlin~Colourful onion domes~Very cold winters
+Jerusalem|Jerusalem|2|Israel,old city,holy,walls,religion,Western Wall,ancient,stones|An ancient holy city~Old city walls~Holy for three religions~The Western Wall~Golden stone buildings
+Tel Aviv|Tel Aviv|2|Israel,beach,city,nightlife,Bauhaus,Mediterranean,startups,white|An Israeli city on the beach~The White City~Famous nightlife~Startup capital~On the Mediterranean
+Hollywood|Hollywood|1|movies,stars,Los Angeles,sign,film,walk of fame,celebrity,Oscars|The home of American movies~Big white letters on a hill~Walk of Fame~In Los Angeles~Film stars live nearby
+Miami|Miami|2|Florida,beach,sun,palm trees,party,Cuba,heat,South Beach|A city in Florida~Beaches and palm trees~Art deco buildings~Cuban food~South Beach parties
+Hawaii|Hawaii|2|island,surf,volcano,USA,hula,beach,Pacific,aloha|Islands in the Pacific~Part of the USA~Surfing and volcanoes~Hula dancing~Say aloha
+Thailand|Thailand|2|Bangkok,beach,temples,elephants,pad thai,Asia,islands,massage|A country in Southeast Asia~Beautiful beaches and islands~Golden temples~Pad Thai~Capital is Bangkok
+India|India|1|Taj Mahal,curry,Bollywood,cricket,Delhi,elephants,Ganges,spices|A huge country in Asia~The Taj Mahal~Bollywood films~Spicy curries~Second most people in the world
+China|China|1|Great Wall,Beijing,panda,dragon,rice,Asia,population,chopsticks|The country with the Great Wall~Pandas live there~Capital is Beijing~Over a billion people~Chopsticks and dumplings
+Brazil|Brazil|1|Rio,football,carnival,samba,Amazon,beach,South America,Christ|The biggest country in South America~Carnival in Rio~Five-time football champions~The Amazon rainforest~They speak Portuguese
+Mexico|Mexico|1|tacos,sombrero,Aztec,desert,tequila,spicy,mariachi,pyramids|A country south of the USA~Tacos and tequila~Mariachi bands~Aztec pyramids~Day of the Dead
+Canada|Canada|1|maple,cold,hockey,moose,Toronto,snow,polite,mounties|A huge cold country~A red maple leaf on the flag~Loves ice hockey~People are very polite~North of the USA
+Greece|Greece|1|Athens,islands,ancient,gods,olives,feta,Olympics,Acropolis|A country of islands~Ancient gods and myths~The Acropolis in Athens~Birthplace of the Olympics~White houses with blue roofs
+Turkey|Türkiye|2|Istanbul,kebab,carpet,bazaar,balloon,coffee,Asia,Europe|A country between Europe and Asia~Istanbul is its biggest city~Kebabs and delight~Hot air balloons in Cappadocia~Also a Thanksgiving bird
+Spain|Spain|1|Madrid,flamenco,paella,bulls,siesta,beach,Barcelona,tapas|A sunny European country~Flamenco dancing~Paella and tapas~Afternoon siesta~Capital is Madrid
+Italy|Italy|1|pizza,pasta,Rome,boot,Venice,fashion,Ferrari,gelato|A country shaped like a boot~Pizza and pasta~Rome and Venice~Gelato~Ferrari is from here
+France|France|1|Paris,wine,cheese,Eiffel,croissant,baguette,fashion,romance|Home of the Eiffel Tower~Wine and cheese~Croissants and baguettes~Paris is the capital~Says bonjour
+Switzerland|Switzerland|2|Alps,chocolate,cheese,watches,banks,neutral,ski,cows|A small country in the Alps~Famous for chocolate and cheese~Makes watches~Neutral in wars~Rich banks
+Norway|Norway|3|fjords,cold,Vikings,northern lights,Oslo,snow,salmon,Scandinavia|A Scandinavian country~Deep fjords~Northern lights~Vikings came from there~Capital is Oslo
+Ireland|Ireland|2|green,shamrock,Dublin,pub,leprechaun,St Patrick,Guinness,island|The Emerald Isle~Very green~St Patrick's Day~Leprechauns and shamrocks~Capital is Dublin
+Scotland|Scotland|2|kilt,bagpipes,Loch Ness,whisky,Highlands,Edinburgh,castle,UK|Men wear kilts~Bagpipes play~A monster lives in a loch~Highlands and castles~Capital is Edinburgh
+Russia|Russia|2|Moscow,cold,biggest,vodka,Kremlin,snow,Siberia,dolls|The biggest country in the world~Very cold Siberia~Nesting dolls~Moscow is the capital~Spans Europe and Asia
+Africa|Africa|1|continent,safari,Sahara,lions,Egypt,jungle,hot,Kenya|A huge continent~Lions and elephants on safari~The Sahara desert~The Nile river~54 countries
+Amazon rainforest|Amazon|2|jungle,Brazil,river,trees,parrots,green,animals,lungs|The biggest rainforest~Mostly in Brazil~Called the lungs of the planet~A huge river runs through it~Full of parrots and monkeys
+Nile|Nile River|2|river,Egypt,longest,Africa,Cairo,boats,crocodile,pharaohs|One of the longest rivers~Flows through Egypt~Ancient pharaohs lived on it~Crocodiles swim in it~Ends in the Mediterranean
+Pyramids|pyramids of Giza|1|Egypt,pharaoh,desert,ancient,tomb,Giza,sand,triangle|Ancient tombs in Egypt~Built for pharaohs~Shaped like triangles~Near Cairo in Giza~One of the wonders of the world
+Mount Fuji|Fuji|3|Japan,mountain,volcano,snow,Tokyo,climb,sacred,peak|A famous mountain in Japan~A snow-capped volcano~Seen from Tokyo on clear days~Sacred to the Japanese~Painted in many prints
+Leaning Tower of Pisa|Tower of Pisa|2|Italy,tower,lean,tilt,photo,crooked,bell,famous|A famous crooked tower~In Italy~Tourists pretend to hold it up~It tilts to one side~A bell tower
+Sydney Opera House|Opera House|2|Australia,sails,harbour,building,music,white,famous,bridge|A white building like sails~On Sydney's harbour~Music and shows inside~Australia's most famous building~Next to the Harbour Bridge
+Golden Gate Bridge|Golden Gate|2|San Francisco,bridge,red,fog,California,orange,famous,bay|A famous red bridge~In San Francisco~Often covered in fog~Crosses a bay~Actually orange
+Central Park|Central Park|2|New York,park,Manhattan,green,skating,zoo,jogging,lake|A huge park in New York~In the middle of Manhattan~People jog and skate there~Has a zoo and a lake~Seen in many films
+Times Square|Times Square|2|New York,lights,billboards,New Year,ball,crowd,Broadway,neon|A New York square full of lights~Giant billboards~The ball drops at New Year~Near Broadway~Always crowded
+Disneyland|Disney World|1|Mickey,castle,rides,park,fireworks,California,Florida,happiest|The happiest place on Earth~Mickey Mouse lives there~A big castle~Rides and fireworks~Theme park in California
+Buckingham Palace|the Palace|2|London,King,royal,guards,balcony,Queen,flag,changing|The King's home in London~Guards in red with big hats~Changing of the guard~Royals wave from the balcony~A flag shows if the monarch is in
+White House|White House|1|president,Washington,USA,Oval Office,home,lawn,government,white|Home of the US president~In Washington~The Oval Office~Its colour is in the name~On Pennsylvania Avenue
+Vatican|Vatican City|2|pope,Rome,church,smallest,St Peter's,Sistine Chapel,Catholic,country|The smallest country in the world~Inside Rome~The Pope lives there~St Peter's Basilica~Michelangelo painted a famous ceiling
+Mount Kilimanjaro|Kilimanjaro|3|Africa,mountain,Tanzania,snow,climb,highest,volcano,peak|The highest mountain in Africa~In Tanzania~Snow on top near the equator~Climbers take a week~An old volcano
+Dead Sea|Dead Sea|2|salt,float,lowest,Israel,Jordan,mud,lake,minerals|The lowest place on Earth~So salty you float~Between Israel and Jordan~People cover themselves in mud~No fish can live there
+Red Sea|Red Sea|3|Eilat,diving,coral,Egypt,fish,hot,parted,Moses|A sea full of coral~Great for diving~Between Africa and Asia~Moses parted it~Eilat is on its shore
+Bermuda Triangle|Bermuda Triangle|3|mystery,ships,planes,disappear,ocean,Atlantic,legend,lost|A mysterious part of the ocean~Ships and planes disappear~In the Atlantic~Shaped like a triangle~Many legends
+Atlantis|Atlantis|3|lost,city,underwater,legend,Plato,ocean,sunk,myth|A lost city~Sank under the sea~A legend from Plato~Nobody has found it~Disney made a film about it
+North Pole|Arctic|1|Santa,ice,cold,snow,polar bears,north,compass,top|The top of the world~Santa lives there~Covered in ice~Polar bears~Compasses point to it
+Beach|beach|1|sand,sea,sun,waves,swim,towel,summer,umbrella|Sand and waves~Lie in the sun~Build sandcastles~Swim in the sea~Bring a towel
+Island|islands|1|water,sea,surrounded,tropical,palm,boat,beach,castaway|Land surrounded by water~Reached by boat or plane~Tropical ones have palm trees~A castaway lives on one~Hawaii is many of them
+Mountain|mountains|1|high,climb,peak,snow,hike,rock,top,summit|Very high land~Climb to the peak~Snow on top~Hikers love it~Everest is the tallest
+Jungle|jungles|1|trees,animals,hot,wet,monkeys,vines,Tarzan,green|A thick hot forest~Full of animals~Monkeys swing on vines~Tarzan lives there~Very humid
+Cave|caves|1|dark,rock,bats,inside,mountain,stalactites,explore,echo|A dark hole in the rock~Bats live inside~Your voice echoes~Stalactites hang from the top~Stone Age people lived in them
+Lake|lakes|1|water,fresh,swim,boat,fish,calm,shore,mountain|A big body of fresh water~Surrounded by land~Swim and fish in it~Calm water~Loch Ness is a famous one
+River|rivers|1|water,flow,bridge,fish,boat,long,sea,bank|Flowing fresh water~Ends in the sea~Has banks on each side~Bridges cross it~The Nile and the Amazon
+Ocean|oceans|1|sea,water,salt,waves,whales,blue,deep,Pacific|A huge body of salt water~Pacific and Atlantic~Whales live in it~Very deep~Covers most of the planet
+Forest|woods|1|trees,green,animals,walk,leaves,deer,camping,wood|Lots of trees together~Deer and bears live there~Go camping in it~Walk among the leaves~Robin Hood lived in one
+Farm|farms|1|animals,cows,tractor,barn,farmer,crops,field,countryside|Cows and pigs live there~A tractor in the field~A red barn~Crops grow in the fields~Old MacDonald had one
+Zoo|zoos|1|animals,cages,lions,visit,elephants,keeper,kids,feeding|A place to see wild animals~Lions, monkeys and elephants~Visit with kids~Keepers feed them~Penguins at feeding time
+Aquarium|aquariums|2|fish,tank,sharks,glass,sea,tunnel,dolphins,water|A place with fish tanks~Sharks swim over a glass tunnel~Jellyfish glow~Visit on a rainy day~A home fish tank too
+Museum|museums|1|art,history,old,paintings,dinosaurs,quiet,visit,exhibit|A building full of old things~Paintings and statues~Dinosaur bones~Do not touch~The Louvre is a famous one
+Library|libraries|1|books,quiet,borrow,read,shelves,librarian,shh,study|A building full of books~Borrow and return~Be quiet~Students study there~A librarian helps you
+Hospital|hospitals|1|doctor,nurse,sick,emergency,ambulance,bed,surgery,patient|Where sick people go~Doctors and nurses~Ambulances arrive~Emergency room~Babies are born there
+Airport|airports|1|planes,flight,passport,gate,luggage,security,terminal,take off|Where planes take off and land~Show your passport~Security checks~Wait at the gate~Lost luggage
+Train station|station|1|trains,platform,tickets,travel,wait,clock,tracks,departures|Where trains stop~Wait on the platform~Buy a ticket~Departures board~Mind the gap
+Supermarket|grocery store|1|food,shopping,cart,checkout,aisles,buy,milk,shelves|A big store for food~Push a cart through aisles~Pay at the checkout~Buy milk and bread~Weekly shopping
+Shopping mall|mall|1|shops,stores,food court,escalator,buy,clothes,parking,cinema|A big building full of shops~Food court and escalators~Teenagers hang out there~A cinema inside~Huge parking lot
+Restaurant|restaurants|1|food,waiter,menu,eat,table,chef,bill,tip|A place to eat out~Order from a menu~A waiter brings food~Pay the bill and tip~A chef cooks in the kitchen
+Hotel|hotels|1|room,bed,stay,reception,key,holiday,pool,check in|Where you stay on holiday~Check in at reception~Get a room key~Room service~Some have a pool
+Castle|castles|1|king,queen,walls,towers,knights,moat,old,princess|A big old stone building~Kings and queens lived in it~Towers and walls~A moat and drawbridge~Knights guarded it
+Lighthouse|lighthouses|2|sea,light,tower,ships,coast,rocks,night,keeper|A tall tower by the sea~Its light spins at night~Warns ships about rocks~Painted in stripes~A keeper lives inside
+Skyscraper|skyscrapers|1|tall,building,city,floors,elevator,glass,New York,office|A very tall building~Hundreds of floors~Made of glass and steel~New York has many~Take the elevator
+Bridge|bridges|1|river,cross,cars,walk,over,Golden Gate,water,build|Crosses over a river~Cars and people use it~Built of stone or steel~Golden Gate is a famous one~Do not burn it
+Playground|playground|1|swings,slide,kids,park,sandbox,play,climb,seesaw|Where kids play outside~Swings and slides~A sandbox~Monkey bars~At the park or school
+Amusement park|theme park|1|rides,roller coaster,fun,tickets,cotton candy,queues,scream,Ferris wheel|Rides and roller coasters~Long queues~Screaming on rides~Cotton candy~Disneyland is one
+Circus|circus|1|clown,tent,acrobats,juggle,lion,ring,show,elephant|A big tent show~Clowns and acrobats~Jugglers and tightrope walkers~A ringmaster~Lions used to perform
+Desert island|deserted island|2|alone,sea,palm tree,shipwreck,castaway,sand,rescue,coconut|A small island with nobody on it~One palm tree~Shipwrecked sailors~Waiting for rescue~What would you bring
+Volcano island|volcanic island|3|lava,island,sea,eruption,Hawaii,Iceland,mountain,ash|An island made by eruptions~Lava flows into the sea~Hawaii and Iceland~Black sand beaches~Can erupt again
+Space station|ISS|2|astronauts,orbit,Earth,float,NASA,space,gravity,module|A home for astronauts~Orbits the Earth~Everyone floats~Built by many countries~The ISS
+Moon|moon|1|night,space,astronaut,full,craters,Earth,Armstrong,cheese|It lights up the night~Full or half~Covered in craters~Neil Armstrong walked on it~Some say it's made of cheese
+Sun|sun|1|hot,star,light,sky,yellow,summer,shine,solar|The star at the centre of our system~Gives light and heat~Rises in the east~Never look at it directly~SPF lotion protects your skin from it
+Planet Earth|Earth|1|home,world,blue,planet,globe,space,green,life|Our home planet~The blue planet~Third from the sun~Covered mostly in water~The only one with known life
+Classroom|classroom|1|school,desks,teacher,board,students,learn,lesson,chairs|Where lessons happen~Desks and chairs~A teacher at the board~Students raise hands~Bell rings at the end
+Kitchen|kitchen|1|cook,stove,fridge,food,oven,sink,eat,home|Where you cook at home~Fridge and oven~Wash dishes in the sink~Smells of food~Everyone ends up there at parties
+Bathroom|bathroom|1|toilet,shower,bath,sink,toothbrush,towel,mirror,wash|Where you brush your teeth~Has a toilet and a shower~Mirror over the sink~Towels on the rail~Lock the door
+Garden|backyard|1|flowers,grass,trees,plants,grow,outside,vegetables,lawn|Outside the house~Flowers and grass~Grow vegetables~Mow the lawn~Gnomes live there
+Garage|garage|2|car,tools,door,park,house,storage,workshop,band|Where you park the car~Full of tools and boxes~Big door that rolls up~Bands start rehearsing there~Apple started in one
+Attic|loft|2|top,house,dusty,boxes,old,roof,stairs,storage|The top of the house~Dusty old boxes~Under the roof~Climb a ladder to get there~Spooky in movies
+Basement|cellar|2|underground,house,dark,stairs,storage,wine,laundry,scary|Under the house~Dark and cold~Wine is stored there~Laundry machines~Scary in horror films
+Swimming beach|lido|3|swim,pool,outdoor,summer,sun,water,city,public|An outdoor public swimming spot~Popular in summer~Has a pool and sunbeds~Found in European cities~Lifeguards watch
+Parking lot|car park|2|cars,park,spaces,ticket,mall,lines,full,garage|A place to leave your car~Painted lines~Can't find a space~Pay at a machine~Outside the mall
+Gas station|petrol station|2|fuel,car,pump,petrol,diesel,snacks,road,fill up|Where you fill up the car~Petrol and diesel pumps~Buy snacks on a road trip~Pay inside~Open all night
+Bakery|bakeries|1|bread,cakes,fresh,smell,baker,croissants,morning,oven|A shop that sells bread~Smells amazing in the morning~Cakes and croissants~The baker starts very early~Fresh from the oven
+Barbershop|barber|2|haircut,men,beard,shave,chair,scissors,razor,pole|Where men get haircuts~A striped pole outside~Beard trims~Sit in a big chair~Chat with the barber
+Post office|post office|2|letters,stamps,mail,parcel,queue,send,postman,envelope|Where you send letters~Buy stamps~Post a parcel~Long queues~The postman works from there
+Police station|police station|2|cops,jail,arrest,cell,detective,crime,badge,report|Where police work~Report a crime~Cells for the arrested~Detectives at desks~Blue lights outside
+Fire station|fire station|2|firefighters,truck,pole,red,alarm,hose,dog,emergency|Where firefighters wait~Red trucks inside~Slide down a pole~Alarm bell rings~Dalmatian dog
+Tunnel|tunnels|2|dark,underground,train,mountain,road,light,end,dig|A passage under the ground~Trains go through it~Cut through mountains~Light at the end of it~The Channel has a famous one

@@ -1,0 +1,102 @@
+# Music
+# Target|aliases|difficulty|8 trap words|5 clues (vague to specific), separated by ~
+Guitar|guitars|1|strings,rock,play,acoustic,electric,chords,band,strum|An instrument with six strings~Strummed with a pick~Acoustic or electric~Rock bands are built around it~Jimi Hendrix played it
+Piano|pianos|1|keys,black,white,play,grand,Beethoven,instrument,pedals|An instrument with black and white keys~Grand or upright~Beethoven and Mozart wrote for it~Has pedals for your feet~Lessons start with scales
+Drums|drum kit|1|beat,sticks,loud,band,rhythm,cymbal,bang,drummer|Hit with sticks~Keeps the rhythm in a band~Very loud~Has cymbals and a kick~The noisiest instrument at home
+Violin|fiddle|2|strings,bow,orchestra,classical,chin,small,play,music|A small string instrument~Played with a bow~Held under the chin~Part of the orchestra~A bigger version is a cello
+Cello|cellos|3|strings,bow,big,orchestra,classical,sit,between knees,deep|A big string instrument~Played sitting down~Held between the knees~Deep warm sound~Bigger than a violin, smaller than a double bass
+Trumpet|trumpets|2|brass,blow,jazz,loud,valves,golden,band,Louis Armstrong|A shiny brass instrument~You blow into it~Has three valves~Loud in jazz bands~Louis Armstrong played it
+Saxophone|sax|2|jazz,brass,blow,smooth,curved,reed,golden,band|A curved golden instrument~Played in jazz~Has a reed in the mouthpiece~Smooth romantic sound~Lisa Simpson plays it
+Flute|flutes|2|blow,silver,orchestra,side,breath,classical,holes,thin|A thin silver instrument~Held sideways~You blow across a hole~High sweet sound~Part of the orchestra
+Harmonica|mouth organ|3|blow,small,blues,pocket,mouth,metal,country,harp|A small instrument for your pocket~Played with the mouth~Used in blues and folk~Bob Dylan played it~Breathe in and out for notes
+Accordion|accordions|3|squeeze,keys,folk,France,polka,bellows,buttons,street|A squeezebox with keys~Push and pull the bellows~Played at folk dances~Common on Paris streets~Polka music
+Harp|harps|2|strings,angel,pluck,big,classical,golden,heaven,Irish|A big instrument with many strings~Plucked with fingers~Angels play it in paintings~A symbol of Ireland~Golden and tall
+Ukulele|uke|2|small,guitar,Hawaii,four strings,strum,beach,happy,cute|A tiny guitar~Has four strings~From Hawaii~Happy beach sound~Easy for beginners
+Xylophone|xylophone|2|bars,mallets,kids,colorful,hit,notes,wood,toy|Hit colourful bars with sticks~Each bar is a note~A kids' toy version is common~Mallets make the sound~Starts with a rare letter
+Tambourine|tambourine|3|shake,jingle,hit,round,bells,band,percussion,hand|A round instrument you shake~Has small metal jingles~Hit it with your hand~Played in pop and church music~A percussion instrument
+Microphone|mic|1|sing,voice,stage,karaoke,speaker,loud,drop,stand|You sing into it~Makes your voice louder~Used in karaoke~Rappers drop it at the end~Stands on the stage
+Headphones|headphones|1|ears,music,listen,wireless,noise,Bluetooth,DJ,sound|Worn over your ears~Listen to music privately~Wireless or with a cable~Noise cancelling ones are quiet~DJs wear them
+Speaker|speakers|1|loud,sound,music,Bluetooth,bass,volume,party,box|Makes the music loud~Bluetooth ones are portable~Bass booms from it~Needed at every party~A box with sound
+Concert|gig|1|live,stage,band,crowd,tickets,show,music,lights|A live music show~Fans fill a stadium~Buy tickets in advance~The band plays on stage~Phones light up in the dark
+Music festival|festival|2|tents,stages,summer,bands,mud,Glastonbury,Coachella,crowd|Days of live music outdoors~Many stages and bands~Camping in tents~Glastonbury and Coachella~Lots of mud
+Orchestra|symphony|2|conductor,violins,classical,music,concert hall,instruments,musicians,baton|A big group of classical musicians~Led by a conductor~Violins, cellos and flutes~Plays in a concert hall~Everyone wears black
+Conductor|conductors|3|orchestra,baton,classical,lead,wave,music,stand,tempo|Leads the orchestra~Waves a small stick~Stands with back to the audience~Sets the tempo~Famous ones have wild hair
+Choir|choirs|2|sing,church,voices,group,harmony,robes,school,songs|A group of singers~Sing in harmony~Often in a church~Wear robes~Soprano, alto, tenor, bass
+Opera|operas|3|sing,Italy,drama,classical,soprano,theatre,fat lady,costumes|Drama where everything is sung~Often in Italian~Soprano voices hit high notes~It's not over until the fat lady sings~Pavarotti was a star
+Rap|hip hop|1|rhymes,beat,Eminem,microphone,fast,lyrics,flow,battle|Rhyming fast over a beat~Eminem and Jay-Z~Battles happen with words~Lyrics matter most~Part of hip hop culture
+Rock and roll|rock|2|guitar,Elvis,dance,fifties,band,loud,electric,rebel|Music from the fifties~Elvis was its king~Electric guitars and drums~Rebellious and loud~Chuck Berry and Little Richard
+Jazz|jazz|2|saxophone,trumpet,New Orleans,improvise,swing,club,blues,smooth|Music born in New Orleans~Saxophones and trumpets~Musicians improvise~Played in smoky clubs~Louis Armstrong and Miles Davis
+Reggae|reggae|2|Jamaica,Bob Marley,dreadlocks,beat,relaxed,rasta,island,one love|Music from Jamaica~Bob Marley is the legend~Relaxed off-beat rhythm~One love~Rasta colours
+Heavy metal|metal|2|loud,guitar,headbang,black,scream,leather,rock,Metallica|Very loud rock~Fans bang their heads~Distorted guitars and screaming~Metallica and Iron Maiden~Lots of black leather
+Country music|country|2|cowboy,Nashville,guitar,banjo,Dolly Parton,boots,America,twang|Music from Nashville~Cowboy hats and boots~Banjo and guitar~Dolly Parton sings it~Songs about trucks and heartbreak
+Pop music|pop|1|charts,radio,catchy,Taylor Swift,dance,hits,popular,songs|Catchy songs on the radio~Top of the charts~Taylor Swift and Ariana Grande~Easy to sing along~Its name is short for popular
+Disco|disco|2|dance,seventies,ball,lights,Bee Gees,glitter,floor,Saturday night|Dance music from the seventies~A mirror ball spins~Bee Gees and ABBA~Flared trousers and glitter~Saturday Night Fever
+Techno|electronic music|3|DJ,beat,club,electronic,Berlin,bass,dance,repeat|Electronic dance music~Repetitive beats~Played in clubs in Berlin~A DJ mixes it~Thumping bass
+Lullaby|lullabies|2|baby,sleep,soft,mother,sing,night,cradle,quiet|A soft song for babies~Sung at bedtime~Rock-a-bye baby~Helps you fall asleep~Mothers sing it
+National anthem|anthem|2|country,flag,stand,sing,sports,patriotic,hand,ceremony|A country's official song~Played before football matches~Everyone stands up~Hand on heart~The Star-Spangled Banner is one
+Karaoke night|karaoke night|2|sing,bar,microphone,friends,lyrics,screen,drunk,songs|An evening of singing with friends~Lyrics on a screen~Hold a microphone~Usually in a bar~Nobody sings well
+Music video|music video|2|song,clip,MTV,YouTube,dance,singer,views,director|A short film for a song~Shown on MTV~Gets millions of views on YouTube~Dancers and costumes~Thriller has a famous one
+Album|record|1|songs,artist,cover,release,vinyl,tracks,CD,band|A collection of songs~Has a cover picture~Released by a band~Comes on vinyl or CD~Abbey Road is a famous one
+Vinyl record|vinyl|2|record,turntable,needle,old,spin,LP,black,collector|A black disc with music~Spins on a turntable~A needle reads the grooves~Collectors love the sound~Came back in fashion
+Cassette tape|cassette|3|tape,old,Walkman,pencil,rewind,eighties,mixtape,player|Old way to carry music~Fix it with a pencil~Played in a Walkman~Mixtapes for friends~Rewind and fast forward
+Walkman|Walkman|3|Sony,cassette,headphones,eighties,portable,music,old,belt|A portable music player from the eighties~Made by Sony~Played cassette tapes~Clipped to your belt~Before the iPod
+iPod|iPod|2|Apple,music,player,songs,white,headphones,wheel,Steve Jobs|An Apple music player~White with a click wheel~A thousand songs in your pocket~Steve Jobs launched it~Before the iPhone
+Spotify|Spotify|1|music,app,stream,playlist,green,songs,premium,Sweden|An app for streaming music~Green logo~Make your own playlists~From Sweden~Wrapped shows your year
+Playlist|playlists|1|songs,list,music,Spotify,shuffle,mix,party,favorite|A list of songs~Made on Spotify~Press shuffle~One for the gym, one for parties~Share it with friends
+DJ|disc jockey|1|music,club,turntables,headphones,mix,party,decks,dance|Plays music at parties~Mixes tracks on decks~Wears headphones on one ear~Makes the crowd dance~Works in clubs
+Rock star|rockstar|1|guitar,famous,band,stage,fans,wild,tattoos,leather|A famous guitar hero~Plays to huge crowds~Lives a wild life~Leather jacket and tattoos~Smashes guitars on stage
+Boy band|boy band|2|singers,young,fans,dance,One Direction,Backstreet Boys,screaming,group|A group of young male singers~Fans scream for them~One Direction and Backstreet Boys~Synchronised dances~BTS from Korea
+K-pop|K-pop|2|Korea,BTS,dance,fans,idols,Blackpink,group,Seoul|Pop music from Korea~BTS and Blackpink~Perfect group dances~Fans are called army~Idols train for years
+Encore|encore|3|concert,more,end,song,crowd,again,stage,shout|The crowd shouts for more~Extra songs at the end~The band comes back on stage~Means again in French~Usually planned in advance
+Mosh pit|mosh pit|3|concert,crowd,push,rock,metal,jump,dance,wild|A wild area in front of the stage~People push and jump~At rock and metal concerts~Can get rough~Crowd surfing nearby
+Crowd surfing|crowd surfing|3|concert,crowd,hands,lift,stage,dive,fans,float|Floating over the audience~Carried by many hands~Singers jump into the crowd~Happens at rock concerts~Do not drop them
+Backstage pass|backstage pass|3|concert,VIP,band,meet,lanyard,access,behind,stage|Lets you go behind the stage~Meet the band~A VIP lanyard~Very hard to get~Groupies want one
+Lyrics|lyrics|1|words,song,sing,write,verse,chorus,meaning,karaoke|The words of a song~Shown on karaoke screens~Songwriters write them~Some people get them wrong~Verse and chorus
+Chorus|refrain|2|song,repeat,sing,catchy,verse,part,everyone,hook|The part of a song that repeats~Everyone sings along~Comes after the verse~The catchiest part~Also a group of singers
+Rhythm|beat|2|beat,tempo,music,drum,clap,dance,time,pulse|The beat of the music~Clap along to it~Drummers keep it~Dancers follow it~Some people have none
+Metronome|metronome|3|tick,tempo,piano,beat,practice,click,music,time|Ticks to keep time~Used when practising piano~Sets the tempo~Swinging arm or digital click~Tick, tock, tick, tock
+Music note|note|2|music,symbol,staff,sheet,sound,treble,tone,pitch|A symbol on sheet music~Do re mi~Written on five lines~Quarter, half or whole~Shows pitch and length
+Sheet music|score|3|notes,music,paper,read,piano,staff,stand,composer|Paper with written notes~Read by musicians~Placed on a stand~Written by composers~Five lines called a staff
+Composer|composers|3|music,write,Mozart,classical,symphony,piano,orchestra,film|Writes music~Mozart and Beethoven~Film scores by Hans Zimmer~Writes for orchestras~Uses sheet music
+Mozart|Wolfgang Amadeus Mozart|2|composer,classical,Austria,piano,genius,child,opera,Salzburg|A classical genius from Austria~Composed as a small child~Born in Salzburg~The Magic Flute~Amadeus is his middle name
+Beethoven|Ludwig van Beethoven|2|composer,deaf,symphony,piano,classical,German,Fifth,Für Elise|A German composer~Went deaf but kept writing~Fifth Symphony starts da-da-da-dum~Für Elise~Classical music giant
+Billie Eilish|Billie Eilish|2|singer,green hair,Bad Guy,whisper,brother,Finneas,Grammy,young|A young pop singer~Bad Guy is her hit~Writes with her brother Finneas~Famous for whispery singing~Has had green and black hair
+Ariana Grande|Ariana|2|singer,ponytail,high notes,pop,Wicked,7 rings,small,Nickelodeon|A pop singer with a high ponytail~Hits very high notes~7 Rings and Thank U, Next~Started on Nickelodeon~Starred in Wicked
+Drake|Drake|2|rapper,Canada,Toronto,Hotline Bling,OVO,hip hop,owl,charts|A rapper from Canada~From Toronto~Hotline Bling~Started as an actor on Degrassi~Breaks streaming records
+Eminem|Slim Shady|2|rapper,Detroit,fast,blonde,Lose Yourself,8 Mile,white,lyrics|A rapper from Detroit~Raps very fast~Lose Yourself~8 Mile is his film~Also called Slim Shady
+Shakira|Shakira|2|singer,Colombia,hips,dance,Waka Waka,World Cup,Latin,belly dance|A singer from Colombia~Her hips don't lie~Waka Waka was a World Cup song~Belly dancing~Sings in Spanish and English
+Bruno Mars|Bruno Mars|2|singer,Uptown Funk,dance,Hawaii,hat,funk,Grammy,retro|A singer from Hawaii~Uptown Funk~Retro funk style~Great dancer~Won many Grammys
+Coldplay|Coldplay|2|band,British,Chris Martin,Yellow,stadium,wristbands,piano,rock|A British band~Chris Martin sings~Yellow and Viva la Vida~Glowing wristbands at concerts~Huge stadium tours
+BTS|Bangtan Boys|2|K-pop,Korea,band,seven,army,Dynamite,fans,dance|A K-pop group of seven~Their fans are called Army~Dynamite and Butter~From South Korea~Spoke at the UN
+The Rolling Stones|Rolling Stones|2|band,Mick Jagger,tongue,rock,British,old,Satisfaction,lips|A British rock band~Mick Jagger dances on stage~Their logo is a tongue~I can't get no satisfaction~Still touring after sixty years
+Nirvana|Nirvana|3|band,Kurt Cobain,grunge,Seattle,nineties,Smells Like Teen Spirit,guitar,baby|A grunge band from Seattle~Kurt Cobain was the singer~Smells Like Teen Spirit~Album cover with a swimming baby~Nineties rock
+AC/DC|ACDC|3|band,rock,Australia,schoolboy,Highway to Hell,guitar,lightning,loud|An Australian rock band~The guitarist wears a school uniform~Highway to Hell~A lightning bolt in the name~Loud and electric
+Elton John|Elton John|2|singer,piano,glasses,British,Rocket Man,flamboyant,Lion King,sir|A British singer at the piano~Famous for crazy glasses~Rocket Man~Wrote songs for The Lion King~Knighted by the Queen
+Frank Sinatra|Sinatra|3|singer,New York,My Way,crooner,Rat Pack,blue eyes,Las Vegas,jazz|A classic American crooner~Old Blue Eyes~My Way and New York, New York~Part of the Rat Pack~Sang in Las Vegas
+Whitney Houston|Whitney|3|singer,voice,I Will Always Love You,Bodyguard,powerful,diva,eighties,ballad|A singer with a powerful voice~I Will Always Love You~Starred in The Bodyguard~A huge eighties star~Her high notes are legendary
+Dua Lipa|Dua Lipa|3|singer,British,pop,Levitating,dance,Albanian,disco,New Rules|A British pop star~Albanian roots~Levitating and New Rules~Disco style pop~Very tall on stage
+Harry Styles|Harry Styles|2|singer,One Direction,British,Watermelon Sugar,fashion,curly,pop,dress|A British pop star~Started in One Direction~Watermelon Sugar~Famous for bold fashion~Curly hair
+Busker|street musician|3|street,sing,coins,guitar case,city,performer,crowd,money|Plays music on the street~Coins thrown into a guitar case~Performs in subway stations~Sings for passers-by~Hoping for tips
+Mixtape|mixtape|3|songs,tape,gift,love,friend,playlist,cassette,old|A personal collection of songs~Once recorded on a cassette~Given as a love gift~Rappers release them free~Today it's a playlist
+Grammy|Grammy Award|3|award,music,gramophone,gold,ceremony,singer,best,prize|The biggest music award~The trophy is a golden gramophone~Given in Los Angeles~Best New Artist~Beyoncé has won the most
+Eurovision|Eurovision|2|song contest,Europe,countries,vote,points,ABBA,stage,glitter|A song contest between countries~Douze points~ABBA won with Waterloo~Lots of glitter and wind machines~Europe votes for the winner
+Talent show|talent show|2|stage,judges,sing,X Factor,audition,vote,golden buzzer,perform|Ordinary people perform on TV~Judges press buttons~Auditions and finals~The golden buzzer~Got Talent and The X Factor
+Air guitar|air guitar|2|pretend,rock,fingers,imaginary,solo,dance,fun,strum|Playing an imaginary instrument~Fake a rock solo~No strings at all~Done in the bedroom mirror~There is a world championship for it
+Ballet|ballet|2|dance,tutu,pointe,Swan Lake,graceful,shoes,classical,ballerina|A graceful classical dance~Dancers wear tutus~Stand on the tips of their toes~Swan Lake and The Nutcracker~Started in France and Russia
+Ballerina|ballerinas|2|dance,tutu,pink,ballet,toes,spin,music box,graceful|A female ballet dancer~Wears a pink tutu~Spins on her toes~Found in music boxes~Swan Lake star
+Breakdance|breakdancing|2|spin,head,hip hop,street,floor,b-boy,Olympics,freeze|A street dance~Spin on your head~Started with hip hop in New York~Freeze in strange poses~Was in the Paris Olympics
+Tango|tango|3|dance,Argentina,couple,rose,passion,Buenos Aires,step,dip|A passionate couple dance~From Argentina~A rose between the teeth~Sharp head turns~It takes two
+Salsa|salsa dance|2|dance,Latin,Cuba,hips,couple,spin,club,rhythm|A Latin couple dance~From Cuba and Puerto Rico~Fast hip movements~Lots of spins~Also a spicy sauce
+Macarena|Macarena|2|dance,song,nineties,arms,Spain,party,hips,hey|A nineties party song~Everyone does the same arm moves~Hands on hips~From Spain~Ends with a jump and hey
+Conga line|conga|3|dance,line,party,hips,hold,snake,wedding,follow|A dance in a long line~Hold the person in front~Snake around the party~One two three kick~Happens at weddings
+Musical|musicals|2|Broadway,singing,theatre,dancing,show,stage,songs,West End|A show with singing and dancing~Broadway in New York~West End in London~Hamilton and Les Misérables~Actors break into song
+Hamilton|Hamilton|3|musical,Broadway,rap,history,Founding Fathers,America,Lin-Manuel,revolution|A hit Broadway musical~Tells American history through rap~About a Founding Father~Created by Lin-Manuel Miranda~Everyone wants tickets
+The Phantom of the Opera|Phantom|3|musical,mask,Paris,opera,chandelier,love,Andrew Lloyd Webber,organ|A musical about a masked man~Lives under a Paris opera house~A giant chandelier falls~Andrew Lloyd Webber wrote it~Music of the Night
+Rapper|MC|1|rap,microphone,rhymes,hip hop,lyrics,chains,beat,flow|Performs rhymes over a beat~Holds a microphone~Wears gold chains~Eminem and Kendrick Lamar~Writes clever lyrics
+Singer|vocalist|1|voice,sing,song,stage,microphone,band,star,lead|Uses their voice to make music~Front of the band~Holds the microphone~Pop stars are this~Lead vocals
+Band|group|1|music,members,drummer,guitarist,singer,tour,play,stage|A group of musicians~Drummer, guitarist and singer~Goes on tour~Plays on stage together~The Beatles were one
+Tour bus|tour bus|3|band,road,travel,concerts,bunks,cities,musicians,highway|A band lives in it on the road~Bunk beds inside~Travels between cities~From concert to concert~Rock stars sleep on it
+Earplugs|earplugs|2|ears,noise,quiet,sleep,concert,foam,block,loud|Small things in your ears~Block loud noise~Help you sleep~Worn at concerts~Made of foam
+Ringtone|ringtone|2|phone,sound,call,song,music,ring,custom,vibrate|The sound your phone makes~When someone calls~Can be your favourite song~Embarrassing in a meeting~Nokia had a famous one
+Jingle|jingles|3|advert,song,short,catchy,radio,brand,TV,stuck|A short catchy advert song~Gets stuck in your head~Played on the radio~For a brand~I'm lovin' it is one
+Banjo|banjo|3|strings,country,bluegrass,round,pluck,folk,twang,American|A round string instrument~Has a drum-like body~Played in country and bluegrass~Twangy sound~Dueling ones in a famous film scene

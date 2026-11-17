@@ -1,0 +1,102 @@
+# Animals
+# Target|aliases|difficulty|8 trap words|5 clues (vague to specific), separated by ~
+Dog|dogs,puppy|1|pet,bark,bone,walk,tail,loyal,leash,woof|Man's best friend~Barks at the postman~Loves bones and walks~Wags its tail~Goes woof
+Cat|cats,kitten|1|pet,meow,purr,mouse,whiskers,claws,milk,lazy|A pet that purrs~Chases mice~Has whiskers and claws~Sleeps most of the day~Goes meow
+Horse|horses|1|ride,saddle,gallop,farm,hooves,mane,neigh,stable|You can ride on it~Gallops fast~Has a mane and hooves~Lives in a stable~Goes neigh
+Cow|cows|1|milk,farm,moo,grass,spots,beef,field,udder|Gives us milk~Eats grass all day~Black and white spots~Lives on a farm~Goes moo
+Pig|pigs|1|pink,farm,mud,oink,bacon,snout,curly tail,pork|Pink farm animal~Rolls in mud~Has a curly tail and a snout~Goes oink~Peppa is one
+Sheep|sheep,lamb|1|wool,farm,baa,white,flock,fluffy,shepherd,count|Fluffy white farm animal~Gives us wool~Lives in a flock~Goes baa~People count them to fall asleep
+Goat|goats|2|horns,beard,milk,cheese,climb,farm,mountain,eat|A farm animal with a beard~Climbs rocky mountains~Eats almost anything~Gives milk for cheese~Also means greatest of all time
+Chicken|chickens,hen|1|egg,farm,cluck,rooster,feathers,coop,chick,wings|A farm bird~Lays eggs~Lives in a coop~Goes cluck~Why did it cross the road
+Duck|ducks|1|quack,pond,water,bird,feathers,swim,yellow,webbed feet|A bird that swims on ponds~Goes quack~Has webbed feet~Rubber toy version in the bath~Donald is a famous one
+Rabbit|bunny,rabbits|1|ears,carrot,hop,Easter,fluffy,hole,pet,fast|Long ears and a fluffy tail~Loves carrots~Hops around~Lives in holes~The Easter one brings eggs
+Hamster|hamsters|2|pet,wheel,cage,small,cheeks,rodent,run,cute|A small pet in a cage~Runs on a wheel at night~Stuffs food in its cheeks~A rodent~Kids' first pet
+Goldfish|goldfish|1|fish,bowl,orange,pet,swim,water,memory,tank|An orange pet fish~Lives in a bowl~Said to have a short memory~Won at fairs~Swims in circles
+Parrot|parrots|1|bird,talk,colorful,pirate,feathers,beak,tropical,repeat|A colourful bird~Can copy words~Sits on a pirate's shoulder~Has a strong curved beak~Polly wants a cracker
+Lion|lions|1|king,mane,roar,Africa,jungle,cat,pride,Simba|King of the jungle~Has a big mane~Roars loudly~Lives in Africa in a pride~Simba is one
+Tiger|tigers|1|stripes,orange,cat,jungle,India,roar,big,Tigger|A big striped cat~Orange with black stripes~Lives in Asian jungles~Tony sells cereal~Shere Khan in The Jungle Book
+Zebra|zebras|1|stripes,black and white,horse,Africa,savanna,herd,crossing,Marty|Looks like a horse with stripes~Black and white~Lives in Africa~Its name is on a road crossing~Marty in Madagascar
+Hippo|hippopotamus|2|river,big,Africa,mouth,water,grey,heavy,dangerous|A huge animal in African rivers~Opens its mouth very wide~Spends the day in water~More dangerous than it looks~Its full name means river horse
+Rhinoceros|rhino|2|horn,Africa,grey,big,thick skin,charge,endangered,savanna|A huge grey animal with a horn~Lives in Africa and Asia~Thick armoured skin~Charges when angry~Endangered by poachers
+Gorilla|gorillas|2|ape,big,jungle,chest,strong,Africa,silverback,banana|The biggest ape~Beats its chest~Lives in African jungles~The leader is a silverback~Very strong but gentle
+Monkey|monkeys|1|banana,tree,tail,climb,jungle,swing,funny,ape|Swings from trees~Loves bananas~Has a long tail~Lives in the jungle~Cheeky and playful
+Chimpanzee|chimp|2|ape,smart,Africa,tools,Jane Goodall,banana,jungle,family|A very smart ape~Uses tools~Our closest relative~Jane Goodall studied them~Lives in African forests
+Bear|bears|1|brown,honey,forest,hibernate,teddy,big,claws,grizzly|A big furry animal~Loves honey~Sleeps all winter~Grizzly and brown~Teddy is a toy version
+Wolf|wolves|1|howl,pack,moon,forest,grey,fangs,hunt,dog|Howls at the moon~Hunts in a pack~Looks like a big grey dog~Big Bad one in fairy tales~Lives in forests
+Fox|foxes|1|red,sly,tail,forest,clever,hunt,chicken,bushy|A red animal with a bushy tail~Known for being sly~Steals chickens~What does it say~Clever in fables
+Deer|deer|1|antlers,forest,Bambi,brown,fast,Rudolph,hunt,shy|Lives in the forest~Males have antlers~Bambi is one~Its meat is called venison~Shy and fast
+Moose|moose|3|antlers,Canada,big,forest,elk,Alaska,huge,brown|A huge deer with wide antlers~Lives in Canada and Alaska~Bigger than a horse~Walks through snowy forests~The plural is the same
+Squirrel|squirrels|1|nuts,tree,tail,acorn,park,fluffy,climb,winter|Lives in trees~Collects nuts and acorns~Has a fluffy tail~Seen in every park~Hides food for winter
+Hedgehog|hedgehogs|2|spikes,small,ball,night,garden,cute,Sonic,prickly|A small animal with spikes~Rolls into a ball~Comes out at night~Visits gardens~Sonic is a blue one
+Bat|bats|2|night,fly,cave,wings,upside down,vampire,echo,blind|Flies at night~Sleeps upside down~Lives in caves~Uses echoes to see~A caped Gotham hero is named after it
+Mouse|mice|1|small,cheese,cat,squeak,tail,trap,rodent,hole|Small and squeaky~Loves cheese~Chased by cats~Caught in a trap~Mickey is a famous one
+Snake|snakes|1|hiss,slither,venom,long,scales,python,cobra,tongue|Long with no legs~Slithers on the ground~Says hiss~Some have venom~Python and cobra
+Lizard|lizards|2|reptile,scales,tail,small,sun,desert,gecko,cold-blooded|A small scaly reptile~Lies in the sun~Can lose its tail~Gecko is one~Lives in hot places
+Turtle|turtles,tortoise|1|shell,slow,sea,reptile,hide,old,green,ninja|Carries its house on its back~Very slow~Hides in its shell~Lives a very long time~Sea ones lay eggs on beaches
+Frog|frogs|1|green,jump,pond,ribbit,tadpole,prince,lily pad,tongue|A green jumping animal~Lives near ponds~Says ribbit~Starts life as a tadpole~Kiss it to find a prince
+Snail|snails|2|shell,slow,slime,garden,rain,spiral,France,antennae|Very slow with a shell~Leaves a slimy trail~Comes out after rain~Has eyes on stalks~The French eat them
+Spider|spiders|1|web,eight legs,scary,insect,bite,catch,Spider-Man,crawl|Has eight legs~Spins a web~Many people are scared of it~Catches flies~Bit Peter Parker
+Bee|bees|1|honey,buzz,sting,hive,flower,yellow,queen,pollen|Makes honey~Buzzes around flowers~Lives in a hive~Has a queen~Can sting
+Ant|ants|1|small,colony,picnic,queen,strong,hill,work,insect|A tiny insect~Lives in a colony~Very strong for its size~Ruins picnics~Builds hills
+Mosquito|mosquitoes|2|bite,itch,buzz,blood,summer,night,malaria,annoying|A small biting insect~Buzzes in your ear at night~Drinks blood~Leaves an itchy bump~Spreads malaria
+Ladybug|ladybird|2|red,spots,black,insect,lucky,small,garden,fly|A small red insect~Has black spots~Said to bring luck~Lands on your finger~Called ladybird in Britain
+Dragonfly|dragonflies|3|insect,wings,pond,fly,fast,four wings,colorful,water|An insect with four long wings~Flies over ponds~Very fast~Shiny colours~Hovers like a helicopter
+Caterpillar|caterpillars|2|butterfly,leaf,eat,crawl,green,cocoon,hungry,worm|A crawling baby insect~Eats leaves all day~Becomes a butterfly~Very Hungry in a famous book~Builds a cocoon
+Worm|worms|1|earth,soil,rain,fishing,wiggle,bird,long,garden|A long wiggly animal~Lives in soil~Comes up after rain~Used as fishing bait~The early bird catches it
+Whale|whales|1|ocean,big,blue,swim,mammal,spout,Moby Dick,song|The biggest animal in the ocean~Breathes through a spout~A mammal, not a fish~Sings songs~Blue is the largest kind
+Seal|seals|2|ocean,ice,flippers,fish,clap,beach,whiskers,grey|Lives on ice and beaches~Has flippers~Eats fish~Claps at shows~Its baby is a white pup
+Jellyfish|jellyfish|2|sting,sea,transparent,beach,tentacles,float,soft,blob|A see-through sea creature~Has stinging tentacles~Floats in the ocean~Wash up on beaches~No brain at all
+Starfish|sea star|2|sea,five,arms,beach,orange,ocean,shape,rock|A sea creature with five arms~Shaped like a star~Lives on rocks~Can regrow an arm~Patrick in SpongeBob
+Crab|crabs|1|claws,sideways,beach,shell,red,sea,pinch,ocean|Walks sideways~Has big claws~Lives on the beach~Pinches your toes~Turns red when cooked
+Lobster|lobsters|2|claws,red,sea,expensive,seafood,shell,Maine,boil|A sea creature with big claws~Turns red when cooked~Expensive seafood~Caught in Maine~Served with butter
+Squid|squids|2|sea,tentacles,ink,calamari,ocean,arms,giant,deep|A sea creature with tentacles~Squirts ink~Fried as calamari~Giant ones live deep down~Ten arms
+Seahorse|seahorses|2|sea,small,horse,curly tail,dad,coral,cute,fish|A tiny fish shaped like a horse~Curly tail~The dad carries the babies~Lives near coral~Swims upright
+Eagle|eagles|1|bird,fly,America,claws,beak,sky,bald,hunt|A powerful bird of prey~Flies high in the sky~Sharp claws and beak~The symbol of America~The bald kind
+Hawk|hawks|2|bird,hunt,sky,claws,fast,prey,eyes,fly|A hunting bird~Has amazing eyesight~Dives to catch mice~Sharp claws~Circles in the sky
+Pigeon|pigeons|1|bird,city,grey,park,bread,statue,coo,messages|A grey city bird~Eats bread in the park~Sits on statues~Says coo~Used to carry messages
+Crow|crows|2|black,bird,clever,caw,scarecrow,field,raven,smart|A clever black bird~Says caw~Farmers put a straw man in fields to scare it~Can solve puzzles~Cousin of the raven
+Swan|swans|2|white,lake,elegant,neck,ballet,bird,ugly duckling,graceful|An elegant white bird~Long curved neck~Swims on lakes~The ugly duckling became one~Tchaikovsky named a famous ballet after its lake
+Ostrich|ostriches|2|bird,big,run,Africa,egg,head in sand,feathers,legs|The biggest bird~Cannot fly but runs fast~Lays giant eggs~Said to hide its head in sand~Lives in Africa
+Hummingbird|hummingbirds|3|tiny,bird,fast,wings,flowers,nectar,hover,colorful|The smallest bird~Wings beat super fast~Hovers in the air~Drinks nectar from flowers~Makes a buzzing sound
+Toucan|toucans|3|bird,beak,colorful,rainforest,orange,tropical,Brazil,cereal|A tropical bird~Huge colourful beak~Lives in rainforests~On a cereal box~Black with an orange beak
+Swallow|swallows|3|bird,migrate,spring,fly,fast,tail,summer,nest|A small bird that flies fast~Arrives in spring~Forked tail~Migrates in winter~Also a verb for eating
+Seagull|gull|1|beach,bird,white,steal,chips,sea,loud,coast|A beach bird~Steals your chips~Very loud~Flies over the sea~White and grey
+Cheetah|cheetahs|2|fast,spots,cat,Africa,run,speed,savanna,hunt|The fastest land animal~Has black spots~Lives in Africa~Runs over 100 km/h~A big cat
+Leopard|leopards|2|spots,cat,Africa,tree,hunt,big cat,rosettes,jungle|A big cat with spots~Climbs trees with its food~Lives in Africa and Asia~Cannot change its spots~Fast and strong
+Jaguar|jaguars|3|cat,spots,South America,jungle,swim,big cat,car,Amazon|A big cat of the Amazon~Has spots like rosettes~Loves to swim~Also a British car brand~Lives in South America
+Hyena|hyenas|3|laugh,Africa,scavenger,spots,pack,Lion King,bones,savanna|An African scavenger~Sounds like it is laughing~Lives in packs~Villains in The Lion King~Strong jaws break bones
+Meerkat|meerkats|2|Africa,stand,lookout,desert,family,Timon,small,burrow|A small African animal~Stands on its back legs~One keeps lookout~Lives in burrows~Timon is one
+Llama|llamas|2|South America,wool,spit,Peru,fluffy,long neck,alpaca,mountains|A fluffy animal from Peru~Long neck~Spits when angry~Gives wool~Cousin of the alpaca
+Sloth bear|sloth bear|3|bear,India,shaggy,insects,claws,black,lips,forest|A shaggy black bear~Lives in India~Eats termites~Long claws~Baloo is one
+Raccoon|raccoons|2|mask,trash,night,stripes,tail,America,clever,wash|Looks like it wears a mask~Raids trash cans at night~Striped tail~Washes its food~Lives in North America
+Skunk|skunks|2|smell,black,white,stripe,spray,tail,stink,night|Black with a white stripe~Sprays a terrible smell~Has a bushy tail~Comes out at night~Pepé Le Pew
+Beaver|beavers|2|dam,teeth,river,wood,tail,Canada,build,chew|Builds dams on rivers~Chews wood with big teeth~Has a flat tail~A symbol of Canada~Very busy
+Otter|otters|2|river,swim,cute,hold hands,fish,play,whiskers,sea|A playful river animal~Swims on its back~Sea ones hold hands while sleeping~Eats fish~Very cute
+Walrus|walruses|3|tusks,ice,Arctic,whiskers,fat,cold,sea,big|A big Arctic animal~Has long tusks~Lies on the ice~Thick whiskers~Very fat to stay warm
+Penguin chick|baby penguin|3|penguin,fluffy,grey,Antarctica,cold,baby,ice,huddle|A fluffy grey baby bird~Lives in Antarctica~Kept warm on dad's feet~Cannot swim yet~Huddles with others
+Puppy|puppies|1|dog,baby,cute,play,small,chew,bark,young|A baby dog~Chews everything~Very playful~Tiny barks~Needs training
+Kitten|kittens|1|cat,baby,cute,small,play,meow,yarn,fluffy|A baby cat~Plays with yarn~Tiny meows~Very fluffy~Climbs curtains
+Lamb|lambs|2|sheep,baby,spring,white,wool,cute,farm,Mary|A baby sheep~Born in spring~Mary had a little one~White and woolly~Bounces in fields
+Calf|calves|3|cow,baby,farm,milk,young,legs,field,mother|A baby cow~Drinks milk from its mother~Wobbly legs~Lives on a farm~Also a part of your leg
+Tadpole|tadpoles|3|frog,baby,pond,tail,swim,water,black,grow|A baby frog~Swims in ponds~Has a tail and no legs~Small and black~Grows legs later
+Dalmatian|Dalmatians|2|dog,spots,black and white,101,firefighters,Disney,Cruella,puppies|A dog with black spots~101 of them in a Disney film~Firefighters' dog~Cruella wanted their fur~White with black dots
+Poodle|poodles|2|dog,curly,fluffy,France,haircut,pink,fancy,small|A fancy curly dog~Often from France in stories~Has a pom-pom haircut~Very clever~Toy or standard size
+Bulldog|bulldogs|2|dog,wrinkles,British,strong,face,snore,flat,chubby|A dog with a wrinkly face~Short legs and strong body~A symbol of Britain~Snores loudly~Flat nose
+Chihuahua|Chihuahuas|2|dog,tiny,Mexico,bag,shake,small,bark,ears|The smallest dog~From Mexico~Carried in handbags~Shakes and barks a lot~Big ears
+Golden retriever|golden retriever|2|dog,friendly,golden,fetch,family,ball,guide,loyal|A friendly family dog~Golden fur~Loves to fetch balls~Often a guide dog~Very gentle
+German shepherd|Alsatian|2|dog,police,smart,guard,ears,loyal,big,brave|A big smart dog~Works with the police~Pointy ears~Good guard dog~From Germany
+Persian cat|Persian|3|cat,fluffy,flat face,long hair,white,fancy,Iran,lazy|A fluffy cat with a flat face~Long silky fur~Very calm~Named after Iran's old name~A fancy show cat
+Pony|ponies|1|small,horse,ride,kids,cute,mane,farm,birthday|A small horse~Kids ride it~Has a cute mane~Seen at birthday parties~My Little one is a toy
+Donkey|donkeys|1|ears,farm,carry,stubborn,Shrek,hee-haw,grey,ride|A grey animal with long ears~Very stubborn~Says hee-haw~Carries heavy loads~Shrek's friend
+Reindeer|reindeer|1|Santa,antlers,Christmas,sleigh,Rudolph,snow,Lapland,red nose|Pulls Santa's sleigh~Has antlers~Lives in the Arctic~Rudolph has a red nose~Lapland
+Polar fox|Arctic fox|3|white,snow,Arctic,fox,cold,fluffy,winter,camouflage|A white fluffy fox~Lives in the Arctic~Fur turns brown in summer~Hides in the snow~Very thick tail
+Panther|black panther|2|black,cat,big cat,jungle,Pink,hunt,dark,Marvel|A black big cat~Moves silently at night~Pink one in a cartoon~A Marvel superhero shares its name~Lives in jungles
+Gecko|geckos|3|lizard,walls,sticky,feet,small,night,insurance,climb|A small lizard~Walks on walls and ceilings~Sticky feet~Makes clicking sounds~An insurance mascot
+Iguana|iguanas|3|lizard,green,big,reptile,spikes,pet,tropical,tail|A big green lizard~Spikes on its back~Lives in tropical places~Kept as a pet~Long tail
+Cobra|cobras|2|snake,hood,venom,India,charmer,poison,basket,hiss|A venomous snake~Spreads a hood~Snake charmers play music to it~From India~Very dangerous bite
+Python|pythons|2|snake,squeeze,big,jungle,constrictor,eat,long,programming|A huge snake~Squeezes its prey~Swallows animals whole~Not venomous~Also a programming language
+Alligator|alligators|2|reptile,swamp,teeth,Florida,crocodile,green,jaws,river|A big reptile with many teeth~Lives in swamps~Common in Florida~Cousin of the crocodile~See you later
+Pufferfish|blowfish|3|fish,inflate,spikes,ball,poison,sea,Japan,round|A fish that blows itself up~Becomes a spiky ball~Very poisonous~A risky dish in Japan~Lives in the sea
+Clownfish|clownfish|2|orange,white,fish,Nemo,anemone,coral,stripes,reef|An orange and white fish~Lives in an anemone~Nemo is one~Found on coral reefs~Has white stripes
+Piranha|piranhas|3|fish,teeth,river,Amazon,bite,sharp,school,dangerous|A fish with sharp teeth~Lives in the Amazon~Swims in groups~Can strip meat fast~Scary in movies
+Stingray|stingray|3|fish,flat,sea,tail,sting,sand,wings,glide|A flat sea fish~Glides like it has wings~Hides in the sand~Has a dangerous tail~Steve Irwin was killed by one

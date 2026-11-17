@@ -1,0 +1,102 @@
+# Games & Tech
+# Target|aliases|difficulty|8 trap words|5 clues (vague to specific), separated by ~
+Laptop|notebook|1|computer,screen,keyboard,portable,battery,work,MacBook,fold|A computer you can carry~Folds open and shut~Has a keyboard and screen~Runs on a battery~MacBook is one
+Keyboard|keyboards|1|keys,type,computer,letters,QWERTY,space,mouse,buttons|You type on it~Has letters and numbers~QWERTY layout~Has a space bar~Works with a mouse
+Computer mouse|mouse|1|click,computer,cursor,scroll,wheel,wireless,desk,pointer|Moves the cursor~Click left or right~Has a scroll wheel~Sits next to the keyboard~Named after a small animal
+Tablet|iPad|1|screen,touch,Apple,portable,apps,flat,kids,Netflix|A big flat touch screen~iPad is the famous one~Kids watch videos on it~Bigger than a phone~No keyboard
+Smartwatch|Apple Watch|2|watch,wrist,steps,notifications,heart rate,Apple,fitness,screen|A computer on your wrist~Counts your steps~Shows notifications~Checks your heart rate~Apple makes a famous one
+Charger|chargers|1|battery,phone,cable,plug,power,wall,USB,low|Gives power to your phone~Plug it into the wall~Has a cable~Everyone asks to borrow one~Needed when the battery is low
+Power bank|portable charger|2|battery,phone,charge,travel,USB,portable,power,full|A battery for your phone~Carried in your bag~Charges on the go~Has a USB port~Saves you at festivals
+Wi-Fi|WiFi|1|internet,password,signal,router,wireless,connect,bars,network|Wireless internet~Ask for the password~Has signal bars~Comes from a router~Everyone checks it in a hotel
+Password|passwords|1|secret,login,letters,forgot,security,account,type,hidden|A secret word to log in~Forgot it again~Should be long and strong~Shown as dots~Never share it
+Selfie stick|selfie stick|2|phone,photo,stick,tourists,long,arm,camera,group|A pole for your phone~Takes photos of yourself~Tourists carry it~Gets everyone in the picture~Banned in some museums
+Drone|drones|2|fly,camera,remote,propellers,sky,photos,buzz,delivery|A small flying machine~Has four propellers~Takes photos from the sky~Controlled by remote~Amazon wants to deliver with it
+Virtual reality|VR|2|headset,goggles,3D,game,immersive,Oculus,world,glasses|Put on a headset and enter another world~Look around in 3D~Oculus is one brand~Used for games~You might bump into furniture
+Artificial intelligence|AI|2|robot,computer,smart,ChatGPT,machine,learn,future,algorithm|Computers that can think~ChatGPT is an example~Learns from data~Some people fear it~Two letters
+Chatbot|chatbots|2|AI,talk,computer,questions,answers,ChatGPT,customer service,messages|A computer you can text with~Answers your questions~Customer service uses it~ChatGPT is one~Talks like a person
+Robot vacuum|Roomba|2|clean,floor,robot,round,dust,automatic,cat,bump|A round machine that cleans the floor~Moves by itself~Bumps into walls~Cats ride on it~Roomba is a famous one
+Smart speaker|Alexa|2|voice,speaker,Alexa,Google,music,ask,home,assistant|A speaker that listens to you~Ask it the weather~Plays music on command~Alexa lives in one~Hey Google
+Bluetooth|Bluetooth|2|wireless,connect,headphones,pair,speaker,signal,blue,phone|Connects devices without wires~Pair your headphones~Has a blue logo~Named after a Viking king~Turn it on in settings
+USB stick|flash drive|2|memory,files,computer,port,small,save,plug,data|A small memory stick~Plug it into a computer~Saves files~Fits on a keyring~Always the wrong way first
+Printer jam|paper jam|3|printer,paper,stuck,office,error,annoying,ink,fix|When paper gets stuck~Office workers hate it~The machine flashes an error~Open every door to find it~Happens right before a deadline
+Screenshot|screenshots|1|screen,photo,phone,capture,picture,save,share,buttons|A picture of your screen~Press two buttons at once~Saves a chat as proof~Shared with friends~Captures what you see
+Emoji keyboard|emojis|2|faces,phone,symbols,text,smile,heart,icons,yellow|Little pictures in your messages~Smiley faces and hearts~A crying-laughing face is popular~Found on your phone~Japanese invention
+Text message|SMS|1|phone,message,send,type,reply,read,chat,notification|A short written message~Sent from a phone~Typed with thumbs~Seen by two blue ticks~Left on read
+Voice message|voice note|2|record,phone,WhatsApp,listen,talk,audio,long,button|A recorded message instead of text~Hold a button and talk~Popular on WhatsApp~Some are five minutes long~Listened to at double speed
+Video call|FaceTime|1|camera,talk,Zoom,screen,face,meeting,family,online|Talk face to face through a screen~FaceTime and Zoom~Used for work meetings~You're on mute~Calling family abroad
+Zoom|Zoom|2|video,meeting,call,online,mute,camera,work,pandemic|A video meeting app~Very popular during the pandemic~You're on mute~Backgrounds hide your messy room~Teachers used it for lessons
+WhatsApp|WhatsApp|1|messages,chat,green,groups,phone,app,ticks,voice|A green messaging app~Two blue ticks~Family groups~Voice notes~Owned by Meta
+Snapchat|Snapchat|2|ghost,yellow,photos,disappear,filters,streak,app,stories|An app with a ghost logo~Photos disappear~Funny face filters~Keep your streak~Yellow icon
+Twitter|X|2|bird,tweet,short,posts,Elon Musk,trending,hashtag,blue|An app for short posts~Its logo was a blue bird~Hashtags trend there~Elon Musk bought it~Now called by one letter
+LinkedIn|LinkedIn|3|jobs,work,profile,network,career,professional,CV,connect|A social network for jobs~Your online CV~Connect with colleagues~Recruiters find you~Very professional posts
+Reddit|Reddit|3|forum,posts,upvote,community,alien,threads,subreddit,anonymous|An online forum~Communities start with r slash~Upvote and downvote~Its mascot is an alien~The front page of the internet
+Twitch|Twitch|3|streaming,gamers,live,chat,purple,video games,followers,watch|Watch people play games live~Purple logo~Chat with the streamer~Owned by Amazon~Gamers go live
+Amazon|Amazon|1|shopping,online,delivery,boxes,Prime,Jeff Bezos,packages,smile|A huge online shop~Boxes with a smile on them~Prime delivery~Started by Jeff Bezos~Also a rainforest
+eBay|eBay|3|auction,online,buy,sell,bid,second hand,shopping,website|An online auction site~Bid on second-hand things~Sellers get ratings~Old and colourful logo~Buy it now
+Uber|Uber|2|taxi,app,ride,driver,car,phone,rating,share|Order a car with an app~The driver has a rating~Cheaper than a taxi~Also delivers food~Five stars
+Google Maps|Google Maps|1|map,directions,app,navigation,GPS,route,traffic,street view|An app to find directions~Shows traffic~Street View~Blue dot is you~Turn left in 200 metres
+GPS|satnav|2|navigation,map,satellite,car,directions,location,route,lost|Tells you where you are~Uses satellites~Gives directions in the car~Recalculating~Three letters
+Bitcoin|Bitcoin|2|crypto,money,digital,blockchain,mining,coin,virtual,price|A digital currency~Not printed by any bank~Mined by computers~Its price goes up and down wildly~Created by Satoshi
+Cryptocurrency|crypto|3|Bitcoin,digital,money,blockchain,wallet,coin,invest,virtual|Money that only exists online~Bitcoin and Ethereum~Stored in a digital wallet~Uses a blockchain~Very risky investment
+Hacker|hackers|2|computer,break in,code,hoodie,password,virus,security,dark|Breaks into computers~Steals passwords~Shown in a dark hoodie~Types very fast in movies~Some are good and some are bad
+Computer virus|virus|2|computer,infect,malware,spread,antivirus,files,email,danger|A program that harms computers~Spreads through emails~Antivirus software stops it~Deletes your files~Named after a germ
+Spam|spam|2|email,junk,unwanted,inbox,ads,delete,folder,scam|Unwanted emails~Junk in your inbox~You won a prize~Delete it~Also a canned meat
+Cloud storage|the cloud|3|files,online,save,Google Drive,iCloud,backup,internet,space|Saving files on the internet~iCloud and Google Drive~Your phone backs up there~Not in the sky~Storage full
+Algorithm|algorithms|3|computer,code,steps,TikTok,recommend,math,program,feed|Steps a computer follows~Decides what you see on TikTok~Recommends videos~Written in code~Used in search engines
+App Store|App Store|2|apps,Apple,download,iPhone,games,install,free,review|Where you download apps on an iPhone~Run by Apple~Free and paid apps~Ratings and reviews~Update all
+Loading screen|loading|2|wait,bar,circle,game,slow,percent,spinner,screen|What you see while waiting~A spinning circle~A bar filling up~Slow internet makes it worse~Please wait
+Error message|error|2|computer,warning,crash,code,red,popup,404,problem|A warning that something went wrong~Pops up on the screen~404 is a famous one~Red text~Try again later
+Blue screen of death|blue screen|3|Windows,crash,error,computer,blue,restart,freeze,sad|A Windows crash~The whole screen turns one colour~Your computer must restart~White text on blue~Very scary when you didn't save
+Battery icon|low battery|2|phone,red,percent,charge,empty,low,warning,power|Shows how much power is left~Turns red at 20%~Low power mode~Next to the clock~Panic at 1%
+Airplane mode|flight mode|2|phone,plane,offline,settings,icon,signal,switch,flight|Turns off your phone's signal~Required on flights~An icon of a plane~Saves battery~No messages come in
+Video game console|console|1|games,controller,PlayStation,Xbox,TV,play,Nintendo,gamers|A machine for playing games on TV~PlayStation and Xbox~Comes with a controller~Nintendo makes one~Gamers stay up late with it
+Game controller|joystick|1|buttons,games,console,hands,vibrate,play,thumbsticks,wireless|Held with both hands~Has buttons and thumbsticks~Vibrates when you crash~Used with a console~Batteries run out
+Xbox|Xbox|2|console,Microsoft,games,controller,green,Halo,play,online|A game console by Microsoft~Green logo~Halo is its famous game~Rival of PlayStation~X is in its name
+Nintendo Switch|Switch|2|console,Nintendo,portable,Mario,Zelda,Joy-Con,handheld,TV|A Nintendo console~Play on TV or on the go~Detachable controllers~Mario and Zelda~Red and blue Joy-Cons
+Game Boy|Game Boy|3|Nintendo,handheld,Tetris,grey,nineties,Pokémon,batteries,green screen|An old handheld console~Made by Nintendo~Played Tetris and Pokémon~Grey with a green screen~Needed AA batteries
+Arcade|arcade machine|2|games,coins,old,machines,Pac-Man,high score,joystick,eighties|A room full of game machines~Insert a coin~Chase the high score~Pac-Man and Street Fighter~Popular in the eighties
+Roblox|Roblox|2|game,kids,blocks,online,create,avatar,Robux,worlds|A game platform for kids~Players build their own worlds~Blocky avatars~Buy things with Robux~Millions of mini games
+Among Us|Among Us|2|impostor,spaceship,crew,vote,game,sus,task,colorful|A game about finding a traitor~Little astronauts on a spaceship~Do tasks and vote~Someone is sus~Emergency meeting
+Candy Crush|Candy Crush|2|game,phone,match three,sweets,levels,colorful,lives,swipe|A phone game with sweets~Match three in a row~Thousands of levels~Run out of lives~Sweet! Delicious!
+Call of Duty|COD|3|shooter,war,game,soldiers,online,guns,multiplayer,mission|A war shooter game~Played online~Soldiers and missions~Very popular with teenagers~Modern Warfare
+FIFA|EA Sports FC|2|football,game,teams,players,PlayStation,Ultimate Team,goals,yearly|A football video game~New one every year~Ultimate Team~Play as your favourite club~Now called EA Sports FC
+The Sims|Sims|2|life,game,house,build,people,simulation,green diamond,family|A game about life~Build a house~Control little people~A green diamond above their heads~They speak gibberish
+Street Fighter|Street Fighter|3|fighting game,arcade,Ryu,hadouken,combo,Chun-Li,punch,kick|A classic fighting game~Ryu throws a hadouken~Chun-Li kicks fast~Arcade combos~Round one, fight
+Donkey Kong|Donkey Kong|3|gorilla,barrels,Nintendo,Mario,arcade,climb,bananas,ape|A Nintendo gorilla~Throws barrels~Mario's first enemy~Loves bananas~Wears a red tie
+Luigi|Luigi|2|Mario,brother,green,Nintendo,plumber,hat,mustache,ghosts|Mario's brother~Wears green~Taller than Mario~Has a mustache~Hunts ghosts in a mansion
+Princess Peach|Peach|2|Mario,princess,pink,castle,Bowser,Nintendo,kidnapped,crown|A Nintendo princess~Wears pink~Always kidnapped by Bowser~Mario rescues her~Lives in a castle
+Bowser|King Koopa|3|Mario,villain,turtle,fire,spikes,castle,Nintendo,king|Mario's enemy~A giant turtle with spikes~Breathes fire~Kidnaps the princess~King of the Koopas
+Kirby|Kirby|3|pink,Nintendo,ball,inhale,puff,cute,float,copy|A pink round hero~Swallows enemies~Copies their powers~Floats by puffing up~Nintendo character
+Link|Link|3|Zelda,sword,green,elf,Hyrule,shield,hero,Nintendo|The hero in Zelda games~Wears green~Carries a sword and shield~Not actually called Zelda~Lives in Hyrule
+Crash Bandicoot|Crash|3|orange,PlayStation,spin,boxes,fruit,jump,game,nineties|An orange PlayStation hero~Spins to break boxes~Collects fruit~Nineties platform game~Australian animal
+Solitaire|patience|2|cards,game,alone,computer,Windows,deck,stack,bored|A card game for one~Came with every Windows computer~Stack the cards by colour~Played when bored at work~Cards bounce when you win
+Minesweeper|Minesweeper|3|Windows,mines,flag,grid,numbers,boom,click,game|An old Windows game~Click squares on a grid~Numbers warn of danger~Plant a flag~Boom if you guess wrong
+Snake game|Snake|2|Nokia,phone,grow,eat,old,pixel,tail,classic|A classic Nokia phone game~You get longer when you eat~Don't hit your own tail~Pixel graphics~Played on old phones
+Flappy Bird|Flappy Bird|3|bird,tap,pipes,phone,game,hard,addictive,deleted|A very hard phone game~Tap to fly~Avoid green pipes~The creator deleted it~Made everyone angry
+Pokémon Go|Pokemon Go|2|phone,walk,catch,map,augmented reality,outside,gym,Pikachu|A game where you walk outside~Catch creatures on your phone~Uses real maps~Everyone played in 2016~Gyms and Pokéstops
+Board game|board games|1|dice,family,cards,Monopoly,pieces,table,play,rules|Played on a table with family~Roll the dice~Move your pieces~Monopoly and Scrabble~Someone always flips the board
+Monopoly|Monopoly|1|board game,money,property,hotels,jail,dice,bank,Mayfair|A board game about buying streets~Fake money~Build houses and hotels~Go to jail~Games last forever
+Scrabble|Scrabble|2|letters,words,board game,tiles,points,spell,dictionary,triple|A word board game~Make words with letter tiles~Triple word score~Q is worth ten~Uses a dictionary to argue
+Jenga|Jenga|2|blocks,tower,wood,fall,pull,game,stack,careful|A tower of wooden blocks~Pull one out at a time~Don't let it fall~Steady hands needed~The crash ends the game
+Rubik's Cube|Rubik's Cube|2|puzzle,colors,twist,cube,solve,squares,six,toy|A colourful puzzle cube~Twist the sides~Six colours~Some solve it in seconds~Invented in Hungary
+Puzzle|jigsaw|1|pieces,picture,fit,table,corner,edges,box,missing|Many pieces make a picture~Start with the edges~One piece is always missing~Done on a table~A thousand pieces
+Dice|die|1|roll,six,numbers,game,dots,cube,luck,casino|Small cubes with dots~Roll them in games~Numbers one to six~Used in casinos~Luck decides
+Deck of cards|cards|1|cards,poker,shuffle,king,queen,hearts,spades,52|Fifty-two of them~Hearts, spades, clubs, diamonds~Shuffle and deal~Kings and queens~Magicians use them
+Lego|Lego|1|bricks,build,toy,colorful,Denmark,step on,blocks,minifigures|Plastic building bricks~From Denmark~Build anything~Hurts when you step on it~Little yellow figures
+Yo-yo|yo-yo|2|string,toy,spin,up,down,trick,round,finger|A toy on a string~Goes up and down~Walk the dog trick~Spins at the bottom~Popular in schoolyards
+Tamagotchi|Tamagotchi|3|pet,digital,egg,feed,nineties,toy,Japan,die|A digital pet in an egg~Feed it and clean it~Popular in the nineties~From Japan~It dies if you forget it
+Fidget spinner|fidget spinner|3|spin,toy,finger,2017,bearing,stress,kids,school|A toy that spins on your finger~Huge craze in 2017~Banned in some schools~Has bearings~Helps you focus
+Hoverboard|hoverboard|3|board,wheels,balance,ride,self-balancing,electric,Back to the Future,fall|A self-balancing board~Two wheels~Lean to move~Floats in Back to the Future~People fall off a lot
+Electric scooter|e-scooter|2|scooter,electric,city,rent,app,ride,fast,battery|Rented with an app in cities~Stand and ride~Runs on a battery~Left everywhere on pavements~Lime and Bird
+3D printer|3D printer|3|print,plastic,layers,objects,machine,design,model,future|Prints real objects~Builds them in layers~Uses plastic~Makes toys and parts~The future of making things
+Solar panel|solar panels|2|sun,energy,roof,electricity,green,power,panel,clean|Makes electricity from the sun~Put on roofs~Clean energy~Blue or black squares~Works best on sunny days
+Electric car|EV|2|Tesla,battery,charge,quiet,green,plug,car,future|A car without petrol~Plugged in to charge~Very quiet~Tesla makes them~Better for the planet
+Self-driving car|autonomous car|3|car,robot,AI,no driver,Tesla,future,sensors,Google|A car that drives itself~No hands on the wheel~Uses sensors and cameras~Tesla and Google test them~The future of taxis
+Smart TV|smart TV|2|TV,Netflix,apps,internet,screen,remote,streaming,big|A television with apps~Connects to the internet~Netflix button on the remote~Big flat screen~Streams everything
+QR code|QR code|2|scan,phone,camera,square,menu,black and white,link,pattern|A square of black and white~Scan it with your phone~Opens a website~Restaurants use it for menus~Looks like a maze
+Barcode|barcodes|2|lines,scan,shop,price,product,beep,black,numbers|Black lines on products~Scanned at the checkout~Beep~Shows the price~Has numbers under it
+Hashtag challenge|viral challenge|3|TikTok,challenge,trend,video,viral,dance,friends,hashtag|A trend everyone tries online~Ice bucket was a famous one~Spread on TikTok~Tag your friends~Goes viral
+Podcast|podcasts|2|listen,talk,episodes,audio,show,Spotify,microphone,host|A talk show you listen to~New episodes every week~Hosts chat into microphones~Played on Spotify~Listened to while walking
+Livestream|live stream|2|live,video,online,watch,chat,Twitch,streamer,real time|A video broadcast in real time~Viewers chat while watching~Twitch and YouTube~The streamer goes live~No editing
+Online shopping|e-commerce|1|internet,buy,cart,delivery,Amazon,click,checkout,package|Buying things on the internet~Add to cart~Wait for delivery~Amazon is the biggest~Return it if it doesn't fit
+Unboxing|unboxing video|3|box,open,video,YouTube,new,product,package,reveal|Opening a new product on camera~Popular on YouTube~Slow reveal~Phones and toys~Peel off the plastic
