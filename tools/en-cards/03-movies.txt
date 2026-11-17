@@ -1,0 +1,102 @@
+# Movies & TV
+# Target|aliases|difficulty|8 trap words|5 clues (vague to specific), separated by ~
+Cinema|movie theater|1|movie,screen,popcorn,tickets,seats,dark,film,trailer|A place to watch films~Big screen in a dark room~Buy popcorn and tickets~Rows of seats~Phones should be off
+Popcorn bucket|popcorn tub|2|cinema,popcorn,butter,big,movie,share,salty,snack|A big container at the cinema~Full of a buttery snack~Shared between friends~Bought before the film~Often has a movie poster on it
+Red carpet|red carpet|2|stars,celebrities,Oscars,photos,premiere,dress,walk,famous|Stars walk on it~Photographers shout names~Part of film premieres~Fancy dresses and suits~Its colour is in the name
+Oscar|Academy Award|2|award,gold,statue,Hollywood,actor,best picture,speech,ceremony|A small golden statue~The biggest film prize~Given in Hollywood~Winners give a speech~Best Picture is the top one
+Director|filmmaker|2|film,camera,action,cut,chair,Spielberg,actors,set|The boss of a film~Says action and cut~Sits in a special chair~Spielberg and Nolan are famous ones~Tells actors what to do
+Stuntman|stunt double|2|action,danger,jump,fall,fire,car,double,risk|Does the dangerous scenes~Falls off buildings~Stands in for the star~Car crashes and fire~Risky job in action films
+Trailer|movie trailer|2|preview,film,cinema,short,coming soon,YouTube,clip,scenes|A short preview of a film~Shown before the main movie~Says coming soon~Watched on YouTube~Shows the best scenes
+Sequel|part two|2|second,film,follow,series,again,continue,franchise,return|The next film in a story~Part two~Often not as good as the first~Continues the story~Hollywood loves making them
+Cartoon|animation|1|animated,kids,drawing,TV,Disney,funny,Saturday,characters|Drawn moving pictures~Kids watch them on TV~Disney and Pixar make them~Saturday morning tradition~Characters can be animals
+Sitcom|sitcom|2|comedy,TV,laugh,episodes,Friends,series,funny,audience|A funny TV series~Laugh track in the background~Same characters every week~Friends is a famous one~Short for situation comedy
+Soap opera|soap|3|TV,drama,daily,romance,episodes,twins,cliffhanger,long|A daily TV drama~Runs for many years~Full of love affairs and secrets~Evil twins appear~Named after the companies that sponsored them
+Reality show|reality TV|2|TV,real,cameras,contestants,vote,Big Brother,drama,island|TV with real people~Cameras follow them everywhere~Contestants get voted out~Big Brother and Survivor~Lots of drama
+Cooking show|cooking show|2|chef,kitchen,TV,recipe,MasterChef,judges,food,competition|TV about making food~Chefs compete~MasterChef is a famous one~Judges taste the dishes~Recipes on screen
+Game show|quiz show|2|host,prize,contestant,questions,TV,win,buzzer,money|Contestants answer questions on TV~A host asks~Win money or a car~Press the buzzer~Who Wants to Be a Millionaire
+Remote control|remote|1|TV,buttons,channel,couch,lost,batteries,volume,click|Change the channel with it~Always lost in the sofa~Has many buttons~Needs batteries~Turn up the volume
+Binge-watching|binge watching|2|series,Netflix,episodes,night,couch,next,season,marathon|Watching many episodes in a row~Done on Netflix~Next episode starts automatically~Up all night~A whole season in a day
+Spoiler|spoilers|2|ending,secret,reveal,series,warning,ruin,surprise,twist|Telling how a story ends~Ruins the surprise~People write a warning first~Avoid the internet after a big episode~Do not tell me the twist
+Plot twist|twist|3|surprise,story,ending,shock,unexpected,film,reveal,change|A shocking change in a story~Nobody saw it coming~Often near the end~Makes you watch again~Sixth Sense has a famous one
+Villain|bad guy|1|evil,hero,bad,enemy,plan,laugh,cape,dark|The bad person in a story~Fights the hero~Has an evil plan~Laughs a lot~Joker and Voldemort
+Superhero|superheroes|1|powers,cape,mask,save,Marvel,fly,hero,costume|Has special powers~Wears a cape or mask~Saves the world~Marvel and DC~Has a secret identity
+Zombie|zombies|1|dead,walk,brains,horror,bite,apocalypse,undead,slow|The walking dead~Wants to eat brains~One bite turns you~Moves slowly and groans~The Walking Dead is about them
+Vampire|vampires|1|blood,Dracula,bite,fangs,night,garlic,coffin,bat|Drinks blood~Has sharp fangs~Sleeps in a coffin~Afraid of garlic and sunlight~Dracula is the most famous
+Werewolf|werewolves|2|wolf,full moon,howl,man,silver,transform,night,fur|A man who turns into an animal~Happens at full moon~Howls at night~Silver can kill it~Furry and dangerous
+Ghost|ghosts|1|scary,haunted,white,sheet,boo,spirit,dead,house|A spirit of someone dead~Lives in a haunted house~Wears a white sheet in costumes~Says boo~Goes through walls
+Alien|aliens|1|space,UFO,green,planet,Mars,spaceship,E.T.,invasion|A creature from another planet~Travels in a UFO~Often drawn as small and green~E.T. is a friendly one~Area 51
+Robot|robots|1|machine,metal,beep,AI,future,R2-D2,android,program|A metal machine that acts alone~Beeps and moves~R2-D2 is a famous one~Programmed by humans~Builds cars in factories
+Dragon|dragons|1|fire,fly,wings,castle,knight,scales,Game of Thrones,breathe|A giant flying creature~Breathes fire~Has scales and wings~Guards treasure in castles~Knights fight them
+Unicorn|unicorns|1|horse,horn,rainbow,magic,white,fairy tale,sparkle,mythical|A magical horse~Has one horn~White with a rainbow mane~Lives in fairy tales~Also a word for a billion-dollar startup
+Mermaid|mermaids|1|sea,tail,fish,Ariel,ocean,sing,half,woman|Half woman, half fish~Lives in the sea~Has a shiny tail~Ariel is a famous one~Sings to sailors
+Pirate|pirates|1|ship,treasure,parrot,eye patch,hook,sea,captain,sword|Sails the seas looking for treasure~Has a parrot and eye patch~Captain Hook is one~Says arr~Flies a skull flag
+Ninja|ninjas|2|Japan,black,stealth,sword,warrior,mask,fight,silent|A silent Japanese warrior~Dressed all in black~Throws stars~Moves without a sound~Turtles in a cartoon were these
+Cowboy|cowboys|1|horse,hat,Wild West,boots,lasso,cattle,ranch,Texas|Rides a horse in the Wild West~Wears a big hat and boots~Throws a lasso~Herds cattle~Says howdy
+Sheriff|sheriff|2|star,badge,cowboy,law,Wild West,town,jail,gun|The law in a western town~Wears a star badge~Puts bad guys in jail~Woody in Toy Story is one~Rides a horse
+Wizard|wizards|1|magic,wand,hat,spell,Harry Potter,beard,Merlin,staff|Does magic with a wand~Wears a pointy hat~Casts spells~Merlin and Gandalf~Has a long beard
+Witch|witches|1|broom,hat,cat,spell,Halloween,cauldron,magic,green|Flies on a broom~Pointy black hat~Has a black cat~Brews potions in a cauldron~Popular Halloween costume
+Fairy|fairies|1|wings,small,magic,wand,Tinker Bell,tooth,sparkle,garden|Tiny and magical with wings~Waves a sparkly wand~Tinker Bell is one~Leaves money for teeth~Lives in gardens
+Genie|genies|2|lamp,wishes,three,Aladdin,blue,magic,rub,bottle|Lives in a lamp~Rub it and he appears~Grants three wishes~Aladdin's friend~Blue in the Disney film
+Troll|trolls|2|ugly,bridge,cave,big,fairy tale,internet,green,forest|An ugly creature in fairy tales~Lives under a bridge~Turns to stone in sunlight~Also mean people online~Big and green
+Princess|princesses|1|crown,castle,king,dress,Disney,prince,royal,tiara|Daughter of a king~Wears a tiara~Lives in a castle~Disney has many~Waits for a prince
+Knight|knights|1|armor,sword,horse,castle,king,shield,medieval,round table|Wears shining armour~Rides a horse~Fights with a sword and shield~Serves the king~Round Table
+King Kong|Kong|2|gorilla,giant,Empire State,ape,film,climb,monster,New York|A giant ape~Climbs the Empire State Building~From an old black and white film~Fights planes~Lives on Skull Island
+Godzilla|Gojira|2|monster,Japan,lizard,giant,city,roar,dinosaur,radiation|A giant monster from Japan~Destroys Tokyo~Looks like a huge dinosaur~Breathes atomic fire~Roars loudly
+Dracula|Count Dracula|2|vampire,Transylvania,blood,castle,cape,fangs,bat,count|The most famous vampire~Lives in Transylvania~Wears a black cape~A count in a castle~Bram Stoker wrote about him
+Frankenstein|Frankenstein's monster|2|monster,scientist,bolts,green,lightning,laboratory,alive,Shelley|A scientist built a monster~Brought to life by lightning~The monster has bolts in his neck~Often drawn green~Mary Shelley wrote the book
+Sherlock Holmes|Sherlock|2|detective,London,Watson,pipe,clues,Baker Street,magnifying glass,mystery|A famous detective~Lives on Baker Street~Smokes a pipe~His partner is Watson~Elementary
+Peter Pan|Peter Pan|2|fly,Neverland,Tinker Bell,Captain Hook,boy,grow up,Wendy,green|The boy who never grows up~Lives in Neverland~Flies with Tinker Bell~Fights Captain Hook~Wears green
+Pinocchio|Pinocchio|2|wooden,puppet,nose,lie,Geppetto,boy,cricket,grow|A wooden puppet~Wants to be a real boy~His nose grows when he lies~Made by Geppetto~Has a cricket friend
+Cinderella|Cinderella|1|glass slipper,midnight,prince,pumpkin,ball,stepmother,fairy godmother,shoe|Loses a shoe at midnight~Goes to the royal ball~A pumpkin becomes a carriage~Has an evil stepmother~A fairy godmother helps her
+Snow White|Snow White|1|seven dwarfs,apple,queen,mirror,poison,prince,forest,kiss|Lives with seven little men~Eats a poisoned apple~Mirror, mirror on the wall~Her skin is white as snow~Woken by a kiss
+Little Red Riding Hood|Red Riding Hood|2|wolf,grandma,basket,red,forest,hood,big eyes,girl|A girl in a red cape~Visits her grandma~Meets a wolf in the forest~What big teeth you have~Carries a basket
+Three Little Pigs|3 little pigs|2|wolf,houses,straw,bricks,huff,puff,blow,pigs|Three brothers build houses~Straw, sticks and bricks~A wolf huffs and puffs~Only one house survives~A fairy tale about pigs
+Goldilocks|Goldilocks|2|three bears,porridge,chair,bed,just right,girl,blonde,forest|A girl visits a house in the woods~Tries porridge, chairs and beds~Three bears live there~Just right~Has golden hair
+Aladdin|Aladdin|2|lamp,genie,carpet,Jasmine,wishes,Agrabah,monkey,flying|A boy with a magic lamp~Rides a flying carpet~His friend is a genie~Loves Jasmine~Has a monkey called Abu
+The Little Mermaid|Ariel|2|Ariel,sea,Disney,prince,voice,Ursula,crab,fork|A Disney film under the sea~Ariel wants legs~Trades her voice to a sea witch~Sebastian the crab~Under the Sea is the song
+Beauty and the Beast|Belle|2|Belle,rose,castle,Disney,teapot,curse,library,dance|A Disney love story~A girl and a cursed prince~A magic rose~Talking teapot and candle~Belle loves books
+Cars|Lightning McQueen|2|Pixar,race car,red,Mater,Route 66,talking,Lightning,racing|A Pixar film about vehicles~A red race car is the hero~Mater the tow truck~Ka-chow~Set on Route 66
+Monsters, Inc.|Monsters Inc|2|Pixar,Sulley,Mike,scare,door,Boo,closet,monster|A Pixar film about scaring kids~A big blue furry guy and a green eyeball~A little girl called Boo~Monsters come through closet doors~Screams power the city
+Up|Up|2|balloons,house,Pixar,old man,fly,dog,Carl,adventure|A Pixar film~An old man ties balloons to his house~Flies to South America~A talking dog called Dug~The first ten minutes make everyone cry
+Ratatouille|Ratatouille|3|rat,chef,Paris,cooking,Pixar,kitchen,Remy,restaurant|A Pixar film in Paris~A rat who wants to cook~Hides under a chef's hat~Named after a French dish~Anyone can cook
+Inside Out|Inside Out|2|emotions,Pixar,Joy,Sadness,Anger,head,memories,girl|A Pixar film inside a girl's head~Joy, Sadness and Anger are characters~Memories are glowing balls~Emotions run the controls~Riley is the girl
+Coco|Coco|2|Mexico,Pixar,Day of the Dead,guitar,skeleton,music,family,remember|A Pixar film set in Mexico~A boy who loves music~Travels to the Land of the Dead~Remember Me is the song~Day of the Dead
+Moana|Moana|2|ocean,Disney,Maui,island,boat,Polynesia,demigod,hook|A Disney girl sails the ocean~Meets the demigod Maui~From a Pacific island~How Far I'll Go~A magic fish hook
+Minions|minions|1|yellow,goggles,banana,Gru,Despicable Me,small,funny,blue|Small yellow creatures~Wear goggles and overalls~Love bananas~Work for Gru~Speak a funny language
+Kung Fu Panda|Po|2|panda,martial arts,DreamWorks,China,dumplings,Dragon Warrior,Jack Black,fight|An animated film about a bear~He does martial arts~Loves dumplings~The Dragon Warrior~Voiced by Jack Black
+Madagascar|Madagascar|3|zoo,lion,zebra,penguins,DreamWorks,island,hippo,giraffe|A DreamWorks film~Zoo animals escape from New York~A lion, zebra, hippo and giraffe~Penguins steal the show~I like to move it
+Ice Age|Ice Age|3|mammoth,sloth,squirrel,acorn,snow,DreamWorks,Sid,tiger|An animated film about frozen times~A mammoth, a sloth and a sabre-tooth tiger~A squirrel chases an acorn~Sid the sloth~Set long ago
+Avatar|Avatar|2|blue,Pandora,James Cameron,3D,aliens,Na'vi,planet,tall|A huge James Cameron film~Tall blue aliens~Set on the moon Pandora~Famous for 3D~The Na'vi
+Jumanji|Jumanji|3|board game,jungle,dice,animals,Robin Williams,game,drums,trapped|A dangerous board game~Roll the dice and animals appear~Robin Williams was trapped inside~Drums play from the box~A jungle comes to town
+Ghostbusters|Ghostbusters|2|ghosts,proton pack,New York,who you gonna call,slime,marshmallow,team,car|A team that catches spirits~Who you gonna call~They carry proton packs~A giant marshmallow man~Set in New York
+E.T.|ET|2|alien,phone home,bike,moon,Spielberg,finger,boy,glow|A small alien left on Earth~Wants to phone home~Flies on a bike across the moon~His finger glows~A Spielberg classic
+Rocky|Rocky Balboa|2|boxing,Philadelphia,stairs,Stallone,training,Adrian,champion,eye of the tiger|A boxing film~Runs up the Philadelphia steps~Sylvester Stallone stars~Trains by punching meat~Yo Adrian
+The Terminator|Terminator|2|robot,Schwarzenegger,I'll be back,future,cyborg,Skynet,machine,time travel|A killer robot from the future~Arnold Schwarzenegger plays it~I'll be back~Skynet sends it~Hunts Sarah Connor
+Pirates of the Caribbean|Jack Sparrow|2|pirate,Johnny Depp,ship,Black Pearl,treasure,Disney,curse,captain|A Disney pirate film series~Captain Jack Sparrow~Johnny Depp stars~The Black Pearl ship~Cursed gold
+The Lord of the Rings|LOTR|2|ring,hobbit,Frodo,Gandalf,Mordor,elves,precious,Tolkien|A fantasy trilogy~A small hobbit must destroy something~Gandalf the wizard~One to rule them all~Written by Tolkien
+Mission: Impossible|Mission Impossible|3|Tom Cruise,spy,stunts,mask,self-destruct,agent,rope,theme|A spy film series~Tom Cruise does his own stunts~This message will self-destruct~Hanging from wires~Ethan Hunt
+Fast & Furious|Fast and Furious|3|cars,racing,Vin Diesel,family,speed,crime,street,nitro|A film series about cars~Vin Diesel stars~It is all about family~Street racing and heists~Cars fly between buildings
+Mary Poppins|Mary Poppins|2|nanny,umbrella,fly,spoonful of sugar,London,bag,chimney,magic|A magical nanny~Flies with an umbrella~A spoonful of sugar~Her bag holds everything~Supercalifragilisticexpialidocious
+Charlie and the Chocolate Factory|Willy Wonka|2|Willy Wonka,golden ticket,factory,Oompa Loompas,candy,Roald Dahl,boy,river|A boy finds a golden ticket~Visits a candy factory~Oompa Loompas sing~Willy Wonka is the owner~A Roald Dahl story
+The Wizard of Oz|Wizard of Oz|2|Dorothy,yellow brick road,ruby slippers,Toto,tornado,scarecrow,Kansas,witch|A girl is blown away by a tornado~Follows the yellow brick road~Ruby slippers~Toto the dog~There's no place like home
+Matilda|Matilda|3|girl,books,Roald Dahl,powers,school,Miss Trunchbull,teacher,clever|A clever girl who loves books~Moves things with her mind~Her headmistress is Miss Trunchbull~A Roald Dahl story~Her parents ignore her
+Paddington|Paddington Bear|2|bear,London,marmalade,hat,coat,station,Peru,sandwich|A bear from Peru~Found at a London station~Loves marmalade sandwiches~Wears a blue coat and red hat~Please look after this bear
+Winnie the Pooh|Pooh Bear|1|bear,honey,Piglet,Tigger,Eeyore,red shirt,forest,Christopher Robin|A bear who loves honey~Wears a red shirt~Friends with Piglet and Tigger~Lives in the Hundred Acre Wood~Christopher Robin's friend
+Peppa Pig|Peppa|1|pig,pink,muddy puddles,George,cartoon,kids,British,family|A pink cartoon pig~Loves jumping in muddy puddles~Her brother is George~Very popular with toddlers~A British cartoon
+Paw Patrol|PAW Patrol|2|dogs,puppies,rescue,Ryder,cartoon,kids,Chase,vehicles|A cartoon about rescue puppies~Led by a boy called Ryder~Chase is the police pup~Each dog has a vehicle~No job is too big
+Tom and Jerry|Tom & Jerry|1|cat,mouse,chase,cartoon,classic,cheese,fight,funny|A classic cartoon~A cat chases a mouse~They never stop fighting~No talking, just slapstick~The mouse always wins
+Bugs Bunny|Bugs Bunny|2|rabbit,carrot,what's up doc,Looney Tunes,cartoon,grey,Elmer Fudd,ears|A cartoon rabbit~Chews a carrot~What's up, Doc~From Looney Tunes~Elmer Fudd hunts him
+Garfield|Garfield|2|cat,orange,lasagna,lazy,Monday,comic,Odie,fat|An orange cartoon cat~Loves lasagna~Hates Mondays~Very lazy~His friend is a dog called Odie
+Smurfs|The Smurfs|2|blue,small,village,mushroom,Papa,Gargamel,white hat,cartoon|Small blue creatures~Live in mushroom houses~Papa leads them~Gargamel hunts them~Wear white hats
+Teenage Mutant Ninja Turtles|Ninja Turtles|2|turtles,pizza,sewer,Leonardo,Splinter,masks,ninja,cowabunga|Four green fighters~Live in the sewer~Love pizza~Named after Italian artists~Cowabunga
+Pokémon|Pokemon|1|Pikachu,catch,Ash,cards,trainer,evolve,ball,gotta catch em all|Creatures you catch in balls~Gotta catch them all~Ash is the trainer~Pikachu is the mascot~Also a card game
+Transformers|Transformers|2|robots,cars,Optimus Prime,Autobots,toy,transform,Megatron,truck|Robots that turn into cars~Optimus Prime leads them~Autobots versus Decepticons~Started as toys~More than meets the eye
+Power Rangers|Power Rangers|2|colors,helmets,team,morph,karate,robot,red,teenagers|A team of colourful heroes~Wear helmets and suits~Red, blue, pink, yellow and black~It's morphin' time~Teenagers fight monsters
+The Office|The Office|2|Michael Scott,paper,Dunder Mifflin,mockumentary,Jim,Dwight,boss,comedy|A comedy about workers~Set at a paper company~Michael Scott is the boss~Jim pranks Dwight~Looks like a documentary
+The Crown|The Crown|3|Queen,Netflix,royal,Elizabeth,British,palace,drama,history|A Netflix drama about the royals~Follows Queen Elizabeth~Set in Buckingham Palace~Different actors play her over time~British history
+Money Heist|La Casa de Papel|2|Spain,masks,Dali,Netflix,Professor,red suits,bank,heist|A Spanish Netflix series~Robbers in red suits~They wear Dali masks~Led by the Professor~Bella Ciao
+Wednesday|Wednesday Addams|2|Addams,Netflix,dance,dark,hand,school,braids,goth|A Netflix series~A dark girl with braids~Her friend is a walking hand~Famous dance went viral~From the Addams Family
+The Mandalorian|Mandalorian|3|Star Wars,Baby Yoda,helmet,bounty hunter,Disney,Grogu,space,armor|A Star Wars series~A bounty hunter in a helmet~Protects Baby Yoda~This is the way~On Disney Plus
+Sesame Street|Sesame Street|2|Elmo,Big Bird,Cookie Monster,puppets,kids,letters,numbers,street|A kids' TV show with puppets~Big Bird and Elmo~Cookie Monster~Teaches letters and numbers~Brought to you by the letter...
+The Muppets|Muppets|2|Kermit,Miss Piggy,puppets,frog,show,Jim Henson,theatre,Gonzo|Puppets that put on a show~Kermit the frog~Miss Piggy loves him~Created by Jim Henson~Fozzie and Gonzo
+Scream|Scream|3|horror,mask,ghostface,knife,phone,killer,teens,Halloween|A horror film series~The killer wears a white mask~Calls on the phone~Do you like scary movies~Ghostface

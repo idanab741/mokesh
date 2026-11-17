@@ -1,0 +1,102 @@
+# Party & Fun
+# Target|aliases|difficulty|8 trap words|5 clues (vague to specific), separated by ~
+Party|parties|1|music,dance,friends,fun,night,drinks,celebrate,invite|People gather to have fun~Music and dancing~Invite your friends~Lasts all night~Neighbours complain about the noise
+Balloon|balloons|1|party,air,pop,helium,colorful,birthday,float,string|Blow it up with air~Floats with helium~Pops loudly~Tied with a string~Every birthday has them
+Birthday candles|candles|1|cake,blow,wish,birthday,fire,age,count,smoke|Put on a cake~Blow them out~Make a wish first~One for each year~Light them with a match
+Party hat|party hats|2|cone,birthday,elastic,paper,silly,kids,head,colorful|A paper cone on your head~Worn at birthdays~Held by an elastic~Looks silly~Kids love them
+Gift|present,presents|1|wrapped,birthday,box,ribbon,surprise,open,give,Christmas|Wrapped in paper~Tied with a ribbon~Given on birthdays~A surprise inside~Unwrapped under the tree
+Wrapping paper|gift wrap|2|present,paper,tape,ribbon,Christmas,birthday,rip,colorful|Covers a present~Colourful paper~Held with tape~Ripped open in seconds~Lots of it at Christmas
+Invitation|invite|1|party,card,guests,date,RSVP,wedding,send,come|A card asking you to come~Says the date and place~Please RSVP~Sent before a wedding~Guests receive one
+Dress code|dress code|3|clothes,party,formal,rules,black tie,wear,event,smart|Rules about what to wear~Black tie~Written on the invitation~No sneakers~Smart casual
+Costume party|fancy dress party|2|costume,dress up,mask,party,Halloween,theme,character,fun|Guests dress up as characters~Masks and wigs~Halloween is the most famous~A theme is chosen~Best outfit wins
+Masquerade|masked ball|3|mask,ball,dance,Venice,elegant,mystery,costume,party|A fancy ball with masks~Nobody knows who you are~Venice is famous for it~Elegant dresses~Mystery and romance
+Disco ball|mirror ball|2|disco,lights,spin,mirror,dance,party,sparkle,ceiling|A spinning ball of mirrors~Hangs from the ceiling~Throws spots of light~Seventies dance floors~Sparkles at parties
+Dance floor|dance floor|2|dance,club,party,lights,music,move,crowd,wedding|Where people dance~Lights flash on it~At clubs and weddings~Everyone moves to the music~Grandpa takes it over
+Karaoke machine|karaoke machine|2|sing,microphone,lyrics,screen,songs,party,speaker,home|Lets you sing at home~Lyrics on a screen~Comes with a microphone~Party favourite~Neighbours suffer
+Board game night|game night|2|games,friends,table,snacks,cards,dice,evening,play|Friends gather to play~Cards and dice on the table~Snacks everywhere~Someone always cheats~A cosy evening
+Charades|charades|2|act,mime,guess,party,team,silent,game,movie|A party guessing game~Act out a word~No talking allowed~Sounds like~Movies and books
+Pictionary|Pictionary|2|draw,guess,game,team,timer,picture,party,pencil|A drawing guessing game~Draw a word~Your team guesses~Against the timer~No letters allowed
+Truth or dare|truth or dare|2|question,dare,game,party,secret,friends,brave,choose|A party game~Pick a question or a challenge~Tell a secret~Do something embarrassing~Spin the bottle style
+Spin the bottle|spin the bottle|3|bottle,kiss,party,circle,teenagers,game,spin,point|A teenage party game~Sit in a circle~The bottle points at someone~Usually leads to a kiss~Nervous giggles
+Musical chairs|musical chairs|2|music,chairs,game,kids,stop,sit,party,one less|Walk around chairs while music plays~Sit when it stops~One chair less each round~Kids' party game~The last one standing wins
+Pin the tail on the donkey|pin the tail|3|donkey,blindfold,tail,game,kids,party,pin,poster|A kids' party game~Wear a blindfold~Spin around~Stick on the missing part~Usually lands on the wall
+Treasure hunt|scavenger hunt|2|clues,map,find,game,kids,hidden,prize,search|Follow clues to find a prize~Hidden around the house~A map with an X~Kids race to solve it~Pirate theme
+Water balloon fight|water balloons|2|water,balloon,throw,summer,wet,kids,splash,garden|Throwing wet balloons~Summer garden fun~Everyone gets soaked~Fill them at the tap~Splash
+Pillow fight|pillow fight|1|pillow,hit,sleepover,feathers,fun,bed,kids,soft|Hitting with something soft~At a sleepover~Feathers fly everywhere~Nobody gets hurt~Bedtime fun
+Sleepover|slumber party|1|night,friends,kids,sleeping bags,movies,stay,pajamas,snacks|Friends stay the night~Sleeping bags on the floor~Movies and snacks~Pyjamas~Nobody actually sleeps
+Bonfire|campfire|2|fire,night,beach,marshmallows,songs,wood,warm,sparks|A big outdoor fire~Sit around it at night~Roast marshmallows~Sing songs with a guitar~Lag BaOmer
+Fireworks show|fireworks|2|sky,colors,bang,night,New Year,celebration,explode,watch|Explosions of colour in the sky~New Year's Eve~Loud bangs~Dogs hate them~Everyone says ooh
+Sparkler|sparklers|2|fire,stick,spark,night,hold,write,wedding,glow|A hand-held firework~Throws sparks~Write your name in the air~Held at weddings~Burns down slowly
+New Year's resolution|resolution|2|promise,January,gym,diet,goal,change,year,fail|A promise for next year~Usually about the gym~Starts in January~Most fail by February~New year, new me
+Countdown|countdown|1|ten,seconds,numbers,New Year,rocket,start,zero,clock|Ten, nine, eight...~Before midnight on New Year's Eve~Before a rocket launches~Ends at zero~Everyone shouts together
+Cheers|toast|2|glasses,drink,speech,wedding,raise,champagne,clink,celebrate|Raise your glasses~Clink together~Say a few words~At weddings~Glasses up and a speech
+Best man|best man|3|wedding,groom,speech,friend,rings,suit,party,brother|The groom's helper~Gives a funny speech~Holds the rings~Plans the bachelor party~Usually a best friend
+Bridesmaid|bridesmaids|2|wedding,bride,dress,friends,flowers,help,same,party|Helps the bride~Wears matching dresses~Holds flowers~A close friend~Plans the hen party
+Wedding cake|wedding cake|2|cake,wedding,white,tiers,cut,bride,groom,tall|A tall white cake~Several tiers~The couple cuts it together~Small figures on top~Served at the reception
+Wedding ring|wedding band|2|ring,gold,finger,marry,wedding,diamond,promise,left hand|Worn on the fourth finger~Gold or silver~Exchanged at a wedding~A sign of marriage~I do
+Bouquet toss|bouquet|3|flowers,bride,throw,catch,wedding,single,next,women|The bride throws flowers~Single guests try to catch them~Whoever catches it marries next~A wedding tradition~Thrown over the shoulder
+Bachelor party|stag party|2|groom,friends,party,wedding,night,Vegas,before,crazy|A party before the wedding~Just the groom's friends~Often in Las Vegas~What happens there stays there~The Hangover is about one
+Honeymoon trip|honeymoon|2|wedding,couple,travel,romantic,beach,after,holiday,newlyweds|A trip after the wedding~Romantic holiday~Just married couple~Maldives or Paris~Hotels give upgrades
+Engagement|proposal|2|ring,knee,marry,proposal,diamond,question,yes,couple|Getting down on one knee~Will you marry me~A diamond ring~Before the wedding~She said yes
+Blind date|blind date|2|date,stranger,meet,restaurant,set up,awkward,romance,first|Meeting someone you've never seen~Set up by friends~Usually at a restaurant~Can be awkward~Romance or disaster
+First date|first date|1|date,nervous,dinner,romance,meet,couple,talk,impress|The first time going out together~Very nervous~Dinner or coffee~Trying to impress~Who pays
+Love letter|love letter|2|letter,romance,write,heart,secret,valentine,words,envelope|A romantic note~Written by hand~Sealed with a kiss~Found in a book~Valentine's Day tradition
+Hug|hugs|1|arms,love,warm,friend,embrace,squeeze,family,comfort|Wrapping arms around someone~A sign of love~Free ones are offered~Bear version is tight~Makes you feel better
+Kiss|kisses|1|lips,love,cheek,romance,couple,goodnight,smooch,French|Done with the lips~On the cheek or lips~Goodnight~Under the mistletoe~X at the end of a message
+High five|high five|1|hand,slap,celebrate,friends,up,team,clap,yes|Slap hands up high~Celebrate together~Too slow~Teammates do it~Five fingers
+Group photo|group photo|2|photo,friends,smile,cheese,together,camera,squeeze,timer|Everyone squeezes in~Say cheese~Someone always blinks~Set a timer~Taken at parties
+Photobomb|photobomb|3|photo,surprise,jump,background,funny,ruin,face,picture|Jumping into someone's picture~Making a funny face in the back~Ruins the photo~Not invited to be in it~Animals do it too
+Prank|pranks|1|joke,trick,funny,friend,April Fools,surprise,laugh,fake|A trick to make people laugh~April Fools' Day~Whoopee cushion~Hidden camera~Gotcha
+April Fools' Day|April Fools|2|prank,joke,April,first,trick,fool,fake,news|A day for jokes and tricks~The first of April~Fake news on purpose~Pranks on friends~Gotcha
+Whoopee cushion|whoopee cushion|3|prank,sit,noise,rubber,funny,chair,fart,joke|A rubber prank toy~Hidden on a chair~Makes a rude noise~Kids find it hilarious~Inflated before you sit
+Magic trick|magic trick|1|magician,cards,disappear,rabbit,hat,wand,illusion,secret|Making things disappear~Pull a rabbit from a hat~Pick a card~Never reveal the secret~Abracadabra
+Fortune teller|psychic|2|future,crystal ball,cards,palm,predict,tent,fair,tarot|Predicts your future~Looks into a crystal ball~Reads your palm~Tarot cards~Sits in a tent at the fair
+Horoscope|zodiac|2|stars,signs,future,Leo,birthday,newspaper,astrology,month|Predictions by star sign~Leo, Scorpio, Pisces~Read in magazines~Based on your birthday~Astrology
+Haunted house|haunted house|2|ghost,scary,old,Halloween,spooky,creak,attraction,dark|A spooky old building~Ghosts live there~Creaking doors~A Halloween attraction~Nobody wants to stay the night
+Escape room|escape room|2|puzzle,room,locked,clues,team,hour,code,key|Locked in a room with friends~Solve puzzles to get out~One hour on the clock~Find the code~Great for team building
+Laser tag|laser tag|2|game,vest,gun,dark,team,lights,shoot,arena|A team game in the dark~Wear a vest that lights up~Shoot with light guns~Popular at birthdays~Glow in the dark arena
+Paintball|paintball|2|paint,gun,team,mask,splat,forest,shoot,hurt|Shoot each other with paint~Wear a mask~Played in the woods~Leaves bruises~Team battles
+Go-karting|karting|2|race,small car,track,helmet,fast,speed,friends,laps|Racing small cars~Wear a helmet~On a twisty track~Fast and fun~Mario Kart in real life
+Roller coaster|rollercoaster|1|ride,loop,scream,fast,theme park,drop,track,queue|A fast ride with loops~Everyone screams~Big drops~At theme parks~Hands in the air
+Ferris wheel|big wheel|2|ride,wheel,high,view,slow,fair,London Eye,turn|A big turning wheel~Gives a great view~Slow and high~The London Eye is one~Romantic at night
+Carousel|merry-go-round|2|horses,ride,spin,music,kids,fair,round,lights|Wooden horses go round~Music plays~Kids ride up and down~At fairs~Lights and mirrors
+Bumper cars|dodgems|2|cars,crash,fair,electric,ride,bump,fun,spin|Small cars you crash on purpose~At the fair~Electric poles on the back~Bump into friends~Spinning around
+Haunted ride|ghost train|3|ride,dark,ghosts,scary,fair,train,skeleton,scream|A dark scary ride~Ghosts jump out~Rides on a small train~At the fair~Skeletons and screams
+Cotton candy machine|candy floss machine|3|sugar,spin,pink,fair,stick,cloud,machine,sweet|Spins sugar into fluff~Pink clouds on a stick~At every fair~Hot bowl in the middle~Wrap it around the stick
+Face painting|face paint|2|paint,kids,face,tiger,butterfly,party,brush,colorful|Painting on cheeks~Kids become tigers~Butterflies and flags~At parties and fairs~Washes off
+Balloon animal|balloon animals|2|balloon,twist,dog,clown,kids,party,shape,squeak|Twisted long balloons~Makes a dog or sword~Clowns make them~Squeaky sound~Popular at kids' parties
+Bouncy castle|bouncy castle|1|jump,kids,inflatable,party,air,bounce,shoes off,garden|An inflatable castle~Kids jump on it~Take your shoes off~At birthday parties~Filled with air
+Piñata party|piñata game|3|stick,candy,hit,blindfold,Mexico,break,kids,donkey|Hit a hanging figure~Wear a blindfold~Candy falls out~Mexican tradition~Take turns with a stick
+Goodie bag|party bag|2|kids,party,candy,toys,take home,small,bag,thank you|A small bag for party guests~Candy and toys inside~Taken home at the end~A thank you gift~Kids check it first
+Surprise|surprise|1|shock,secret,unexpected,party,gift,hide,jump,wow|Something unexpected~Kept secret~Jump out and shout~A gift you didn't expect~Wow
+Hide the gifts|hidden gifts|3|presents,hide,Christmas,kids,find,secret,closet,search|Parents hide them before Christmas~Kids search the closet~Kept secret~Found too early sometimes~Wrapped and hidden
+Advent calendar|advent calendar|2|December,chocolate,doors,Christmas,count,24,days,window|Open a little door each day~Chocolate inside~Counts down to Christmas~24 days~Starts on December 1st
+Snowman|snowmen|1|snow,carrot,winter,build,hat,scarf,cold,melt|Built from snow~Carrot nose~Wears a scarf and hat~Melts in the sun~Frosty is one
+Christmas tree|Xmas tree|1|tree,decorations,lights,star,presents,green,December,pine|Decorated with lights~A star on top~Presents underneath~Green pine~Put up in December
+Stocking|Christmas stocking|2|sock,Christmas,fireplace,gifts,Santa,hang,candy,red|A big sock by the fireplace~Hung on Christmas Eve~Santa fills it~Small gifts inside~Red and white
+Gingerbread house|gingerbread house|2|cookie,house,Christmas,candy,icing,build,Hansel and Gretel,sweet|A house made of cookies~Decorated with candy~Built at Christmas~Hansel and Gretel found one~Held together with icing
+Ugly sweater|Christmas jumper|2|sweater,Christmas,funny,knit,reindeer,party,wool,ugly|A funny knitted top~Reindeer and snowflakes~Worn at Christmas parties~The worse the better~Grandma knitted it
+Hanukkah|Chanukah|2|candles,menorah,Jewish,eight,doughnuts,dreidel,oil,festival|A Jewish festival of lights~Eight nights~Light a menorah~Spin a dreidel~Eat doughnuts and latkes
+Passover|Pesach|3|Jewish,matzah,Seder,Egypt,Moses,spring,wine,questions|A Jewish spring holiday~Eat matzah~A big Seder dinner~Remembers leaving Egypt~Four questions
+Diwali|Diwali|3|lights,India,Hindu,festival,lamps,fireworks,colors,sweets|An Indian festival of lights~Small oil lamps everywhere~Fireworks and sweets~Hindu celebration~Colourful patterns on the floor
+Chinese New Year|Lunar New Year|2|dragon,red,China,fireworks,zodiac,envelopes,lanterns,parade|Celebrated with dragons and fireworks~Red envelopes with money~Each year has an animal~Lanterns everywhere~Called Lunar New Year
+Carnival|Mardi Gras|2|parade,costumes,Rio,dance,masks,samba,party,street|A huge street party~Costumes and masks~Rio de Janeiro is famous for it~Samba dancers~Before Lent
+Oktoberfest|Oktoberfest|2|beer,Germany,Munich,festival,pretzels,lederhosen,tents,September|A beer festival in Germany~In Munich~Starts in September~Lederhosen and big tents~Huge pretzels
+St Patrick's Day|St Paddy's|2|Ireland,green,shamrock,parade,leprechaun,March,beer,Irish|An Irish holiday~Everyone wears green~Shamrocks~Parades in March~Rivers dyed green in Chicago
+Independence Day|Fourth of July|2|USA,fireworks,July,flag,barbecue,America,parade,celebrate|America's birthday~The Fourth of July~Fireworks and barbecues~Red, white and blue~Also an alien film
+Mother's Day|Mother's Day|1|mom,flowers,card,breakfast,gift,May,love,family|A day to thank mum~Flowers and cards~Breakfast in bed~Usually in spring~Call your mother
+Father's Day|Father's Day|2|dad,tie,card,gift,June,family,barbecue,socks|A day to thank dad~Gift: a tie or socks~In June~Barbecue~Call your father
+Graduation cap|mortarboard|2|graduation,hat,throw,square,tassel,school,university,black|A square black hat~Has a tassel~Thrown in the air~Worn at graduation~Also called a mortarboard
+Prom|prom night|2|dance,school,dress,date,king,queen,limo,suit|A high school dance~Fancy dresses and suits~Arrive in a limo~Crown a king and queen~Ask someone to go with you
+Reunion|reunion|3|old friends,school,meet,again,years,class,family,party|Meeting people again after years~School class gathering~Family get-together~Who got fat~Name tags
+Housewarming|housewarming party|3|new home,party,gift,friends,move,plant,welcome,apartment|A party in a new home~Guests bring gifts~Show off the apartment~Bring a plant~Celebrate moving
+Baby gender reveal|gender reveal|3|baby,pink,blue,party,cake,surprise,balloon,boy or girl|A party to learn the baby's sex~Pink or blue~Cut a cake or pop a balloon~Parents-to-be~Sometimes goes wrong
+Cocktail party|cocktail party|3|drinks,fancy,evening,dress,glasses,talk,snacks,elegant|An elegant evening with drinks~Small talk~Fancy dresses~Waiters carry snacks~Glasses clink
+Karaoke duet|duet|3|two,sing,song,together,microphones,love song,karaoke,pair|Two people sing together~Each takes a part~Love songs work best~Two microphones~Shallow is popular
+After party|afterparty|3|party,late,night,after,continue,friends,club,home|The party after the party~Starts very late~Continues at someone's home~Only the closest friends~Ends at sunrise
+DJ booth|DJ booth|3|DJ,music,club,decks,lights,party,stand,mix|Where the music comes from~The DJ stands there~Decks and laptops~Above the dance floor~Requests are shouted at it
+Confetti cannon|confetti cannon|3|confetti,pop,party,shoot,colorful,celebrate,paper,mess|Shoots coloured paper~Pop and it explodes~At celebrations~Makes a big mess~Used at gender reveals
+Party popper|party poppers|3|pull,string,bang,confetti,party,small,New Year,streamers|A small paper cone~Pull the string~Bang and confetti flies~New Year's Eve~Streamers everywhere
+Limbo|limbo|2|bar,dance,bend,backwards,low,party,stick,Caribbean|A party dance~Bend backwards under a bar~How low can you go~From the Caribbean~The bar goes lower each round
+Rock paper scissors|rock-paper-scissors|1|hand,game,choose,win,beat,shoot,three,quick|A quick hand game~Count to three and show~One beats the other~Used to decide who goes first~Lizard and Spock in a nerdy version
+Thumb war|thumb wrestling|2|thumb,hands,game,pin,fingers,kids,count,fight|A tiny battle with hands~Grip fingers together~Pin down the other one~One two three four, I declare...~Played by kids

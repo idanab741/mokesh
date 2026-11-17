@@ -1,0 +1,102 @@
+# Kids & Family
+# Target|aliases|difficulty|8 trap words|5 clues (vague to specific), separated by ~
+Baby|babies|1|cry,diaper,small,milk,bottle,newborn,crawl,cute|A very young child~Cries at night~Wears diapers~Drinks from a bottle~Learns to crawl
+Diaper|nappy|1|baby,change,wet,dirty,smell,bottom,pack,disposable|Worn by babies~Changed many times a day~Can be smelly~Called nappy in Britain~Comes in big packs
+Pacifier|dummy|2|baby,suck,mouth,calm,rubber,cry,sleep,plastic|A baby sucks on it~Calms them down~Made of rubber~Falls on the floor a lot~Called a dummy in Britain
+Baby bottle|feeding bottle|2|milk,baby,drink,nipple,warm,formula,night,feed|Babies drink from it~Filled with warm milk~Has a soft rubber tip~Used at night feeds~Test the heat on your wrist
+Stroller|pram,pushchair|1|baby,push,wheels,walk,park,fold,sleep,ride|A baby rides in it~Parents push it~Has four wheels~Folds into a car boot~Walks in the park
+High chair|high chair|2|baby,eat,tall,tray,food,mess,sit,kitchen|A tall seat for babies~Has a tray~Babies eat in it~Food flies everywhere~At the kitchen table
+Crib|cot|2|baby,bed,sleep,bars,mobile,nursery,night,small|A baby's bed~Has bars on the sides~A mobile hangs above~Placed in the nursery~Rock-a-bye baby
+Rattle|rattle|2|baby,shake,noise,toy,small,handle,beads,sound|A baby's first toy~Makes noise when shaken~Has beads inside~Small handle~Distracts crying babies
+Teddy bear|teddy|1|bear,soft,toy,hug,sleep,brown,stuffed,kids|A soft toy bear~Kids hug it at night~Brown and fluffy~Named after a US president~Winnie the Pooh is one
+Doll|dolls|1|toy,girl,dress,play,hair,Barbie,baby,house|A toy that looks like a person~Change its clothes~Brush its hair~Barbie is a famous one~Lives in a toy house
+Dollhouse|doll's house|2|toy,house,small,furniture,dolls,rooms,miniature,play|A tiny house for toys~Small furniture inside~Open the front to play~Rooms and stairs~Dolls live there
+Toy car|toy car|1|car,small,play,kids,wheels,race,Hot Wheels,floor|A small car to play with~Push it across the floor~Hot Wheels make them~Race on tracks~Collected by kids
+Train set|toy train|2|train,tracks,toy,kids,wooden,station,build,Thomas|Build a railway at home~Wooden or electric~Tracks around the room~Thomas is a famous engine~Choo choo
+Building blocks|blocks|1|toy,stack,wood,kids,tower,colorful,baby,build|Stack them into towers~Wooden cubes~Colourful letters~Knock them down~Babies love them
+Crayons|crayon|1|draw,color,wax,kids,box,paper,break,rainbow|Colour with them~Made of wax~Come in a box~Kids draw with them~They break easily
+Coloring book|colouring book|1|color,crayons,kids,pictures,lines,stay inside,pages,draw|A book with outlines to fill in~Use crayons~Stay inside the lines~Kids love it~Adults use them to relax too
+Play-Doh|modelling clay|2|clay,squish,colors,mold,kids,smell,shapes,dry|Soft colourful dough~Squish it into shapes~Has a special smell~Dries out if left open~Kids mix the colours
+Sandbox|sandpit|2|sand,play,kids,bucket,spade,garden,park,dig|Kids play in sand~A bucket and spade~At the park~Build little castles~Cats love it too
+Swing|swings|1|playground,push,high,seat,chains,park,kids,back and forth|Sit on it and go back and forth~Push me higher~At the playground~Hangs on chains~Feet up to the sky
+Slide|slides|1|playground,down,kids,climb,fast,park,ladder,whee|Climb up and go down~At the playground~Whee~Slippery and fast~Waterparks have huge ones
+Seesaw|teeter-totter|2|playground,up,down,two,balance,kids,park,board|Two kids sit on each end~One goes up, one goes down~At the playground~Balance is needed~A long board on a pivot
+Monkey bars|monkey bars|2|playground,climb,hang,arms,swing,kids,bars,park|Swing from bar to bar~Use only your arms~At the playground~Like a monkey~Don't let go
+Tooth fairy|tooth fairy|1|tooth,pillow,money,night,coin,fairy,kids,wish|Takes your tooth at night~Leaves a coin~Under your pillow~A magical visitor~When baby teeth fall out
+Bedtime story|bedtime story|1|book,read,night,sleep,kids,parents,once upon a time,bed|Read before sleeping~Once upon a time~Parents read to kids~One more please~Ends with happily ever after
+Nightlight|night light|2|light,dark,kids,scared,sleep,plug,glow,room|A small light at night~Kids are scared of the dark~Plugged into the wall~Glows softly~Keeps monsters away
+Monster under the bed|bed monster|2|monster,bed,scared,kids,night,dark,hide,check|Kids fear it at night~Hiding in the dark~Check before you sleep~Monsters, Inc. made a film about it~Dangle your feet at your own risk
+Homework|homework|1|school,study,kids,books,teacher,write,evening,dog|Work from school done at home~Teachers give it~The dog ate it~Done at the kitchen table~Due tomorrow
+School bus|school bus|1|yellow,kids,school,bus,driver,morning,stop,seats|A yellow vehicle~Takes kids to school~Picks up in the morning~Stops with a red sign~The wheels go round and round
+Lunch box|lunchbox|1|school,food,sandwich,kids,box,snack,break,pack|Carry food to school~Sandwich and an apple~Opened at break~Kids trade snacks~Has a cartoon on it
+Pencil case|pencil case|2|pens,pencils,school,zip,eraser,ruler,bag,colors|Holds pens and pencils~Has a zip~Kept in your school bag~Eraser and ruler inside~Covered in doodles
+Ruler|rulers|1|measure,straight,line,school,centimeters,plastic,draw,inches|Draw straight lines~Measure in centimetres~Made of plastic or wood~Thirty centimetres long~In every pencil case
+Sharpener|pencil sharpener|2|pencil,sharp,school,blade,turn,shavings,point,small|Makes pencils sharp~Turn the pencil inside~Leaves shavings~Small with a blade~Lives in a pencil case
+Glue stick|glue stick|2|glue,sticky,paper,school,craft,twist,stick,purple|Sticky stuff in a tube~Twist the bottom~Used for paper crafts~Goes on purple and dries clear~In every classroom
+Chalkboard|blackboard|2|chalk,school,teacher,write,classroom,dust,eraser,scratch|Teachers write on it~Uses white sticks~Squeaky nails~Dusty eraser~Old classrooms have one
+Report card|school report|2|grades,school,parents,marks,teacher,sign,term,A|Shows your school grades~Parents sign it~Given at the end of term~Teachers write comments~Hope for straight As
+Recess|break time|2|school,play,break,yard,bell,kids,snack,outside|Free time at school~Kids play outside~The bell rings~Eat a snack~Everyone's favourite lesson
+Field trip|school trip|2|school,bus,trip,museum,zoo,class,day out,permission|A school day out~Visit a museum or zoo~Travel by bus~Bring a packed lunch~Parents sign a permission slip
+Summer camp|summer camp|2|camp,kids,summer,cabins,lake,counselor,friends,activities|Kids go away for the summer~Sleep in cabins~Lakes and campfires~Counsellors watch them~Make new friends
+Tree house|treehouse|1|tree,house,kids,wood,climb,ladder,secret,club|A small house up in a tree~Climb a ladder~Kids' secret club~Built with wood~No grown-ups allowed
+Fort|blanket fort|2|blankets,pillows,kids,build,sofa,inside,hide,chairs|Built from blankets and pillows~Kids hide inside~Made over chairs~A secret base in the living room~Collapses easily
+Imaginary friend|imaginary friend|2|pretend,friend,kids,invisible,talk,play,alone,make believe|A friend only one child can see~Pretend play~Talks back in their head~Gets a seat at dinner~Grows up and disappears
+Piggy bank|piggy bank|1|money,coins,save,pig,kids,break,slot,pink|A pig that holds coins~Kids save money in it~Has a slot on top~Break it to get the money~Usually pink
+Allowance|pocket money|2|money,kids,weekly,parents,chores,spend,save,earn|Money parents give kids~Every week~Earned by doing chores~Spent on candy~Saved in a piggy bank
+Chores|chores|2|clean,house,tidy,dishes,kids,jobs,room,help|Jobs around the house~Wash the dishes~Tidy your room~Take out the trash~Done for pocket money
+Time-out|time out|2|punishment,kids,corner,sit,naughty,calm,minutes,parents|A punishment for kids~Sit quietly in a corner~For a few minutes~Calm down~Parents count to three
+Tantrum|temper tantrum|2|kids,cry,scream,angry,floor,toddler,shop,kick|A child's angry outburst~Screaming and crying~Lying on the floor~Happens in supermarkets~Toddlers are experts
+Bath time|bath time|1|bath,bubbles,kids,duck,water,wash,splash,towel|Kids get washed in the evening~Bubbles and toys~A rubber duck floats~Splash everywhere~Wrapped in a towel
+Rubber duck|rubber ducky|1|yellow,bath,duck,toy,float,squeak,kids,water|A yellow bath toy~Floats on the water~Squeaks when squeezed~Kids play with it~Ernie sings about it
+Bubbles|soap bubbles|1|blow,soap,wand,float,pop,kids,round,rainbow|Blow through a little wand~Float in the air~Pop when touched~Rainbow colours~Kids chase them
+Piggyback ride|piggyback|2|carry,back,kids,ride,parents,fun,hold on,shoulders|Carried on someone's back~Kids love it~Hold on tight~Dad gives them~Riding on shoulders is a cousin
+Tickle|tickling|1|laugh,fingers,feet,kids,giggle,armpit,play,stop|Makes you laugh uncontrollably~Under the arms~On the feet~Kids beg you to stop~Giggle fit
+Peekaboo|peek-a-boo|2|baby,hide,face,hands,game,laugh,cover,surprise|A game for babies~Cover your face with your hands~Then show it again~Babies laugh every time~Where's mummy
+Lullaby song|cradle song|3|sing,baby,sleep,soft,night,mother,rock,quiet|A song to send babies to sleep~Twinkle Twinkle~Sung very softly~Mothers hum it~Rock-a-bye baby
+Nursery rhyme|nursery rhymes|2|song,kids,rhyme,old,Humpty Dumpty,sing,baby,short|Short songs for small kids~Humpty Dumpty~Twinkle Twinkle Little Star~Old and simple~Mary had a little lamb
+Humpty Dumpty|Humpty Dumpty|2|egg,wall,fall,king's men,rhyme,broken,nursery,sat|An egg who sat on a wall~Had a great fall~All the king's horses could not fix him~A nursery rhyme~Broken pieces
+Fairy tale|fairy tales|1|story,once upon a time,princess,magic,happily ever after,castle,witch,kids|A magical story for kids~Once upon a time~Princesses and witches~Happily ever after~The Brothers Grimm wrote many
+Superhero cape|cape|2|superhero,costume,fly,red,kids,back,hero,dress up|Worn on the back by heroes~Kids pretend to fly in it~Usually red~Part of a costume~Superman wears one
+Dress-up box|costume box|3|costumes,kids,pretend,play,clothes,box,princess,pirate|A box of costumes~Kids pretend to be pirates~Princess dresses~Old hats and scarves~Hours of fun
+Puppet show|puppet show|2|puppets,hands,show,kids,theatre,strings,voices,stage|Toys come alive on a small stage~Hands inside them~Funny voices~Kids shout behind you~Punch and Judy
+Toy box|toy chest|2|toys,box,kids,tidy,room,full,lid,mess|Where toys are kept~Tidy up time~Never closes~In the kids' room~Full of everything
+Kindergarten|preschool|1|kids,school,young,play,teacher,nap,paint,small|School before school~Small kids play and learn~Nap time~Finger painting~Ages four and five
+Daycare|nursery|2|kids,babies,work,parents,care,play,drop off,teacher|Where babies stay while parents work~Drop off in the morning~Play and nap~Caregivers look after them~Pick up in the evening
+Grandma|grandmother,granny|1|old,family,cookies,knit,hugs,kisses,grandpa,spoil|Mum's or dad's mother~Bakes cookies~Knits sweaters~Spoils the grandkids~Grey hair and big hugs
+Grandpa|grandfather|1|old,family,stories,grandma,glasses,war,fishing,pipe|Mum's or dad's father~Tells old stories~Takes you fishing~Falls asleep in his chair~Married to grandma
+Twins|twin|1|two,same,brothers,sisters,born,identical,double,together|Two babies born together~Can look exactly alike~Identical or fraternal~Finish each other's sentences~Double trouble
+Siblings|brothers and sisters|2|brother,sister,family,fight,share,parents,older,younger|Brothers and sisters~Fight over the remote~Share a bedroom~Older and younger~Same parents
+Family photo|family picture|2|photo,family,smile,camera,wall,together,cheese,frame|Everyone together in one picture~Hung on the wall~Matching outfits~Someone always blinks~Taken every holiday
+Family dinner|family meal|2|dinner,table,family,eat,talk,together,food,evening|Everyone eats together~Around the table~Talk about the day~Phones away~Mum's cooking
+Road trip|road trip|1|car,drive,travel,family,are we there yet,snacks,map,music|A long journey by car~Are we there yet~Snacks and music~Stop at petrol stations~Family holiday
+Are we there yet|are we there yet|2|car,trip,kids,ask,long,bored,travel,again|What kids ask on long trips~Over and over again~In the back seat~Bored and impatient~No, ten more minutes
+Car seat|child seat|2|baby,car,safety,seat,belt,kids,buckle,back|A special seat for kids in cars~Keeps babies safe~Buckled in~In the back seat~Required by law
+Lemonade stand|lemonade stand|2|kids,sell,lemonade,summer,sign,cents,table,street|Kids sell drinks on the street~A small table~Hand-made sign~Fifty cents a cup~Summer business
+Ice cream truck|ice cream van|1|ice cream,music,truck,summer,kids,run,cones,street|A van that plays music~Kids run to it~Sells cones and lollies~Drives around in summer~Stops on the street
+Snow day|snow day|2|snow,school,closed,kids,winter,play,sled,holiday|No school because of the weather~Kids play outside all day~Sledding and snowmen~Best surprise in winter~Hot chocolate after
+Sleeping bag|sleeping bag|1|sleep,camping,zip,warm,tent,floor,outdoors,sleepover|A soft bag to sleep in~Used when camping~Has a zip~Warm and cosy~At sleepovers
+Tent|tents|1|camping,sleep,outdoors,poles,zip,forest,pitch,canvas|A shelter for camping~Put up with poles~Sleep inside~Zip the door~Pitch it in a field
+Flashlight game|shadow puppets|3|shadow,hands,wall,light,dark,animals,kids,shape|Making shapes with your hands~A light behind them~Animals appear on the wall~Done in the dark~A dog, a bird, a rabbit
+Paper airplane|paper plane|1|paper,fold,fly,throw,class,origami,glide,school|Folded from a sheet of paper~Thrown across the classroom~Glides through the air~Kids compete for distance~Simple origami
+Paper boat|paper boat|2|paper,fold,water,float,rain,puddle,origami,sail|Folded from paper~Floats on a puddle~Sails after rain~Simple origami~Sinks when wet
+Snow angel|snow angel|2|snow,lie,arms,legs,winter,kids,shape,wings|Lie down in fresh snow~Move your arms and legs~Leaves a shape with wings~Winter fun~Kids make them
+Sandcastle|sandcastle|1|sand,beach,build,bucket,spade,towers,waves,moat|Built on the beach~Use a bucket and spade~Towers and a moat~The waves wash it away~Kids love building them
+Pool float|inflatable|2|pool,float,swim,flamingo,summer,air,ring,kids|An inflatable toy for the pool~Shaped like a flamingo or donut~Float in the sun~Blown up with air~Kids hold on to it
+Water gun|squirt gun|1|water,shoot,summer,kids,wet,play,toy,splash|A toy that shoots water~Summer fights~Everyone gets wet~Fill it from the tap~Super Soaker
+Lego set|Lego kit|2|Lego,bricks,instructions,build,box,pieces,kids,model|A box of bricks with instructions~Build a castle or spaceship~Hundreds of pieces~Step by step~Then it goes on a shelf
+Stuffed animal|plush toy|1|soft,toy,bear,cuddle,bed,kids,fluffy,stuffed|A soft toy animal~Kids cuddle it in bed~Fluffy and squishy~Won at the fair~Many kinds of animals
+Action figure|action figure|2|toy,superhero,plastic,collect,boys,play,poses,movie|A small plastic hero~Arms and legs move~Collected by fans~From movies like Star Wars~Not a doll, they say
+Remote control car|RC car|2|car,toy,remote,drive,fast,batteries,kids,antenna|A toy car you drive from afar~Has an antenna~Runs on batteries~Races around the garden~Crashes into walls
+Bike with training wheels|training wheels|2|bike,learn,kids,wheels,balance,ride,small,first|A kid's first bike~Two little extra wheels~Help with balance~Taken off when you're ready~Dad holds the back
+Scooter ride|kick scooter|2|scooter,kids,push,wheels,handle,ride,sidewalk,foot|Stand on it and push with one foot~Two small wheels~Kids ride on the sidewalk~Has a handle~Folds up
+Roller skates|roller skates|2|skates,wheels,shoes,rink,disco,roll,fall,kids|Shoes with four wheels~Roll around a rink~Popular in the seventies~Kids fall a lot~Disco music
+Bunk bed sleepover|top bunk|3|bunk bed,top,bottom,ladder,siblings,fight,sleep,room|Two beds stacked up~Kids fight over the top one~Climb a ladder~Shared by siblings~Don't fall off
+Hand puppet|glove puppet|2|puppet,hand,sock,talk,kids,show,voice,toy|Put your hand inside~Make it talk~A sock with eyes~Used in kids' shows~Funny voices
+Chalk drawing|sidewalk chalk|2|chalk,sidewalk,draw,colors,kids,rain,street,hopscotch|Drawing on the pavement~Colourful sticks~Kids draw outside~Rain washes it away~Hopscotch squares
+Kite flying|kite flying|2|kite,wind,beach,string,run,sky,kids,park|Running with a string on a windy day~Watching it rise~At the beach or park~Tangled in a tree~Let out more string
+Birthday wish|wish|2|candles,blow,birthday,secret,cake,eyes closed,hope,dream|Made before blowing out candles~Close your eyes~Keep it secret~Or it won't come true~Once a year
+Bedtime|bed time|1|sleep,night,kids,pyjamas,brush teeth,story,late,tired|When kids must go to sleep~Brush your teeth first~Five more minutes~Pyjamas on~A story and lights out
+Family tree|family tree|3|family,ancestors,grandparents,branches,names,history,chart,generations|A chart of your relatives~Grandparents at the top~Branches for each family~Generations of names~Kids draw it at school
+Sippy cup|sippy cup|2|toddler,cup,lid,drink,spout,spill,baby,handles|A toddler's first cup~Has a lid with a spout~Doesn't spill~Two handles~Between a bottle and a glass
+Bib|bibs|2|baby,neck,food,mess,eat,tie,clean,drool|Tied around a baby's neck~Catches food and drool~Worn while eating~Gets very messy~Lobster restaurants give adults one
+Spinning top|top|2|spin,toy,floor,round,point,kids,wobble,old|A toy that spins on a point~Wobbles before it falls~Twist it with your fingers~An old classic toy~Inception ends with one

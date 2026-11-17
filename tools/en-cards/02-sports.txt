@@ -1,0 +1,102 @@
+# Sports
+# Target|aliases|difficulty|8 trap words|5 clues (vague to specific), separated by ~
+Football|soccer|1|ball,goal,kick,team,World Cup,pitch,Messi,score|The most popular sport on Earth~Eleven players on each side~You mostly use your feet~Messi and Ronaldo play it~Americans call it soccer
+American football|NFL|2|helmet,touchdown,Super Bowl,quarterback,ball,tackle,USA,field|A rough American team sport~Players wear helmets and pads~Score a touchdown~The Super Bowl is the final~The ball is oval
+Volleyball|volleyball|1|net,ball,beach,spike,team,serve,six,sand|Two teams hit a ball over a net~Six players per side~A beach version is played in the sand~Spike it down hard~You cannot catch the ball
+Swimming pool|pool|1|water,swim,lanes,dive,summer,chlorine,lifeguard,deep end|A big tank of water~Has lanes for racing~Smells of chlorine~A lifeguard watches it~Do not run around it
+Ice hockey|hockey|2|ice,puck,stick,Canada,skates,goal,fight,NHL|Played on ice~Players chase a puck~Canada loves it~Players wear skates and helmets~Fights break out sometimes
+Rugby|rugby|2|ball,oval,tackle,scrum,New Zealand,try,England,rough|An oval ball sport~You cannot pass the ball forward~Players form a scrum~New Zealand dances the haka before it~Score a try
+Table tennis|ping pong|1|paddle,ball,table,net,China,small,bounce,spin|Played on a table with a net~Tiny light ball~Small paddles~China dominates it~Its other name sounds like the ball bouncing
+Badminton|badminton|2|racket,shuttlecock,net,birdie,feathers,indoor,serve,smash|A racket sport over a high net~You hit a shuttlecock~The birdie has feathers~Played indoors~Very popular in Asia
+Karate|karate|2|Japan,martial art,belt,kick,chop,black belt,dojo,kata|A Japanese martial art~Earn coloured belts~Chop boards with your hand~Practised in a dojo~A famous 1984 movie kid learned it with wax on, wax off
+Judo|judo|3|Japan,throw,martial art,belt,mat,Olympics,wrestle,gi|A Japanese martial art~Throw your opponent on the mat~Wear a white or blue gi~Its name means the gentle way~An Olympic sport with belts
+Wrestling|wrestling|2|ring,mat,pin,WWE,fight,Olympics,hold,champion|Two people grapple on a mat~Pin your opponent down~WWE made a show of it~An ancient Olympic sport~Hulk Hogan was famous for it
+Fencing|fencing|3|sword,mask,France,Olympics,touché,white,duel,epee|A sport with thin swords~Players wear white suits and masks~Points for a touch~Epee, foil and sabre~Looks like a gentlemen's duel
+Cycling|cycling|1|bike,Tour de France,helmet,pedal,race,road,wheels,team|A sport on two wheels~The Tour de France is the biggest race~Riders wear tight jerseys~Pedal up mountains~The yellow jersey goes to the leader
+Horse riding|equestrian|2|horse,saddle,jump,helmet,stable,gallop,boots,reins|A sport with an animal~Sit in a saddle~Jump over fences~Hold the reins~Wear boots and a helmet
+Snowboarding|snowboard|2|snow,board,mountain,winter,ski,jump,halfpipe,Olympics|A winter sport on one board~Slide down snowy mountains~Tricks in a halfpipe~Like skateboarding on snow~Shaun White is famous for it
+Ice skating|skating|1|ice,skates,rink,spin,winter,figure,Olympics,blades|Gliding on ice with blades~Done at a rink~Figure skaters spin and jump~A winter date idea~Holding hands in circles
+Water polo|water polo|3|pool,ball,swim,goal,team,cap,Olympics,tread|A team sport in a pool~Players tread water the whole game~Throw the ball into a goal~Players wear caps~Very tiring
+Diving|diving|2|board,pool,jump,splash,platform,Olympics,flip,water|Jump into a pool from high up~Do flips in the air~Make a small splash~Springboard or platform~Judges give scores
+Sailing|sailing|2|boat,wind,sea,mast,regatta,sail,yacht,ocean|Moving a boat with the wind~Done on a yacht~Pull ropes and adjust the mast~Races are called regattas~Wind is your engine
+Rowing|rowing|2|boat,oars,river,team,Oxford,Cambridge,paddle,Olympics|Racing a boat with oars~Teams pull in rhythm~Oxford and Cambridge race every year~Done on a river~Sitting backwards
+Kayak|kayaking|2|boat,paddle,river,canoe,rapids,water,lake,narrow|A narrow small boat~Moved with a double paddle~Paddled down river rapids~Similar to a canoe~Sit low inside it
+Skydiving|skydiving|2|plane,parachute,jump,sky,fall,free fall,adrenaline,helmet|Jumping out of a plane~Free fall before opening the parachute~A big thrill for adrenaline lovers~Often done tandem with an instructor~Land softly on a field
+Paragliding|paragliding|3|wing,fly,mountain,sky,parachute,glide,wind,harness|Flying from a mountain with a fabric wing~Looks like a big parachute~Glide on the wind~Sit in a harness~Popular over beaches in Turkey
+Parkour|freerunning|3|jump,run,city,walls,roofs,climb,flip,obstacles|Running and jumping through a city~Climbing walls and rooftops~Started in France~Flips over obstacles~Also called freerunning
+Triathlon|triathlon|3|swim,bike,run,three,Ironman,race,endurance,transition|A race in three parts~Swim, bike, then run~Ironman is the longest kind~Tests endurance~Changing between sports quickly
+Weightlifting|weightlifting|2|barbell,heavy,gym,lift,muscles,Olympics,kilograms,squat|Lifting heavy weights~Uses a barbell~Clean and jerk~Strong muscles needed~An Olympic sport
+Bodybuilding|bodybuilding|3|muscles,gym,Schwarzenegger,pose,protein,oil,competition,flex|Building big muscles~Pose on stage with oiled skin~Arnold Schwarzenegger was the king~Lots of protein shakes~Flex in front of judges
+Darts|darts|2|board,throw,bullseye,pub,180,target,arrow,points|Throwing small arrows at a board~Played in pubs~Hit the bullseye~180 is the top score~The board has numbered sections
+Billiards|pool,snooker|2|cue,balls,table,pocket,eight ball,bar,chalk,break|Hit balls into pockets~Use a long cue~Chalk the tip~Eight ball is a common game~Played on a green table in bars
+Chess|chess|1|king,queen,board,checkmate,knight,pawn,strategy,black and white|A board game of strategy~Black and white pieces~Checkmate the king~Knights move in an L shape~Grandmasters play it
+Poker|poker|2|cards,chips,bluff,casino,royal flush,Vegas,table,bet|A card game with betting~Bluffing is part of it~Played with chips in casinos~Royal flush is the best hand~Texas Hold'em is popular
+Skateboarding|skateboarding|1|board,wheels,tricks,ramp,skatepark,kickflip,Tony Hawk,ollie|Riding a board with four wheels~Tricks at the skatepark~Kickflip and ollie~Tony Hawk is a legend~Now an Olympic sport
+BMX|BMX|3|bike,tricks,small,ramp,dirt,jump,stunt,race|A small bike for tricks~Jumps on dirt tracks~Stunts on ramps~Racing and freestyle~Short for bicycle motocross
+Motocross|motocross|3|motorbike,dirt,mud,jump,helmet,race,track,engine|Racing motorbikes on dirt~Big jumps on muddy tracks~Riders wear heavy boots~Very loud engines~Off-road racing
+Rally|rally racing|3|car,race,dirt,road,co-driver,Dakar,mud,stages|Racing cars on dirt roads~A co-driver reads the notes~Dakar is a famous one~Raced in stages~Cars fly over bumps
+NASCAR|stock car racing|3|car,race,oval,America,laps,crash,pit stop,Daytona|American car racing~Cars go around an oval~Hundreds of laps~Daytona 500 is the biggest~Fast pit stops
+Penalty kick|penalty|2|football,goal,goalkeeper,spot,shootout,referee,foul,kick|A free shot at goal~Taken from the spot~Only the goalkeeper can stop it~Decides games in a shootout~Given after a foul in the box
+Red card|red card|2|referee,football,foul,off,sent,yellow,pitch,rule|The referee holds it up~The player must leave the pitch~Two yellows make one~Given for a bad foul~The team plays with ten men
+Slam dunk|dunk|2|basketball,hoop,jump,NBA,rim,ball,score,hang|A basketball shot~Jump and push the ball down through the hoop~Players hang on the rim~Michael Jordan was famous for it~There is a contest for it
+Home run|homer|2|baseball,bat,hit,run,stadium,bases,fence,crowd|A big hit in baseball~The ball flies over the fence~The batter runs all four bases~The crowd goes wild~Babe Ruth hit many
+Touchdown|touchdown|3|American football,score,end zone,six,ball,run,catch,celebrate|Scoring in American football~Get the ball into the end zone~Worth six points~Players celebrate with a dance~Throw or run it in
+Hole in one|ace|3|golf,ball,hole,tee,lucky,rare,shot,course|A perfect golf shot~One swing and it goes in~Very rare~Usually on a short hole~Players buy drinks after it
+Gold medal|gold|1|first,winner,Olympics,podium,champion,silver,bronze,prize|What the winner gets~Hung around the neck~Bronze and silver are lower~First place at the Olympics~Athletes bite it for photos
+Trophy|cup,trophies|1|win,champion,shiny,cup,prize,lift,shelf,golden|A shiny prize for winners~The captain lifts it high~Kept on a shelf~Often shaped like a cup~Engraved with names
+Stadium|arena|1|fans,seats,football,game,crowd,big,concert,tickets|A huge building for games~Thousands of fans~Rows and rows of seats~Concerts happen there too~Wembley is a famous one
+Cheerleader|cheerleaders|2|pom-poms,dance,team,jump,school,uniform,cheer,America|Dances on the sidelines~Shakes pom-poms~Builds human pyramids~Common in American high schools~Shouts to support the team
+Mascot|mascots|2|costume,team,fun,animal,crowd,dance,suit,character|A costumed character~Dances to excite the crowd~Often an animal~Represents a team~Someone is sweating inside
+Coach|coaches|1|team,trainer,whistle,tactics,bench,players,manager,sideline|Leads the team~Stands at the sideline~Blows a whistle at practice~Plans the tactics~Shouts at the players
+Whistle|whistles|1|referee,blow,sound,coach,loud,stop,foul,lifeguard|A small thing you blow~Makes a loud high sound~The referee uses it~Starts and stops games~Lifeguards wear one
+Stopwatch|timer|2|time,seconds,race,coach,button,start,stop,track|Measures time to the second~Press start and stop~Used in races~The coach holds it~On your phone too
+Treadmill|treadmill|2|gym,run,machine,belt,walk,cardio,speed,exercise|A running machine~The belt moves under your feet~Found in every gym~Run without going anywhere~Set the speed and slope
+Dumbbell|dumbbells|2|weight,gym,lift,arm,muscle,heavy,biceps,pair|A small hand weight~Lift it to grow muscles~Comes in pairs~Biceps curls~Found in every gym
+Push-up|push-ups|1|arms,floor,exercise,chest,strong,down,up,plank|An exercise on the floor~Push your body up with your arms~Builds chest muscles~Soldiers do many~Twenty in a row
+Sit-up|crunches|2|stomach,abs,exercise,floor,core,six-pack,lie,curl|An exercise for your belly~Lie on your back and curl up~Builds a six-pack~Done on a mat~PE teachers count them
+Jump rope|skipping rope|1|rope,jump,kids,boxing,exercise,swing,playground,double|A rope you swing over your head~Jump each time it passes~Boxers train with it~Kids play with it in the playground~Double unders are hard
+Hula hoop|hula hoop|2|hoop,spin,waist,ring,plastic,kids,dance,circle|A big plastic ring~Spin it around your waist~Keep it up by moving your hips~A toy from the 1950s~Also used in circus acts
+Trampoline|trampoline|1|jump,bounce,garden,high,kids,flip,springs,net|Jump high on it~Bounce up and down~Kids have one in the garden~Has a safety net~Do flips in the air
+Frisbee|flying disc|1|throw,disc,beach,park,dog,catch,plastic,spin|A plastic disc you throw~Spins through the air~Played at the beach~Dogs catch it~Ultimate is a team sport with it
+Boomerang|boomerang|2|throw,Australia,return,curve,wood,spin,come back,hunt|A curved throwing stick~It comes back to you~From Australia~Thrown in a spinning curve~Used for hunting long ago
+Kite|kites|1|wind,fly,string,sky,beach,tail,colorful,high|Flies in the wind~Held by a long string~Colourful with a tail~Flown on a beach~Benjamin Franklin used one with lightning
+Bowling ball|bowling ball|2|bowling,pins,heavy,holes,lane,strike,fingers,roll|A heavy round ball~Has three holes for your fingers~Rolled down a lane~Knocks over pins~Aim for a strike
+Golf cart|golf buggy|2|golf,small car,electric,course,drive,bag,clubs,slow|A small electric car~Drives around a course~Carries clubs and players~Very slow~Seen at resorts too
+Racket|racquet|1|tennis,strings,hit,ball,handle,grip,squash,badminton|Hit a ball with it~Has strings~Used in tennis and badminton~Held by the grip~Players smash it when angry
+Shin guards|shin pads|3|football,legs,protection,socks,kick,player,plastic,safety|Protect the front of your legs~Worn under football socks~Made of hard plastic~Stop painful kicks~Required in matches
+Boxing gloves|gloves|2|boxing,punch,red,hands,ring,padded,fight,laces|Padded and worn on the hands~Used to punch safely~Often red~Laced up before a fight~Worn in the ring
+Punching bag|heavy bag|2|boxing,punch,hang,gym,kick,heavy,train,leather|A heavy hanging bag~Boxers hit it in training~Hangs from a chain~Great for letting out anger~Found in martial arts gyms
+Knockout|KO|2|boxing,punch,down,count,ten,winner,ring,fight|Ends a boxing match~A fighter cannot get up~The referee counts to ten~One big punch~Often written as two letters
+Black belt|black belt|2|karate,judo,master,martial arts,rank,dojo,belt,expert|The highest colour in many martial arts~Takes years to earn~Worn by experts~Tied around the waist~Karate and judo
+Yellow jersey|maillot jaune|3|Tour de France,cycling,leader,shirt,France,race,winner,yellow|A special shirt in cycling~Worn by the race leader~Part of the Tour de France~Its French name is maillot jaune~Its colour is the sun's
+Marathon runner|runner|2|run,42,race,endurance,medal,finish,shoes,training|Someone who runs a very long race~42 kilometres~Trains for months~Crosses the finish line exhausted~Wears a number on the shirt
+Finish line|finish|1|race,end,tape,winner,run,cross,first,flag|The end of a race~Runners break the tape~Crossed first by the winner~Photo finishes happen here~A chequered flag waves in car racing
+Starting line|start|2|race,begin,ready,gun,blocks,set,go,runners|Where a race begins~Runners crouch in blocks~On your marks, get set~A gun goes bang~Everyone waits here
+Relay race|relay|2|team,baton,run,pass,four,track,Olympics,lap|A team running race~Pass a baton to the next runner~Four runners each~Dropping the baton is a disaster~An Olympic event
+Hurdles|hurdles|2|jump,run,track,barriers,race,Olympics,fall,leap|A running race with jumps~Leap over barriers~On an athletics track~110 metres is one event~Knocking one down slows you
+High jump|high jump|2|bar,jump,mat,backwards,Fosbury,track,athletics,height|Jump over a bar~Land on a soft mat~Most go over backwards~The Fosbury flop~The bar goes higher each round
+Pole vault|pole vault|3|pole,jump,bar,high,bend,athletics,mat,flexible|Jump using a long bendy pole~Fly over a very high bar~An athletics event~Land on a big mat~Sergey Bubka was a legend
+Javelin|javelin|3|throw,spear,athletics,Olympics,long,field,distance,arm|Throw a long spear~An athletics field event~The longest throw wins~Run up and throw~Ancient Greeks did it
+Shot put|shot put|3|throw,heavy,ball,metal,athletics,push,circle,strong|Throw a heavy metal ball~Push it from the shoulder~Done inside a circle~An athletics event~Needs strong arms
+Long jump|long jump|2|jump,sand,run,distance,pit,athletics,leap,board|Run fast and jump far~Land in a sand pit~Do not step over the board~An athletics event~Measured in metres
+Gymnast|gymnasts|2|flip,balance beam,flexible,Olympics,leotard,vault,bars,routine|An athlete who does flips~Performs on a balance beam~Very flexible~Wears a leotard~Simone Biles is a famous one
+Balance beam|beam|3|gymnastics,narrow,balance,flip,fall,wood,routine,Olympics|A very narrow wooden bar~Gymnasts flip on it~Only ten centimetres wide~Falling off costs points~Mostly a women's event
+Surfboard|surfboard|2|surf,waves,beach,board,wax,ocean,Hawaii,fin|A long board for the sea~Ride big waves~Rub wax on it~Has a fin underneath~Popular in Hawaii and California
+Skis|ski|2|snow,mountain,slope,poles,winter,boots,lift,downhill|Two long narrow boards~Strapped to your boots~Slide down snowy slopes~Use poles to push~Take a lift to the top
+Ski lift|chairlift|2|mountain,snow,chair,cable,up,skiing,ride,resort|Carries you up the mountain~Hang in a chair on a cable~Used at ski resorts~Skis dangle under you~Gondolas are a closed kind
+Sledding|sled,sledge|1|snow,hill,slide,winter,kids,toboggan,fast,fun|Sliding down a snowy hill~Kids love it in winter~Sit on a wooden or plastic thing~Pull it back up the hill~Also called tobogganing
+Snowball fight|snowball fight|1|snow,throw,winter,kids,cold,fun,ball,hit|A winter game outside~Throw balls of snow~Hide behind a wall~Everyone gets cold and wet~Kids play it on snow days
+Tug of war|tug-of-war|2|rope,pull,team,strength,mud,line,camp,win|Two teams pull a rope~The strongest side wins~Played at camps and sports days~Do not let go~Sometimes over a mud pit
+Arm wrestling|arm wrestling|2|table,arm,strength,elbow,hand,push,contest,bar|Two people grip hands~Elbows on the table~Push the other arm down~A test of strength~Done in bars
+Sack race|sack race|2|jump,sack,race,kids,sports day,hop,fall,potato|A silly race for kids~Stand inside a bag~Hop to the finish~Many people fall~Done on school sports days
+Hopscotch|hopscotch|2|chalk,hop,squares,kids,stone,playground,jump,numbers|A playground game~Chalk squares on the ground~Hop on one foot~Throw a stone first~Numbered boxes
+Hide and seek|hide-and-seek|1|hide,find,count,kids,game,seek,ready,search|A game for kids~One person counts to twenty~Everyone else finds a spot~Ready or not, here I come~The last one found wins
+Tag|tig,it|1|chase,run,touch,kids,game,it,playground,catch|A chasing game~Touch someone and they are it~Played in the playground~Run fast~No touch backs
+Dodgeball|dodgeball|2|ball,throw,dodge,gym,team,hit,out,school|Throw balls at the other team~Duck to avoid them~If you are hit, you are out~Played in school gyms~Ben Stiller made a movie about it
+Bowling alley|bowling alley|2|lanes,pins,shoes,strike,ball,score,rent,friends|A place with long lanes~Rent special shoes~Knock down pins~Score a strike~A fun night out with friends
+Gym|fitness center|1|workout,weights,treadmill,membership,muscles,trainer,sweat,exercise|A place to work out~Full of machines and weights~People pay a membership~Personal trainers work there~New year resolutions fill it
+Personal trainer|PT|2|gym,exercise,coach,fitness,workout,client,muscles,plan|Your private fitness coach~Plans your workouts~Counts your reps~Shouts encouragement~Works in a gym
+Protein shake|protein shake|3|gym,muscles,powder,drink,shaker,workout,milk,bodybuilding|A drink after the gym~Made from powder~Shaken in a bottle~Builds muscles~Vanilla or chocolate flavour
+Sports car|supercar|2|fast,Ferrari,red,expensive,engine,speed,Porsche,two seats|A very fast car~Ferrari and Porsche make them~Usually two seats~Very expensive~Loud engine
+Pit stop|pit stop|3|Formula One,tyres,crew,fast,race,garage,fuel,seconds|A quick stop during a race~The crew changes tyres~Takes only seconds~Part of Formula One~Done in the pit lane
+Checkered flag|chequered flag|3|race,finish,black and white,winner,flag,cars,end,waved|Waved at the end of a race~Black and white squares~The winner sees it first~Used in Formula One~Means the race is over

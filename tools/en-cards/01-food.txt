@@ -1,0 +1,102 @@
+# Food
+# Target|aliases|difficulty|8 trap words|5 clues (vague to specific), separated by ~
+Apple|apples|1|fruit,red,green,tree,pie,core,juice,crunchy|A fruit that keeps the doctor away~Can be red, green or yellow~You bite around the core~Grows on trees in an orchard~Newton watched one fall
+Orange|oranges|1|fruit,citrus,juice,peel,vitamin,round,breakfast,segments|A round citrus fruit~You peel it before eating~Squeezed into a breakfast juice~Its name is also a colour~Full of vitamin C
+Grapes|grape|1|wine,vine,bunch,purple,green,raisin,fruit,seedless|They grow in bunches~Small, round and juicy~Dried, they become raisins~Crushed to make wine~Green or purple on a vine
+Cherry|cherries|1|red,fruit,stone,pit,tree,blossom,cake,top|Small round red fruit~It has a hard pit inside~Often comes in pairs on stems~Placed on top of a sundae~Its blossoms are famous in Japan
+Mango|mangoes|2|fruit,tropical,yellow,orange,sweet,India,juicy,seed|A tropical sweet fruit~Has one big flat seed~Orange flesh, very juicy~Popular in India and Thailand~Great in smoothies and lassi
+Coconut|coconuts|1|palm,tree,milk,tropical,hairy,shell,beach,water|Hairy brown shell~Falls from a palm tree~Has water and milk inside~Found on tropical beaches~You crack it open with force
+Peach|peaches|1|fruit,fuzzy,soft,stone,orange,pink,juicy,summer|A soft summer fruit~Its skin feels fuzzy~Has a big stone in the middle~Pink and orange colours~Famous emoji that is not about fruit
+Blueberry|blueberries|2|berry,blue,muffin,small,fruit,bush,pancakes,antioxidant|Tiny round berries~Grow on a small bush~A classic muffin filling~Their colour is in the name~Sprinkled on pancakes
+Kiwi|kiwis|2|fruit,green,brown,fuzzy,seeds,bird,New Zealand,slice|Brown and fuzzy outside~Bright green inside with tiny black seeds~Also the name of a bird~Linked to New Zealand~You scoop it with a spoon
+Tomato|tomatoes|1|red,salad,sauce,ketchup,vegetable,fruit,pizza,vine|Red and round, grows on a vine~People argue if it is a fruit~The base of ketchup~Sliced into salads~Cooked into pasta sauce
+Cucumber|cucumbers|1|green,salad,vegetable,pickle,cool,slice,long,water|Long and green vegetable~Mostly water, very fresh~Sliced over your eyes at the spa~Pickled in jars~Common in salads
+Onion|onions|1|cry,tears,layers,vegetable,ring,garlic,smell,chop|Has many layers~Cutting it makes you cry~Fried in rings~A base for almost every soup~Strong smell when raw
+Garlic|cloves|2|clove,smell,vampire,bread,Italian,breath,bulb,crush|Comes in a bulb with cloves~Said to keep vampires away~Gives you strong breath~Spread on toasted bread~Crushed into Italian dishes
+Corn|corn on the cob|1|yellow,cob,popcorn,kernels,field,butter,maize,ear|Yellow kernels in rows~Eaten on the cob with butter~Pops into a movie snack~Grows tall in fields~Also called maize
+Pepper|peppers,bell pepper|2|red,green,yellow,spicy,salt,vegetable,chili,stuffed|A crunchy vegetable in many colours~Stuffed with rice and meat~Also a spice next to salt~Some kinds are very hot~Comes in red, green and yellow
+Rice|rice|1|grain,white,Asia,bowl,sushi,boiled,risotto,chopsticks|Small white grains~Boiled in water~Eaten with chopsticks in a bowl~The base of sushi~A staple food in Asia
+Pasta|noodles|1|Italy,spaghetti,sauce,boil,penne,macaroni,cheese,fork|Italian food made from dough~Comes in many shapes~Boiled in salted water~Served with tomato sauce~Penne, fusilli and farfalle
+Soup|soups|1|bowl,spoon,hot,chicken,vegetables,broth,winter,tomato|Eaten with a spoon from a bowl~Warm on a cold winter day~Chicken version helps when sick~Made by boiling vegetables~Tomato or minestrone
+Salad|salads|1|lettuce,healthy,bowl,dressing,vegetables,tomato,green,Caesar|A healthy dish of raw vegetables~Mixed in a bowl~Needs a dressing~Lettuce is often the base~Caesar and Greek are famous types
+Steak|steaks|2|beef,meat,grill,rare,medium,knife,cow,barbecue|A thick slice of beef~Cooked rare, medium or well done~Cut with a sharp knife~Sizzles on the grill~T-bone is a famous type
+Chicken nuggets|nuggets|1|chicken,fried,kids,McDonald's,dip,crispy,sauce,fast food|Small fried bites~Kids love them~Dipped in sauce~Made from chicken~Sold in boxes of six or nine
+Fried chicken|KFC|2|chicken,crispy,fried,bucket,wings,Colonel,spicy,drumstick|Crispy coated meat~Comes in a bucket~The Colonel made it famous~Wings and drumsticks~Eaten with your hands
+Meatballs|meatball|2|meat,spaghetti,sauce,round,IKEA,Swedish,tomato,ball|Round balls of minced meat~Served with spaghetti~Swedish ones at IKEA~Cooked in tomato sauce~Rolled by hand
+Taco|tacos|1|Mexico,shell,crispy,beef,salsa,Tuesday,tortilla,cheese|Mexican folded shell~Filled with meat and salsa~Has its own Tuesday~Crunchy or soft~Topped with cheese and lettuce
+Nachos|nachos|2|chips,cheese,Mexico,salsa,jalapeno,dip,movie,crispy|Corn chips covered in melted cheese~Topped with jalapenos~Shared while watching a game~A Mexican snack~Dipped in salsa and guacamole
+Dumplings|dumpling,gyoza|2|China,steam,dough,filling,soy,dim sum,boiled,pork|Dough parcels with a filling~Steamed in bamboo baskets~Part of dim sum~Dipped in soy sauce~Japanese gyoza are one kind
+Ramen|noodles|2|Japan,noodles,soup,egg,bowl,broth,instant,chopsticks|Japanese noodle soup~Topped with a soft egg~A student favourite in instant form~Eaten with chopsticks~Rich broth in a big bowl
+Curry|curries|2|India,spicy,rice,sauce,yellow,naan,chicken,turmeric|A spicy dish with sauce~Very popular in India~Served with rice or naan~Turmeric gives the yellow colour~Thai versions are green or red
+Falafel|falafels|2|chickpeas,pita,fried,balls,Israel,tahini,street food,green|Fried balls made of chickpeas~Stuffed in a pita~Drizzled with tahini~Middle Eastern street food~Green inside from herbs
+Shawarma|shawarma|2|meat,spit,pita,rotating,lamb,Middle East,street food,garlic|Meat cooked on a rotating spit~Shaved into a pita or wrap~Middle Eastern street food~Served with garlic sauce~Similar to a gyro or doner
+Bagel|bagels|2|bread,hole,cream cheese,New York,round,salmon,boiled,breakfast|Round bread with a hole~Boiled before baking~Spread with cream cheese~A New York breakfast classic~Often served with smoked salmon
+Muffin|muffins|1|cake,blueberry,breakfast,small,baked,chocolate chip,cupcake,top|A small sweet bake~Blueberry is a classic flavour~Eaten for breakfast~Like a cupcake without frosting~The top is the best part
+Brownie|brownies|1|chocolate,square,baked,fudge,dessert,walnuts,gooey,tray|A chocolate dessert square~Baked in a tray~Gooey in the middle~Sometimes with walnuts~Served warm with ice cream
+Cheesecake|cheesecakes|2|cream cheese,dessert,New York,biscuit,base,strawberry,baked,slice|A creamy dessert cake~Biscuit base on the bottom~Made with cream cheese~New York style is famous~Topped with strawberries
+Apple pie|apple pies|2|apple,dessert,crust,American,cinnamon,oven,slice,grandma|A baked dessert with fruit inside~Pastry crust on top~Smells of cinnamon~As American as it gets~Grandma's classic recipe
+Macaron|macarons|3|French,colorful,almond,cookie,Paris,pastel,filling,meringue|Colourful French cookie~Two shells with a filling~Made from almond flour~Pastel pink, green and yellow~Sold in fancy Paris shops
+Popsicle|ice lolly,popsicles|1|ice,stick,summer,frozen,cold,lick,fruit,melt|A frozen treat on a stick~Melts fast in summer~You lick it~Fruit flavours~Comes from the freezer
+Milkshake|milkshakes|1|milk,ice cream,straw,shake,diner,chocolate,vanilla,thick|A thick cold drink~Made with milk and ice cream~Sipped through a straw~Chocolate, vanilla or strawberry~Served at a diner
+Lemonade|lemonade stand|1|lemon,sour,sugar,drink,summer,stand,kids,cold|A sour and sweet summer drink~Sold by kids at a stand~Made from lemons, sugar and water~Served with ice~When life gives you lemons
+Tea|tea|1|cup,hot,green,leaves,British,bag,kettle,milk|A hot drink made from leaves~The British love it at five~Comes in little bags~Green, black or herbal~Boiled in a kettle
+Hot chocolate|cocoa|1|chocolate,winter,milk,marshmallows,warm,mug,cocoa,whipped cream|A warm sweet drink for winter~Topped with marshmallows~Made with cocoa and milk~Served in a big mug~Kids love it after snow play
+Orange juice|OJ|1|orange,breakfast,squeeze,vitamin,glass,pulp,fresh,citrus|A breakfast drink~Squeezed from citrus fruit~With or without pulp~Full of vitamin C~Poured into a glass in the morning
+Wine|wines|2|grapes,red,white,glass,bottle,cork,France,vineyard|Made from fermented grapes~Red, white or rose~Comes in a bottle with a cork~Served in a stemmed glass~France and Italy are famous for it
+Beer|beers|2|bar,pub,foam,bottle,glass,alcohol,cold,cheers|A cold drink with foam on top~Ordered at a pub~Made from hops and barley~Oktoberfest celebrates it~Cheers with a pint
+Champagne|bubbly|2|bubbles,France,celebration,cork,pop,bottle,New Year,toast|Sparkling drink for celebrations~The cork pops loudly~Named after a French region~Used for a toast at weddings~Sprayed by Formula One winners
+Cappuccino|cappuccinos|2|coffee,foam,milk,Italy,cup,espresso,morning,cafe|An Italian coffee drink~Espresso with foamed milk~Topped with cocoa powder~Ordered in the morning at a cafe~Its name sounds like a monk's hood
+Cereal|cereals|1|breakfast,milk,bowl,cornflakes,spoon,box,kids,crunchy|A breakfast in a bowl~You pour milk on it~Comes in a cardboard box~Cornflakes are one kind~Gets soggy if you wait
+Toast|toast|1|bread,toaster,butter,breakfast,jam,brown,crispy,slice|Crispy browned bread~Pops out of a machine~Spread with butter and jam~A simple breakfast~Also a speech before drinking
+Scrambled eggs|eggs|2|eggs,breakfast,pan,fluffy,butter,whisk,yellow,fork|A breakfast made from eggs~Whisked and stirred in a pan~Soft and fluffy~Served with toast~Not fried and not boiled
+Bacon|bacon|2|pork,breakfast,crispy,eggs,strips,fried,smell,pan|Thin strips of salty meat~Sizzles in a frying pan~Goes with eggs at breakfast~Comes from a pig~Smells amazing in the morning
+Sausage|sausages|1|meat,grill,hot dog,barbecue,pork,German,bun,long|A tube of minced meat~Cooked on the barbecue~Served in a bun as a hot dog~Germans have hundreds of kinds~Bangers and mash
+Yogurt|yoghurt|1|milk,cup,Greek,healthy,spoon,fruit,breakfast,creamy|A creamy dairy food~Eaten with a spoon from a small cup~Greek style is thick~Mixed with fruit and granola~Good bacteria
+Butter|butter|1|bread,yellow,dairy,spread,melt,cow,toast,salted|Yellow dairy spread~Melts on warm toast~Made by churning cream~Salted or unsalted~Bakers use lots of it
+Jam|jelly,jam|1|fruit,jar,toast,sweet,strawberry,spread,sugar,sandwich|Sweet fruit spread in a jar~Spread on toast~Strawberry is the classic~Goes with peanut butter in a sandwich~Made by cooking fruit with sugar
+Ketchup|ketchup|1|tomato,red,sauce,fries,bottle,burger,squeeze,Heinz|A red sauce~Made from tomatoes~Squeezed onto fries~Comes in a glass or plastic bottle~Heinz is famous for it
+Mayonnaise|mayo|2|sauce,white,egg,sandwich,fries,jar,oil,creamy|A creamy white sauce~Made from eggs and oil~Spread in sandwiches~Belgians put it on fries~Often called by a short nickname
+Mustard|mustard|2|yellow,sauce,hot dog,spicy,seeds,French,jar,Dijon|A yellow sauce~Squeezed on hot dogs~Made from seeds~A bit spicy~Dijon is a French type
+Salt|salt|1|white,pepper,sea,shaker,salty,table,spice,ocean|White crystals on every table~Paired with pepper~Comes from the sea~Sprinkled from a shaker~Too much is bad for you
+Sugar|sugar|1|sweet,white,cubes,coffee,cake,cane,candy,spoon|Sweet white crystals~Added to coffee and tea~Comes in cubes~Made from cane or beets~Bakers need lots of it
+Candy|sweets|1|sweet,sugar,kids,wrapper,lollipop,shop,colorful,teeth|Small sweet treats~Comes in colourful wrappers~Kids beg for it~Bad for your teeth~Collected on Halloween
+Lollipop|lollipops|1|candy,stick,lick,sweet,round,colorful,kids,sugar|A hard candy on a stick~Kids lick it~Round and colourful~Given at the doctor~Can last a long time
+Marshmallow|marshmallows|2|white,soft,campfire,roast,sweet,fluffy,hot chocolate,s'mores|Soft fluffy white sweets~Roasted over a campfire~Part of s'mores~Floats in hot chocolate~Squishy and pink or white
+Cotton candy|candy floss|2|pink,fair,sugar,fluffy,stick,carnival,cloud,sweet|A pink fluffy sweet~Looks like a cloud~Sold at fairs and carnivals~Spun from sugar~Melts in your mouth
+Chewing gum|gum,bubble gum|1|chew,bubble,mint,sticky,mouth,blow,pack,breath|You chew it but never swallow~Blow a big bubble~Mint flavour freshens your breath~Sticks under tables~Comes in a small pack
+Nutella|chocolate spread|2|chocolate,hazelnut,jar,spread,bread,Italy,crepe,spoon|A chocolate spread in a jar~Made with hazelnuts~From Italy~Spread on bread and crepes~Some people eat it with a spoon
+Crepe|crepes|2|French,thin,pancake,Nutella,sweet,Paris,fold,batter|A very thin French pancake~Filled with Nutella or banana~Folded into a triangle~Sold at street stands in Paris~Made from a runny batter
+Quiche|quiches|3|French,egg,pastry,tart,bacon,cheese,oven,pie|A French savoury tart~Filled with eggs and cream~Lorraine is the classic~Baked in a pastry crust~Served in slices
+Fish and chips|fish & chips|2|British,fried,cod,vinegar,newspaper,seaside,batter,potato|A classic British meal~Fried fish in batter~Served with thick fries~Sprinkled with vinegar~Eaten at the seaside
+Mac and cheese|macaroni and cheese|1|pasta,cheese,kids,orange,baked,creamy,comfort,American|Pasta covered in cheese sauce~A kids' favourite~Bright orange from a box~Baked until golden~American comfort food
+Grilled cheese|toastie|2|cheese,bread,toast,melt,sandwich,butter,pan,tomato soup|A hot sandwich~Melted cheese between bread~Fried in butter~Goes with tomato soup~Crispy outside, gooey inside
+Barbecue|BBQ|1|grill,meat,summer,smoke,garden,sausages,charcoal,party|Cooking outside on a grill~Summer garden party~Smoke and charcoal~Sausages and burgers~Dad wears the apron
+Picnic basket|hamper|2|basket,park,blanket,sandwiches,wicker,outdoor,summer,food|A wicker basket~Filled with sandwiches and fruit~Carried to the park~Opened on a blanket~Yogi Bear steals them
+Popcorn chicken|chicken bites|3|chicken,small,fried,crispy,KFC,bite,snack,bucket|Tiny fried chicken bites~Named after a cinema snack~Crispy and salty~Sold in a cup or bucket~Eaten one after another
+Spring roll|spring rolls|2|Asian,fried,crispy,vegetables,roll,dip,sweet chili,wrapper|A crispy Asian starter~Vegetables in a thin wrapper~Deep fried~Dipped in sweet chilli sauce~Rolled into a small cylinder
+Fortune cookie|fortune cookies|2|Chinese,paper,message,crack,restaurant,luck,future,cookie|A crispy folded cookie~Has a paper message inside~Given at Chinese restaurants~Tells your future~You crack it open
+Gingerbread man|gingerbread|2|cookie,Christmas,ginger,run,man,icing,fairy tale,spice|A cookie shaped like a person~Baked at Christmas~Spiced with ginger~Run, run as fast as you can~Decorated with icing buttons
+Peanut|peanuts|1|nut,shell,butter,allergy,elephant,salted,snack,monkey|A small nut in a shell~Elephants are said to love them~Salted at baseball games~Makes a famous butter~Some people are allergic
+Almond|almonds|2|nut,milk,brown,healthy,snack,tree,marzipan,crunchy|An oval brown nut~Turned into a dairy-free milk~Grows on trees~Used to make marzipan~A healthy crunchy snack
+Olive|olives|2|green,black,oil,pit,Greece,pizza,tree,salty|Small green or black fruit~Pressed for oil~Has a pit inside~Grows on old trees in Greece~Put on pizza and in martinis
+Pickle|pickles|2|cucumber,jar,sour,vinegar,green,burger,crunchy,brine|A sour green snack~Kept in a jar with vinegar~Made from cucumbers~Sliced in burgers~Crunchy and salty
+Chili pepper|chilli,chili|2|spicy,hot,red,Mexico,sauce,burn,jalapeno,small|A small red vegetable~Burns your mouth~Mexican food uses lots~Jalapeno is one kind~Drink milk after eating it
+Ginger|ginger root|3|root,spicy,tea,Asian,sushi,cold,biscuit,zesty|A knobbly root with a strong taste~Pickled pink next to sushi~Made into tea when you are sick~Used in a famous Christmas cookie~Also a hair colour
+Vanilla|vanilla|2|flavour,ice cream,beans,white,sweet,extract,pod,plain|A popular ice cream flavour~Comes from a pod~Used in cakes as an extract~Sometimes means plain or boring~Grown in Madagascar
+Mint|peppermint|2|green,fresh,leaf,tea,gum,toothpaste,chocolate,breath|A fresh green herb~Flavours toothpaste and gum~Brewed into tea~Paired with chocolate~Freshens your breath
+Pumpkin|pumpkins|1|orange,Halloween,pie,carve,seeds,autumn,big,soup|A big orange vegetable~Carved at Halloween~Baked into a pie at Thanksgiving~Full of seeds~Cinderella's carriage
+Eggplant|aubergine|2|purple,vegetable,shiny,moussaka,grill,Mediterranean,emoji,baba ganoush|A shiny purple vegetable~Grilled or fried~Used in moussaka~Called aubergine in Britain~Turned into a smoky dip
+Lettuce|lettuce|1|green,salad,leaves,burger,rabbit,crunchy,head,iceberg|Green leaves for salad~Iceberg is one kind~A layer in burgers~Rabbits love it~Comes in a head
+Spinach|spinach|2|green,leaves,Popeye,strong,iron,healthy,salad,smoothie|Dark green leaves~Popeye eats it for strength~Full of iron~Wilts when cooked~Hidden in green smoothies
+Cauliflower|cauliflower|3|white,vegetable,broccoli,head,florets,rice,cheese,healthy|A white vegetable head~Looks like a pale broccoli~Cut into florets~Turned into a low-carb rice~Baked with cheese sauce
+Pea|peas|1|green,pod,small,round,frozen,vegetable,soup,princess|Tiny green balls~Come in a pod~A princess felt one under mattresses~Bought frozen in bags~Kids push them around the plate
+Bean|beans|1|baked,can,coffee,green,jelly,beanstalk,tomato,protein|Baked in tomato sauce from a can~Jack climbed a magic stalk~Green, black or kidney~Coffee comes from one~Full of protein
+Chips|crisps|1|potato,bag,salty,crunchy,snack,party,dip,flavour|A crunchy salty snack~Sold in a bag~Made from thin potato slices~Salt and vinegar flavour~Called crisps in Britain
+Cracker|crackers|2|biscuit,dry,salty,cheese,crunchy,soup,square,snack|A dry crispy biscuit~Eaten with cheese~Crumbled into soup~Square and salty~Also something you pull at Christmas
+Granola|muesli|3|oats,breakfast,yogurt,healthy,nuts,honey,crunchy,bar|A crunchy breakfast mix~Oats baked with honey and nuts~Sprinkled on yogurt~Also comes as a bar~A healthy snack for hikers
+Oatmeal|porridge|2|oats,breakfast,hot,bowl,milk,healthy,Goldilocks,warm|A warm breakfast in a bowl~Made from oats and milk~Goldilocks tasted three of them~Not too hot, not too cold~Topped with fruit and honey
+Pudding|puddings|2|dessert,creamy,spoon,chocolate,vanilla,cup,sweet,wobbly|A creamy dessert~Eaten with a spoon~Chocolate or vanilla flavour~Comes in little cups~The British use the word for any dessert
+Jelly|jello|1|wobbly,dessert,gelatin,colorful,kids,party,mould,wobble|A wobbly dessert~Comes in bright colours~Made with gelatin~Served at kids' parties~Set in a mould
+Sundae|sundaes|2|ice cream,cherry,chocolate sauce,whipped cream,glass,sprinkles,dessert,nuts|Ice cream in a tall glass~Topped with chocolate sauce~Whipped cream and a cherry on top~Sprinkles and nuts~Named after a day of the week
+Smoothie bowl|acai bowl|3|bowl,fruit,healthy,granola,thick,toppings,Instagram,berries|A thick fruit blend in a bowl~Topped with granola and berries~Very popular on Instagram~Eaten with a spoon~Acai is a famous kind
+Baguette|baguettes|2|bread,French,long,Paris,stick,crusty,bakery,cheese|A long thin bread~A symbol of France~Crusty outside, soft inside~Carried under the arm~Bought fresh every morning in Paris
