@@ -3,6 +3,9 @@
 --   * runs as ONE transaction, so no table ever exists without RLS
 --   * does not install the trigger on auth.users (the other product's sign-up is untouched)
 --   * storage migration (000300) is not included
+-- NOTE: on the MOKESH project this was applied through the Supabase MCP in four steps and
+--   WITHOUT delete_my_data() (the account-deletion function), which is deferred to the
+--   dedicated project. Everything else below is what is installed there.
 -- Paste into Supabase > SQL Editor and Run. To undo: run teardown.sql.
 begin;
 

@@ -4,7 +4,8 @@
 set -euo pipefail
 cd "$(dirname "$0")/.."
 OUT="$(mktemp -d)"
-CI=1 npx expo export --platform web --output-dir "$OUT/web" >/dev/null
+# Force on-device mode even when a local .env points at a Supabase project.
+EXPO_PUBLIC_SUPABASE_URL= EXPO_PUBLIC_SUPABASE_ANON_KEY= CI=1 npx expo export --platform web --output-dir "$OUT/web" >/dev/null
 node e2e/serve.js "$OUT/web" & SERVER=$!
 trap 'kill $SERVER 2>/dev/null || true' EXIT
 sleep 1

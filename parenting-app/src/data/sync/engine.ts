@@ -300,7 +300,7 @@ function patchOf(payload: Record<string, unknown>): Record<string, unknown> {
 
 function isNetworkError(err: unknown): boolean {
   const message = err instanceof Error ? err.message.toLowerCase() : '';
-  return message.includes('network') || message.includes('fetch') || message.includes('timeout') || message.includes('offline');
+  return message.includes('network') || message.includes('fetch') || message.includes('timeout') || message.includes('offline') || message.includes('abort');
 }
 
 export type SyncEngine = ReturnType<typeof createSyncEngine>;

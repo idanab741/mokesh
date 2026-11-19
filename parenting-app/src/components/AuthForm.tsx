@@ -7,6 +7,7 @@ import { Button, EmptyState, IconButton, Notice, Screen } from '@/components/ui/
 import { Text } from '@/components/ui/Text';
 import { colors, spacing } from '@/design/tokens';
 import { signIn, signUp } from '@/state/auth';
+import { useServices } from '@/state/services';
 
 const EMAIL = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
 
@@ -18,6 +19,7 @@ export function AuthForm({ mode }: { mode: 'sign-in' | 'sign-up' }) {
   const [busy, setBusy] = useState(false);
   const [sent, setSent] = useState(false);
   const isSignUp = mode === 'sign-up';
+  const { syncNow } = useServices();
 
   const submit = async () => {
     if (!EMAIL.test(email.trim())) return setError('כתובת האימייל אינה תקינה.');
@@ -25,9 +27,18 @@ export function AuthForm({ mode }: { mode: 'sign-in' | 'sign-up' }) {
     setError(null);
     setBusy(true);
     const result = isSignUp ? await signUp(email, password, name) : await signIn(email, password);
+    if (!result.ok) {
+      setBusy(false);
+      return setError(result.message);
+    }
+    if (result.needsEmailConfirmation) {
+      setBusy(false);
+      return setSent(true);
+    }
+    // On a new device the family's data lives on the server: fetch it before deciding where to go,
+    // otherwise an existing family would be sent through onboarding again.
+    await syncNow();
     setBusy(false);
-    if (!result.ok) return setError(result.message);
-    if (result.needsEmailConfirmation) return setSent(true);
     router.replace('/');
   };
 

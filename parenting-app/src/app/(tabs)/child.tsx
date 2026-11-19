@@ -131,8 +131,8 @@ export default function ChildScreen() {
             <View style={{ flex: 1 }}>
               <Text variant="bodyStrong">{user.email ?? 'מחובר/ת'}</Text>
               <Text variant="caption" color={colors.textSecondary}>
-                {sync.status === 'syncing' ? 'מסנכרן…'
-                  : pending > 0 ? `${pending} רשומות ממתינות לסנכרון`
+                {sync.status === 'syncing' ? (pending > 0 ? `מסנכרן… ${pending} רשומות ממתינות` : 'מסנכרן…')
+                  : pending > 0 ? (pending === 1 ? 'רשומה אחת ממתינה לסנכרון' : `${pending} רשומות ממתינות לסנכרון`)
                   : sync.lastSyncedAt ? `סונכרן ${formatRelative(new Date(sync.lastSyncedAt))}` : 'עוד לא בוצע סנכרון'}
               </Text>
             </View>

@@ -11,6 +11,7 @@ import { type EventsRepository, createEventsRepository } from '@/data/repositori
 import { type KvStore, createKvStore } from '@/data/repositories/kv';
 import { type SyncEngine, createSyncEngine } from '@/data/sync/engine';
 import { createSupabaseGateway } from '@/data/sync/supabaseGateway';
+import type { SyncResult } from '@/data/sync/types';
 import { colors, spacing } from '@/design/tokens';
 import { getSupabase } from '@/services/supabase';
 import { useSession } from './session';
@@ -58,10 +59,18 @@ export function ServicesProvider({ children }: { children: ReactNode }) {
       const syncEngine = supabase ? createSyncEngine({ db, kv, remote: createSupabaseGateway(supabase) }) : null;
 
       const syncNow = async () => {
-        const { user, setSync } = useSession.getState();
-        if (!syncEngine || !user) return;
+        const { setSync } = useSession.getState();
+        if (!syncEngine) return;
+        // Ask Supabase directly: right after sign-in the store may not have the user yet.
+        const { data } = await getSupabase()!.auth.getSession();
+        if (!data.session) return;
         setSync({ status: 'syncing' });
-        const result = await syncEngine.sync();
+        // Hard ceiling: whatever the network does, the UI must never be left on "syncing".
+        const result = await Promise.race([
+          syncEngine.sync(),
+          new Promise<SyncResult>((resolve) =>
+            setTimeout(() => resolve({ pushed: 0, pulled: 0, conflicts: 0, failed: 1, lastError: 'sync timeout' }), 45_000)),
+        ]);
         setSync({
           status: result.failed > 0 ? 'error' : 'idle',
           lastError: result.lastError,

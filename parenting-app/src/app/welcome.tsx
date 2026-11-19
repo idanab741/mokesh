@@ -1,9 +1,10 @@
-import { router } from 'expo-router';
+import { Redirect, router } from 'expo-router';
 import { CalendarHeart, ChartColumn, ShieldCheck } from 'lucide-react-native';
 import { StyleSheet, View } from 'react-native';
 import { Button, Notice, Screen } from '@/components/ui/primitives';
 import { Text } from '@/components/ui/Text';
 import { colors, radius, spacing } from '@/design/tokens';
+import { useChildren } from '@/hooks/data';
 import { config } from '@/services/config';
 import { useSession } from '@/state/session';
 
@@ -15,6 +16,9 @@ const POINTS = [
 
 export default function WelcomeScreen() {
   const user = useSession((s) => s.user);
+  const children = useChildren();
+  // A sync that finishes while this screen is open may bring the family's children with it.
+  if (children.data && children.data.length > 0) return <Redirect href="/(tabs)" />;
   return (
     <Screen scroll edges={['top', 'bottom']} contentStyle={styles.content}>
       <View style={styles.hero}>
