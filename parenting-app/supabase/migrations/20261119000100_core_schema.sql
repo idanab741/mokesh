@@ -53,6 +53,10 @@ begin
   values (new.id, nullif(left(coalesce(new.raw_user_meta_data ->> 'display_name', ''), 80), ''))
   on conflict (id) do nothing;
   return new;
+exception when others then
+  -- A profile row is a convenience; it must never be able to block a sign-up.
+  -- create_family() and accept_invitation() create the row on demand anyway.
+  return new;
 end $$;
 create trigger on_auth_user_created after insert on auth.users
   for each row execute function public.handle_new_auth_user();

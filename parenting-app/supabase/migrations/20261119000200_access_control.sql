@@ -252,8 +252,20 @@ alter table public.audit_logs enable row level security;
 alter table public.consents enable row level security;
 
 -- Nothing for anonymous visitors. Signed-in users get table privileges; RLS narrows rows.
-revoke all on all tables in schema public from anon;
-grant select, insert, update, delete on all tables in schema public to authenticated;
+-- The tables are listed explicitly: this project may share a database with another
+-- product, and a blanket "all tables in schema public" would change that product's access.
+do $$
+declare
+  t text;
+begin
+  foreach t in array array['users', 'families', 'family_members', 'children', 'activity_events', 'measurements',
+                           'milestones', 'health_records', 'medications', 'medication_administrations',
+                           'appointments', 'reminders', 'media_assets', 'invitations',
+                           'notification_preferences', 'audit_logs', 'consents'] loop
+    execute format('revoke all on public.%I from anon, public', t);
+    execute format('grant select, insert, update, delete on public.%I to authenticated', t);
+  end loop;
+end $$;
 revoke insert, update, delete on public.audit_logs from authenticated;
 revoke insert, update, delete on public.invitations from authenticated;   -- RPC only
 revoke insert on public.family_members from authenticated;                -- RPC only
