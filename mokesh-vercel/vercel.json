@@ -9,11 +9,35 @@
           "value": "nosniff"
         }
       ]
+    },
+    {
+      "source": "/parents/(.*)",
+      "headers": [
+        {
+          "key": "X-Robots-Tag",
+          "value": "noindex, nofollow"
+        }
+      ]
+    },
+    {
+      "source": "/parents",
+      "headers": [
+        {
+          "key": "X-Robots-Tag",
+          "value": "noindex, nofollow"
+        }
+      ]
     }
   ],
   "git": {
     "deploymentEnabled": {
       "claude/**": false
     }
-  }
+  },
+  "rewrites": [
+    {
+      "source": "/parents/:path*",
+      "destination": "/parents/index.html"
+    }
+  ]
 }
