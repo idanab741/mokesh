@@ -1,11 +1,11 @@
 {
   "expo": {
-    "name": "נומי",
-    "slug": "parenting-app",
+    "name": "Lilbaby",
+    "slug": "lilbaby",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
-    "scheme": "parentingapp",
+    "scheme": "lilbaby",
     "userInterfaceStyle": "light",
     "ios": {
       "icon": "./assets/expo.icon"
