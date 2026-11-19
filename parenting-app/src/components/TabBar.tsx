@@ -35,7 +35,7 @@ export function TabBar({ state, emitter, navigateToTab }: BottomTabBarProps) {
         </View>
         <Text variant="caption" maxFontSizeMultiplier={1.2} numberOfLines={1}
           color={focused ? colors.primaryStrong : colors.textSecondary}
-          style={focused ? { fontFamily: 'Heebo_600SemiBold' } : null}>
+          style={focused ? { fontWeight: '600' } : null}>
           {tab.label}
         </Text>
       </Pressable>

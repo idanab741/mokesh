@@ -1,12 +1,16 @@
 import { router } from 'expo-router';
-import { Bell, ChevronDown, Moon, Plus, Sparkles, Sun, Sunrise, Sunset } from 'lucide-react-native';
+import { Bell, ChevronDown, Moon, Plus } from 'lucide-react-native';
+import { useState } from 'react';
 import { Pressable, StyleSheet, View } from 'react-native';
 import { openActivityForm } from '@/components/AddActivitySheet';
 import { EventRow } from '@/components/activity/EventRow';
 import { Avatar } from '@/components/Avatar';
-import { BottleIcon, DiaperIcon } from '@/components/ui/Icons';
+import { MobileIllustration, SkyScene, dayPartForHour, skyThemes } from '@/components/brand/Illustrations';
+import { Logo } from '@/components/brand/Logo';
+import { DayStrip } from '@/components/home/DayStrip';
+import { BottleIcon, DiaperIcon, activityIcons } from '@/components/ui/Icons';
 import { useToast } from '@/components/ui/overlays';
-import { ActivityBadge, Button, Card, EmptyState, IconButton, Screen, SectionHeader } from '@/components/ui/primitives';
+import { ActivityBadge, Button, Card, Screen, SectionHeader } from '@/components/ui/primitives';
 import { Text } from '@/components/ui/Text';
 import { activityTones, colors, radius, spacing } from '@/design/tokens';
 import type { ActivityType, FilterKey } from '@/domain/activity';
@@ -18,30 +22,28 @@ import { formatClock, formatDateLong, formatDuration, formatRelative, formatTime
 import { useSession } from '@/state/session';
 import { useUi } from '@/state/ui';
 
-function greetingIcon(hour: number) {
-  if (hour >= 5 && hour < 12) return Sunrise;
-  if (hour >= 12 && hour < 17) return Sun;
-  if (hour >= 17 && hour < 21) return Sunset;
-  return Moon;
-}
-
 function TrackerCard({ type, title, metric, detail, onPress, onAdd, addLabel }: {
   type: ActivityType; title: string; metric: string; detail: string; onPress: () => void; onAdd: () => void; addLabel: string;
 }) {
   const tone = activityTones[type];
+  const Icon = activityIcons[type];
   return (
-    <Card onPress={onPress} style={styles.tracker} accessibilityLabel={`${title}: ${metric}. ${detail}`}>
+    <Pressable onPress={onPress} accessibilityRole="button" accessibilityLabel={`${title}: ${metric}. ${detail}`}
+      style={({ pressed }) => [styles.tracker, { backgroundColor: tone.bg }, pressed && { opacity: 0.85 }]}>
+      {/* Large watermark of the activity icon gives each card its own shape, not just its own colour. */}
+      <View style={styles.watermark} pointerEvents="none">
+        <Icon size={92} color={tone.solid} strokeWidth={1.4} />
+      </View>
       <View style={styles.trackerTop}>
-        <ActivityBadge type={type} size={40} />
+        <Text variant="label" color={tone.ink} style={{ fontWeight: '600' }} numberOfLines={1}>{title}</Text>
         <Pressable onPress={onAdd} accessibilityRole="button" accessibilityLabel={addLabel} hitSlop={10}
-          style={({ pressed }) => [styles.trackerAdd, { backgroundColor: tone.bg }, pressed && { opacity: 0.6 }]}>
-          <Plus size={18} color={tone.ink} strokeWidth={2.4} />
+          style={({ pressed }) => [styles.trackerAdd, pressed && { opacity: 0.6 }]}>
+          <Plus size={18} color={tone.ink} strokeWidth={2.6} />
         </Pressable>
       </View>
-      <Text variant="label" color={colors.textSecondary} numberOfLines={1}>{title}</Text>
-      <Text variant="metric" numberOfLines={1} adjustsFontSizeToFit>{metric}</Text>
-      <Text variant="caption" color={colors.textSecondary} numberOfLines={2}>{detail}</Text>
-    </Card>
+      <Text variant="metric" numberOfLines={1} adjustsFontSizeToFit style={metric.length > 8 ? { fontSize: 21, letterSpacing: -0.3 } : null}>{metric}</Text>
+      <Text variant="caption" color={tone.ink} numberOfLines={2}>{detail}</Text>
+    </Pressable>
   );
 }
 
@@ -50,7 +52,7 @@ function QuickAction({ label, onPress, children, tone }: { label: string; onPres
     <Pressable onPress={onPress} accessibilityRole="button" accessibilityLabel={label}
       style={({ pressed }) => [styles.quick, { backgroundColor: tone.bg }, pressed && { opacity: 0.7 }]}>
       {children}
-      <Text variant="label" color={tone.ink} style={{ fontFamily: 'Heebo_600SemiBold', flexShrink: 1 }} numberOfLines={1}>{label}</Text>
+      <Text variant="label" color={tone.ink} style={{ fontWeight: '600', flexShrink: 1 }} numberOfLines={1}>{label}</Text>
     </Pressable>
   );
 }
@@ -67,13 +69,15 @@ export default function HomeScreen() {
   const lastBottle = useLastBottle(child?.id);
   const unsynced = useUnsynced();
   const { create, remove, endSleep } = useEventMutations();
+  const [heroWidth, setHeroWidth] = useState(0);
 
   const summary = summarizeDay(today.data ?? [], now, now);
   const activeSleep = summary.sleep.active;
   const tick = useNow(1000, !!activeSleep);
   if (!child) return <Screen><View /></Screen>;
 
-  const GreetingIcon = greetingIcon(now.getHours());
+  const part = dayPartForHour(now.getHours());
+  const sky = skyThemes[part];
   const hasConflicts = (unsynced.data?.conflicts ?? 0) > 0;
   const goJournal = (filter: FilterKey) => router.push({ pathname: '/(tabs)/journal', params: { filter } });
 
@@ -117,33 +121,36 @@ export default function HomeScreen() {
 
   return (
     <Screen scroll>
-      {/* Header */}
-      <View style={styles.header}>
-        <View style={{ flex: 1, gap: 2 }}>
-          <View style={styles.greeting}>
-            <GreetingIcon size={20} color={colors.primary} strokeWidth={1.9} />
-            <Text variant="title" accessibilityRole="header">{greetingForHour(now.getHours())}</Text>
-          </View>
-          <Text variant="label" color={colors.textSecondary}>{formatDateLong(now)}</Text>
-        </View>
-        <IconButton icon={Bell} label={hasConflicts ? 'עדכונים, יש פריטים שדורשים תשומת לב' : 'עדכונים'} tone="surface"
-          badge={hasConflicts} onPress={() => router.push('/updates')} />
-      </View>
+      <View style={{ paddingTop: spacing.sm }}><Logo size={26} /></View>
 
-      {/* Child */}
-      <Pressable onPress={openChildSheet} accessibilityRole="button"
-        accessibilityLabel={`${child.name}, ${formatAgeWithSex(child.birthDate, child.sex, now) ?? ''}`}
-        accessibilityHint={children.length > 1 ? 'מעבר בין ילדים' : 'ניהול ילדים'}
-        style={({ pressed }) => [styles.child, pressed && { opacity: 0.8 }]}>
-        <Avatar name={child.name} uri={child.photoUri} size={56} />
-        <View style={{ flex: 1 }}>
-          <Text variant="heading">{child.name}</Text>
-          <Text variant="label" color={colors.textSecondary}>{formatAgeWithSex(child.birthDate, child.sex, now) ?? ''}</Text>
+      {/* Hero: sky that follows the real time of day, greeting, and the child */}
+      <View style={styles.hero} onLayout={(e) => setHeroWidth(Math.round(e.nativeEvent.layout.width))}>
+        <View style={StyleSheet.absoluteFill}>
+          {heroWidth > 0 ? <SkyScene part={part} width={heroWidth} height={212} /> : null}
         </View>
-        <View style={styles.switch}>
-          <ChevronDown size={18} color={colors.primaryStrong} strokeWidth={2.2} />
+        <View style={styles.heroTop}>
+          <View style={{ flex: 1 }}>
+            <Text variant="display" color={sky.ink} accessibilityRole="header">{greetingForHour(now.getHours())}</Text>
+            <Text variant="label" color={sky.sub}>{formatDateLong(now)}</Text>
+          </View>
+          <Pressable onPress={() => router.push('/updates')} accessibilityRole="button"
+            accessibilityLabel={hasConflicts ? 'עדכונים, יש פריטים שדורשים תשומת לב' : 'עדכונים'} style={styles.bell} hitSlop={6}>
+            <Bell size={20} color={colors.textPrimary} strokeWidth={2} />
+            {hasConflicts ? <View style={styles.bellDot} /> : null}
+          </Pressable>
         </View>
-      </Pressable>
+        <Pressable onPress={openChildSheet} accessibilityRole="button"
+          accessibilityLabel={`${child.name}, ${formatAgeWithSex(child.birthDate, child.sex, now) ?? ''}`}
+          accessibilityHint={children.length > 1 ? 'מעבר בין ילדים' : 'ניהול ילדים'}
+          style={({ pressed }) => [styles.child, pressed && { opacity: 0.9 }]}>
+          <Avatar name={child.name} uri={child.photoUri} size={48} />
+          <View style={{ flex: 1 }}>
+            <Text variant="heading">{child.name}</Text>
+            <Text variant="caption" color={colors.textSecondary}>{formatAgeWithSex(child.birthDate, child.sex, now) ?? ''}</Text>
+          </View>
+          <ChevronDown size={20} color={colors.textSecondary} strokeWidth={2.2} />
+        </Pressable>
+      </View>
 
       {/* Running sleep */}
       {activeSleep ? (
@@ -158,6 +165,12 @@ export default function HomeScreen() {
           <Button label="סיום שינה" size="md" onPress={stopSleep} loading={endSleep.isPending} style={{ backgroundColor: activityTones.sleep.ink }} />
         </View>
       ) : null}
+
+      {/* Today at a glance */}
+      <Card style={{ gap: spacing.sm }}>
+        <Text variant="heading" accessibilityRole="header">היום במבט</Text>
+        <DayStrip events={today.data ?? []} now={now} />
+      </Card>
 
       {/* Trackers */}
       <View style={styles.grid}>
@@ -201,10 +214,11 @@ export default function HomeScreen() {
           </Pressable>
         ) : undefined} />
       {isBrandNew ? (
-        <Card>
-          <EmptyState icon={Sparkles} title={`מתחילים לתעד את ${child.name}`}
-            body="בקבוק, חיתול או שינה – כל תיעוד יופיע כאן ויצטרף לסיכום היומי."
-            actionLabel="תיעוד ראשון" onAction={openAddSheet} />
+        <Card style={styles.firstRun}>
+          <MobileIllustration size={190} />
+          <Text variant="heading" center>{`מתחילים לתעד את ${child.name}`}</Text>
+          <Text color={colors.textSecondary} center>בקבוק, חיתול או שינה – כל תיעוד יופיע כאן ויצטרף לסיכום היומי.</Text>
+          <Button label="תיעוד ראשון" size="md" onPress={openAddSheet} style={{ alignSelf: 'center', paddingHorizontal: spacing.xxl, marginTop: spacing.xs }} />
         </Card>
       ) : (
         <Card style={{ paddingBottom: 0 }}>
@@ -219,18 +233,18 @@ export default function HomeScreen() {
 }
 
 const styles = StyleSheet.create({
-  header: { flexDirection: 'row', alignItems: 'center', gap: spacing.md, paddingTop: spacing.md },
-  greeting: { flexDirection: 'row', alignItems: 'center', gap: spacing.sm },
-  child: {
-    flexDirection: 'row', alignItems: 'center', gap: spacing.md, backgroundColor: colors.surface, borderRadius: radius.xl,
-    padding: spacing.md, borderWidth: 1, borderColor: colors.border,
-  },
-  switch: { width: 36, height: 36, borderRadius: 18, backgroundColor: colors.primaryLight, alignItems: 'center', justifyContent: 'center' },
+  hero: { borderRadius: radius.xl, overflow: 'hidden', padding: spacing.lg, gap: spacing.xl, minHeight: 212, justifyContent: 'space-between' },
+  heroTop: { flexDirection: 'row', alignItems: 'flex-start', gap: spacing.md },
+  bell: { width: 42, height: 42, borderRadius: 21, backgroundColor: 'rgba(255,255,255,0.85)', alignItems: 'center', justifyContent: 'center' },
+  bellDot: { position: 'absolute', top: 9, end: 10, width: 9, height: 9, borderRadius: 5, backgroundColor: colors.danger, borderWidth: 1.5, borderColor: colors.white },
+  child: { flexDirection: 'row', alignItems: 'center', gap: spacing.md, backgroundColor: 'rgba(255,255,255,0.94)', borderRadius: radius.lg, padding: spacing.md },
   sleepBanner: { flexDirection: 'row', alignItems: 'center', gap: spacing.md, backgroundColor: activityTones.sleep.bg, borderRadius: radius.xl, padding: spacing.lg },
   grid: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing.md },
-  tracker: { flexBasis: '47%', flexGrow: 1, gap: 2, minHeight: 160 },
-  trackerTop: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: spacing.xs },
-  trackerAdd: { width: 34, height: 34, borderRadius: 17, alignItems: 'center', justifyContent: 'center' },
+  tracker: { flexBasis: '47%', flexGrow: 1, gap: 2, minHeight: 150, borderRadius: radius.lg, padding: spacing.lg, overflow: 'hidden' },
+  watermark: { position: 'absolute', bottom: -18, end: -14, opacity: 0.16 },
+  trackerTop: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: spacing.md },
+  trackerAdd: { width: 34, height: 34, borderRadius: 17, alignItems: 'center', justifyContent: 'center', backgroundColor: 'rgba(255,255,255,0.9)' },
   quickRow: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing.sm },
   quick: { flexDirection: 'row', alignItems: 'center', gap: spacing.sm, minHeight: 48, paddingHorizontal: spacing.lg, borderRadius: radius.pill, flexGrow: 1, justifyContent: 'center' },
+  firstRun: { alignItems: 'center', gap: spacing.sm, paddingVertical: spacing.xl },
 });

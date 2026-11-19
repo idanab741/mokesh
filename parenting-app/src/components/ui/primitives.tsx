@@ -151,7 +151,7 @@ export function Chip({ label, selected, onPress, icon: Icon, tone }: {
       accessibilityLabel={label}
       style={({ pressed }) => [styles.chip, { backgroundColor: bg, borderColor: selected ? fg : colors.borderStrong }, pressed && styles.pressed]}>
       {Icon ? <Icon size={16} color={fg} strokeWidth={2} /> : null}
-      <Text variant="label" color={fg} style={selected ? { fontFamily: 'Heebo_600SemiBold' } : null}>{label}</Text>
+      <Text variant="label" color={fg} style={selected ? { fontWeight: '600' } : null}>{label}</Text>
     </Pressable>
   );
 }
@@ -186,7 +186,7 @@ export function Segmented<T extends string>({ options, value, onChange }: {
           <Pressable key={o.value} onPress={() => onChange(o.value)} accessibilityRole="tab" accessibilityState={{ selected }}
             style={[styles.segment, selected && styles.segmentSelected]}>
             <Text variant="label" color={selected ? colors.primaryStrong : colors.textSecondary}
-              style={selected ? { fontFamily: 'Heebo_600SemiBold' } : null}>{o.label}</Text>
+              style={selected ? { fontWeight: '600' } : null}>{o.label}</Text>
           </Pressable>
         );
       })}

@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { type LayoutChangeEvent, View } from 'react-native';
 import Svg, { G, Line, Path, Rect, Text as SvgText } from 'react-native-svg';
 import { Text } from '@/components/ui/Text';
-import { colors, fonts, spacing } from '@/design/tokens';
+import { colors, svgFontFamily, spacing } from '@/design/tokens';
 
 export interface BarDatum {
   key: string;
@@ -96,7 +96,7 @@ export function BarChart({ data, series, formatValue, formatTick, height = 168, 
             {ticks.map((t) => (
               <G key={t}>
                 <Line x1={PAD.axis} x2={width} y1={y(t)} y2={y(t)} stroke={colors.border} strokeWidth={1} />
-                <SvgText x={PAD.axis - 6} y={y(t) + 4} fontSize={11} fontFamily={fonts.regular} fill={colors.textSecondary} textAnchor="end">
+                <SvgText x={PAD.axis - 6} y={y(t) + 4} fontSize={11} fontFamily={svgFontFamily} fill={colors.textSecondary} textAnchor="end">
                   {tick(t)}
                 </SvgText>
               </G>
@@ -122,7 +122,7 @@ export function BarChart({ data, series, formatValue, formatTick, height = 168, 
                       : <Rect key={si} x={x} y={top} width={barW} height={h} fill={series[si]?.color ?? colors.primary} />;
                   })}
                   {d.axisLabel ? (
-                    <SvgText x={cx} y={height - 6} fontSize={11} fontFamily={selected === d.key ? fonts.semibold : fonts.regular}
+                    <SvgText x={cx} y={height - 6} fontSize={11} fontFamily={svgFontFamily} fontWeight={selected === d.key ? '600' : '400'}
                       fill={selected === d.key ? colors.textPrimary : colors.textSecondary} textAnchor="middle">
                       {d.axisLabel}
                     </SvgText>

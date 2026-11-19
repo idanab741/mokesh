@@ -181,14 +181,14 @@ const styles = StyleSheet.create({
   group: { gap: spacing.sm },
   input: {
     minHeight: 52, borderRadius: radius.md, borderWidth: 1, borderColor: colors.borderStrong, backgroundColor: colors.surface,
-    paddingHorizontal: spacing.lg, fontFamily: fonts.regular, fontSize: 16, color: colors.textPrimary, textAlign: 'right',
+    paddingHorizontal: spacing.lg, ...fonts.regular, fontSize: 16, color: colors.textPrimary, textAlign: 'right',
   },
   multiline: { minHeight: 88, paddingTop: spacing.md, textAlignVertical: 'top' },
   focused: { borderColor: colors.primary },
   errored: { borderColor: colors.danger },
   stepper: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: spacing.lg },
   stepperValue: { alignItems: 'center' },
-  stepperInput: { fontFamily: fonts.bold, fontSize: 28, color: colors.textPrimary, textAlign: 'center', width: 96, paddingVertical: 2 },
+  stepperInput: { ...fonts.bold, fontSize: 28, color: colors.textPrimary, textAlign: 'center', width: 96, paddingVertical: 2 },
   stepperInputLarge: { fontSize: 44, width: 132 },
   dateTimeRow: { flexDirection: 'row', gap: spacing.sm, alignItems: 'center' },
   dayStepper: {
@@ -199,7 +199,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row', direction: 'ltr', alignItems: 'center', gap: 2, minHeight: 52, borderRadius: radius.md, borderWidth: 1,
     borderColor: colors.borderStrong, backgroundColor: colors.surface, paddingHorizontal: spacing.sm,
   },
-  timeInput: { width: 40, fontFamily: fonts.semibold, fontSize: 18, color: colors.textPrimary, textAlign: 'center', paddingVertical: 8 },
+  timeInput: { width: 40, ...fonts.semibold, fontSize: 18, color: colors.textPrimary, textAlign: 'center', paddingVertical: 8 },
   dateRow: { flexDirection: 'row', gap: spacing.sm },
   datePart: { flex: 1, textAlign: 'center', paddingHorizontal: spacing.sm },
 });

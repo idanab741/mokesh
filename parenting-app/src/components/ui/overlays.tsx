@@ -111,7 +111,7 @@ export function ToastHost() {
         <Text variant="label" color={colors.white} style={{ flexShrink: 1 }}>{toast.message}</Text>
         {toast.actionLabel ? (
           <Pressable onPress={() => { toast.onAction?.(); hide(); }} accessibilityRole="button" hitSlop={12} style={styles.toastAction}>
-            <Text variant="label" color={colors.white} style={{ fontFamily: 'Heebo_700Bold', textDecorationLine: 'underline' }}>{toast.actionLabel}</Text>
+            <Text variant="label" color={colors.white} style={{ fontWeight: '700', textDecorationLine: 'underline' }}>{toast.actionLabel}</Text>
           </Pressable>
         ) : null}
       </View>
