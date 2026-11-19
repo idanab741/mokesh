@@ -1,0 +1,52 @@
+import { Heebo_400Regular, Heebo_500Medium, Heebo_600SemiBold, Heebo_700Bold, useFonts } from '@expo-google-fonts/heebo';
+import { Stack } from 'expo-router';
+import * as SplashScreen from 'expo-splash-screen';
+import { StatusBar } from 'expo-status-bar';
+import { useEffect } from 'react';
+import { I18nManager, Platform } from 'react-native';
+import { ToastHost } from '@/components/ui/overlays';
+import { colors } from '@/design/tokens';
+import { initAuth } from '@/state/auth';
+import { ServicesProvider, useServices } from '@/state/services';
+
+void SplashScreen.preventAutoHideAsync().catch(() => {});
+
+// Hebrew-first: the whole layout is right-to-left. On native this is also set at build
+// time by the expo-localization config plugin (forcesRTL), so the very first launch is RTL.
+if (Platform.OS === 'web') {
+  if (typeof document !== 'undefined') {
+    document.documentElement.setAttribute('dir', 'rtl');
+    document.documentElement.setAttribute('lang', 'he');
+  }
+} else {
+  I18nManager.allowRTL(true);
+  if (!I18nManager.isRTL) I18nManager.forceRTL(true);
+}
+
+function AuthBridge() {
+  const { syncNow } = useServices();
+  useEffect(() => initAuth(() => void syncNow()), [syncNow]);
+  return null;
+}
+
+export default function RootLayout() {
+  const [fontsLoaded, fontError] = useFonts({ Heebo_400Regular, Heebo_500Medium, Heebo_600SemiBold, Heebo_700Bold });
+  const ready = fontsLoaded || !!fontError;
+
+  useEffect(() => {
+    if (ready) void SplashScreen.hideAsync().catch(() => {});
+  }, [ready]);
+
+  if (!ready) return null;
+  return (
+    <ServicesProvider>
+      <AuthBridge />
+      <StatusBar style="dark" />
+      <Stack screenOptions={{ headerShown: false, contentStyle: { backgroundColor: colors.background } }}>
+        <Stack.Screen name="activity/[type]" options={{ presentation: 'modal' }} />
+        <Stack.Screen name="child/edit" options={{ presentation: 'modal' }} />
+      </Stack>
+      <ToastHost />
+    </ServicesProvider>
+  );
+}
