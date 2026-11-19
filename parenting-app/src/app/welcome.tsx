@@ -1,18 +1,20 @@
 import { Redirect, router } from 'expo-router';
 import { CalendarHeart, ChartColumn, ShieldCheck } from 'lucide-react-native';
 import { StyleSheet, View } from 'react-native';
+import { MobileIllustration } from '@/components/brand/Illustrations';
+import { Logo } from '@/components/brand/Logo';
 import { Button, Notice, Screen } from '@/components/ui/primitives';
 import { Text } from '@/components/ui/Text';
-import { colors, radius, spacing } from '@/design/tokens';
+import { activityTones, colors, radius, spacing } from '@/design/tokens';
 import { useChildren } from '@/hooks/data';
 import { config } from '@/services/config';
 import { useSession } from '@/state/session';
 
 const POINTS = [
-  { icon: CalendarHeart, title: 'תיעוד בשתי לחיצות', body: 'בקבוק, חיתול ושינה – גם באמצע הלילה.' },
-  { icon: ChartColumn, title: 'תמונה ברורה של השגרה', body: 'יומן וסיכומים שנבנים רק ממה שתיעדתם.' },
-  { icon: ShieldCheck, title: 'המידע נשאר שלכם', body: 'נשמר במכשיר, ומשותף רק עם מי שתבחרו.' },
-];
+  { icon: CalendarHeart, tone: 'bottle', title: 'תיעוד בשתי לחיצות', body: 'בקבוק, חיתול ושינה – גם באמצע הלילה.' },
+  { icon: ChartColumn, tone: 'sleep', title: 'תמונה ברורה של השגרה', body: 'יומן וסיכומים שנבנים רק ממה שתיעדתם.' },
+  { icon: ShieldCheck, tone: 'diaper', title: 'המידע נשאר שלכם', body: 'נשמר במכשיר, ומשותף רק עם מי שתבחרו.' },
+] as const;
 
 export default function WelcomeScreen() {
   const user = useSession((s) => s.user);
@@ -22,15 +24,16 @@ export default function WelcomeScreen() {
   return (
     <Screen scroll edges={['top', 'bottom']} contentStyle={styles.content}>
       <View style={styles.hero}>
-        <View style={styles.mark}><CalendarHeart size={40} color={colors.primaryStrong} strokeWidth={1.5} /></View>
+        <Logo size={40} />
+        <MobileIllustration size={230} />
         <Text variant="display" center accessibilityRole="header">כל מה שהורים צריכים, במקום אחד</Text>
         <Text color={colors.textSecondary} center>מעקב יומיומי רגוע אחרי האכלות, שינה, חיתולים ומוצקים – מהלידה ועד גיל שלוש.</Text>
       </View>
 
       <View style={{ gap: spacing.md }}>
-        {POINTS.map(({ icon: Icon, title, body }) => (
+        {POINTS.map(({ icon: Icon, title, body, tone }) => (
           <View key={title} style={styles.point}>
-            <View style={styles.pointIcon}><Icon size={22} color={colors.primaryStrong} strokeWidth={1.7} /></View>
+            <View style={[styles.pointIcon, { backgroundColor: activityTones[tone].bg }]}><Icon size={22} color={activityTones[tone].ink} strokeWidth={1.9} /></View>
             <View style={{ flex: 1 }}>
               <Text variant="bodyStrong">{title}</Text>
               <Text variant="label" color={colors.textSecondary}>{body}</Text>
@@ -61,9 +64,8 @@ export default function WelcomeScreen() {
 }
 
 const styles = StyleSheet.create({
-  content: { flexGrow: 1, justifyContent: 'space-between', paddingTop: spacing.xxxl, paddingBottom: spacing.xxl, gap: spacing.xxl },
+  content: { flexGrow: 1, justifyContent: 'space-between', paddingTop: spacing.xl, paddingBottom: spacing.xxl, gap: spacing.xl },
   hero: { alignItems: 'center', gap: spacing.md },
-  mark: { width: 88, height: 88, borderRadius: 44, backgroundColor: colors.primaryLight, alignItems: 'center', justifyContent: 'center', marginBottom: spacing.sm },
   point: { flexDirection: 'row', alignItems: 'center', gap: spacing.md, backgroundColor: colors.surface, borderRadius: radius.lg, padding: spacing.lg, borderWidth: 1, borderColor: colors.border },
   pointIcon: { width: 44, height: 44, borderRadius: 22, backgroundColor: colors.primaryLight, alignItems: 'center', justifyContent: 'center' },
 });

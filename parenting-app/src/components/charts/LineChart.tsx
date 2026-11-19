@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { type LayoutChangeEvent, View } from 'react-native';
 import Svg, { Circle, G, Line, Path, Text as SvgText } from 'react-native-svg';
-import { colors, fonts } from '@/design/tokens';
+import { colors, svgFontFamily } from '@/design/tokens';
 
 export interface LinePoint {
   /** Milliseconds since epoch. */
@@ -45,13 +45,13 @@ export function LineChart({ points, color, formatValue, summaryLabel, height = 1
           {[min, max].filter((v, i, arr) => arr.indexOf(v) === i).map((v) => (
             <G key={v}>
               <Line x1={pad.axis} x2={width} y1={y(v)} y2={y(v)} stroke={colors.border} strokeWidth={1} />
-              <SvgText x={pad.axis - 8} y={y(v) + 4} fontSize={11} fontFamily={fonts.regular} fill={colors.textSecondary} textAnchor="end">{formatValue(v)}</SvgText>
+              <SvgText x={pad.axis - 8} y={y(v) + 4} fontSize={11} fontFamily={svgFontFamily} fill={colors.textSecondary} textAnchor="end">{formatValue(v)}</SvgText>
             </G>
           ))}
           <Path d={path} stroke={color} strokeWidth={2} fill="none" strokeLinejoin="round" strokeLinecap="round" />
           {points.map((p) => <Circle key={p.t} cx={x(p.t)} cy={y(p.value)} r={5} fill={color} stroke={colors.surface} strokeWidth={2} />)}
-          {first ? <SvgText x={x(first.t)} y={height - 6} fontSize={11} fontFamily={fonts.regular} fill={colors.textSecondary} textAnchor="start">{first.label}</SvgText> : null}
-          {last && last !== first ? <SvgText x={x(last.t)} y={height - 6} fontSize={11} fontFamily={fonts.regular} fill={colors.textSecondary} textAnchor="end">{last.label}</SvgText> : null}
+          {first ? <SvgText x={x(first.t)} y={height - 6} fontSize={11} fontFamily={svgFontFamily} fill={colors.textSecondary} textAnchor="start">{first.label}</SvgText> : null}
+          {last && last !== first ? <SvgText x={x(last.t)} y={height - 6} fontSize={11} fontFamily={svgFontFamily} fill={colors.textSecondary} textAnchor="end">{last.label}</SvgText> : null}
         </Svg>
       ) : null}
     </View>

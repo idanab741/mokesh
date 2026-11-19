@@ -1,4 +1,3 @@
-import { Heebo_400Regular, Heebo_500Medium, Heebo_600SemiBold, Heebo_700Bold, useFonts } from '@expo-google-fonts/heebo';
 import { Stack } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
 import { StatusBar } from 'expo-status-bar';
@@ -30,14 +29,10 @@ function AuthBridge() {
 }
 
 export default function RootLayout() {
-  const [fontsLoaded, fontError] = useFonts({ Heebo_400Regular, Heebo_500Medium, Heebo_600SemiBold, Heebo_700Bold });
-  const ready = fontsLoaded || !!fontError;
-
   useEffect(() => {
-    if (ready) void SplashScreen.hideAsync().catch(() => {});
-  }, [ready]);
+    void SplashScreen.hideAsync().catch(() => {});
+  }, []);
 
-  if (!ready) return null;
   return (
     <ServicesProvider>
       <AuthBridge />

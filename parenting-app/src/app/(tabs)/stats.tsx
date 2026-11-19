@@ -173,7 +173,7 @@ export default function StatsScreen() {
             {multiDay && t.bottleMl > 0 ? (
               <ChartOrNote show={daysWith((b) => b.bottleMl) >= 2}>
                 <Text variant="label" color={colors.textSecondary}>כמות בבקבוק לפי יום (מ״ל)</Text>
-                <BarChart data={chartData(stats, (b) => [b.bottleMl])} series={[{ label: 'מ״ל', color: activityTones.bottle.ink }]}
+                <BarChart data={chartData(stats, (b) => [b.bottleMl])} series={[{ label: 'מ״ל', color: activityTones.bottle.solid }]}
                   formatValue={(v) => `${Math.round(v)} מ״ל`} formatTick={(v) => String(Math.round(v))}
                   summaryLabel={`גרף כמות בבקבוק לפי יום. סך הכול ${t.bottleMl} מ״ל ב-${length} ימים.`} />
               </ChartOrNote>
@@ -210,7 +210,7 @@ export default function StatsScreen() {
             {multiDay ? (
               <ChartOrNote show={daysWith((b) => b.diaperCount) >= 2}>
                 <Text variant="label" color={colors.textSecondary}>החלפות לפי יום</Text>
-                <BarChart data={chartData(stats, (b) => [b.diaperCount])} series={[{ label: 'החלפות', color: activityTones.diaper.ink }]}
+                <BarChart data={chartData(stats, (b) => [b.diaperCount])} series={[{ label: 'החלפות', color: activityTones.diaper.solid }]}
                   formatValue={(v) => `${Math.round(v)} החלפות`} formatTick={(v) => (Number.isInteger(v) ? String(v) : '')}
                   summaryLabel={`גרף החלפות חיתול לפי יום. סך הכול ${t.diaperCount}.`} />
               </ChartOrNote>

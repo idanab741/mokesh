@@ -1,12 +1,17 @@
 import { router } from 'expo-router';
 import { Pressable, StyleSheet, View } from 'react-native';
 import { Sheet } from '@/components/ui/overlays';
-import { ActivityBadge } from '@/components/ui/primitives';
+import { activityIcons } from '@/components/ui/Icons';
 import { Text } from '@/components/ui/Text';
-import { colors, radius, spacing } from '@/design/tokens';
+import { activityTones, radius, spacing } from '@/design/tokens';
 import { ACTIVITY_TYPES, type ActivityType } from '@/domain/activity';
 import { activityLabel } from '@/i18n/he';
 import { useUi } from '@/state/ui';
+
+function Icon({ type }: { type: ActivityType }) {
+  const Glyph = activityIcons[type];
+  return <Glyph size={26} color={activityTones[type].ink} />;
+}
 
 export function openActivityForm(type: ActivityType, id?: string) {
   router.push({ pathname: '/activity/[type]', params: id ? { type, id } : { type } });
@@ -25,9 +30,9 @@ export function AddActivitySheet() {
       <View style={styles.grid}>
         {ACTIVITY_TYPES.map((type) => (
           <Pressable key={type} onPress={() => pick(type)} accessibilityRole="button" accessibilityLabel={activityLabel[type]}
-            style={({ pressed }) => [styles.tile, pressed && { opacity: 0.7 }]}>
-            <ActivityBadge type={type} size={52} />
-            <Text variant="label" center numberOfLines={1}>{activityLabel[type]}</Text>
+            style={({ pressed }) => [styles.tile, { backgroundColor: activityTones[type].bg }, pressed && { opacity: 0.7 }]}>
+            <View style={styles.tileIcon}><Icon type={type} /></View>
+            <Text variant="label" color={activityTones[type].ink} style={{ fontWeight: '600' }} center numberOfLines={1}>{activityLabel[type]}</Text>
           </Pressable>
         ))}
       </View>
@@ -39,6 +44,7 @@ const styles = StyleSheet.create({
   grid: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing.md },
   tile: {
     flexBasis: '30%', flexGrow: 1, minHeight: 108, alignItems: 'center', justifyContent: 'center', gap: spacing.sm,
-    backgroundColor: colors.surface, borderRadius: radius.lg, borderWidth: 1, borderColor: colors.border, paddingVertical: spacing.md,
+    borderRadius: radius.lg, paddingVertical: spacing.md,
   },
+  tileIcon: { width: 52, height: 52, borderRadius: 26, backgroundColor: 'rgba(255,255,255,0.85)', alignItems: 'center', justifyContent: 'center' },
 });

@@ -12,7 +12,7 @@ export function Avatar({ name, uri, size = 48 }: { name: string; uri: string | n
   return (
     <View style={[common, { backgroundColor: colors.primaryLight, alignItems: 'center', justifyContent: 'center', borderWidth: 1.5, borderColor: colors.surface }]}
       accessibilityElementsHidden importantForAccessibility="no">
-      <Text style={{ fontFamily: 'Heebo_700Bold', fontSize: size * 0.42, lineHeight: size * 0.56 }} color={colors.primaryStrong}>
+      <Text style={{ fontWeight: '700', fontSize: size * 0.42, lineHeight: size * 0.56 }} color={colors.primaryStrong}>
         {name.trim().charAt(0) || '?'}
       </Text>
     </View>

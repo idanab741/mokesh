@@ -102,7 +102,7 @@ export default function JournalScreen() {
           <View style={styles.totals} accessibilityLabel="סיכום היום">
             {totals.map((t) => (
               <View key={t.label} style={{ alignItems: 'center', flex: 1 }}>
-                <Text variant="bodyStrong" numberOfLines={1}>{t.value}</Text>
+                <Text variant="label" style={{ fontWeight: '700' }} numberOfLines={1}>{t.value}</Text>
                 <Text variant="caption" color={colors.textSecondary} numberOfLines={1}>{t.label}</Text>
               </View>
             ))}
