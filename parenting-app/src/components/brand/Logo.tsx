@@ -3,8 +3,8 @@ import Svg, { Circle, Defs, LinearGradient, Path, Rect, Stop } from 'react-nativ
 import { Text } from '@/components/ui/Text';
 import { colors } from '@/design/tokens';
 
-/** Working product name. Change it here and it changes everywhere. */
-export const PRODUCT_NAME = 'נומי';
+/** Product name. Change it here and it changes everywhere. */
+export const PRODUCT_NAME = 'Lilbaby';
 
 /** App mark: a crescent moon cradling a small star, on the brand gradient. */
 export function LogoMark({ size = 40 }: { size?: number }) {
@@ -27,7 +27,8 @@ export function Logo({ size = 36, color = colors.textPrimary }: { size?: number;
   return (
     <View style={{ flexDirection: 'row', alignItems: 'center', gap: size * 0.28 }} accessible accessibilityRole="image" accessibilityLabel={PRODUCT_NAME}>
       <LogoMark size={size} />
-      <Text style={{ fontSize: size * 0.72, lineHeight: size, fontWeight: '700', letterSpacing: -0.5 }} color={color}>{PRODUCT_NAME}</Text>
+      {/* Latin wordmark: keep it left-to-right inside the Hebrew layout. */}
+      <Text style={{ fontSize: size * 0.68, lineHeight: size, fontWeight: '700', letterSpacing: -0.6, writingDirection: 'ltr' }} color={color}>{PRODUCT_NAME}</Text>
     </View>
   );
 }
