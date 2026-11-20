@@ -18,6 +18,7 @@ export const babyClips: BabyClipMap = {
     stand: {
       idle: require('../../../assets/baby/clips/girl-stand-idle.mp4'),
       poster: require('../../../assets/baby/clips/girl-stand-poster.jpg'),
+      wave: require('../../../assets/baby/clips/girl-stand-wave.mp4'),
     },
   },
 };
