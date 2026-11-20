@@ -76,6 +76,7 @@ const check = (name, cond) => { results.push(`${cond ? 'PASS' : 'FAIL'} ${name}`
   await addBottle(90, 0, 6);
   t = await body();
   check('second bottle sums to 210ml', t.includes('2 האכלות') && t.includes('210 מ״ל בבקבוק'));
+  check('routine card shows learning progress before there is enough data', t.includes('לומדים את השגרה שלכם'));
   check('quick action offers last bottle amount', t.includes('בקבוק 120 מ״ל') || t.includes('בקבוק 90 מ״ל'));
 
   // --- quick diaper
@@ -87,7 +88,7 @@ const check = (name, cond) => { results.push(`${cond ? 'PASS' : 'FAIL'} ${name}`
   await btn('התחלת שינה').click(); await wait(1500);
   t = await body();
   check('sleep timer running banner', t.includes('עלמה ישנה') && t.includes('סיום שינה'));
-  await shot('06-home-sleeping');
+  await page.mouse.move(195, 400); await page.mouse.wheel(0, 560); await wait(900); await shot('06-home-sleeping'); await page.mouse.wheel(0, -2000); await wait(400);
   await page.reload(); await wait(3000);
   t = await body();
   check('after reload: data + running timer persisted', t.includes('2 האכלות') && t.includes('עלמה ישנה'));
@@ -226,6 +227,15 @@ const check = (name, cond) => { results.push(`${cond ? 'PASS' : 'FAIL'} ${name}`
   check('growth lists 3 measurements', (await body()).includes('7.3 ק״ג'));
 
   await page.goto('http://localhost:4173/updates'); await wait(2500); await shot('27-updates');
+
+  // --- the routine is learned from the diary: six bottles three hours apart yesterday
+  await page.goto('http://localhost:4173/'); await wait(2500);
+  for (const hour of [6, 9, 12, 15, 18, 21]) await addBottle(120, 1, hour);
+  t = await body();
+  check('routine learned: next feeding predicted from the family\'s own 3-hour gap', t.includes('מה הלאה') && t.includes('האכלה הבאה') && t.includes('אצלכם כל 3 ש׳'));
+  check('one-tap bottle uses the usual amount', (await page.getByRole('button', { name: 'בקבוק 120 מ״ל', exact: true }).count()) === 1);
+  await page.evaluate(() => window.scrollTo(0, 0)); await shot('28-home-routine');
+  await page.mouse.move(195, 400); await page.mouse.wheel(0, 560); await wait(900); await shot('29-tracking');
 
   console.log(results.join('\n'));
   console.log('ERRORS:', [...new Set(errors)].join('\n') || 'none');
