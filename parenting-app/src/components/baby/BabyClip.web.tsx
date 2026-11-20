@@ -21,15 +21,37 @@ const firstPanel: CSSProperties = { position: 'absolute', left: 0, top: 0, width
 
 const VERT = 'attribute vec2 p; varying vec2 uv; void main() { uv = p * 0.5 + 0.5; gl_Position = vec4(p, 0.0, 1.0); }';
 const FRAG = `
-precision mediump float;
+precision highp float;
 varying vec2 uv;
 uniform sampler2D frame;
-uniform vec3 skinGain; uniform float skinOn;
-uniform vec3 hairTo; uniform float hairOn;
+uniform vec3 skinSrc; uniform vec3 skinDst; uniform float skinOn;
+uniform vec3 hairSrc; uniform vec3 hairDst; uniform float hairOn;
+uniform vec3 clothSrc; uniform vec3 clothDst; uniform float clothOn;
 uniform vec3 eyeHsv; uniform float eyeOn;
-uniform vec3 clothTo; uniform float clothOn;
-vec3 lin(vec3 c) { return pow(clamp(c, 0.0, 1.0), vec3(2.2)); }
-vec3 srgb(vec3 c) { return pow(clamp(c, 0.0, 1.0), vec3(1.0 / 2.2)); }
+// OKLab: a colour space in which lightness, colourfulness and hue can be moved separately.
+vec3 toOk(vec3 c) {
+  vec3 l = pow(clamp(c, 0.0, 1.0), vec3(2.2));
+  vec3 lms = vec3(dot(l, vec3(0.4122214708, 0.5363325363, 0.0514459929)), dot(l, vec3(0.2119034982, 0.6806995451, 0.1073969566)), dot(l, vec3(0.0883024619, 0.2817188376, 0.6299787005)));
+  lms = pow(max(lms, vec3(0.0)), vec3(1.0 / 3.0));
+  return vec3(dot(lms, vec3(0.2104542553, 0.7936177850, -0.0040720468)), dot(lms, vec3(1.9779984951, -2.4285922050, 0.4505937099)), dot(lms, vec3(0.0259040371, 0.7827717662, -0.8086757660)));
+}
+vec3 fromOk(vec3 lab) {
+  vec3 lms = vec3(lab.x + 0.3963377774 * lab.y + 0.2158037573 * lab.z, lab.x - 0.1055613458 * lab.y - 0.0638541728 * lab.z, lab.x - 0.0894841775 * lab.y - 1.2914855480 * lab.z);
+  lms = lms * lms * lms;
+  vec3 l = vec3(dot(lms, vec3(4.0767416621, -3.3077115913, 0.2309699292)), dot(lms, vec3(-1.2684380046, 2.6097574011, -0.3413193965)), dot(lms, vec3(-0.0041960863, -0.7034186147, 1.7076147010)));
+  return pow(clamp(l, 0.0, 1.0), vec3(1.0 / 2.2));
+}
+// A region keeps its own variation of lightness, colourfulness and hue (shading, blush, sheen,
+// folds); only the middle of that variation moves from the rendered colour (src) to the chosen
+// one (dst). Both are (lightness, chroma, hue). k: how far the contrast follows the new lightness.
+vec3 shift(vec3 img, vec3 src, vec3 dst, float k) {
+  vec3 lab = toOk(img);
+  float gain = 1.0 + (clamp(dst.x / src.x, 0.3, 1.4) - 1.0) * k;
+  float L = dst.x + (lab.x - src.x) * gain;
+  float C = dst.y * pow(clamp(length(lab.yz) / max(src.y, 0.001), 0.0, 2.2), 0.85);
+  float h = atan(lab.z, lab.y) + dst.z - src.z;
+  return fromOk(vec3(L, C * cos(h), C * sin(h)));
+}
 vec3 rgb2hsv(vec3 c) {
   vec4 K = vec4(0.0, -1.0 / 3.0, 2.0 / 3.0, -1.0);
   vec4 p = mix(vec4(c.bg, K.wz), vec4(c.gb, K.xy), step(c.b, c.g));
@@ -41,7 +63,6 @@ vec3 hsv2rgb(vec3 c) {
   vec3 p = abs(fract(c.xxx + vec3(0.0, 2.0 / 3.0, 1.0 / 3.0)) * 6.0 - 3.0);
   return c.z * mix(vec3(1.0), clamp(p - 1.0, 0.0, 1.0), c.y);
 }
-float mx(vec3 c) { return max(c.r, max(c.g, c.b)); }
 vec2 mask(float col, float row) { return vec2((uv.x + col) / 2.0, 0.5 - (1.0 - uv.y + row) / 4.0); }
 void main() {
   vec3 img = texture2D(frame, vec2(uv.x, 0.5 + uv.y / 2.0)).rgb;
@@ -49,41 +70,34 @@ void main() {
   float mHair = texture2D(frame, mask(1.0, 0.0)).g * hairOn;
   float mCloth = texture2D(frame, mask(0.0, 1.0)).g * clothOn;
   float mEye = texture2D(frame, mask(1.0, 1.0)).g * eyeOn;
-  // skin: a tone change in linear light keeps the shading and the blush; a little sheen stays
-  vec3 s = srgb(lin(img) * skinGain);
-  s += clamp(mx(img) - 0.62, 0.0, 1.0) * 0.22 * (1.0 - s);
-  img = mix(img, s, mSkin);
-  // hair: the strands' light and shade are kept; shadows become a deeper, richer version
-  // of the colour and highlights a lighter one, so the hair keeps its depth
-  float hs = clamp(mx(img) / 0.66, 0.0, 1.6);
-  vec3 deep = hairTo * hairTo * 0.62 + hairTo * 0.10;
-  vec3 light = hairTo + (1.0 - hairTo) * 0.42;
-  vec3 h = hs < 1.0 ? mix(deep, hairTo, smoothstep(0.42, 1.0, hs)) : mix(hairTo, light, clamp((hs - 1.0) / 0.42, 0.0, 1.0));
-  img = mix(img, h, mHair);
+  if (mSkin > 0.003) img = mix(img, shift(img, skinSrc, skinDst, 0.5), mSkin);
+  if (mHair > 0.003) img = mix(img, shift(img, hairSrc, hairDst, 0.75), mHair);
   // eyes: only the hue and strength of the iris change
   vec3 e = rgb2hsv(img);
   e = vec3(eyeHsv.x, clamp(e.y * eyeHsv.y / 0.63, 0.0, 1.0), clamp(e.z * eyeHsv.z / 0.39, 0.0, 1.0));
   img = mix(img, hsv2rgb(e), mEye);
-  // clothes: the fabric's folds are kept as a gentle multiply, so pastels stay soft
-  float cs = clamp(mx(img) / 0.80, 0.5, 1.2);
-  vec3 c = clamp(clothTo * (0.25 + 0.75 * cs), 0.0, 1.0);
-  c += clamp(cs - 1.0, 0.0, 1.0) * 0.5 * (1.0 - c);
-  img = mix(img, c, mCloth);
+  if (mCloth > 0.003) img = mix(img, shift(img, clothSrc, clothDst, 0.0), mCloth);
   gl_FragColor = vec4(img, 1.0);
 }`;
 
 const rgb = (hex: string) => [1, 3, 5].map((i) => parseInt(hex.slice(i, i + 2), 16) / 255) as [number, number, number];
-const lin = (v: number) => Math.pow(v, 2.2);
 function hsv([r, g, b]: [number, number, number]): [number, number, number] {
   const max = Math.max(r, g, b), d = max - Math.min(r, g, b);
   let h = 0;
   if (d > 0) h = max === r ? ((g - b) / d + 6) % 6 : max === g ? (b - r) / d + 2 : (r - g) / d + 4;
   return [h / 6, max > 0 ? d / max : 0, max];
 }
-/** The skin tone the clips were rendered with. */
-const BASE_SKIN = rgb('#F7C4A8');
+/** A colour as OKLab lightness, chroma and hue: the form the shader moves a region's colour in. */
+function lch(hex: string): [number, number, number] {
+  const [r, g, b] = rgb(hex).map((v) => Math.pow(v, 2.2));
+  const l = Math.cbrt(0.4122214708 * r + 0.5363325363 * g + 0.0514459929 * b);
+  const m = Math.cbrt(0.2119034982 * r + 0.6806995451 * g + 0.1073969566 * b);
+  const s = Math.cbrt(0.0883024619 * r + 0.2817188376 * g + 0.6299787005 * b);
+  const A = 1.9779984951 * l - 2.4285922050 * m + 0.4505937099 * s, B = 0.0259040371 * l + 0.7827717662 * m - 0.8086757660 * s;
+  return [0.2104542553 * l + 0.7936177850 * m - 0.0040720468 * s, Math.hypot(A, B), Math.atan2(B, A)];
+}
 
-interface Painter { draw: (video: HTMLVideoElement) => boolean; setLook: (look: BabyClipProps['look']) => void; dispose: () => void }
+interface Painter { draw: (video: HTMLVideoElement) => boolean; setLook: (look: BabyClipProps['look'], base: BabyClipProps['clips']['base']) => void; dispose: () => void }
 
 function createPainter(canvas: HTMLCanvasElement): Painter | null {
   const gl = canvas.getContext('webgl', { premultipliedAlpha: false, antialias: false });
@@ -107,16 +121,14 @@ function createPainter(canvas: HTMLCanvasElement): Painter | null {
   for (const [k, v] of [[gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE], [gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE], [gl.TEXTURE_MIN_FILTER, gl.LINEAR], [gl.TEXTURE_MAG_FILTER, gl.LINEAR]]) gl.texParameteri(gl.TEXTURE_2D, k, v);
   const u = (name: string) => gl.getUniformLocation(program, name);
   return {
-    setLook(look) {
-      const skin = look.skin ? rgb(look.skin) : null;
-      gl.uniform1f(u('skinOn'), skin ? 1 : 0);
-      if (skin) gl.uniform3fv(u('skinGain'), skin.map((v, i) => Math.min(1.45, Math.max(0.03, lin(v) / lin(BASE_SKIN[i])))));
-      gl.uniform1f(u('hairOn'), look.hair ? 1 : 0);
-      if (look.hair) gl.uniform3fv(u('hairTo'), rgb(look.hair));
+    setLook(look, base) {
+      for (const part of ['skin', 'hair', 'cloth'] as const) {
+        gl.uniform1f(u(`${part}On`), look[part] ? 1 : 0);
+        gl.uniform3fv(u(`${part}Src`), base[part]);
+        if (look[part]) gl.uniform3fv(u(`${part}Dst`), lch(look[part] as string));
+      }
       gl.uniform1f(u('eyeOn'), look.eyes ? 1 : 0);
       if (look.eyes) gl.uniform3fv(u('eyeHsv'), hsv(rgb(look.eyes)));
-      gl.uniform1f(u('clothOn'), look.cloth ? 1 : 0);
-      if (look.cloth) gl.uniform3fv(u('clothTo'), rgb(look.cloth));
     },
     draw(video) {
       gl.viewport(0, 0, canvas.width, canvas.height);
@@ -171,10 +183,10 @@ export function BabyClip({ clips, height, label, active, look, greet = true }: B
     const p = createPainter(canvas.current);
     if (!p) { setPlain(true); return; }
     painter.current = p;
-    p.setLook(lookRef.current);
+    p.setLook(lookRef.current, clips.base);
     return () => { p.dispose(); painter.current = null; };
   }, []);
-  useEffect(() => { painter.current?.setLook(look); }, [look]);
+  useEffect(() => { painter.current?.setLook(look, clips.base); }, [look, clips.base]);
 
   useEffect(() => {
     const v = idle.current;

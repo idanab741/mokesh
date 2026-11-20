@@ -123,12 +123,33 @@ EYES = {'brown': None, 'hazel': '#7A5A2E', 'blue': '#6C9CC8', 'green': '#6F9B6A'
 CLOTH = {'mint': None, 'rose': '#F5BFCB', 'peach': '#F8CDB0', 'butter': '#F5E2A6', 'sky': '#B4D2EE', 'lilac': '#D2C4EE', 'sage': '#C3D9BC', 'cream': '#F4EFE6'}
 LOOKS = [('peach', 'golden', 'brown', 'mint'), ('honey', 'brown', 'hazel', 'rose'), ('tan', 'black', 'brown', 'butter'),
          ('deep', 'black', 'brown', 'lilac'), ('porcelain', 'blond', 'blue', 'sky'), ('porcelain', 'auburn', 'green', 'cream')]
+# ---- natural recolouring: every region keeps its own variation of lightness, colourfulness and
+# hue (shading, blush, sheen, folds); only the middle of that variation is moved to the new colour.
+M1 = np.array([[0.4122214708, 0.5363325363, 0.0514459929], [0.2119034982, 0.6806995451, 0.1073969566], [0.0883024619, 0.2817188376, 0.6299787005]], np.float32)
+M2 = np.array([[0.2104542553, 0.7936177850, -0.0040720468], [1.9779984951, -2.4285922050, 0.4505937099], [0.0259040371, 0.7827717662, -0.8086757660]], np.float32)
+def to_ok(c): return np.cbrt(np.power(np.clip(c, 0, 1), 2.2) @ M1.T) @ M2.T
+def from_ok(lab): return np.power(np.clip(np.power(lab @ np.linalg.inv(M2).T, 3) @ np.linalg.inv(M1).T, 0, 1), 1 / 2.2)
+def lch(lab): return np.array([lab[0], np.hypot(lab[1], lab[2]), np.arctan2(lab[2], lab[1])], np.float32)
+STATS = {}
+def region_stats(rgb, M):
+    ok = to_ok(rgb)
+    for k in ('skin', 'hair', 'cloth'):
+        if k not in STATS: STATS[k] = lch(np.median(ok[M[k] > 0.9], axis=0))
+KL = dict(skin=0.5, hair=0.75, cloth=0.0)                             # how far contrast follows the new lightness
+def ok_shift(img, mask, key, target):
+    src = STATS[key]; dst = lch(to_ok(hexrgb(target)[None])[0]); lab = to_ok(img)
+    k = 1 + (np.clip(dst[0] / src[0], 0.3, 1.4) - 1) * KL[key]
+    L = dst[0] + (lab[..., 0] - src[0]) * k
+    C = np.hypot(lab[..., 1], lab[..., 2]); h = np.arctan2(lab[..., 2], lab[..., 1])
+    C2 = dst[1] * np.clip(C / max(src[1], 1e-3), 0, 2.2) ** 0.85; h2 = h + (dst[2] - src[2])
+    new = from_ok(np.stack([L, C2 * np.cos(h2), C2 * np.sin(h2)], -1))
+    return img + (new - img) * mask[..., None]
 def look(rgb, M, sk, ha, ey, cl):
-    img = rgb.copy()
-    if SKIN[sk]: img = gain(img, M['skin'], SKIN[sk], 'skin'); img = gain(img, M['lips'], SKIN[sk], 'skin', 0.4)
-    if HAIR[ha]: img = hair_to(img, M['hair'], HAIR[ha])
+    region_stats(rgb, M); img = rgb.copy()
+    if SKIN[sk]: img = ok_shift(img, np.clip(M['skin'] + 0.4 * M['lips'], 0, 1), 'skin', SKIN[sk])
+    if HAIR[ha]: img = ok_shift(img, M['hair'], 'hair', HAIR[ha])
     if EYES[ey]: img = hue_to(img, M['iris'], EYES[ey], ES, EV)
-    if CLOTH[cl]: img = cloth_to(img, M['cloth'], CLOTH[cl])
+    if CLOTH[cl]: img = ok_shift(img, M['cloth'], 'cloth', CLOTH[cl])
     return img
 
 if out.endswith('.png'):                                              # palette sheet from the first frame
@@ -144,7 +165,7 @@ if out.endswith('.png'):                                              # palette 
         for i, L in enumerate(row):
             t = Image.fromarray((np.clip(look(rgb, M, *L), 0, 1) * 255).astype(np.uint8)).crop(c).resize((tw, hgt), Image.LANCZOS); sheet.paste(t, (10 + i * (tw + 8), y))
         y += hgt + 10
-    sheet.save(out); sys.exit(0)
+    sheet.save(out); print('base', {k: [round(float(x), 4) for x in v] for k, v in STATS.items()}); sys.exit(0)
 if out.endswith('.pack.mp4'):
     # Masks found frame by frame flicker, because every frame is judged on its own. Each mask
     # is therefore steadied over time: the masks of the three frames before and after are
