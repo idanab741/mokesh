@@ -10,7 +10,7 @@ import {
 } from '@/domain/avatar';
 import type { Child } from '@/domain/child';
 import { useChildMutations } from '@/hooks/data';
-import { BabySprite } from './BabySprite';
+import { BabyView } from './BabyView';
 
 /** Resolved look of a child's baby character. */
 export function useBabyLook(child: Child, now: Date) {
@@ -31,7 +31,7 @@ export function BabyCustomizeSheet({ child, now, open, onClose }: { child: Child
   return (
     <Sheet visible={open} onClose={onClose} title={`המראה של ${child.name}`}>
       <View style={styles.preview}>
-        {open ? <BabySprite stage={stage} config={config} sex={child.sex} height={220} label={`תצוגה מקדימה של ${child.name}`} /> : null}
+        {open ? <BabyView stage={stage} config={config} sex={child.sex} height={220} label={`תצוגה מקדימה של ${child.name}`} /> : null}
       </View>
 
       <View style={{ gap: spacing.sm }}>
