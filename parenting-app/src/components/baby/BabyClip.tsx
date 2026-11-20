@@ -1,8 +1,13 @@
+import type { BabyLookColors } from '@/domain/avatar';
 import type { BabyClips } from './clips';
 
 export interface BabyClipProps {
   clips: BabyClips;
   height: number;
+  /** Skin, hair, eye and clothing colours the clip is repainted to. */
+  look: BabyLookColors;
+  /** Whether the baby waves by itself when the screen opens. Default true. */
+  greet?: boolean;
   label: string;
   /** Pass false while the screen is hidden so playback stops. */
   active: boolean;

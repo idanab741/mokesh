@@ -8,6 +8,7 @@ import { EventRow } from '@/components/activity/EventRow';
 import { Avatar } from '@/components/Avatar';
 import { BabyCustomizeSheet, useBabyLook } from '@/components/baby/BabyCard';
 import { BabyFigure, clipsFor } from '@/components/baby/BabyFigure';
+import { BabyLookSheet } from '@/components/baby/BabyLookSheet';
 import { MobileIllustration } from '@/components/brand/Illustrations';
 import { Logo } from '@/components/brand/Logo';
 import { DayStrip } from '@/components/home/DayStrip';
@@ -130,7 +131,8 @@ export default function HomeScreen() {
 
   const look = useBabyLook(child, now);
   // While the character is shown as video, the pose and outfit of the still pictures do not apply.
-  const onClip = clipsFor(look.stage, child.sex) !== null;
+  const clips = clipsFor(look.stage, child.sex);
+  const onClip = clips !== null;
   // The baby's expression mirrors the diary: asleep, just fed, or waiting longer than usual.
   const mood = babyMood(month.data ?? [], now, child.sex);
 
@@ -169,11 +171,9 @@ export default function HomeScreen() {
               </View>
               <ChevronDown size={20} color={colors.textSecondary} strokeWidth={2.2} />
             </PressScale>
-            {onClip ? null : (
-              <PressScale onPress={() => setLookOpen(true)} accessibilityRole="button" accessibilityLabel="התאמת המראה של הדמות" style={styles.lookBtn}>
-                <Palette size={20} color={colors.primaryStrong} strokeWidth={2} />
-              </PressScale>
-            )}
+            <PressScale onPress={() => setLookOpen(true)} accessibilityRole="button" accessibilityLabel="התאמת המראה של הדמות" style={styles.lookBtn}>
+              <Palette size={20} color={colors.primaryStrong} strokeWidth={2} />
+            </PressScale>
           </View>
         </View>
       </Rise>
@@ -263,7 +263,8 @@ export default function HomeScreen() {
         )}
       </Rise>
 
-      <BabyCustomizeSheet child={child} now={now} open={lookOpen} onClose={() => setLookOpen(false)} />
+      {clips ? <BabyLookSheet child={child} clips={clips} open={lookOpen} onClose={() => setLookOpen(false)} />
+        : <BabyCustomizeSheet child={child} now={now} open={lookOpen} onClose={() => setLookOpen(false)} />}
     </Screen>
   );
 }
