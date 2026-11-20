@@ -19,6 +19,9 @@ const OVERDUE_FACTOR = 1.3;
 /** Past this, the gap is almost always an unlogged feeding rather than the routine. */
 const MAX_GAP_MIN = 8 * 60;
 
+/** The screen's clock ticks every half minute, so a just-logged event can look slightly in the future. */
+const CLOCK_SLACK_MS = 2 * 60_000;
+
 const median = (xs: number[]) => {
   const s = [...xs].sort((a, b) => a - b);
   const m = Math.floor(s.length / 2);
@@ -41,14 +44,14 @@ export function babyMood(events: readonly ActivityEvent[], now: Date, sex: Child
   const t = now.getTime();
   const minutesAgo = (iso: string) => (t - Date.parse(iso)) / 60_000;
 
-  const feeds = live.filter(isFeeding).map((e) => Date.parse(e.occurredAt)).filter((x) => x <= t).sort((a, b) => a - b);
-  const sinceFeed = feeds.length ? (t - feeds[feeds.length - 1]) / 60_000 : null;
+  const feeds = live.filter(isFeeding).map((e) => Date.parse(e.occurredAt)).filter((x) => x <= t + CLOCK_SLACK_MS).sort((a, b) => a - b);
+  const sinceFeed = feeds.length ? Math.max(0, (t - feeds[feeds.length - 1]) / 60_000) : null;
   if (sinceFeed !== null && sinceFeed <= FRESH_MIN) {
     const ago = sinceFeed < 1 ? 'ממש עכשיו' : `לפני ${formatDuration(sinceFeed)}`;
     return { mood: 'laughing', reason: `${bySex(sex, 'אכלה', 'אכל', 'האכלה')} ${ago}` };
   }
 
-  const wakes = live.filter((e) => e.type === 'sleep' && e.endedAt !== null).map((e) => minutesAgo(e.endedAt as string)).filter((m) => m >= 0);
+  const wakes = live.filter((e) => e.type === 'sleep' && e.endedAt !== null).map((e) => minutesAgo(e.endedAt as string)).filter((m) => m >= -CLOCK_SLACK_MS / 60_000).map((m) => Math.max(0, m));
   const sinceWake = wakes.length ? Math.min(...wakes) : null;
   if (sinceWake !== null && sinceWake <= FRESH_MIN) {
     const ago = sinceWake < 1 ? 'ממש עכשיו' : `לפני ${formatDuration(sinceWake)}`;
