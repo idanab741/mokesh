@@ -22,6 +22,7 @@ import type { ActivityType, FilterKey } from '@/domain/activity';
 import { formatAgeWithSex } from '@/domain/age';
 import { stageLabel } from '@/domain/avatar';
 import { buildInsights, daysUntilInsights } from '@/domain/insights';
+import { babyMood } from '@/domain/mood';
 import { summarizeDay } from '@/domain/summary';
 import { useActiveChild, useEventMutations, useEventsBetween, useLastBottle, useNow, useRecentEvents, useUnsynced } from '@/hooks/data';
 import { diaperKindLabel, errorMessage, milkTypeLabel, sleepingWord } from '@/i18n/he';
@@ -131,6 +132,8 @@ export default function HomeScreen() {
   const isBrandNew = recent.data !== undefined && recent.data.length === 0;
 
   const look = useBabyLook(child, now);
+  // The baby's expression mirrors the diary: asleep, just fed, or waiting longer than usual.
+  const mood = babyMood(month.data ?? [], now, child.sex);
   const glassInk = part === 'night' || part === 'evening';
 
   return (
@@ -155,7 +158,7 @@ export default function HomeScreen() {
             <Text variant="label" color={sky.sub}>{formatDateLong(now)}</Text>
           </View>
           <View style={styles.stageBaby}>
-            <BabySprite active={focused && !lookOpen} stage={look.stage} config={look.config} sex={child.sex} height={262} label={`הדמות של ${child.name}, ${stageLabel[look.stage]}`} />
+            <BabySprite active={focused && !lookOpen} mood={mood.mood} stage={look.stage} config={look.config} sex={child.sex} height={262} label={`הדמות של ${child.name}, ${stageLabel[look.stage]}`} />
           </View>
           <View style={styles.stageBottom}>
             <PressScale onPress={openChildSheet} accessibilityRole="button"
@@ -172,7 +175,7 @@ export default function HomeScreen() {
               <Palette size={20} color={colors.primaryStrong} strokeWidth={2} />
             </PressScale>
           </View>
-          <Text variant="caption" color={glassInk ? '#FFFFFF' : sky.sub} style={styles.dragHint}>גררו כדי לסובב</Text>
+          <Text variant="caption" color={glassInk ? '#FFFFFF' : sky.sub} style={styles.dragHint} testID="baby-mood-reason">{mood.reason ?? 'גררו כדי לסובב'}</Text>
         </View>
       </Rise>
 
