@@ -53,13 +53,13 @@ export const EYE_COLORS = [
 ] as const;
 export const CLOTH_COLORS = [
   { key: 'mint', label: 'מנטה', shift: null, swatch: '#A0D5D1' },
-  { key: 'rose', label: 'ורוד', shift: [0.0059, 1.228, 3.0313, 1.023], swatch: '#F3B9C7' },
-  { key: 'peach', label: 'אפרסק', shift: [0.0028, 1.553, -2.396, 0.936], swatch: '#F9BA96' },
-  { key: 'butter', label: 'חמאה', shift: [0.0645, 1.634, -1.767, 0.89], swatch: '#F9DB98' },
-  { key: 'sky', label: 'תכלת', shift: [-0.0066, 0.721, 0.9152, 1.117], swatch: '#B1CBDF' },
-  { key: 'lilac', label: 'לילך', shift: [-0.0046, 1.005, 2.2506, 1.143], swatch: '#D8BDDF' },
-  { key: 'sage', label: 'ירוק מרווה', shift: [-0.0236, 0.863, -1.0985, 1.104], swatch: '#B9C8A7' },
-  { key: 'cream', label: 'שמנת', shift: [0.0927, 0.306, -2.1066, 0.899], swatch: '#F0E6DC' },
+  { key: 'rose', label: 'ורוד', shift: [0.0059, 1.228, 3.0313, 1.023], girl: [0.0117, 0.993, -2.8439, 0.944], swatch: '#F3B9C7' },
+  { key: 'peach', label: 'אפרסק', shift: [0.0028, 1.553, -2.396, 0.936], girl: [0.0176, 1.297, -2.3429, 0.872], swatch: '#F9BA96' },
+  { key: 'butter', label: 'חמאה', shift: [0.0645, 1.634, -1.767, 0.89], girl: [0.067, 1.287, -1.6737, 0.806], swatch: '#F9DB98' },
+  { key: 'sky', label: 'תכלת', shift: [-0.0066, 0.721, 0.9152, 1.117], girl: [-0.0026, 0.783, 1.1042, 1.068], swatch: '#B1CBDF' },
+  { key: 'lilac', label: 'לילך', shift: [-0.0046, 1.005, 2.2506, 1.143], girl: [0.0058, 0.927, 2.4667, 1.038], swatch: '#D8BDDF' },
+  { key: 'sage', label: 'ירוק מרווה', shift: [-0.0236, 0.863, -1.0985, 1.104], girl: [-0.0008, 0.819, -1.0905, 1.06], swatch: '#B9C8A7' },
+  { key: 'cream', label: 'שמנת', shift: [0.0927, 0.306, -2.1066, 0.899], girl: [0.0925, 0.414, -1.8777, 0.781], swatch: '#F0E6DC' },
 ] as const;
 export type SkinKey = (typeof SKIN_TONES)[number]['key'];
 export type HairKey = (typeof HAIR_COLORS)[number]['key'];

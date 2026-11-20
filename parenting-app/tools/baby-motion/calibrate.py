@@ -48,8 +48,9 @@ def hexof(tile, mask):
     return '#%02X%02X%02X' % tuple(int(x) for x in (np.median(tile[m], axis=0) * 255).round())
 
 out = {}
-cl = tiles(os.path.join(HERE, 'reference', 'boy-clothes.png'), 4, 2); m = core_masks(cl[0]); o = stats(cl[0], m['cloth'])
-out['cloth'] = [dict(key=k, shift=diff(stats(t, m['cloth']), o), swatch=hexof(t, m['cloth'])) for k, t in zip(['mint', 'rose', 'peach', 'butter', 'sky', 'lilac', 'sage', 'cream'], cl)]
+for who, suffix in (('boy', ''), ('girl', 'Girl')):
+    cl = tiles(os.path.join(HERE, 'reference', f'{who}-clothes.png'), 4, 2); m = core_masks(cl[0]); o = stats(cl[0], m['cloth'])
+    out['cloth' + suffix] = [dict(key=k, shift=diff(stats(t, m['cloth']), o), swatch=hexof(t, m['cloth'])) for k, t in zip(['mint', 'rose', 'peach', 'butter', 'sky', 'lilac', 'sage', 'cream'], cl)]
 names = dict(skin=['porcelain', 'peach', 'honey', 'tan', 'brown', 'deep'], hair=['blond', 'golden', 'chestnut', 'brown', 'softblack', 'black'], iris=['blue', 'brown', 'hazel', 'green', 'darkbrown', 'darkbrown2'])
 for who in ('boy', 'girl'):
     sk = tiles(os.path.join(HERE, 'reference', f'{who}-skin-hair-eyes.png'), 3, 2); m = core_masks(sk[1]); O = {k: stats(sk[1], m[k]) for k in ('skin', 'hair', 'iris')}
