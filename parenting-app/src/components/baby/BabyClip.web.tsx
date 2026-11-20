@@ -64,8 +64,10 @@ vec2 mask(float col, float row) { return vec2((uv.x + col) / 2.0, 0.5 - (1.0 - u
 void main() {
   if (probe > 0.5) { gl_FragColor = vec4(texture2D(frame, mask(0.0, 1.0)).rgb, 1.0); return; }
   vec3 img = px(vec2(uv.x, 0.5 + uv.y / 2.0));
-  float mSkin = px(mask(0.0, 0.0)).g * skinOn;
-  float mHair = px(mask(1.0, 0.0)).g * hairOn;
+  // The soft edge of a mask shimmers a little from frame to frame in a compressed clip, and a
+  // big change of lightness (dark hair to blond) makes that visible. A firmer edge keeps still.
+  float mSkin = smoothstep(0.22, 0.78, px(mask(0.0, 0.0)).g) * skinOn;
+  float mHair = smoothstep(0.22, 0.78, px(mask(1.0, 0.0)).g) * hairOn;
   float mCloth = px(mask(0.0, 1.0)).g;
   // The mask is stored at half size, so the thin rim of the clothes, the seams and the tint the
   // fabric throws on its buttons would keep the rendered colour. Next to the clothes, every
@@ -169,6 +171,7 @@ export function BabyClip({ clips, height, label, active, look, greet = true }: B
   const [waving, setWaving] = useState(false);
   const wavingRef = useRef(false);
   const greeted = useRef(false);
+  const repaint = useRef<() => void>(() => undefined);
   const lookRef = useRef(look);
   lookRef.current = look;
 
@@ -199,7 +202,7 @@ export function BabyClip({ clips, height, label, active, look, greet = true }: B
     p.setLook(lookRef.current, clips.base);
     return () => { p.dispose(); painter.current = null; };
   }, []);
-  useEffect(() => { painter.current?.setLook(look, clips.base); }, [look, clips.base]);
+  useEffect(() => { painter.current?.setLook(look, clips.base); repaint.current(); }, [look, clips.base]);
 
   useEffect(() => {
     const v = idle.current;
@@ -211,8 +214,8 @@ export function BabyClip({ clips, height, label, active, look, greet = true }: B
     if (wavingRef.current && wave.current) wave.current.play().catch(() => backToIdle());
     else v.play().catch(() => undefined);
     let frame = 0;
-    const tick = () => {
-      frame = requestAnimationFrame(tick);
+    let stopped = false;
+    const paint = () => {
       const source = wavingRef.current ? wave.current : idle.current;
       if (!painter.current || !source || source.readyState < 2) return;
       let ok: boolean | 'wait' = false;
@@ -221,13 +224,28 @@ export function BabyClip({ clips, height, label, active, look, greet = true }: B
       // If painting fails on this device, stop and show the clip itself, in its own colours.
       if (ok) setPainted(true); else { painter.current = null; setPlain(true); }
     };
-    frame = requestAnimationFrame(tick);
+    // Painting exactly when the clip presents a new frame is steadier on phones than painting on
+    // every screen refresh. Browsers without that callback paint on screen refreshes.
+    type FrameVideo = HTMLVideoElement & { requestVideoFrameCallback?: (cb: () => void) => number };
+    const perFrame = typeof (v as FrameVideo).requestVideoFrameCallback === 'function';
+    const follow = (video: FrameVideo | null) => {
+      if (!video?.requestVideoFrameCallback) return;
+      const onFrame = () => {
+        if (stopped) return;
+        if (video === (wavingRef.current ? wave.current : idle.current)) paint();
+        video.requestVideoFrameCallback?.(onFrame);
+      };
+      video.requestVideoFrameCallback(onFrame);
+    };
+    if (perFrame) { follow(idle.current); follow(wave.current); paint(); }
+    else { const tick = () => { frame = requestAnimationFrame(tick); paint(); }; frame = requestAnimationFrame(tick); }
+    repaint.current = paint;
     let hello: ReturnType<typeof setTimeout> | undefined;
     if (greet && !greeted.current && clips.wave && !window.matchMedia?.('(prefers-reduced-motion: reduce)').matches) {
       // Say hello once, shortly after the screen opens.
       hello = setTimeout(() => { greeted.current = true; playWave(); }, 900);
     }
-    return () => { cancelAnimationFrame(frame); if (hello) clearTimeout(hello); };
+    return () => { stopped = true; cancelAnimationFrame(frame); if (hello) clearTimeout(hello); };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [active]);
 
