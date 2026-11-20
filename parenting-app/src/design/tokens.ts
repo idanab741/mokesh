@@ -32,7 +32,7 @@ export const colors = {
 /** Gradients are part of the identity: warm rose into soft lilac, never flat fills for hero surfaces. */
 export const gradients = {
   /** Wash at the top of every screen, fading into the canvas. */
-  wash: ['#F1F1EF', '#F1F1EF', '#F1F1EF'],
+  wash: ['#FFE6EE', '#F1EBFF', '#F1F1EF'],
   primary: ['#F0628C', '#C7375F'],
   brand: ['#FF8FB0', '#B45CF0'],
 } as const;

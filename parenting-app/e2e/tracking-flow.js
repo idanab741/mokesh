@@ -240,7 +240,7 @@ const check = (name, cond) => { results.push(`${cond ? 'PASS' : 'FAIL'} ${name}`
   t = await body();
   check('routine learned: next feeding predicted from the family\'s own 3-hour gap', t.includes('הבאה') && t.includes('אצלכם כל 3 ש׳'));
   await page.evaluate(() => window.scrollTo(0, 0)); await shot('28-home-routine');
-  await shot('29-tracking');
+  await shot('29-tracking'); await page.mouse.move(195, 400); await page.mouse.wheel(0, 520); await wait(900); await shot('30-below');
 
   console.log(results.join('\n'));
   console.log('ERRORS:', [...new Set(errors)].join('\n') || 'none');

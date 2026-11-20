@@ -11,7 +11,9 @@ import { Text } from './Text';
 
 /* ---------- Screen ---------- */
 /** Every screen sits on the same soft colour wash, so the app never looks like flat grey panels. */
-export function Screen({ children, scroll, edges = ['top'], contentStyle, footer }: {
+export function Screen({ children, scroll, edges = ['top'], contentStyle, footer, wash = true }: {
+  /** False when the screen paints its own wash inside the scrolling content. */
+  wash?: boolean;
   children: ReactNode;
   scroll?: boolean;
   edges?: ('top' | 'bottom')[];
@@ -20,7 +22,7 @@ export function Screen({ children, scroll, edges = ['top'], contentStyle, footer
 }) {
   return (
     <View style={styles.screen}>
-      <LinearGradient colors={gradients.wash} locations={[0, 0.45, 1]} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={styles.wash} pointerEvents="none" />
+      {wash ? <LinearGradient colors={gradients.wash} locations={[0, 0.45, 1]} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={styles.wash} pointerEvents="none" /> : null}
       <SafeAreaView style={{ flex: 1 }} edges={edges}>
         {scroll ? (
           <ScrollView contentContainerStyle={[styles.screenContent, contentStyle]} keyboardShouldPersistTaps="handled" showsVerticalScrollIndicator={false}>

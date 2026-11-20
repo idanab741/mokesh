@@ -13,12 +13,12 @@ import { Logo } from '@/components/brand/Logo';
 import { DayStrip } from '@/components/home/DayStrip';
 import { InsightsRow } from '@/components/home/InsightsRow';
 import { QuickLog, type QuickKind } from '@/components/home/QuickLog';
-import { type Learned, TrackCard } from '@/components/home/TrackCards';
+import { activityIcons } from '@/components/ui/Icons';
 import { Float, PressScale, Rise } from '@/components/ui/motion';
-import { Button, Card, Screen, SectionHeader } from '@/components/ui/primitives';
+import { ActivityBadge, Button, Card, Screen, SectionHeader } from '@/components/ui/primitives';
 import { Text } from '@/components/ui/Text';
-import { colors, shadow, spacing } from '@/design/tokens';
-import type { FilterKey } from '@/domain/activity';
+import { activityTones, colors, gradients, shadow, spacing } from '@/design/tokens';
+import type { ActivityType, FilterKey } from '@/domain/activity';
 import { formatAgeWithSex } from '@/domain/age';
 import { stageLabel } from '@/domain/avatar';
 import { buildInsights, daysUntilInsights } from '@/domain/insights';
@@ -63,12 +63,6 @@ export default function HomeScreen() {
   const hasConflicts = (unsynced.data?.conflicts ?? 0) > 0;
   const goJournal = (filter: FilterKey) => router.push({ pathname: '/(tabs)/journal', params: { filter } });
 
-  const byKind = Object.fromEntries(predictions.map((p) => [p.kind, p]));
-  const learnedFor = (kind: 'feed' | 'sleep' | 'wake' | 'diaper', samples: number, basis: (usual: string) => string, nextLabel: string): Learned => {
-    const p = byKind[kind];
-    if (p) return { state: 'predicted', prediction: p, basis: basis(formatDuration(p.usualMin)), nextLabel };
-    return kind === 'wake' ? { state: 'none' } : { state: 'learning', samples };
-  };
   const sinceText = (d: Date | null) => {
     if (!d) return null;
     const min = (now.getTime() - d.getTime()) / 60_000;
@@ -79,11 +73,32 @@ export default function HomeScreen() {
   const s = summary.sleep;
   const d = summary.diaper;
   const so = summary.solids;
-  const feedToday = `היום: ${f.count === 1 ? 'האכלה אחת' : `${f.count} האכלות`}${f.totalMl > 0 ? ` · ${f.totalMl} מ״ל בבקבוק` : ''}`;
-  const sleepToday = `היום: ${s.minutes > 0 ? formatDuration(s.minutes) : '0 ד׳'} שינה`;
-  const diaperToday = `היום: ${d.count === 1 ? 'החלפה אחת' : `${d.count} החלפות`}${d.last ? ` · ${diaperKindLabel[d.last.payload.kind]}` : ''}`;
-  const solidsToday = so.last ? so.last.payload.foods.map((x) => x.name).join(', ') : 'אין עדיין ארוחה היום';
   const sleepStart = activeSleep ? new Date(activeSleep.startedAt ?? activeSleep.occurredAt) : null;
+  const todayStats: { type: ActivityType; filter: FilterKey; main: string; sub: string }[] = [
+    { type: 'bottle', filter: 'feeding', main: f.count === 1 ? 'האכלה אחת' : `${f.count} האכלות`, sub: f.totalMl > 0 ? `${f.totalMl} מ״ל בבקבוק` : 'היום' },
+    { type: 'sleep', filter: 'sleep', main: s.minutes > 0 ? formatDuration(s.minutes) : '0 ד׳', sub: 'שינה היום' },
+    { type: 'diaper', filter: 'diaper', main: d.count === 1 ? 'החלפה אחת' : `${d.count} החלפות`, sub: d.last ? `אחרון: ${diaperKindLabel[d.last.payload.kind]}` : 'היום' },
+    { type: 'solids', filter: 'solids', main: so.count === 1 ? 'ארוחה אחת' : `${so.count} ארוחות`, sub: so.last ? so.last.payload.foods.map((x) => x.name).join(', ') : 'היום' },
+  ];
+  // The soonest thing the family's own routine expects.
+  const next = predictions[0];
+  const nextTitle = { feed: 'ההאכלה הבאה', sleep: 'השינה הבאה', wake: 'התעוררות', diaper: 'ההחלפה הבאה' } as const;
+  const nextBasis = (kind: keyof typeof nextTitle, usual: string) =>
+    kind === 'sleep' ? `אצלכם אחרי ${usual} ערות` : kind === 'wake' ? `שנת יום אצלכם: ${usual}` : `אצלכם כל ${usual}`;
+  const nextType: ActivityType = !next ? 'bottle' : next.kind === 'feed' ? 'bottle' : next.kind === 'diaper' ? 'diaper' : 'sleep';
+  const bubbles: { type: ActivityType; filter: FilterKey; label: string; value: string | null; pos: object }[] = [
+    { type: 'bottle', filter: 'feeding', label: 'מאז האכלה', value: sinceText(routine.feed.lastAt), pos: { top: 34, start: 0 } },
+    activeSleep && sleepStart
+      ? { type: 'sleep', filter: 'sleep', label: `${child.name} ${sleepingWord(child.sex)}`, value: formatClock((tick.getTime() - sleepStart.getTime()) / 1000), pos: { top: 128, end: 0 } }
+      : { type: 'sleep', filter: 'sleep', label: 'זמן ערות', value: sinceText(routine.sleep.lastWakeAt), pos: { top: 128, end: 0 } },
+    { type: 'diaper', filter: 'diaper', label: 'מאז חיתול', value: sinceText(routine.diaper.lastAt), pos: { bottom: 18, start: 0 } },
+  ];
+  const dock: { type: ActivityType; label: string; a11y: string; onPress: () => void }[] = [
+    { type: 'bottle', label: 'האכלה', a11y: 'תיעוד האכלה', onPress: () => setQuick('feed') },
+    { type: 'sleep', label: activeSleep ? 'סיום שינה' : 'שינה', a11y: activeSleep ? 'סיום שינה' : 'התחלת שינה', onPress: () => setQuick('sleep') },
+    { type: 'diaper', label: 'חיתול', a11y: 'תיעוד חיתול', onPress: () => setQuick('diaper') },
+    { type: 'solids', label: 'ארוחה', a11y: 'תיעוד ארוחה', onPress: () => openActivityForm('solids') },
+  ];
 
   const isBrandNew = recent.data !== undefined && recent.data.length === 0;
 
@@ -95,69 +110,113 @@ export default function HomeScreen() {
   const mood = babyMood(month.data ?? [], now, child.sex);
 
   return (
-    <Screen scroll>
+    <Screen scroll wash={false}>
+      {/* The colour wash scrolls with the page and fades to the clip's own backdrop before the baby begins. */}
+      <LinearGradient colors={gradients.wash} locations={[0, 0.5, 1]} style={styles.wash} pointerEvents="none" />
       <Rise index={0} style={styles.topBar}>
         <Logo size={28} />
-        <PressScale onPress={() => router.push('/updates')} accessibilityRole="button"
-          accessibilityLabel={hasConflicts ? 'עדכונים, יש פריטים שדורשים תשומת לב' : 'עדכונים'} style={styles.bell}>
-          <Bell size={20} color={colors.textPrimary} strokeWidth={2} />
-          {hasConflicts ? <View style={styles.bellDot} /> : null}
-        </PressScale>
-      </Rise>
-
-      {/* The stage: the greeting beside the child's baby character, so tracking stays on the first screen. */}
-      <Rise index={1}>
-        <View style={styles.stage}>
-          <View style={styles.stageText}>
-            <Text variant="display" accessibilityRole="header">{greetingForHour(now.getHours())}</Text>
-            <Text variant="label" color={colors.textSecondary}>{formatDateLong(now)}</Text>
-            <PressScale onPress={openChildSheet} accessibilityRole="button"
-              accessibilityLabel={`${child.name}, ${formatAgeWithSex(child.birthDate, child.sex, now) ?? ''}`}
-              accessibilityHint={children.length > 1 ? 'מעבר בין ילדים' : 'ניהול ילדים'} style={styles.childPill}>
-              <Avatar name={child.name} uri={child.photoUri} size={36} />
-              <View style={{ flexShrink: 1 }}>
-                <Text variant="bodyStrong" numberOfLines={1}>{child.name}</Text>
-                <Text variant="caption" color={colors.textSecondary} numberOfLines={1}>{formatAgeWithSex(child.birthDate, child.sex, now) ?? ''}</Text>
-              </View>
-              <ChevronDown size={18} color={colors.textSecondary} strokeWidth={2.2} />
-            </PressScale>
-            <Text variant="caption" color={colors.textSecondary} testID="baby-mood-reason" numberOfLines={2}>
-              {mood.reason ?? (clips?.wave ? 'הקישו על הדמות לנפנוף' : onClip ? '' : 'גררו כדי לסובב')}
-            </Text>
-            {onClip ? null : (
-              <PressScale onPress={() => setLookOpen(true)} accessibilityRole="button" accessibilityLabel="התאמת המראה של הדמות" style={styles.lookBtn}>
-                <Palette size={18} color={colors.primaryStrong} strokeWidth={2} />
-              </PressScale>
-            )}
-          </View>
-          <View style={styles.stageBaby}>
-            <BabyFigure active={focused && !lookOpen && quick === null} mood={mood.mood} stage={look.stage} config={look.config} sex={child.sex} height={230} label={onClip ? `הדמות של ${child.name}` : `הדמות של ${child.name}, ${stageLabel[look.stage]}`} />
-          </View>
+        <View style={styles.topEnd}>
+          <PressScale onPress={openChildSheet} accessibilityRole="button"
+            accessibilityLabel={`${child.name}, ${formatAgeWithSex(child.birthDate, child.sex, now) ?? ''}`}
+            accessibilityHint={children.length > 1 ? 'מעבר בין ילדים' : 'ניהול ילדים'} style={styles.childPill}>
+            <Avatar name={child.name} uri={child.photoUri} size={32} />
+            <Text variant="label" style={{ fontWeight: '700', flexShrink: 1 }} numberOfLines={1}>{child.name}</Text>
+            <ChevronDown size={16} color={colors.textSecondary} strokeWidth={2.4} />
+          </PressScale>
+          <PressScale onPress={() => router.push('/updates')} accessibilityRole="button"
+            accessibilityLabel={hasConflicts ? 'עדכונים, יש פריטים שדורשים תשומת לב' : 'עדכונים'} style={styles.bell}>
+            <Bell size={20} color={colors.textPrimary} strokeWidth={2} />
+            {hasConflicts ? <View style={styles.bellDot} /> : null}
+          </PressScale>
         </View>
       </Rise>
 
-      {/* Tracking: how long since each thing, where that stands in the family's own rhythm, and one clear button. */}
-      <Rise index={2} style={styles.grid}>
-        <TrackCard type="bottle" title="האכלה" sinceLabel="מאז ההאכלה האחרונה" since={sinceText(routine.feed.lastAt)}
-          learned={learnedFor('feed', routine.feed.samples, (u) => `אצלכם כל ${u}`, 'הבאה')}
-          today={feedToday} action="תיעוד האכלה" onAction={() => setQuick('feed')} onOpen={() => goJournal('feeding')} />
-        {activeSleep && sleepStart ? (
-          <TrackCard type="sleep" running title={`${child.name} ${sleepingWord(child.sex)}`} sinceLabel={`מאז ${formatTime(sleepStart)}`}
-            since={formatClock((tick.getTime() - sleepStart.getTime()) / 1000)}
-            learned={learnedFor('wake', 0, (u) => `שנת יום אצלכם: ${u}`, 'התעוררות')}
-            today={sleepToday} action="סיום שינה" actionIcon={<Square size={16} color="#4740C2" strokeWidth={2.8} />}
-            onAction={() => setQuick('sleep')} onOpen={() => goJournal('sleep')} />
+      {/* The stage: the child's baby character at full size, with the three "how long since" facts around it. */}
+      <Rise index={1}>
+        <View style={styles.stageText}>
+          <Text variant="display" accessibilityRole="header">{greetingForHour(now.getHours())}</Text>
+          <Text variant="label" color={colors.textSecondary}>{`${formatDateLong(now)} · ${formatAgeWithSex(child.birthDate, child.sex, now) ?? ''}`}</Text>
+        </View>
+        <View style={styles.stageBaby}>
+          <BabyFigure active={focused && !lookOpen && quick === null} mood={mood.mood} stage={look.stage} config={look.config} sex={child.sex} height={320} label={onClip ? `הדמות של ${child.name}` : `הדמות של ${child.name}, ${stageLabel[look.stage]}`} />
+          {bubbles.map((b) => {
+            if (b.value === null) return null;
+            const tone = activityTones[b.type];
+            const Icon = activityIcons[b.type];
+            return (
+              <PressScale key={b.type} onPress={() => goJournal(b.filter)} accessibilityRole="button" accessibilityLabel={`${b.label}: ${b.value}`} style={[styles.bubble, b.pos]}>
+                <View style={[styles.bubbleIcon, { backgroundColor: tone.bg }]}><Icon size={16} color={tone.ink} /></View>
+                <View>
+                  <Text variant="caption" color={colors.textSecondary}>{b.label}</Text>
+                  <Text variant="bodyStrong" style={b.type === 'sleep' && activeSleep ? { writingDirection: 'ltr', textAlign: 'right' } : null}>{b.value}</Text>
+                </View>
+              </PressScale>
+            );
+          })}
+          {onClip ? null : (
+            <PressScale onPress={() => setLookOpen(true)} accessibilityRole="button" accessibilityLabel="התאמת המראה של הדמות" style={styles.lookBtn}>
+              <Palette size={18} color={colors.primaryStrong} strokeWidth={2} />
+            </PressScale>
+          )}
+        </View>
+        <Text variant="caption" color={colors.textSecondary} style={styles.moodLine} testID="baby-mood-reason">
+          {mood.reason ?? (clips?.wave ? 'הקישו על הדמות לנפנוף' : onClip ? '' : 'גררו כדי לסובב')}
+        </Text>
+      </Rise>
+
+      {/* What the family's own routine expects next, or how far the learning is. */}
+      <Rise index={2}>
+        {next ? (
+          <View style={styles.next} testID="next-up" accessible
+            accessibilityLabel={`${nextTitle[next.kind]} בסביבות ${formatTime(next.at)}. ${nextBasis(next.kind, formatDuration(next.usualMin))}`}>
+            <ActivityBadge type={nextType} size={40} soft />
+            <View style={{ flex: 1 }}>
+              <Text variant="bodyStrong">{nextTitle[next.kind]}</Text>
+              <Text variant="caption" color={colors.textSecondary}>{nextBasis(next.kind, formatDuration(next.usualMin))}</Text>
+            </View>
+            <View style={{ alignItems: 'flex-end' }}>
+              <Text variant="heading" color={activityTones[nextType].ink} style={{ writingDirection: 'ltr' }}>{`~${formatTime(next.at)}`}</Text>
+              <Text variant="caption" color={colors.textSecondary}>
+                {next.minutesUntil > 5 ? `בעוד ${formatDuration(next.minutesUntil)}` : next.minutesUntil >= -10 ? 'בערך עכשיו' : `עברו ${formatDuration(-next.minutesUntil)}`}
+              </Text>
+            </View>
+          </View>
         ) : (
-          <TrackCard type="sleep" title="שינה" sinceLabel="זמן ערות" since={sinceText(routine.sleep.lastWakeAt)}
-            learned={learnedFor('sleep', routine.sleep.awakeSamples, (u) => `אצלכם אחרי ${u} ערות`, 'שינה')}
-            today={sleepToday} action="התחלת שינה" actionIcon={<Moon size={18} color={colors.white} strokeWidth={2.2} />}
-            onAction={() => setQuick('sleep')} onOpen={() => goJournal('sleep')} />
+          <View style={styles.next} testID="next-up">
+            <View style={{ flex: 1 }}>
+              <Text variant="bodyStrong">לומדים את השגרה שלכם</Text>
+              <Text variant="caption" color={colors.textSecondary}>ככל שתתעדו, נראה כאן מתי בדרך כלל מגיעות ההאכלה, השינה וההחלפה הבאות.</Text>
+            </View>
+          </View>
         )}
-        <TrackCard type="diaper" title="חיתול" sinceLabel="מאז ההחלפה האחרונה" since={sinceText(routine.diaper.lastAt)}
-          learned={learnedFor('diaper', routine.diaper.samples, (u) => `אצלכם כל ${u}`, 'הבאה')}
-          today={diaperToday} action="תיעוד חיתול" onAction={() => setQuick('diaper')} onOpen={() => goJournal('diaper')} />
-        <TrackCard type="solids" title="מוצקים" sinceLabel="היום" since={so.count === 1 ? 'ארוחה אחת' : `${so.count} ארוחות`}
-          learned={{ state: 'none' }} today={solidsToday} action="תיעוד ארוחה" onAction={() => openActivityForm('solids')} onOpen={() => goJournal('solids')} />
+      </Rise>
+
+      {/* Logging: four big buttons, each opens a short sheet. */}
+      <Rise index={3} style={styles.dock}>
+        {dock.map((b) => {
+          const Icon = activityIcons[b.type];
+          return (
+            <PressScale key={b.type} onPress={b.onPress} accessibilityRole="button" accessibilityLabel={b.a11y} scaleTo={0.93} style={styles.dockItem}>
+              <LinearGradient colors={activityTones[b.type].grad} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={styles.dockIcon}>
+                {b.type === 'sleep' && activeSleep ? <Square size={24} color={colors.white} strokeWidth={2.6} /> : b.type === 'sleep' ? <Moon size={28} color={colors.white} strokeWidth={2} /> : <Icon size={28} color={colors.white} />}
+              </LinearGradient>
+              <Text variant="label" style={{ fontWeight: '700' }} numberOfLines={1}>{b.label}</Text>
+            </PressScale>
+          );
+        })}
+      </Rise>
+
+      {/* Today in numbers */}
+      <Rise index={4} style={styles.stats}>
+        {todayStats.map((st) => (
+          <PressScale key={st.type} onPress={() => goJournal(st.filter)} accessibilityRole="button" accessibilityLabel={`${st.main}, ${st.sub}. מעבר ליומן`} style={styles.stat}>
+            <ActivityBadge type={st.type} size={36} soft />
+            <View style={{ flex: 1 }}>
+              <Text variant="bodyStrong" numberOfLines={1}>{st.main}</Text>
+              <Text variant="caption" color={colors.textSecondary} numberOfLines={1}>{st.sub}</Text>
+            </View>
+          </PressScale>
+        ))}
       </Rise>
 
       <Rise index={4} style={{ gap: spacing.md }}>
@@ -206,13 +265,22 @@ export default function HomeScreen() {
 
 const styles = StyleSheet.create({
   topBar: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingTop: spacing.sm },
-  bell: { width: 44, height: 44, borderRadius: 22, backgroundColor: colors.surface, alignItems: 'center', justifyContent: 'center', ...shadow.card },
   bellDot: { position: 'absolute', top: 10, end: 11, width: 9, height: 9, borderRadius: 5, backgroundColor: colors.danger, borderWidth: 1.5, borderColor: colors.white },
-  stage: { flexDirection: 'row', alignItems: 'center' },
-  stageText: { flex: 1, gap: spacing.xs, zIndex: 1, alignItems: 'flex-start' },
-  stageBaby: { width: 190, height: 230, alignItems: 'center', justifyContent: 'flex-end', marginEnd: -spacing.md },
-  childPill: { flexDirection: 'row', alignItems: 'center', gap: spacing.sm, backgroundColor: colors.surface, borderRadius: 22, padding: 6, paddingEnd: spacing.md, marginTop: spacing.sm, maxWidth: '100%', ...shadow.card },
-  lookBtn: { width: 44, height: 44, borderRadius: 16, backgroundColor: colors.surface, alignItems: 'center', justifyContent: 'center', ...shadow.card },
-  grid: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing.md },
+  wash: { position: 'absolute', top: -80, start: -40, end: -40, height: 250 },
+  topEnd: { flexDirection: 'row', alignItems: 'center', gap: spacing.sm },
+  bell: { width: 44, height: 44, borderRadius: 22, backgroundColor: colors.surface, alignItems: 'center', justifyContent: 'center', ...shadow.card },
+  childPill: { flexDirection: 'row', alignItems: 'center', gap: 6, height: 44, maxWidth: 170, backgroundColor: colors.surface, borderRadius: 22, paddingStart: 6, paddingEnd: spacing.md, ...shadow.card },
+  stageText: { paddingHorizontal: spacing.xs, zIndex: 1 },
+  stageBaby: { marginTop: -spacing.lg, alignItems: 'center', justifyContent: 'flex-end', height: 320 },
+  bubble: { position: 'absolute', flexDirection: 'row', alignItems: 'center', gap: spacing.sm, backgroundColor: colors.surface, borderRadius: 18, paddingVertical: 6, paddingStart: 6, paddingEnd: spacing.md, ...shadow.card },
+  bubbleIcon: { width: 32, height: 32, borderRadius: 12, alignItems: 'center', justifyContent: 'center' },
+  lookBtn: { position: 'absolute', bottom: 0, end: 0, width: 44, height: 44, borderRadius: 16, backgroundColor: colors.surface, alignItems: 'center', justifyContent: 'center', ...shadow.card },
+  moodLine: { alignSelf: 'center', marginTop: spacing.xs },
+  next: { flexDirection: 'row', alignItems: 'center', gap: spacing.md, backgroundColor: colors.surface, borderRadius: 22, padding: spacing.md, paddingEnd: spacing.lg, ...shadow.card },
+  dock: { flexDirection: 'row', justifyContent: 'space-between' },
+  dockItem: { alignItems: 'center', gap: 6, flex: 1 },
+  dockIcon: { width: 68, height: 68, borderRadius: 24, alignItems: 'center', justifyContent: 'center' },
+  stats: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing.sm },
+  stat: { flexBasis: '47%', flexGrow: 1, flexDirection: 'row', alignItems: 'center', gap: spacing.sm, backgroundColor: colors.surface, borderRadius: 18, padding: spacing.sm, paddingEnd: spacing.md },
   firstRun: { alignItems: 'center', gap: spacing.sm, paddingVertical: spacing.xl },
 });

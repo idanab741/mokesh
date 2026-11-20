@@ -152,3 +152,11 @@ The first pass only restyled the old layout; the user asked for a rethink. Home 
   preselected; "when" can be moved back up to an hour (also for sleep start and wake-up); the save button spells out
   what is saved. Diaper tiles save on tap. Full forms stay one link away.
 - The "מה הלאה" card and the stacked rows from the first pass were removed.
+
+## Home, third pass (2026-11-20)
+
+The side-by-side hero and the dense 2x2 cards were rejected: the baby must stay at full size. Home is now: child chip
+in the top bar, the baby at 320 px with three "how long since" bubbles around it (feeding, awake time / running sleep,
+diaper), one line with what the family's routine expects next, four large gradient buttons that open the quick-log
+sheet, and today's totals as four small tiles. The pink-lavender wash is back; on Home it scrolls with the page and
+fades to the clip's backdrop colour before the baby begins.
