@@ -140,3 +140,15 @@
   buttons with an arrow open the form; the running sleep lights up its own card with the timer and "סיום שינה".
 - E2E: 30 checks, including the learned 3-hour feeding gap and the one-tap bottle offering a real amount.
 - Not checked on a real iPhone; checked in Chromium at iPhone size only.
+
+## Tracking rebuilt (2026-11-20, second pass)
+
+The first pass only restyled the old layout; the user asked for a rethink. Home is now built around tracking:
+- The baby stands beside the greeting (230 px) so the four tracking cards are on the first screen.
+- Each card answers "how long since": time since the last feeding / awake time / time since the last diaper, a bar
+  showing where that stands in the family's own usual gap, the predicted next time, today's total, one labelled button.
+  A running sleep turns its card into the timer.
+- `QuickLog` sheet: logging without leaving Home. Bottle amounts are the ones the family logs most, the usual one is
+  preselected; "when" can be moved back up to an hour (also for sleep start and wake-up); the save button spells out
+  what is saved. Diaper tiles save on tap. Full forms stay one link away.
+- The "מה הלאה" card and the stacked rows from the first pass were removed.

@@ -20,6 +20,8 @@ export interface Routine {
     /** Usual bottle, when bottles are logged. */
     bottleMl: number | null;
     milkType: EventOf<'bottle'>['payload']['milkType'] | null;
+    /** Up to four amounts the family gives most, smallest first: the choices offered when logging. */
+    bottleAmounts: number[];
   };
   sleep: {
     /** Usual minutes awake before the next sleep starts. */
@@ -61,6 +63,11 @@ function mostCommon(xs: number[]): number | null {
   xs.forEach((x) => counts.set(x, (counts.get(x) ?? 0) + 1));
   xs.forEach((x) => { const n = counts.get(x) as number; if (n > bestN) { best = x; bestN = n; } });
   return best;
+}
+function topAmounts(xs: number[]): number[] {
+  const counts = new Map<number, number>();
+  xs.forEach((x) => counts.set(x, (counts.get(x) ?? 0) + 1));
+  return [...counts.entries()].sort((a, b) => b[1] - a[1]).slice(0, 4).map(([x]) => x).sort((a, b) => a - b);
 }
 const round5 = (min: number) => Math.round(min / 5) * 5;
 const usual = (xs: number[]) => (xs.length >= MIN_SAMPLES ? round5(median(xs)) : null);
@@ -122,6 +129,7 @@ export function learnRoutine(events: readonly ActivityEvent[], now: Date = new D
       usual: feeds.length === 0 ? null : nursingCount > bottles.length ? 'nursing' : 'bottle',
       bottleMl: mostCommon(recentBottles.map((b) => b.payload.amountMl)),
       milkType: milkType ?? null,
+      bottleAmounts: topAmounts(recentBottles.map((b) => b.payload.amountMl)),
     },
     sleep: {
       awakeMin: usual(awake), awakeSamples: awake.length,
