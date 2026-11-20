@@ -7,7 +7,7 @@ import { openActivityForm } from '@/components/AddActivitySheet';
 import { EventRow } from '@/components/activity/EventRow';
 import { Avatar } from '@/components/Avatar';
 import { BabyCustomizeSheet, useBabyLook } from '@/components/baby/BabyCard';
-import { BabyView } from '@/components/baby/BabyView';
+import { BabySprite } from '@/components/baby/BabySprite';
 import { MobileIllustration, StageScene, dayPartForHour, skyThemes } from '@/components/brand/Illustrations';
 import { Logo } from '@/components/brand/Logo';
 import { DayStrip } from '@/components/home/DayStrip';
@@ -155,7 +155,7 @@ export default function HomeScreen() {
             <Text variant="label" color={sky.sub}>{formatDateLong(now)}</Text>
           </View>
           <View style={styles.stageBaby}>
-            <BabyView active={focused && !lookOpen} stage={look.stage} config={look.config} sex={child.sex} height={262} label={`הדמות של ${child.name}, ${stageLabel[look.stage]}`} />
+            <BabySprite active={focused && !lookOpen} stage={look.stage} config={look.config} sex={child.sex} height={262} label={`הדמות של ${child.name}, ${stageLabel[look.stage]}`} />
           </View>
           <View style={styles.stageBottom}>
             <PressScale onPress={openChildSheet} accessibilityRole="button"
