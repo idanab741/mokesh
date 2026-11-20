@@ -1,43 +1,21 @@
-import { Check } from 'lucide-react-native';
+import * as ImagePicker from 'expo-image-picker';
+import { Camera, Check } from 'lucide-react-native';
+import { useEffect, useRef } from 'react';
 import { Pressable, StyleSheet, View } from 'react-native';
 import { Avatar } from '@/components/Avatar';
-import { Sheet } from '@/components/ui/overlays';
-import { Chip, Notice } from '@/components/ui/primitives';
+import { Sheet, useToast } from '@/components/ui/overlays';
+import { Button, Chip, Notice } from '@/components/ui/primitives';
 import { Text } from '@/components/ui/Text';
 import { colors, radius, spacing } from '@/design/tokens';
 import { ageParts } from '@/domain/age';
 import {
-  type AvatarConfig, type BabyStage, EYE_COLORS, HAIR_COLORS, OUTFIT_COLORS, SKIN_TONES,
-  defaultStageForAge, parseAvatar, resolveStage, stageLabel,
+  type AvatarConfig, type BabyStage, OUTFIT_COLORS, defaultStageForAge, outfitName, parseAvatar, photoFingerprint,
+  resolveOutfit, resolveStage, stageLabel,
 } from '@/domain/avatar';
 import type { Child } from '@/domain/child';
 import { useChildMutations } from '@/hooks/data';
+import { analysePhoto, canAnalysePhotos } from '@/services/photoLook';
 import { Baby3D } from './Baby3D';
-
-function Swatches({ label, options, value, onChange, names }: {
-  label: string; options: readonly (string | null)[]; value: string | null; onChange: (v: string | null) => void; names: (i: number, v: string | null) => string;
-}) {
-  return (
-    <View style={{ gap: spacing.sm }}>
-      <Text variant="label" color={colors.textSecondary}>{label}</Text>
-      <View style={styles.swatches} accessibilityRole="radiogroup">
-        {options.map((option, i) => {
-          const selected = option === value;
-          return (
-            <Pressable key={option ?? 'none'} onPress={() => onChange(option)} accessibilityRole="radio" accessibilityState={{ checked: selected }} aria-checked={selected}
-              accessibilityLabel={names(i, option)} hitSlop={4}
-              style={[styles.swatch, { backgroundColor: option ?? colors.surface }, selected && styles.swatchSelected, option === '#FFFFFF' || option === null ? styles.swatchLight : null]}>
-              {option === null ? <Text variant="caption" color={colors.textSecondary}>בלי</Text> : null}
-              {selected && option !== null ? <Check size={18} color={i < 2 || option === '#FFFFFF' || option === '#EACB7C' ? colors.textPrimary : colors.white} strokeWidth={3} /> : null}
-            </Pressable>
-          );
-        })}
-      </View>
-    </View>
-  );
-}
-
-const STAGES: (BabyStage | 'auto')[] = ['auto', 'tummy', 'sit', 'crawl', 'stand'];
 
 /** Resolved look of a child's 3D baby. */
 export function useBabyLook(child: Child, now: Date) {
@@ -46,17 +24,96 @@ export function useBabyLook(child: Child, now: Date) {
   return { config, months, stage: resolveStage(config, months) };
 }
 
-/** The sheet where a parent makes the 3D baby look like their child. A live preview stays on top. */
-export function BabyCustomizeSheet({ child, now, open, onClose }: { child: Child; now: Date; open: boolean; onClose: () => void }) {
+/**
+ * Keeps the 3D baby in step with the child's photo: whenever the photo changes, skin tone
+ * and hair are read from it once (on the device) and stored with the avatar.
+ */
+export function useLookFromPhoto(child: Child | null) {
   const { setAvatar } = useChildMutations();
+  const busy = useRef<string | null>(null);
+  const id = child?.id;
+  const uri = child?.photoUri ?? null;
+  const raw = child?.avatar ?? null;
+  useEffect(() => {
+    if (!id || !uri || !canAnalysePhotos) return;
+    const config = parseAvatar(raw);
+    const print = photoFingerprint(uri);
+    if (config.photo === print || busy.current === print) return;
+    busy.current = print;
+    analysePhoto(uri)
+      .catch(() => null)
+      .then((look) => {
+        const next: AvatarConfig = look ? { ...config, skin: look.skin, hair: look.hair, photo: print, photoOk: true } : { ...config, photo: print, photoOk: false };
+        setAvatar.mutate({ id, avatar: JSON.stringify(next) });
+      })
+      .finally(() => { busy.current = null; });
+    // setAvatar is a stable mutation object; depending on it would re-run the analysis needlessly.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [id, uri, raw]);
+}
+
+const STAGES: (BabyStage | 'auto')[] = ['auto', 'tummy', 'sit', 'crawl', 'stand'];
+
+/**
+ * The look editor. A parent can change the colour of the clothes (and the pose); how the
+ * baby itself looks comes from the child's photo.
+ */
+export function BabyCustomizeSheet({ child, now, open, onClose }: { child: Child; now: Date; open: boolean; onClose: () => void }) {
+  const { setAvatar, setPhoto } = useChildMutations();
+  const toast = useToast((s) => s.show);
   const { config, months, stage } = useBabyLook(child, now);
+  const outfit = resolveOutfit(config, child.sex);
   const update = (patch: Partial<AvatarConfig>) => setAvatar.mutate({ id: child.id, avatar: JSON.stringify({ ...config, ...patch }) });
+
+  const pickPhoto = async () => {
+    try {
+      const result = await ImagePicker.launchImageLibraryAsync({ mediaTypes: ['images'], allowsEditing: true, aspect: [1, 1], quality: 0.6 });
+      if (!result.canceled && result.assets[0]) setPhoto.mutate({ id: child.id, uri: result.assets[0].uri });
+    } catch {
+      toast('לא הצלחנו לפתוח את התמונות. אפשר לבדוק את ההרשאות בהגדרות המכשיר.', { tone: 'error' });
+    }
+  };
+
+  const photoStatus = !child.photoUri
+    ? `העלו תמונה של ${child.name} מקרוב, והדמות תקבל את גוון העור והשיער ממנה.`
+    : !canAnalysePhotos
+      ? 'התאמת הדמות לתמונה זמינה כרגע רק בגרסת הדפדפן.'
+      : config.photoOk === false
+        ? 'לא הצלחנו לזהות פנים בתמונה. כדאי לנסות תמונה מקרוב, באור טוב ובלי כובע.'
+        : config.photoOk
+          ? 'גוון העור והשיער של הדמות נקבעו לפי התמונה.'
+          : 'קוראים את התמונה…';
+
   return (
     <Sheet visible={open} onClose={onClose} title={`המראה של ${child.name}`}>
       <View style={styles.preview}>
-        {open ? <Baby3D stage={stage} config={config} sex={child.sex} height={190} label={`תצוגה מקדימה של ${child.name}`} /> : null}
-        {child.photoUri ? <View style={styles.previewPhoto}><Avatar name={child.name} uri={child.photoUri} size={52} /></View> : null}
+        {open ? <Baby3D stage={stage} config={config} sex={child.sex} height={200} label={`תצוגה מקדימה של ${child.name}`} /> : null}
       </View>
+
+      <View style={styles.photoRow}>
+        <Avatar name={child.name} uri={child.photoUri} size={60} />
+        <View style={{ flex: 1, gap: spacing.sm }}>
+          <Text variant="caption" color={config.photoOk === false ? colors.warning : colors.textSecondary} accessibilityLiveRegion="polite">{photoStatus}</Text>
+          <Button label={child.photoUri ? 'החלפת תמונה' : 'העלאת תמונה'} icon={Camera} size="md" variant="secondary" onPress={() => void pickPhoto()} style={{ alignSelf: 'flex-start' }} />
+        </View>
+      </View>
+
+      <View style={{ gap: spacing.sm }}>
+        <Text variant="label" color={colors.textSecondary}>צבע הבגדים</Text>
+        <View style={styles.swatches} accessibilityRole="radiogroup">
+          {OUTFIT_COLORS.map((color) => {
+            const selected = color === outfit;
+            return (
+              <Pressable key={color} onPress={() => update({ outfit: color })} accessibilityRole="radio" accessibilityState={{ checked: selected }}
+                aria-checked={selected} accessibilityLabel={`בגדים בצבע ${outfitName[color]}`}
+                style={[styles.swatch, { backgroundColor: color }, selected && styles.swatchSelected, color === '#FFFFFF' ? styles.swatchLight : null]}>
+                {selected ? <Check size={20} color={colors.textPrimary} strokeWidth={3} /> : null}
+              </Pressable>
+            );
+          })}
+        </View>
+      </View>
+
       <View style={{ gap: spacing.sm }}>
         <Text variant="label" color={colors.textSecondary}>תנוחה</Text>
         <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: spacing.sm }}>
@@ -66,20 +123,16 @@ export function BabyCustomizeSheet({ child, now, open, onClose }: { child: Child
           ))}
         </View>
       </View>
-      <Swatches label="גוון עור" options={SKIN_TONES} value={config.skin} onChange={(v) => v && update({ skin: v })} names={(i) => `גוון עור ${i + 1}`} />
-      <Swatches label="שיער" options={[...HAIR_COLORS, null]} value={config.hair} onChange={(v) => update({ hair: v })} names={(i, v) => (v ? `צבע שיער ${i + 1}` : 'בלי שיער')} />
-      <Swatches label="עיניים" options={EYE_COLORS} value={config.eyes} onChange={(v) => v && update({ eyes: v })} names={(i) => `צבע עיניים ${i + 1}`} />
-      <Swatches label="בגד" options={OUTFIT_COLORS} value={config.outfit} onChange={(v) => v && update({ outfit: v })} names={(i, v) => (v === '#FFFFFF' ? 'חיתול בלבד' : `צבע בגד ${i}`)} />
-      <Notice text="התנוחה לפי הגיל היא ברירת מחדל משחקית בלבד. כל ילד מתקדם בקצב שלו, ואפשר לבחור תנוחה אחרת בכל רגע." />
+      <Notice text="התמונה נקראת במכשיר שלכם בלבד ולא נשלחת לשום מקום. התנוחה לפי הגיל היא ברירת מחדל משחקית: כל ילד מתקדם בקצב שלו." />
     </Sheet>
   );
 }
 
 const styles = StyleSheet.create({
   swatches: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing.md },
-  swatch: { width: 44, height: 44, borderRadius: 22, alignItems: 'center', justifyContent: 'center', borderWidth: 2, borderColor: 'transparent' },
+  swatch: { width: 48, height: 48, borderRadius: 24, alignItems: 'center', justifyContent: 'center', borderWidth: 2, borderColor: 'transparent' },
   swatchLight: { borderColor: colors.borderStrong },
   swatchSelected: { borderColor: colors.textPrimary, borderWidth: 3 },
-  preview: { height: 190, borderRadius: radius.xl, backgroundColor: '#FFF1F5', overflow: 'hidden' },
-  previewPhoto: { position: 'absolute', top: spacing.md, start: spacing.md, borderRadius: 30, borderWidth: 3, borderColor: colors.white },
+  preview: { height: 200, borderRadius: radius.xl, backgroundColor: '#FFF1F5', overflow: 'hidden' },
+  photoRow: { flexDirection: 'row', alignItems: 'center', gap: spacing.md, backgroundColor: colors.surface, borderRadius: radius.lg, padding: spacing.md },
 });

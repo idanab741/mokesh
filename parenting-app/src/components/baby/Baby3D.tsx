@@ -3,7 +3,7 @@ import { Component, type ReactNode, useMemo, useRef } from 'react';
 import { PanResponder, View } from 'react-native';
 import * as THREE from 'three';
 import type { ChildSex } from '@/domain/age';
-import type { AvatarConfig, BabyStage } from '@/domain/avatar';
+import { type AvatarConfig, type BabyStage, resolveOutfit } from '@/domain/avatar';
 
 /**
  * The child as a stylised 3D character in the spirit of animated-film babies: an oversized
@@ -27,8 +27,8 @@ interface Pose {
   /** Vertical offset so every pose sits nicely in the frame. */
   lift: number;
   shadow: V3;
-  /** Which arm waves (0 left, 1 right) or none. */
-  wave: 0 | 1 | null;
+  /** Which arm waves (0 left, 1 right), both, or none. */
+  wave: 0 | 1 | 'both' | null;
 }
 
 const mx = (v: V3): V3 => [-v[0], v[1], v[2]];
@@ -41,10 +41,10 @@ const POSES: Record<BabyStage, Pose> = {
     head: [0, 1.34, 0.04], headTilt: [0.02, 0, 0.05],
     torso: { pos: [0, 0.56, 0], rot: [0.04, 0, 0], scale: [0.41, 0.44, 0.37] },
     diaper: { pos: [0, 0.3, 0.03], scale: [0.45, 0.3, 0.41] },
-    arms: [[[0.36, 0.8, 0.06], [0.52, 0.55, 0.22], [0.34, 0.44, 0.44]], [[-0.36, 0.8, 0.06], [-0.64, 0.8, 0.2], [-0.86, 1.02, 0.3]]],
+    arms: both([[0.36, 0.8, 0.06], [0.66, 0.84, 0.2], [0.94, 0.98, 0.34]]),
     legs: both([[0.2, 0.24, 0.14], [0.4, 0.2, 0.46], [0.46, 0.15, 0.72]]),
     feet: bothFeet({ pos: [0.47, 0.22, 0.8], rot: [-1.25, 0.3, 0] }),
-    lift: -0.92, shadow: [1.05, 1, 1.05], wave: 1,
+    lift: -0.92, shadow: [1.05, 1, 1.05], wave: 'both',
   },
   stand: {
     head: [0, 1.56, 0.02], headTilt: [0, 0, 0.04],
@@ -133,14 +133,17 @@ function Arm({ chain, skin, sleeve, waving }: { chain: Chain; skin: string; slee
     const at = (s: number, u: number, f = 0) => base.clone().add(side.clone().multiplyScalar(s)).add(up.clone().multiplyScalar(u)).add(dir.clone().multiplyScalar(f)).toArray() as V3;
     return { tips: [at(-0.065, 0, 0), at(-0.022, 0, 0.025), at(0.022, 0, 0.025), at(0.065, 0, 0)], thumb: at(0.02, 0.085, -0.07) };
   }, [elbow, hand]);
+  const cuff = useMemo(() => [elbow[0] + (hand[0] - elbow[0]) * 0.72, elbow[1] + (hand[1] - elbow[1]) * 0.72, elbow[2] + (hand[2] - elbow[2]) * 0.72] as V3, [elbow, hand]);
   useFrame((state) => {
-    if (group.current) group.current.rotation.z = waving ? Math.sin(state.clock.elapsedTime * 3.2) * 0.22 : 0;
+    // Mirrored for the two sides so open arms move together, like a little "pick me up".
+    if (group.current) group.current.rotation.z = waving ? Math.sin(state.clock.elapsedTime * 3.2) * 0.2 * (shoulder[0] < 0 ? 1 : -1) : 0;
   });
   return (
     <group ref={group} position={shoulder}>
-      <Segment from={[0, 0, 0]} to={elbow} radius={0.115} color={sleeve ?? skin} kind={sleeve ? 'cloth' : 'skin'} />
-      {sleeve ? <Ball pos={elbow} r={0.125} scale={[1, 0.5, 1]} color="#FFFFFF" kind="cloth" /> : null}
-      <Segment from={elbow} to={hand} radius={0.1} color={skin} kind="skin" />
+      <Segment from={[0, 0, 0]} to={elbow} radius={sleeve ? 0.125 : 0.115} color={sleeve ?? skin} kind={sleeve ? 'cloth' : 'skin'} />
+      {sleeve ? <Ball pos={elbow} r={0.125} color={sleeve} kind="cloth" /> : null}
+      <Segment from={elbow} to={sleeve ? cuff : hand} radius={sleeve ? 0.118 : 0.1} color={sleeve ?? skin} kind={sleeve ? 'cloth' : 'skin'} />
+      {sleeve ? <Segment from={cuff} to={hand} radius={0.095} color={skin} kind="skin" /> : null}
       <Ball pos={hand} r={0.125} color={skin} kind="skin" />
       {fingers.tips.map((p, i) => <Ball key={i} pos={p} r={0.04} color={skin} kind="skin" />)}
       <Ball pos={fingers.thumb} r={0.045} color={skin} kind="skin" />
@@ -196,13 +199,13 @@ function Eye({ x, color, lashes, browColor }: { x: number; color: string; lashes
   );
 }
 
-function Head({ config, sex }: { config: AvatarConfig; sex: ChildSex }) {
+function Head({ config, sex, outfit }: { config: AvatarConfig; sex: ChildSex; outfit: string }) {
   const skin = config.skin;
   const girl = sex === 'female';
   const boy = sex === 'male';
   const hair = config.hair;
   const brow = hair ?? '#6B4A36';
-  const band = config.outfit === '#FFFFFF' ? '#F5A9BF' : config.outfit;
+  const band = outfit;
   return (
     <>
       {/* skull, chubby cheeks and chin */}
@@ -246,11 +249,12 @@ function Head({ config, sex }: { config: AvatarConfig; sex: ChildSex }) {
           </mesh>
           {boy ? (
             <>
-              {/* a swept quiff */}
-              <Ball pos={[0.1, 0.5, 0.36]} scale={[1.35, 0.8, 1]} r={0.2} rot={[0, 0, -0.3]} color={hair} kind="cloth" />
-              <Ball pos={[-0.16, 0.52, 0.3]} scale={[1.2, 0.8, 1]} r={0.18} rot={[0, 0, 0.25]} color={hair} kind="cloth" />
-              <Ball pos={[0.32, 0.42, 0.26]} scale={[1, 0.9, 1]} r={0.16} color={hair} kind="cloth" />
-              <Ball pos={[0.04, 0.64, 0.16]} scale={[1.3, 0.75, 1.1]} r={0.19} color={hair} kind="cloth" />
+              {/* one big quiff: a low, wide wave over the forehead that sweeps to one side and curls up */}
+              <Ball pos={[-0.02, 0.5, 0.35]} scale={[1.95, 0.62, 1.05]} r={0.21} rot={[0.2, 0, -0.1]} color={hair} kind="cloth" />
+              <Ball pos={[0.1, 0.6, 0.31]} scale={[1.5, 0.78, 1]} r={0.19} rot={[0, 0, -0.42]} color={hair} kind="cloth" />
+              <Ball pos={[0.22, 0.7, 0.27]} scale={[1.15, 0.9, 0.95]} r={0.15} rot={[0, 0, -0.6]} color={hair} kind="cloth" />
+              <Ball pos={[0.31, 0.77, 0.25]} r={0.1} color={hair} kind="cloth" />
+              <Ball pos={[0.37, 0.81, 0.24]} r={0.06} color={hair} kind="cloth" />
             </>
           ) : (
             <>
@@ -289,9 +293,11 @@ function Baby({ stage, config, sex, spin, autoRotate }: { stage: BabyStage; conf
   const body = useRef<THREE.Group>(null);
   const pose = POSES[stage];
   const skin = config.skin;
-  const dressed = config.outfit !== '#FFFFFF';
-  const shirt = dressed && sex !== 'female' ? config.outfit : null;
-  const collar = sex === 'female' ? (dressed ? config.outfit : '#F5A9BF') : shirt ? '#FFFFFF' : null;
+  const outfit = resolveOutfit(config, sex);
+  const girl = sex === 'female';
+  /** The onesie colour, or null for the girl, who wears a diaper with a matching collar and headband. */
+  const suit = girl ? null : outfit;
+  const trim = outfit === '#FFFFFF' ? '#E4E9EE' : '#FFFFFF';
 
   useFrame((state, delta) => {
     const t = state.clock.elapsedTime;
@@ -320,29 +326,37 @@ function Baby({ stage, config, sex, spin, autoRotate }: { stage: BabyStage; conf
 
       <group ref={body}>
         <group position={pose.torso.pos} rotation={pose.torso.rot}>
-          <Ball pos={[0, 0, 0]} scale={pose.torso.scale} r={1} color={shirt ?? skin} kind={shirt ? 'cloth' : 'skin'} />
+          <Ball pos={[0, 0, 0]} scale={pose.torso.scale} r={1} color={suit ?? skin} kind={suit ? 'cloth' : 'skin'} />
+          {suit ? [0.5, 0.12, -0.26].map((y) => {
+            // Buttons sit on the front surface of the (ellipsoid) torso.
+            const z = Math.sqrt(Math.max(0, 1 - y * y));
+            return <Ball key={y} pos={[0, y * pose.torso.scale[1], z * pose.torso.scale[2] + 0.005]} scale={[1, 1, 0.5]} r={0.035} color={trim} kind="gloss" />;
+          }) : null}
         </group>
-        <Ball pos={pose.diaper.pos} scale={pose.diaper.scale} r={1} color="#FFFFFF" kind="cloth" />
+        <Ball pos={pose.diaper.pos} scale={pose.diaper.scale} r={1} color={suit ?? '#FFFFFF'} kind="cloth" />
 
-        {[0, 1].map((i) => (
-          <group key={i}>
-            <Arm chain={pose.arms[i]} skin={skin} sleeve={shirt} waving={pose.wave === i} />
-            <Segment from={pose.legs[i][0]} to={pose.legs[i][1]} radius={0.15} color={skin} kind="skin" />
-            <Ball pos={pose.legs[i][1]} r={0.14} color={skin} kind="skin" />
-            <Segment from={pose.legs[i][1]} to={pose.legs[i][2]} radius={0.12} color={skin} kind="skin" />
-            <Foot pos={pose.feet[i].pos} rot={pose.feet[i].rot} skin={skin} />
-          </group>
-        ))}
+        {[0, 1].map((i) => {
+          const [hip, knee, ankle] = pose.legs[i];
+          const hem: V3 = [knee[0] + (ankle[0] - knee[0]) * 0.7, knee[1] + (ankle[1] - knee[1]) * 0.7, knee[2] + (ankle[2] - knee[2]) * 0.7];
+          return (
+            <group key={i}>
+              <Arm chain={pose.arms[i]} skin={skin} sleeve={suit} waving={pose.wave === i || pose.wave === 'both'} />
+              <Segment from={hip} to={knee} radius={suit ? 0.16 : 0.15} color={suit ?? skin} kind={suit ? 'cloth' : 'skin'} />
+              <Ball pos={knee} r={suit ? 0.15 : 0.14} color={suit ?? skin} kind={suit ? 'cloth' : 'skin'} />
+              <Segment from={knee} to={suit ? hem : ankle} radius={suit ? 0.14 : 0.12} color={suit ?? skin} kind={suit ? 'cloth' : 'skin'} />
+              {suit ? <Segment from={hem} to={ankle} radius={0.105} color={skin} kind="skin" /> : null}
+              <Foot pos={pose.feet[i].pos} rot={pose.feet[i].rot} skin={skin} />
+            </group>
+          );
+        })}
 
         <group position={pose.head}>
-          {collar ? (
-            <mesh position={[0, -0.57, 0.0]} rotation={[Math.PI / 2, 0, 0]}>
-              <torusGeometry args={[0.27, 0.07, 12, 40]} />
-              <meshStandardMaterial color={collar} roughness={0.95} />
-            </mesh>
-          ) : null}
+          <mesh position={[0, -0.57, 0.0]} rotation={[Math.PI / 2, 0, 0]}>
+            <torusGeometry args={[0.27, girl ? 0.07 : 0.055, 12, 40]} />
+            <meshStandardMaterial color={outfit} roughness={0.95} />
+          </mesh>
           <group ref={head}>
-            <Head config={config} sex={sex} />
+            <Head config={config} sex={sex} outfit={outfit} />
           </group>
         </group>
       </group>

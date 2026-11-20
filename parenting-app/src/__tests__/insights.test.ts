@@ -1,4 +1,4 @@
-import { defaultStageForAge, parseAvatar, resolveStage } from '@/domain/avatar';
+import { SKIN_TONES, defaultStageForAge, lookFromPixels, parseAvatar, resolveOutfit, resolveStage } from '@/domain/avatar';
 import { buildInsights, daysUntilInsights } from '@/domain/insights';
 import { makeEvent } from './helpers/factories';
 
@@ -66,8 +66,56 @@ describe('avatar', () => {
     expect(defaultStageForAge(14)).toBe('stand');
     expect(resolveStage({ ...parseAvatar(null), stage: 'stand' }, 2)).toBe('stand');
   });
-  it('falls back to defaults for missing or corrupt data', () => {
+  it('falls back to defaults for missing or corrupt data, and ignores unknown outfit colours', () => {
     expect(parseAvatar('not json').stage).toBe('auto');
-    expect(parseAvatar('{"hair":null,"stage":"crawl"}')).toMatchObject({ hair: null, stage: 'crawl' });
+    expect(parseAvatar('{"hair":null,"stage":"crawl","outfit":"#123456"}')).toMatchObject({ hair: null, stage: 'crawl', outfit: 'auto' });
+    expect(resolveOutfit(parseAvatar(null), 'male')).toBe('#A9D8DC');
+    expect(resolveOutfit(parseAvatar(null), 'female')).toBe('#F5A9BF');
+    expect(resolveOutfit(parseAvatar('{"outfit":"#C9B8F2"}'), 'male')).toBe('#C9B8F2');
+  });
+});
+
+/** Paints a square "portrait": background, a face ellipse, and optionally hair above it. */
+function portrait(skin: [number, number, number], hair: [number, number, number] | null, bg: [number, number, number] = [120, 170, 220]) {
+  const n = 64;
+  const px = new Uint8ClampedArray(n * n * 4);
+  for (let y = 0; y < n; y += 1) for (let x = 0; x < n; x += 1) {
+    const i = (y * n + x) * 4;
+    const dx = (x - n / 2) / (n * 0.34), dy = (y - n * 0.55) / (n * 0.4);
+    const inFace = dx * dx + dy * dy <= 1;
+    const hx = (x - n / 2) / (n * 0.36), hy = (y - n * 0.24) / (n * 0.2);
+    const inHair = hair !== null && hx * hx + hy * hy <= 1 && y < n * 0.3;
+    const c = inHair ? hair! : inFace ? skin : bg;
+    px[i] = c[0]; px[i + 1] = c[1]; px[i + 2] = c[2]; px[i + 3] = 255;
+  }
+  return { px, n };
+}
+
+describe('look from a photo', () => {
+  it('matches fair, medium and dark skin to different tones', () => {
+    const fair = portrait([246, 214, 196], [70, 45, 28]);
+    const medium = portrait([205, 150, 110], [40, 28, 20]);
+    const dark = portrait([120, 78, 52], [30, 22, 18]);
+    const tones = [fair, medium, dark].map((p) => lookFromPixels(p.px, p.n, p.n)!.skin);
+    const order = tones.map((t) => (SKIN_TONES as readonly string[]).indexOf(t));
+    expect(order[0]).toBeLessThan(order[1]);
+    expect(order[1]).toBeLessThan(order[2]);
+  });
+  it('tells dark hair, blond hair and no hair apart', () => {
+    const dark = portrait([240, 205, 185], [42, 28, 20]);
+    const blond = portrait([240, 205, 185], [226, 196, 120]);
+    const none = portrait([240, 205, 185], [240, 205, 185]);
+    expect(lookFromPixels(dark.px, dark.n, dark.n)!.hair).toBe('#2A1C14');
+    expect(['#EACB7C', '#C79A4E']).toContain(lookFromPixels(blond.px, blond.n, blond.n)!.hair);
+    expect(lookFromPixels(none.px, none.n, none.n)!.hair).toBeNull();
+  });
+  it('does not mistake a coloured background above the head for hair', () => {
+    const p = portrait([240, 205, 185], null, [60, 120, 230]);
+    expect(lookFromPixels(p.px, p.n, p.n)!.hair).toBeNull();
+  });
+  it('refuses to guess when no face is visible', () => {
+    const n = 64;
+    const px = new Uint8ClampedArray(n * n * 4).fill(90);
+    expect(lookFromPixels(px, n, n)).toBeNull();
   });
 });
