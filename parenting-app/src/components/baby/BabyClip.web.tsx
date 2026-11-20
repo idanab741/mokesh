@@ -5,9 +5,9 @@ import type { BabyClipProps } from './BabyClip';
 export type { BabyClipProps } from './BabyClip';
 
 /**
- * Every clip file is a grid of six panels of the same size (3 across, 2 down): the picture,
- * then grey masks that say where the skin, the hair, the clothes and the irises are in that
- * frame. The shader repaints those areas and keeps the light and shade of the picture.
+ * Every clip file holds the picture in its top half and, in the bottom half, four grey masks
+ * at half size (skin, hair / clothes, irises) that say where each of them is in that frame.
+ * The shader repaints those areas and keeps the light and shade of the picture.
  */
 const PANEL_W = 668;
 const PANEL_H = 720;
@@ -15,8 +15,9 @@ const ASPECT = PANEL_W / PANEL_H;
 /** The edges fade out, so the clip's own backdrop melts into the screen (which has the same colour). */
 const FEATHER = 'linear-gradient(to right, transparent 0, #000 16%, #000 84%, transparent 100%), linear-gradient(to bottom, transparent 0, #000 10%, #000 92%, transparent 100%)';
 const fill: CSSProperties = { position: 'absolute', inset: 0, width: '100%', height: '100%', display: 'block', pointerEvents: 'none' };
-/** Without WebGL the plain picture is shown: the grid is enlarged so only its first panel is visible. */
-const firstPanel: CSSProperties = { position: 'absolute', left: 0, top: 0, width: '300%', height: '200%', display: 'block', pointerEvents: 'none' };
+/** The video itself sits under the canvas, enlarged so only the picture half is visible. If the
+ * canvas cannot be painted, this is what is seen: the clip in its original colours. */
+const firstPanel: CSSProperties = { position: 'absolute', left: 0, top: 0, width: '100%', height: '200%', display: 'block', pointerEvents: 'none' };
 
 const VERT = 'attribute vec2 p; varying vec2 uv; void main() { uv = p * 0.5 + 0.5; gl_Position = vec4(p, 0.0, 1.0); }';
 const FRAG = `
@@ -41,13 +42,13 @@ vec3 hsv2rgb(vec3 c) {
   return c.z * mix(vec3(1.0), clamp(p - 1.0, 0.0, 1.0), c.y);
 }
 float mx(vec3 c) { return max(c.r, max(c.g, c.b)); }
-vec2 panel(float col, float row) { return vec2((uv.x + col) / 3.0, 1.0 - (1.0 - uv.y + row) / 2.0); }
+vec2 mask(float col, float row) { return vec2((uv.x + col) / 2.0, 0.5 - (1.0 - uv.y + row) / 4.0); }
 void main() {
-  vec3 img = texture2D(frame, panel(0.0, 0.0)).rgb;
-  float mSkin = texture2D(frame, panel(1.0, 0.0)).g * skinOn;
-  float mHair = texture2D(frame, panel(2.0, 0.0)).g * hairOn;
-  float mCloth = texture2D(frame, panel(0.0, 1.0)).g * clothOn;
-  float mEye = texture2D(frame, panel(1.0, 1.0)).g * eyeOn;
+  vec3 img = texture2D(frame, vec2(uv.x, 0.5 + uv.y / 2.0)).rgb;
+  float mSkin = texture2D(frame, mask(0.0, 0.0)).g * skinOn;
+  float mHair = texture2D(frame, mask(1.0, 0.0)).g * hairOn;
+  float mCloth = texture2D(frame, mask(0.0, 1.0)).g * clothOn;
+  float mEye = texture2D(frame, mask(1.0, 1.0)).g * eyeOn;
   // skin: a tone change in linear light keeps the shading and the blush; a little sheen stays
   vec3 s = srgb(lin(img) * skinGain);
   s += clamp(mx(img) - 0.62, 0.0, 1.0) * 0.22 * (1.0 - s);
@@ -82,7 +83,7 @@ function hsv([r, g, b]: [number, number, number]): [number, number, number] {
 /** The skin tone the clips were rendered with. */
 const BASE_SKIN = rgb('#F7C4A8');
 
-interface Painter { draw: (video: HTMLVideoElement) => void; setLook: (look: BabyClipProps['look']) => void; dispose: () => void }
+interface Painter { draw: (video: HTMLVideoElement) => boolean; setLook: (look: BabyClipProps['look']) => void; dispose: () => void }
 
 function createPainter(canvas: HTMLCanvasElement): Painter | null {
   const gl = canvas.getContext('webgl', { premultipliedAlpha: false, antialias: false });
@@ -118,10 +119,10 @@ function createPainter(canvas: HTMLCanvasElement): Painter | null {
       if (look.cloth) gl.uniform3fv(u('clothTo'), rgb(look.cloth));
     },
     draw(video) {
-      if (video.readyState < 2) return;
       gl.viewport(0, 0, canvas.width, canvas.height);
-      gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGB, gl.RGB, gl.UNSIGNED_BYTE, video);
+      gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, video);
       gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
+      return gl.getError() === gl.NO_ERROR && !gl.isContextLost();
     },
     dispose() { gl.getExtension('WEBGL_lose_context')?.loseContext(); },
   };
@@ -146,7 +147,12 @@ export function BabyClip({ clips, height, label, active, look, greet = true }: B
   const lookRef = useRef(look);
   lookRef.current = look;
 
+  /** iOS only lets a video start by itself when the element really carries the muted attribute. */
+  const quiet = (v: HTMLVideoElement | null) => { if (v) { v.muted = true; v.defaultMuted = true; v.setAttribute('muted', ''); v.setAttribute('playsinline', ''); } };
+
   const playWave = () => {
+    // A tap is also the moment a phone that held autoplay back (low power mode) lets the clip start.
+    if (idle.current?.paused && !wavingRef.current) idle.current.play().catch(() => undefined);
     const w = wave.current;
     if (!w || wavingRef.current) return;
     w.currentTime = 0;
@@ -173,13 +179,21 @@ export function BabyClip({ clips, height, label, active, look, greet = true }: B
   useEffect(() => {
     const v = idle.current;
     if (!v) return;
+    quiet(v); quiet(wave.current);
     if (!active) { v.pause(); wave.current?.pause(); return; }
-    v.play().catch(() => undefined);
+    // Coming back (another tab, a sheet that was open): carry on from where the baby stopped.
+    // A wave that was cut off is finished rather than left frozen.
+    if (wavingRef.current && wave.current) wave.current.play().catch(() => backToIdle());
+    else v.play().catch(() => undefined);
     let frame = 0;
     const tick = () => {
-      const source = wavingRef.current ? wave.current : idle.current;
-      if (painter.current && source && source.readyState >= 2) { painter.current.draw(source); setPainted(true); }
       frame = requestAnimationFrame(tick);
+      const source = wavingRef.current ? wave.current : idle.current;
+      if (!painter.current || !source || source.readyState < 2) return;
+      let ok = false;
+      try { ok = painter.current.draw(source); } catch { ok = false; }
+      // If painting fails on this device, stop and show the clip itself, in its own colours.
+      if (ok) setPainted(true); else { painter.current = null; setPlain(true); }
     };
     frame = requestAnimationFrame(tick);
     let hello: ReturnType<typeof setTimeout> | undefined;
@@ -191,18 +205,17 @@ export function BabyClip({ clips, height, label, active, look, greet = true }: B
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [active]);
 
-  const videoStyle: CSSProperties = plain ? firstPanel : { ...firstPanel, opacity: 0 };
   return (
     <div role="img" aria-label={label} data-testid="baby-clip" data-waving={waving ? '1' : '0'} data-painted={painted ? '1' : '0'} onClick={playWave}
       style={{ position: 'relative', overflow: 'hidden', width: Math.round(height * ASPECT), height, cursor: clips.wave ? 'pointer' : 'default', maskImage: FEATHER, WebkitMaskImage: FEATHER, maskComposite: 'intersect', WebkitMaskComposite: 'source-in' }}>
-      {/* Until the first frame is painted, the still first frame keeps the place. */}
-      {painted || plain ? null : <img alt="" src={Asset.fromModule(clips.poster).uri} style={{ ...fill, objectFit: 'cover' }} />}
-      <video ref={idle} src={Asset.fromModule(clips.idle).uri} muted loop playsInline autoPlay preload="auto" style={videoStyle} />
+      
+      <video ref={idle} src={Asset.fromModule(clips.idle).uri} poster={Asset.fromModule(clips.poster).uri} muted loop playsInline autoPlay preload="auto" style={firstPanel} />
       {clips.wave ? (
         <video ref={wave} src={Asset.fromModule(clips.wave).uri} muted playsInline preload="auto" onEnded={backToIdle}
-          style={{ ...videoStyle, opacity: plain && waving ? 1 : 0 }} />
+          style={{ ...firstPanel, visibility: waving ? 'visible' : 'hidden' }} />
       ) : null}
-      <canvas ref={canvas} width={PANEL_W} height={PANEL_H} style={{ ...fill, opacity: painted ? 1 : 0 }} />
+      {/* The canvas is only shown while it is being painted; underneath, the clip keeps playing. */}
+      <canvas ref={canvas} width={PANEL_W} height={PANEL_H} style={{ ...fill, opacity: painted && !plain ? 1 : 0 }} />
     </div>
   );
 }
