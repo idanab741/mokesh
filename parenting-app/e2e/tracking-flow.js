@@ -42,16 +42,17 @@ const check = (name, cond) => { results.push(`${cond ? 'PASS' : 'FAIL'} ${name}`
   // --- 3D baby: stage follows age by default, the parent can change pose and colours
   t = await body();
   check('3D baby card shows the default stage for a 6-month-old', t.includes('· ישיבה') && t.includes('גררו כדי לסובב'));
-  const babyImages = async () => page.locator('img').evaluateAll((els) => els.filter((e) => /baby|\.webp/.test(e.src) && e.naturalWidth > 0).length);
-  check('baby character image is loaded', (await babyImages()) >= 1);
-  // dragging sideways turns the baby to another of its eight views
-  const stageBox = await page.getByRole('img', { name: /^הדמות של עלמה/ }).boundingBox();
-  const frameOf = () => page.getByRole('img', { name: /^הדמות של עלמה/ }).getAttribute('data-testid');
-  const before = await frameOf();
-  await page.mouse.move(stageBox.x + stageBox.width / 2, stageBox.y + stageBox.height / 2);
-  await page.mouse.down(); await page.mouse.move(stageBox.x + stageBox.width / 2 - 110, stageBox.y + stageBox.height / 2, { steps: 8 }); await page.mouse.up();
+  // the sitting baby is a real 3D model: it must load, and dragging sideways must turn it
+  const model = page.locator('[data-testid="baby-3d"]').first();
+  check('3D baby model is loaded', await page.waitForSelector('[data-testid="baby-3d"][data-ready="1"]', { timeout: 60000 }).then(() => true, () => false));
+  const stageBox = await model.boundingBox();
+  const angleOf = async () => Number(await model.getAttribute('data-angle'));
+  const before = await angleOf();
+  await page.mouse.move(stageBox.x + stageBox.width / 2 + 60, stageBox.y + stageBox.height / 2);
+  await page.mouse.down(); await page.mouse.move(stageBox.x + stageBox.width / 2 - 80, stageBox.y + stageBox.height / 2, { steps: 8 });
+  const during = await angleOf(); await page.mouse.up();
   await wait(400);
-  check('dragging rotates the baby to a different view', (await frameOf()) !== before);
+  check('dragging rotates the baby', Math.abs(((before - during + 540) % 360) - 180) > 50);
   await btn('התאמת המראה של הדמות').click(); await wait(600);
   let sheet = await body();
   check('look editor offers clothes colour and pose only', sheet.includes('צבע הבגדים') && sheet.includes('תנוחה') && !sheet.includes('גוון עור') && !sheet.includes('עיניים'));
