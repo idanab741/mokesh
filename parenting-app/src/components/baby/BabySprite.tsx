@@ -10,6 +10,8 @@ const REST_MS = 3200;
 /** Time per view while it spins: a full turn takes a little over a second. */
 const SPIN_STEP_MS = 95;
 const FADE_MS = 90;
+/** After a drag the baby stays on the chosen view this long. */
+const HOLD_AFTER_DRAG_MS = 2600;
 
 /** Every turn sheet is a 4 x 3 grid of 12 views, 30° apart. */
 const FRAMES = 12;
@@ -49,6 +51,7 @@ export function BabySprite({ stage, config, sex = 'unspecified', height = 250, l
   const breathe = useRef(new Animated.Value(0)).current;
   const dragging = useRef(false);
   const dragStart = useRef(0);
+  const released = useRef(0);
   const current = useRef(0);
 
   const show = (next: number, animate: boolean) => {
@@ -69,7 +72,8 @@ export function BabySprite({ stage, config, sex = 'unspecified', height = 250, l
     if (!autoRotate || !active) return;
     let timer: ReturnType<typeof setTimeout>;
     const step = () => {
-      if (!dragging.current) show(current.current + 1, true);
+      // Leave the view the parent chose alone for a moment before turning on.
+      if (!dragging.current && Date.now() - released.current > HOLD_AFTER_DRAG_MS) show(current.current + 1, true);
       // Rest when facing front again, otherwise keep spinning.
       timer = setTimeout(step, current.current === 0 ? REST_MS : SPIN_STEP_MS);
     };
@@ -94,8 +98,8 @@ export function BabySprite({ stage, config, sex = 'unspecified', height = 250, l
     onMoveShouldSetPanResponder: (_e, g) => Math.abs(g.dx) > 6 && Math.abs(g.dx) > Math.abs(g.dy),
     onPanResponderGrant: () => { dragging.current = true; dragStart.current = current.current; },
     onPanResponderMove: (_e, g) => show(dragStart.current - Math.round(g.dx / DRAG_PX), false),
-    onPanResponderRelease: () => { dragging.current = false; },
-    onPanResponderTerminate: () => { dragging.current = false; },
+    onPanResponderRelease: () => { dragging.current = false; released.current = Date.now(); },
+    onPanResponderTerminate: () => { dragging.current = false; released.current = Date.now(); },
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }), []);
 
