@@ -43,7 +43,8 @@ const check = (name, cond) => { results.push(`${cond ? 'PASS' : 'FAIL'} ${name}`
   t = await body();
   const clip = page.locator('[data-testid="baby-clip"]');
   check('home shows the baby as video, for a girl too', (await clip.count()) === 1 && t.includes('הקישו על הדמות לנפנוף'));
-  check('the baby clip has a poster and a video source', await clip.locator('video').first().evaluate((v) => !!v.getAttribute('poster') && /\.mp4/.test(v.currentSrc || v.src)));
+  await page.waitForSelector('[data-testid="baby-clip"][data-painted="1"]', { timeout: 15000 }).catch(() => {});
+  check('the baby clip plays and is painted', (await clip.getAttribute('data-painted')) === '1' && await clip.locator('video').first().evaluate((v) => /\.mp4/.test(v.currentSrc || v.src)));
   await clip.click(); await wait(900);
   const waved = (await clip.getAttribute('data-waving')) === '1';
   const canPlay = await clip.locator('video').first().evaluate((v) => v.readyState >= 2);
