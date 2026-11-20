@@ -7,11 +7,12 @@ import { BabySprite } from './BabySprite';
 import { type BabyClips, babyClips, fallbackClips } from './clips';
 
 /**
- * The clips to show for a child. Until a character has clips of its own, it is shown with
- * the clips that exist (the standing boy), whatever the child's sex, pose, mood or outfit.
+ * The clips to show for a child: the boy or the girl, in the child's pose where that pose has
+ * clips, and standing otherwise.
  */
 export function clipsFor(stage: BabyStage, sex: ChildSex): BabyClips | null {
-  return babyClips[sex === 'female' ? 'girl' : 'boy'][stage] ?? fallbackClips;
+  const who = sex === 'female' ? 'girl' : 'boy';
+  return babyClips[who][stage] ?? fallbackClips[who];
 }
 
 /**

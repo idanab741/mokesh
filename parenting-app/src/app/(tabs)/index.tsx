@@ -158,7 +158,7 @@ export default function HomeScreen() {
             <BabyFigure active={focused && !lookOpen} mood={mood.mood} stage={look.stage} config={look.config} sex={child.sex} height={320} label={onClip ? `הדמות של ${child.name}` : `הדמות של ${child.name}, ${stageLabel[look.stage]}`} />
           </View>
           <Text variant="caption" color={colors.textSecondary} style={styles.dragHint} testID="baby-mood-reason">
-            {mood.reason ?? (onClip ? 'הקישו על הדמות לנפנוף' : 'גררו כדי לסובב')}
+            {mood.reason ?? (clips?.wave ? 'הקישו על הדמות לנפנוף' : onClip ? '' : 'גררו כדי לסובב')}
           </Text>
           <View style={styles.stageBottom}>
             <PressScale onPress={openChildSheet} accessibilityRole="button"
