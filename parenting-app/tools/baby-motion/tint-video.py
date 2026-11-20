@@ -143,7 +143,7 @@ if out.endswith('.pack.mp4'):
     grays = [cv2.cvtColor(f, cv2.COLOR_RGB2GRAY) for f in frames]
     dis = cv2.DISOpticalFlow_create(cv2.DISOPTICAL_FLOW_PRESET_MEDIUM)
     ys, xs = np.mgrid[0:CH, 0:CW].astype(np.float32)
-    vw = cv2.VideoWriter(out + '.raw.mp4', cv2.VideoWriter_fourcc(*'mp4v'), fps, (CW * 3, CH * 2))
+    vw = cv2.VideoWriter(out + '.raw.mp4', cv2.VideoWriter_fourcc(*'mp4v'), fps, (CW, CH * 2))
     for i in range(len(frames)):
         stack = [raw[i].astype(np.float32)]
         for j in range(max(0, i - R), min(len(frames), i + R + 1)):
@@ -159,8 +159,11 @@ if out.endswith('.pack.mp4'):
             small = [k + 1 for k, sz in enumerate(ndimage.sum(np.ones_like(lab_i), lab_i, range(1, n_i + 1))) if sz < 120]
             m[..., 3][ndimage.binary_dilation(np.isin(lab_i, small), iterations=3)] = 0
         g = lambda k: np.repeat((np.clip(m[..., k], 0, 1) * 255).astype(np.uint8)[..., None], 3, 2)
-        grid = np.zeros((CH * 2, CW * 3, 3), np.uint8)
-        grid[:CH, :CW] = frames[i]; grid[:CH, CW:2 * CW] = g(0); grid[:CH, 2 * CW:] = g(1); grid[CH:, :CW] = g(2); grid[CH:, CW:2 * CW] = g(3)
+        # layout: the picture on top, the four masks at half size below it (skin, hair / clothes, irises)
+        half = lambda k: cv2.resize(g(k), (CW // 2, CH // 2), interpolation=cv2.INTER_AREA)
+        grid = np.zeros((CH * 2, CW, 3), np.uint8)
+        grid[:CH] = frames[i]; grid[CH:CH + CH // 2, :CW // 2] = half(0); grid[CH:CH + CH // 2, CW // 2:] = half(1)
+        grid[CH + CH // 2:, :CW // 2] = half(2); grid[CH + CH // 2:, CW // 2:] = half(3)
         vw.write(cv2.cvtColor(grid, cv2.COLOR_RGB2BGR))
     vw.release(); print('packed', len(frames), 'frames'); sys.exit(0)
 

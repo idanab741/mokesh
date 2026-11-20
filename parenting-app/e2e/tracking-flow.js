@@ -61,6 +61,8 @@ const check = (name, cond) => { results.push(`${cond ? 'PASS' : 'FAIL'} ${name}`
   check('the chosen look is saved', (await page.getByRole('radio', { name: 'צבע הבגדים: ורוד' }).getAttribute('aria-checked')) === 'true'
     && (await page.getByRole('radio', { name: 'צבע השיער: חום' }).getAttribute('aria-checked')) === 'true');
   await btn('סגירה').click(); await wait(500);
+  await wait(1500);
+  check('the baby keeps moving after the look editor was opened mid-wave', await page.locator('[data-testid="baby-clip"]').first().locator('video').evaluateAll((v) => v.some((x) => !x.paused)));
   await shot('03c-home-with-baby');
 
   // --- add sheet
