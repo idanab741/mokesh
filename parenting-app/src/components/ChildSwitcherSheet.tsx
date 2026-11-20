@@ -21,7 +21,7 @@ export function ChildSwitcherSheet() {
           const selected = c.id === active?.id;
           return (
             <Pressable key={c.id} onPress={() => { select(c.id); close(); }}
-              accessibilityRole="radio" accessibilityState={{ selected }} accessibilityLabel={c.name}
+              accessibilityRole="radio" accessibilityState={{ checked: selected }} aria-checked={selected} accessibilityLabel={c.name}
               style={({ pressed }) => [styles.row, selected && styles.rowSelected, pressed && { opacity: 0.7 }]}>
               <Avatar name={c.name} uri={c.photoUri} size={44} />
               <View style={{ flex: 1 }}>

@@ -72,6 +72,8 @@ const MIGRATIONS: string[] = [
     value TEXT NOT NULL
   );
   `,
+  // v2: how the 3D baby looks (JSON). Device-only for now, like photo_uri.
+  `ALTER TABLE children ADD COLUMN avatar TEXT;`,
 ];
 
 export async function migrate(driver: SqlDriver): Promise<void> {

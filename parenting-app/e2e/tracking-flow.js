@@ -33,6 +33,25 @@ const check = (name, cond) => { results.push(`${cond ? 'PASS' : 'FAIL'} ${name}`
   check('home shows child name and age', t.includes('עלמה') && t.includes('בת 6 חודשים'));
   check('home empty state, no invented data', t.includes('מתחילים לתעד את עלמה') && t.includes('0 האכלות'));
 
+  // --- 3D baby: stage follows age by default, the parent can change pose and colours
+  t = await body();
+  check('3D baby card shows the default stage for a 6-month-old', t.includes('עלמה בתלת-ממד') && t.includes('זחילה'));
+  check('WebGL canvas is rendered', (await page.locator('canvas').count()) >= 1);
+  await btn('התאמת המראה של הדמות').click(); await wait(600);
+  await page.getByRole('button', { name: 'עמידה', exact: true }).click(); await wait(300);
+  await page.getByRole('radio', { name: 'גוון עור 4' }).click(); await wait(300);
+  await page.getByRole('radio', { name: 'בלי שיער' }).click(); await wait(300);
+  await shot('03b-baby-customise');
+  await btn('סגירה').click(); await wait(500);
+  check('parent override changes the pose label', (await body()).includes('עמידה · גררו'));
+  await page.reload(); await wait(3000);
+  check('avatar choices persist after reload', (await body()).includes('עמידה · גררו'));
+  await btn('התאמת המראה של הדמות').click(); await wait(600);
+  check('saved skin tone is still selected', (await page.getByRole('radio', { name: 'גוון עור 4' }).getAttribute('aria-checked')) === 'true');
+  await page.getByRole('button', { name: /^לפי הגיל/ }).click(); await wait(300);
+  await btn('סגירה').click(); await wait(500);
+  await shot('03c-home-with-baby');
+
   // --- add sheet
   await btn('הוספת פעילות').click();
   await wait(600);

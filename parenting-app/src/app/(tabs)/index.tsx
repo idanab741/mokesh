@@ -1,13 +1,15 @@
 import { router } from 'expo-router';
 import { Bell, ChevronDown, Moon, Plus } from 'lucide-react-native';
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import { Pressable, StyleSheet, View } from 'react-native';
 import { openActivityForm } from '@/components/AddActivitySheet';
 import { EventRow } from '@/components/activity/EventRow';
 import { Avatar } from '@/components/Avatar';
+import { BabyCard } from '@/components/baby/BabyCard';
 import { MobileIllustration, SkyScene, dayPartForHour, skyThemes } from '@/components/brand/Illustrations';
 import { Logo } from '@/components/brand/Logo';
 import { DayStrip } from '@/components/home/DayStrip';
+import { InsightsRow } from '@/components/home/InsightsRow';
 import { BottleIcon, DiaperIcon, activityIcons } from '@/components/ui/Icons';
 import { useToast } from '@/components/ui/overlays';
 import { ActivityBadge, Button, Card, Screen, SectionHeader } from '@/components/ui/primitives';
@@ -15,10 +17,11 @@ import { Text } from '@/components/ui/Text';
 import { activityTones, colors, radius, spacing } from '@/design/tokens';
 import type { ActivityType, FilterKey } from '@/domain/activity';
 import { formatAgeWithSex } from '@/domain/age';
+import { buildInsights, daysUntilInsights } from '@/domain/insights';
 import { summarizeDay } from '@/domain/summary';
 import { useActiveChild, useEventMutations, useEventsBetween, useLastBottle, useNow, useRecentEvents, useUnsynced } from '@/hooks/data';
 import { diaperKindLabel, errorMessage, milkTypeLabel, sleepingWord } from '@/i18n/he';
-import { formatClock, formatDateLong, formatDuration, formatRelative, formatTime, greetingForHour, ltr } from '@/lib/time';
+import { addDays, formatClock, formatDateLong, formatDuration, formatRelative, formatTime, greetingForHour, ltr } from '@/lib/time';
 import { useSession } from '@/state/session';
 import { useUi } from '@/state/ui';
 
@@ -65,6 +68,8 @@ export default function HomeScreen() {
   const toast = useToast((s) => s.show);
   const now = useNow(30_000);
   const today = useEventsBetween(child?.id, now, now);
+  // A month back: one week for the baseline, the rest to know which foods are new.
+  const month = useEventsBetween(child?.id, addDays(now, -30), now);
   const recent = useRecentEvents(child?.id, 6);
   const lastBottle = useLastBottle(child?.id);
   const unsynced = useUnsynced();
@@ -72,6 +77,8 @@ export default function HomeScreen() {
   const [heroWidth, setHeroWidth] = useState(0);
 
   const summary = summarizeDay(today.data ?? [], now, now);
+  const insights = useMemo(() => buildInsights(month.data ?? [], now), [month.data, now]);
+  const daysMissing = useMemo(() => daysUntilInsights(month.data ?? [], now), [month.data, now]);
   const activeSleep = summary.sleep.active;
   const tick = useNow(1000, !!activeSleep);
   if (!child) return <Screen><View /></Screen>;
@@ -166,23 +173,7 @@ export default function HomeScreen() {
         </View>
       ) : null}
 
-      {/* Today at a glance */}
-      <Card style={{ gap: spacing.sm }}>
-        <Text variant="heading" accessibilityRole="header">היום במבט</Text>
-        <DayStrip events={today.data ?? []} now={now} />
-      </Card>
-
-      {/* Trackers */}
-      <View style={styles.grid}>
-        <TrackerCard type="bottle" title="האכלות" metric={f.count === 1 ? 'האכלה אחת' : `${f.count} האכלות`} detail={feedingDetail}
-          onPress={() => goJournal('feeding')} onAdd={() => openActivityForm('bottle')} addLabel="הוספת האכלה" />
-        <TrackerCard type="sleep" title="שינה" metric={s.minutes > 0 ? formatDuration(s.minutes) : '0 ד׳'} detail={sleepDetail}
-          onPress={() => goJournal('sleep')} onAdd={() => openActivityForm('sleep', activeSleep?.id)} addLabel="הוספת שינה" />
-        <TrackerCard type="diaper" title="חיתולים" metric={d.count === 1 ? 'החלפה אחת' : `${d.count} החלפות`} detail={diaperDetail}
-          onPress={() => goJournal('diaper')} onAdd={() => openActivityForm('diaper')} addLabel="הוספת חיתול" />
-        <TrackerCard type="solids" title="מוצקים" metric={so.count === 1 ? 'ארוחה אחת' : `${so.count} ארוחות`} detail={solidsDetail}
-          onPress={() => goJournal('solids')} onAdd={() => openActivityForm('solids')} addLabel="הוספת ארוחה" />
-      </View>
+      <BabyCard child={child} now={now} />
 
       {/* One-tap actions */}
       <SectionHeader title="תיעוד בלחיצה" />
@@ -204,6 +195,27 @@ export default function HomeScreen() {
             <BottleIcon size={20} color={activityTones.bottle.ink} />
           </QuickAction>
         ) : null}
+      </View>
+
+      <SectionHeader title="תובנות מהשגרה שלכם" />
+      <InsightsRow insights={insights} daysMissing={daysMissing} />
+
+      {/* Today at a glance */}
+      <Card style={{ gap: spacing.sm }}>
+        <Text variant="heading" accessibilityRole="header">היום במבט</Text>
+        <DayStrip events={today.data ?? []} now={now} />
+      </Card>
+
+      {/* Trackers */}
+      <View style={styles.grid}>
+        <TrackerCard type="bottle" title="האכלות" metric={f.count === 1 ? 'האכלה אחת' : `${f.count} האכלות`} detail={feedingDetail}
+          onPress={() => goJournal('feeding')} onAdd={() => openActivityForm('bottle')} addLabel="הוספת האכלה" />
+        <TrackerCard type="sleep" title="שינה" metric={s.minutes > 0 ? formatDuration(s.minutes) : '0 ד׳'} detail={sleepDetail}
+          onPress={() => goJournal('sleep')} onAdd={() => openActivityForm('sleep', activeSleep?.id)} addLabel="הוספת שינה" />
+        <TrackerCard type="diaper" title="חיתולים" metric={d.count === 1 ? 'החלפה אחת' : `${d.count} החלפות`} detail={diaperDetail}
+          onPress={() => goJournal('diaper')} onAdd={() => openActivityForm('diaper')} addLabel="הוספת חיתול" />
+        <TrackerCard type="solids" title="מוצקים" metric={so.count === 1 ? 'ארוחה אחת' : `${so.count} ארוחות`} detail={solidsDetail}
+          onPress={() => goJournal('solids')} onAdd={() => openActivityForm('solids')} addLabel="הוספת ארוחה" />
       </View>
 
       {/* Recent activity */}
