@@ -208,14 +208,19 @@ export function BabyClip({ clips, height, label, active, look, greet = true }: B
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [active]);
 
+  // Once the canvas is being painted, the clip underneath must not be seen at all: on phones a
+  // video can be drawn above the canvas for a moment, which showed the original colours
+  // through the chosen ones. It stays in place (and playing) only as the source of the frames.
+  const covered = painted && !plain;
+  const under: CSSProperties = covered ? { ...firstPanel, opacity: 0 } : firstPanel;
   return (
     <div role="img" aria-label={label} data-testid="baby-clip" data-waving={waving ? '1' : '0'} data-painted={painted ? '1' : '0'} onClick={playWave}
       style={{ position: 'relative', overflow: 'hidden', width: Math.round(height * ASPECT), height, cursor: clips.wave ? 'pointer' : 'default', maskImage: FEATHER, WebkitMaskImage: FEATHER, maskComposite: 'intersect', WebkitMaskComposite: 'source-in' }}>
       
-      <video ref={idle} src={Asset.fromModule(clips.idle).uri} poster={Asset.fromModule(clips.poster).uri} muted loop playsInline autoPlay preload="auto" style={firstPanel} />
+      <video ref={idle} src={Asset.fromModule(clips.idle).uri} poster={Asset.fromModule(clips.poster).uri} muted loop playsInline autoPlay preload="auto" style={under} />
       {clips.wave ? (
         <video ref={wave} src={Asset.fromModule(clips.wave).uri} muted playsInline preload="auto" onEnded={backToIdle}
-          style={{ ...firstPanel, visibility: waving ? 'visible' : 'hidden' }} />
+          style={{ ...under, opacity: covered ? 0 : waving ? 1 : 0 }} />
       ) : null}
       {/* The canvas is only shown while it is being painted; underneath, the clip keeps playing. */}
       <canvas ref={canvas} width={PANEL_W} height={PANEL_H} style={{ ...fill, opacity: painted && !plain ? 1 : 0 }} />
