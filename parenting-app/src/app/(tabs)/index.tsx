@@ -1,6 +1,6 @@
 import { router, useFocusEffect } from 'expo-router';
 import { LinearGradient } from 'expo-linear-gradient';
-import { Bell, ChevronDown, Moon, Palette, Plus } from 'lucide-react-native';
+import { Bell, ChevronDown, Moon, Palette, Square } from 'lucide-react-native';
 import { useCallback, useMemo, useState } from 'react';
 import { Pressable, StyleSheet, View } from 'react-native';
 import { openActivityForm } from '@/components/AddActivitySheet';
@@ -12,54 +12,24 @@ import { MobileIllustration } from '@/components/brand/Illustrations';
 import { Logo } from '@/components/brand/Logo';
 import { DayStrip } from '@/components/home/DayStrip';
 import { InsightsRow } from '@/components/home/InsightsRow';
-import { BottleIcon, DiaperIcon } from '@/components/ui/Icons';
+import { ActionButton, NextUp, TrackRow } from '@/components/home/TrackingBoard';
 import { Float, PressScale, Rise } from '@/components/ui/motion';
 import { useToast } from '@/components/ui/overlays';
-import { ActivityBadge, Button, Card, Screen, SectionHeader } from '@/components/ui/primitives';
+import { Button, Card, Screen, SectionHeader } from '@/components/ui/primitives';
 import { Text } from '@/components/ui/Text';
-import { activityTones, colors, radius, shadow, spacing } from '@/design/tokens';
-import type { ActivityType, FilterKey } from '@/domain/activity';
+import { colors, shadow, spacing } from '@/design/tokens';
+import type { FilterKey } from '@/domain/activity';
 import { formatAgeWithSex } from '@/domain/age';
 import { stageLabel } from '@/domain/avatar';
 import { buildInsights, daysUntilInsights } from '@/domain/insights';
 import { babyMood } from '@/domain/mood';
+import { learnRoutine, predictNext, type Prediction } from '@/domain/routine';
 import { summarizeDay } from '@/domain/summary';
-import { useActiveChild, useEventMutations, useEventsBetween, useLastBottle, useNow, useRecentEvents, useUnsynced } from '@/hooks/data';
+import { useActiveChild, useEventMutations, useEventsBetween, useNow, useRecentEvents, useUnsynced } from '@/hooks/data';
 import { diaperKindLabel, errorMessage, milkTypeLabel, sleepingWord } from '@/i18n/he';
 import { addDays, formatClock, formatDateLong, formatDuration, formatRelative, formatTime, greetingForHour, ltr } from '@/lib/time';
 import { useSession } from '@/state/session';
 import { useUi } from '@/state/ui';
-
-function TrackerCard({ type, title, metric, detail, onPress, onAdd, addLabel }: {
-  type: ActivityType; title: string; metric: string; detail: string; onPress: () => void; onAdd: () => void; addLabel: string;
-}) {
-  const tone = activityTones[type];
-  return (
-    <PressScale onPress={onPress} accessibilityRole="button" accessibilityLabel={`${title}: ${metric}. ${detail}`} style={styles.tracker}>
-      {/* A soft colour bloom in the corner ties the white card to its activity. */}
-      <View style={[styles.bloom, { backgroundColor: tone.bg }]} pointerEvents="none" />
-      <View style={styles.trackerTop}>
-        <ActivityBadge type={type} size={42} />
-        <Pressable onPress={onAdd} accessibilityRole="button" accessibilityLabel={addLabel} hitSlop={10}
-          style={({ pressed }) => [styles.trackerAdd, { backgroundColor: tone.bg }, pressed && { opacity: 0.6 }]}>
-          <Plus size={18} color={tone.ink} strokeWidth={2.6} />
-        </Pressable>
-      </View>
-      <Text variant="label" color={colors.textSecondary} numberOfLines={1}>{title}</Text>
-      <Text variant="metric" numberOfLines={1} adjustsFontSizeToFit style={metric.length > 8 ? { fontSize: 21, letterSpacing: -0.3 } : null}>{metric}</Text>
-      <Text variant="caption" color={colors.textSecondary} numberOfLines={2}>{detail}</Text>
-    </PressScale>
-  );
-}
-
-function QuickAction({ label, onPress, children, tone }: { label: string; onPress: () => void; children: React.ReactNode; tone: { bg: string; ink: string } }) {
-  return (
-    <PressScale onPress={onPress} accessibilityRole="button" accessibilityLabel={label} style={[styles.quick, { backgroundColor: tone.bg }]}>
-      {children}
-      <Text variant="label" color={tone.ink} style={{ fontWeight: '600', flexShrink: 1 }} numberOfLines={1}>{label}</Text>
-    </PressScale>
-  );
-}
 
 export default function HomeScreen() {
   const { child, children } = useActiveChild();
@@ -72,7 +42,6 @@ export default function HomeScreen() {
   // A month back: one week for the baseline, the rest to know which foods are new.
   const month = useEventsBetween(child?.id, addDays(now, -30), now);
   const recent = useRecentEvents(child?.id, 6);
-  const lastBottle = useLastBottle(child?.id);
   const unsynced = useUnsynced();
   const { create, remove, endSleep } = useEventMutations();
   const [lookOpen, setLookOpen] = useState(false);
@@ -84,6 +53,11 @@ export default function HomeScreen() {
   const insights = useMemo(() => buildInsights(month.data ?? [], now), [month.data, now]);
   const daysMissing = useMemo(() => daysUntilInsights(month.data ?? [], now), [month.data, now]);
   const activeSleep = summary.sleep.active;
+  // What the diary of the last two weeks says about this family's own rhythm.
+  const routine = useMemo(() => learnRoutine(month.data ?? [], now), [month.data, now]);
+  const predictions = useMemo(
+    () => predictNext(routine, now, activeSleep ? new Date(activeSleep.startedAt ?? activeSleep.occurredAt) : null),
+    [routine, now, activeSleep]);
   const tick = useNow(1000, !!activeSleep);
   if (!child) return <Screen><View /></Screen>;
 
@@ -111,20 +85,29 @@ export default function HomeScreen() {
     });
   };
 
+  // The one-tap bottle is the family's usual one; before there is a usual, the last one logged.
+  const usualBottle = routine.feed.bottleMl && routine.feed.milkType ? { milkType: routine.feed.milkType, amountMl: routine.feed.bottleMl } : null;
+  const actOnPrediction = (kind: Prediction['kind']) => {
+    if (kind === 'wake') stopSleep();
+    else if (kind === 'sleep') startSleep();
+    else if (kind === 'diaper') openActivityForm('diaper');
+    else openActivityForm(routine.feed.usual === 'nursing' ? 'nursing' : 'bottle');
+  };
+
   const f = summary.feeding;
   const feedingDetail = f.last
     ? [f.totalMl > 0 ? `${f.totalMl} מ״ל בבקבוק` : null, `אחרונה ${formatRelative(new Date(f.last.occurredAt), now)}`].filter(Boolean).join(' · ')
-    : 'עוד לא תועדה האכלה היום';
+    : 'אין עדיין האכלה היום';
   const s = summary.sleep;
   const sleepDetail = activeSleep
     ? `${sleepingWord(child.sex)} מאז ${formatTime(new Date(activeSleep.startedAt ?? activeSleep.occurredAt))}`
     : s.last
       ? `אחרונה ${ltr(`${formatTime(new Date(s.last.startedAt ?? s.last.occurredAt))}${s.last.endedAt ? `–${formatTime(new Date(s.last.endedAt))}` : ''}`)}`
-      : 'עוד לא תועדה שינה היום';
+      : 'אין עדיין שינה היום';
   const d = summary.diaper;
-  const diaperDetail = d.last ? `${diaperKindLabel[d.last.payload.kind]} · ${formatRelative(new Date(d.last.occurredAt), now)}` : 'עוד לא תועדה החלפה היום';
+  const diaperDetail = d.last ? `${diaperKindLabel[d.last.payload.kind]} · ${formatRelative(new Date(d.last.occurredAt), now)}` : 'אין עדיין החלפה היום';
   const so = summary.solids;
-  const solidsDetail = so.last ? `${so.last.payload.foods.map((x) => x.name).join(', ')} · ${formatTime(new Date(so.last.occurredAt))}` : 'עוד לא תועדה ארוחה היום';
+  const solidsDetail = so.last ? `${so.last.payload.foods.map((x) => x.name).join(', ')} · ${formatTime(new Date(so.last.occurredAt))}` : 'אין עדיין ארוחה היום';
 
   const isBrandNew = recent.data !== undefined && recent.data.length === 0;
 
@@ -179,51 +162,51 @@ export default function HomeScreen() {
         </View>
       </Rise>
 
-      {/* Running sleep */}
-      {activeSleep ? (
-        <LinearGradient colors={activityTones.sleep.grad} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={styles.sleepBanner} accessibilityRole="timer">
-          <View style={styles.sleepIcon}><Moon size={22} color={colors.white} strokeWidth={2} /></View>
-          <View style={{ flex: 1 }}>
-            <Text variant="label" color="#EDEBFF">{child.name} {sleepingWord(child.sex)}</Text>
-            <Text variant="title" color={colors.white} style={{ writingDirection: 'ltr' }}>
-              {formatClock((tick.getTime() - Date.parse(activeSleep.startedAt ?? activeSleep.occurredAt)) / 1000)}
-            </Text>
-          </View>
-          <Button label="סיום שינה" size="md" variant="secondary" onPress={stopSleep} loading={endSleep.isPending} style={{ backgroundColor: colors.white }} />
-        </LinearGradient>
-      ) : null}
-
-      {/* One-tap actions */}
-      <Rise index={2} style={styles.quickRow}>
-        <QuickAction label="חיתול רטוב" tone={activityTones.diaper}
-          onPress={() => quickSave({ type: 'diaper', occurredAt: new Date().toISOString(), payload: { kind: 'wet' } }, 'חיתול רטוב נשמר')}>
-          <DiaperIcon size={20} color={activityTones.diaper.ink} />
-        </QuickAction>
-        {activeSleep ? null : (
-          <QuickAction label="התחלת שינה" tone={activityTones.sleep} onPress={startSleep}>
-            <Moon size={20} color={activityTones.sleep.ink} strokeWidth={1.75} />
-          </QuickAction>
-        )}
-        {lastBottle.data ? (
-          <QuickAction label={`בקבוק ${lastBottle.data.payload.amountMl} מ״ל`} tone={activityTones.bottle}
-            onPress={() => quickSave(
-              { type: 'bottle', occurredAt: new Date().toISOString(), payload: { milkType: lastBottle.data!.payload.milkType, amountMl: lastBottle.data!.payload.amountMl } },
-              `בקבוק ${lastBottle.data!.payload.amountMl} מ״ל (${milkTypeLabel[lastBottle.data!.payload.milkType]}) נשמר`)}>
-            <BottleIcon size={20} color={activityTones.bottle.ink} />
-          </QuickAction>
-        ) : null}
+      {/* What usually comes next, by the family's own routine */}
+      <Rise index={2}>
+        <NextUp predictions={predictions} routine={routine} onAct={actOnPrediction} />
       </Rise>
 
-      {/* Trackers */}
-      <Rise index={3} style={styles.grid}>
-        <TrackerCard type="bottle" title="האכלות" metric={f.count === 1 ? 'האכלה אחת' : `${f.count} האכלות`} detail={feedingDetail}
-          onPress={() => goJournal('feeding')} onAdd={() => openActivityForm('bottle')} addLabel="הוספת האכלה" />
-        <TrackerCard type="sleep" title="שינה" metric={s.minutes > 0 ? formatDuration(s.minutes) : '0 ד׳'} detail={sleepDetail}
-          onPress={() => goJournal('sleep')} onAdd={() => openActivityForm('sleep', activeSleep?.id)} addLabel="הוספת שינה" />
-        <TrackerCard type="diaper" title="חיתולים" metric={d.count === 1 ? 'החלפה אחת' : `${d.count} החלפות`} detail={diaperDetail}
-          onPress={() => goJournal('diaper')} onAdd={() => openActivityForm('diaper')} addLabel="הוספת חיתול" />
-        <TrackerCard type="solids" title="מוצקים" metric={so.count === 1 ? 'ארוחה אחת' : `${so.count} ארוחות`} detail={solidsDetail}
-          onPress={() => goJournal('solids')} onAdd={() => openActivityForm('solids')} addLabel="הוספת ארוחה" />
+      {/* Tracking: one card per activity. Filled buttons save on the spot, outlined ones open a form. */}
+      <Rise index={3} style={{ gap: spacing.md }}>
+        <View>
+          <Text variant="title" accessibilityRole="header">מעקב</Text>
+          <Text variant="label" color={colors.textSecondary}>כפתור מלא שומר מיד · כפתור עם חץ פותח טופס</Text>
+        </View>
+
+        <TrackRow type="bottle" title="האכלה" status={f.count === 1 ? 'האכלה אחת היום' : `${f.count} האכלות היום`} detail={feedingDetail} onOpen={() => goJournal('feeding')}>
+          {usualBottle ? (
+            <ActionButton type="bottle" wide label={`בקבוק ${usualBottle.amountMl} מ״ל`} onPress={() => quickSave(
+              { type: 'bottle', occurredAt: new Date().toISOString(), payload: usualBottle },
+              `בקבוק ${usualBottle.amountMl} מ״ל (${milkTypeLabel[usualBottle.milkType]}) נשמר`)} />
+          ) : null}
+          <ActionButton type="bottle" kind="open" label={usualBottle ? 'כמות אחרת' : 'בקבוק'} a11yLabel={usualBottle ? 'בקבוק בכמות אחרת' : 'תיעוד בקבוק'} onPress={() => openActivityForm('bottle')} />
+          <ActionButton type="nursing" kind="open" label="הנקה" a11yLabel="תיעוד הנקה" onPress={() => openActivityForm('nursing')} />
+        </TrackRow>
+
+        <TrackRow type="sleep" title="שינה" status={`${s.minutes > 0 ? formatDuration(s.minutes) : '0 ד׳'} היום`} detail={sleepDetail} onOpen={() => goJournal('sleep')}
+          active={activeSleep ? { label: `${child.name} ${sleepingWord(child.sex)}`, clock: formatClock((tick.getTime() - Date.parse(activeSleep.startedAt ?? activeSleep.occurredAt)) / 1000) } : undefined}>
+          {activeSleep ? (
+            <Button label="סיום שינה" size="md" variant="secondary" icon={Square} onPress={stopSleep} loading={endSleep.isPending} style={{ flex: 1, backgroundColor: colors.white }} />
+          ) : (
+            <>
+              <ActionButton type="sleep" wide label="התחלת שינה עכשיו" a11yLabel="התחלת שינה" onPress={startSleep} icon={<Moon size={18} color={colors.white} strokeWidth={2.2} />} />
+              <ActionButton type="sleep" kind="open" label="שינה שכבר נגמרה" a11yLabel="תיעוד שינה שנגמרה" onPress={() => openActivityForm('sleep')} />
+            </>
+          )}
+        </TrackRow>
+
+        <TrackRow type="diaper" title="חיתול" status={d.count === 1 ? 'החלפה אחת היום' : `${d.count} החלפות היום`} detail={diaperDetail} onOpen={() => goJournal('diaper')}>
+          {(['wet', 'dirty', 'both'] as const).map((kind) => (
+            <ActionButton key={kind} type="diaper" label={kind === 'both' ? 'שניהם' : diaperKindLabel[kind]} a11yLabel={`חיתול ${diaperKindLabel[kind]}`}
+              onPress={() => quickSave({ type: 'diaper', occurredAt: new Date().toISOString(), payload: { kind } }, `חיתול ${diaperKindLabel[kind]} נשמר`)} />
+          ))}
+          <ActionButton type="diaper" kind="open" label="חיתול עם פירוט (צבע, מרקם)" a11yLabel="תיעוד חיתול עם פירוט" onPress={() => openActivityForm('diaper')} />
+        </TrackRow>
+
+        <TrackRow type="solids" title="מוצקים" status={so.count === 1 ? 'ארוחה אחת היום' : `${so.count} ארוחות היום`} detail={solidsDetail} onOpen={() => goJournal('solids')}>
+          <ActionButton type="solids" kind="open" label="תיעוד ארוחה" onPress={() => openActivityForm('solids')} />
+        </TrackRow>
       </Rise>
 
       <Rise index={4} style={{ gap: spacing.md }}>
@@ -280,14 +263,5 @@ const styles = StyleSheet.create({
   childPill: { flex: 1, flexDirection: 'row', alignItems: 'center', gap: spacing.md, backgroundColor: colors.surface, borderRadius: 26, padding: spacing.sm, paddingEnd: spacing.lg, ...shadow.card },
   lookBtn: { width: 60, height: 60, borderRadius: 26, backgroundColor: colors.surface, alignItems: 'center', justifyContent: 'center', ...shadow.card },
   dragHint: { alignSelf: 'center', marginBottom: spacing.sm },
-  sleepBanner: { flexDirection: 'row', alignItems: 'center', gap: spacing.md, borderRadius: radius.xl, padding: spacing.lg },
-  sleepIcon: { width: 44, height: 44, borderRadius: 16, backgroundColor: 'rgba(255,255,255,0.2)', alignItems: 'center', justifyContent: 'center' },
-  grid: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing.md },
-  tracker: { flexBasis: '47%', flexGrow: 1, gap: 2, minHeight: 158, borderRadius: 26, padding: spacing.lg, overflow: 'hidden', backgroundColor: colors.surface, ...shadow.card },
-  bloom: { position: 'absolute', width: 150, height: 150, borderRadius: 75, top: -62, start: -52, opacity: 0.75 },
-  trackerTop: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: spacing.md },
-  trackerAdd: { width: 36, height: 36, borderRadius: 18, alignItems: 'center', justifyContent: 'center' },
-  quickRow: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing.sm },
-  quick: { flexDirection: 'row', alignItems: 'center', gap: spacing.sm, minHeight: 50, paddingHorizontal: spacing.lg, borderRadius: radius.pill, flexGrow: 1, justifyContent: 'center' },
   firstRun: { alignItems: 'center', gap: spacing.sm, paddingVertical: spacing.xl },
 });

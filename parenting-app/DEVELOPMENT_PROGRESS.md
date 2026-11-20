@@ -128,3 +128,15 @@
 2. ממשק שיתוף משפחתי (ה-RPC וה-RLS כבר קיימים).
 3. הרצה על מכשיר אמיתי (development build) ותיקוני native.
 4. מודול בריאות ותזכורות.
+
+## Tracking board and routine learning (2026-11-20)
+
+- `src/domain/routine.ts` learns the family's own rhythm from the last 14 days of the diary: usual gap between feedings,
+  the bottle amount given most often (never an average), awake time before a sleep, length of a daytime sleep, gap between
+  diaper changes. A value appears only after 5 measured gaps; nothing here is a norm or advice. `predictNext` turns it into
+  "what comes next" (next feeding / sleep / diaper, or the usual wake-up while a sleep runs). 7 Jest tests.
+- Home: a "מה הלאה" card with those predictions (or per-activity learning progress 0–5 while there is too little data),
+  and one card per activity instead of the quick row + 2x2 grid. Filled buttons save on the spot (with undo), outlined
+  buttons with an arrow open the form; the running sleep lights up its own card with the timer and "סיום שינה".
+- E2E: 30 checks, including the learned 3-hour feeding gap and the one-tap bottle offering a real amount.
+- Not checked on a real iPhone; checked in Chromium at iPhone size only.
