@@ -107,7 +107,7 @@ export function BabySprite({ stage, config, sex = 'unspecified', height = 250, l
     <View style={{ height, alignItems: 'center', justifyContent: 'flex-end' }} {...responder.panHandlers}
       accessible accessibilityRole="image" accessibilityLabel={label} accessibilityHint="אפשר לגרור ימינה ושמאלה כדי לסובב"
       testID={`baby-view-${frame}`}>
-      <Animated.View style={{ width: height, height, transform: [{ scale: breathe.interpolate({ inputRange: [0, 1], outputRange: [1, 1.018] }) }] }}>
+      <Animated.View style={{ width: height, height, pointerEvents: 'none', transform: [{ scale: breathe.interpolate({ inputRange: [0, 1], outputRange: [1, 1.018] }) }] }}>
         {/* The outgoing view fades out exactly as the new one fades in, so two views never linger together. */}
         <Animated.View style={{ position: 'absolute', opacity: fade.interpolate({ inputRange: [0, 1], outputRange: [1, 0] }) }}>
           <Strip source={source} frame={previous} size={height} />
