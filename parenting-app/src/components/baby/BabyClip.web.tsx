@@ -1,5 +1,6 @@
 import { Asset } from 'expo-asset';
 import { type CSSProperties, useEffect, useRef, useState } from 'react';
+import { IRIS_BASE } from '@/domain/avatar';
 import type { BabyClipProps } from './BabyClip';
 
 export type { BabyClipProps } from './BabyClip';
@@ -24,10 +25,10 @@ const FRAG = `
 precision highp float;
 varying vec2 uv;
 uniform sampler2D frame;
-uniform vec3 skinSrc; uniform vec3 skinDst; uniform float skinOn;
-uniform vec3 hairSrc; uniform vec3 hairDst; uniform float hairOn;
-uniform vec3 clothSrc; uniform vec3 clothDst; uniform float clothOn;
-uniform vec3 eyeHsv; uniform float eyeOn;
+uniform vec3 skinSrc; uniform vec4 skinShift; uniform float skinOn;
+uniform vec3 hairSrc; uniform vec4 hairShift; uniform float hairOn;
+uniform vec3 clothSrc; uniform vec4 clothShift; uniform float clothOn;
+uniform vec3 eyeSrc; uniform vec4 eyeShift; uniform float eyeOn;
 // OKLab: a colour space in which lightness, colourfulness and hue can be moved separately.
 vec3 toOk(vec3 c) {
   vec3 l = pow(clamp(c, 0.0, 1.0), vec3(2.2));
@@ -42,26 +43,15 @@ vec3 fromOk(vec3 lab) {
   return pow(clamp(l, 0.0, 1.0), vec3(1.0 / 2.2));
 }
 // A region keeps its own variation of lightness, colourfulness and hue (shading, blush, sheen,
-// folds); only the middle of that variation moves from the rendered colour (src) to the chosen
-// one (dst). Both are (lightness, chroma, hue). k: how far the contrast follows the new lightness.
-vec3 shift(vec3 img, vec3 src, vec3 dst, float k) {
+// folds); only the middle of that variation moves. src is the rendered colour of the region
+// (lightness, chroma, hue); sh is how the chosen look differs from it, as measured on rendered
+// references: lightness shift, chroma ratio, hue shift, contrast ratio.
+vec3 shift(vec3 img, vec3 src, vec4 sh) {
   vec3 lab = toOk(img);
-  float gain = 1.0 + (clamp(dst.x / src.x, 0.3, 1.4) - 1.0) * k;
-  float L = dst.x + (lab.x - src.x) * gain;
-  float C = dst.y * pow(clamp(length(lab.yz) / max(src.y, 0.001), 0.0, 2.2), 0.85);
-  float h = atan(lab.z, lab.y) + dst.z - src.z;
+  float L = src.x + sh.x + (lab.x - src.x) * sh.w;
+  float C = src.y * sh.y * pow(clamp(length(lab.yz) / max(src.y, 0.001), 0.0, 2.2), 0.85);
+  float h = atan(lab.z, lab.y) + sh.z;
   return fromOk(vec3(L, C * cos(h), C * sin(h)));
-}
-vec3 rgb2hsv(vec3 c) {
-  vec4 K = vec4(0.0, -1.0 / 3.0, 2.0 / 3.0, -1.0);
-  vec4 p = mix(vec4(c.bg, K.wz), vec4(c.gb, K.xy), step(c.b, c.g));
-  vec4 q = mix(vec4(p.xyw, c.r), vec4(c.r, p.yzx), step(p.x, c.r));
-  float d = q.x - min(q.w, q.y);
-  return vec3(abs(q.z + (q.w - q.y) / (6.0 * d + 1e-6)), d / (q.x + 1e-6), q.x);
-}
-vec3 hsv2rgb(vec3 c) {
-  vec3 p = abs(fract(c.xxx + vec3(0.0, 2.0 / 3.0, 1.0 / 3.0)) * 6.0 - 3.0);
-  return c.z * mix(vec3(1.0), clamp(p - 1.0, 0.0, 1.0), c.y);
 }
 vec2 mask(float col, float row) { return vec2((uv.x + col) / 2.0, 0.5 - (1.0 - uv.y + row) / 4.0); }
 void main() {
@@ -70,32 +60,12 @@ void main() {
   float mHair = texture2D(frame, mask(1.0, 0.0)).g * hairOn;
   float mCloth = texture2D(frame, mask(0.0, 1.0)).g * clothOn;
   float mEye = texture2D(frame, mask(1.0, 1.0)).g * eyeOn;
-  if (mSkin > 0.003) img = mix(img, shift(img, skinSrc, skinDst, 0.5), mSkin);
-  if (mHair > 0.003) img = mix(img, shift(img, hairSrc, hairDst, 0.75), mHair);
-  // eyes: only the hue and strength of the iris change
-  vec3 e = rgb2hsv(img);
-  e = vec3(eyeHsv.x, clamp(e.y * eyeHsv.y / 0.63, 0.0, 1.0), clamp(e.z * eyeHsv.z / 0.39, 0.0, 1.0));
-  img = mix(img, hsv2rgb(e), mEye);
-  if (mCloth > 0.003) img = mix(img, shift(img, clothSrc, clothDst, 0.0), mCloth);
+  if (mSkin > 0.003) img = mix(img, shift(img, skinSrc, skinShift), mSkin);
+  if (mHair > 0.003) img = mix(img, shift(img, hairSrc, hairShift), mHair);
+  if (mEye > 0.003) img = mix(img, shift(img, eyeSrc, eyeShift), mEye);
+  if (mCloth > 0.003) img = mix(img, shift(img, clothSrc, clothShift), mCloth);
   gl_FragColor = vec4(img, 1.0);
 }`;
-
-const rgb = (hex: string) => [1, 3, 5].map((i) => parseInt(hex.slice(i, i + 2), 16) / 255) as [number, number, number];
-function hsv([r, g, b]: [number, number, number]): [number, number, number] {
-  const max = Math.max(r, g, b), d = max - Math.min(r, g, b);
-  let h = 0;
-  if (d > 0) h = max === r ? ((g - b) / d + 6) % 6 : max === g ? (b - r) / d + 2 : (r - g) / d + 4;
-  return [h / 6, max > 0 ? d / max : 0, max];
-}
-/** A colour as OKLab lightness, chroma and hue: the form the shader moves a region's colour in. */
-function lch(hex: string): [number, number, number] {
-  const [r, g, b] = rgb(hex).map((v) => Math.pow(v, 2.2));
-  const l = Math.cbrt(0.4122214708 * r + 0.5363325363 * g + 0.0514459929 * b);
-  const m = Math.cbrt(0.2119034982 * r + 0.6806995451 * g + 0.1073969566 * b);
-  const s = Math.cbrt(0.0883024619 * r + 0.2817188376 * g + 0.6299787005 * b);
-  const A = 1.9779984951 * l - 2.4285922050 * m + 0.4505937099 * s, B = 0.0259040371 * l + 0.7827717662 * m - 0.8086757660 * s;
-  return [0.2104542553 * l + 0.7936177850 * m - 0.0040720468 * s, Math.hypot(A, B), Math.atan2(B, A)];
-}
 
 interface Painter { draw: (video: HTMLVideoElement) => boolean; setLook: (look: BabyClipProps['look'], base: BabyClipProps['clips']['base']) => void; dispose: () => void }
 
@@ -125,10 +95,11 @@ function createPainter(canvas: HTMLCanvasElement): Painter | null {
       for (const part of ['skin', 'hair', 'cloth'] as const) {
         gl.uniform1f(u(`${part}On`), look[part] ? 1 : 0);
         gl.uniform3fv(u(`${part}Src`), base[part]);
-        if (look[part]) gl.uniform3fv(u(`${part}Dst`), lch(look[part] as string));
+        if (look[part]) gl.uniform4fv(u(`${part}Shift`), look[part] as unknown as number[]);
       }
       gl.uniform1f(u('eyeOn'), look.eyes ? 1 : 0);
-      if (look.eyes) gl.uniform3fv(u('eyeHsv'), hsv(rgb(look.eyes)));
+      gl.uniform3fv(u('eyeSrc'), IRIS_BASE as unknown as number[]);
+      if (look.eyes) gl.uniform4fv(u('eyeShift'), look.eyes as unknown as number[]);
     },
     draw(video) {
       gl.viewport(0, 0, canvas.width, canvas.height);

@@ -19,50 +19,55 @@ export interface AvatarConfig {
 }
 
 /**
- * Palettes of the video character. `color: null` is the character as it was rendered; every
- * other entry is the tone the clip is repainted to. Swatch is what the picker shows.
+ * Palettes of the video character. Every option says how that look differs from the character
+ * as it was rendered: [lightness shift, chroma ratio, hue shift, contrast ratio] in OKLab, measured
+ * from rendered reference sheets by tools/baby-motion/calibrate.py. `shift: null` is the
+ * character as rendered. Swatch is what the picker shows.
  */
+export type LookShift = readonly [number, number, number, number];
 export const SKIN_TONES = [
-  { key: 'porcelain', label: 'בהיר מאוד', color: '#FBDCCB', swatch: '#FBDCCB' },
-  { key: 'peach', label: 'בהיר', color: null, swatch: '#F7C4A8' },
-  { key: 'honey', label: 'דבש', color: '#EEC3A2', swatch: '#EEC3A2' },
-  { key: 'tan', label: 'שזוף', color: '#D9AA86', swatch: '#D9AA86' },
-  { key: 'brown', label: 'חום', color: '#B5825F', swatch: '#B5825F' },
-  { key: 'deep', label: 'כהה', color: '#8C5F45', swatch: '#8C5F45' },
+  { key: 'porcelain', label: 'בהיר מאוד', shift: [0.0309, 0.77, -0.0005, 0.968], swatch: '#F5C5AD' },
+  { key: 'peach', label: 'בהיר', shift: null, swatch: '#F3B799' },
+  { key: 'honey', label: 'דבש', shift: [-0.0164, 1.19, 0.0376, 1.024], swatch: '#F2B08B' },
+  { key: 'tan', label: 'שזוף', shift: [-0.0737, 1.41, 0.0593, 1.135], swatch: '#E69B6E' },
+  { key: 'brown', label: 'חום', shift: [-0.1297, 1.436, 0.0383, 1.186], swatch: '#D4895C' },
+  { key: 'deep', label: 'כהה', shift: [-0.2382, 1.325, -0.0365, 1.269], swatch: '#AE6948' },
 ] as const;
 export const HAIR_COLORS = [
-  { key: 'golden', label: 'זהוב', color: null, swatch: '#B8824F' },
-  { key: 'blond', label: 'בלונד', color: '#DCC190', swatch: '#DCC190' },
-  { key: 'chestnut', label: 'ערמוני', color: '#946645', swatch: '#946645' },
-  { key: 'brown', label: 'חום', color: '#65493A', swatch: '#65493A' },
-  { key: 'black', label: 'שחור', color: '#403632', swatch: '#403632' },
-  { key: 'auburn', label: "ג'ינג'י", color: '#B97A55', swatch: '#B97A55' },
+  { key: 'golden', label: 'זהוב', shift: null, swatch: '#915C39' },
+  { key: 'blond', label: 'בלונד', shift: [0.2383, 0.87, 0.1736, 1.016], swatch: '#D5A77D' },
+  { key: 'chestnut', label: 'ערמוני', shift: [-0.1863, 0.902, -0.1646, 1.207], swatch: '#5A2C16' },
+  { key: 'brown', label: 'חום', shift: [-0.2619, 0.563, -0.2058, 1.055], swatch: '#3C2116' },
+  { key: 'black', label: 'שחור', shift: [-0.3175, 0.261, -0.2543, 1.013], swatch: '#281A16' },
+  { key: 'auburn', label: "ג'ינג'י", shift: [-0.03, 1.3, -0.3, 1.05], swatch: '#A4552F' },
 ] as const;
+/** Lightness, chroma and hue of the rendered iris: what the eye colours are measured against. */
+export const IRIS_BASE = [0.3689, 0.0834, 0.8006] as const;
 export const EYE_COLORS = [
-  { key: 'brown', label: 'חום', color: null, swatch: '#6B4428' },
-  { key: 'hazel', label: 'דבש', color: '#7A5A2E', swatch: '#8A6A36' },
-  { key: 'blue', label: 'כחול', color: '#6C9CC8', swatch: '#6C9CC8' },
-  { key: 'green', label: 'ירוק', color: '#6F9B6A', swatch: '#6F9B6A' },
-  { key: 'grey', label: 'אפור', color: '#8C9AA8', swatch: '#8C9AA8' },
+  { key: 'brown', label: 'חום', shift: null, swatch: '#61331A' },
+  { key: 'hazel', label: 'דבש', shift: [0.0227, 0.904, 0.2746, 1.2], swatch: '#643C18' },
+  { key: 'blue', label: 'כחול', shift: [0.1101, 0.907, -2.9475, 1.2], swatch: '#306384' },
+  { key: 'green', label: 'ירוק', shift: [0.0153, 0.965, 1.5113, 1.2], swatch: '#364D21' },
+  { key: 'grey', label: 'אפור', shift: [0.1, 0.3, -2.9, 1.2], swatch: '#5F6E78' },
 ] as const;
 export const CLOTH_COLORS = [
-  { key: 'mint', label: 'מנטה', color: null, swatch: '#A6DDD6' },
-  { key: 'rose', label: 'ורוד', color: '#F5BFCB', swatch: '#F5BFCB' },
-  { key: 'peach', label: 'אפרסק', color: '#F8CDB0', swatch: '#F8CDB0' },
-  { key: 'butter', label: 'חמאה', color: '#F5E2A6', swatch: '#F5E2A6' },
-  { key: 'sky', label: 'תכלת', color: '#B4D2EE', swatch: '#B4D2EE' },
-  { key: 'lilac', label: 'לילך', color: '#D2C4EE', swatch: '#D2C4EE' },
-  { key: 'sage', label: 'ירוק מרווה', color: '#C3D9BC', swatch: '#C3D9BC' },
-  { key: 'cream', label: 'שמנת', color: '#F4EFE6', swatch: '#F4EFE6' },
+  { key: 'mint', label: 'מנטה', shift: null, swatch: '#A0D5D1' },
+  { key: 'rose', label: 'ורוד', shift: [0.0059, 1.228, 3.0313, 1.023], swatch: '#F3B9C7' },
+  { key: 'peach', label: 'אפרסק', shift: [0.0028, 1.553, -2.396, 0.936], swatch: '#F9BA96' },
+  { key: 'butter', label: 'חמאה', shift: [0.0645, 1.634, -1.767, 0.89], swatch: '#F9DB98' },
+  { key: 'sky', label: 'תכלת', shift: [-0.0066, 0.721, 0.9152, 1.117], swatch: '#B1CBDF' },
+  { key: 'lilac', label: 'לילך', shift: [-0.0046, 1.005, 2.2506, 1.143], swatch: '#D8BDDF' },
+  { key: 'sage', label: 'ירוק מרווה', shift: [-0.0236, 0.863, -1.0985, 1.104], swatch: '#B9C8A7' },
+  { key: 'cream', label: 'שמנת', shift: [0.0927, 0.306, -2.1066, 0.899], swatch: '#F0E6DC' },
 ] as const;
 export type SkinKey = (typeof SKIN_TONES)[number]['key'];
 export type HairKey = (typeof HAIR_COLORS)[number]['key'];
 export type EyeKey = (typeof EYE_COLORS)[number]['key'];
 export type ClothKey = (typeof CLOTH_COLORS)[number]['key'];
 
-/** The repaint colours of a look; null leaves that part as rendered. */
-export interface BabyLookColors { skin: string | null; hair: string | null; eyes: string | null; cloth: string | null }
-const colorOf = <T extends { key: string; color: string | null }>(list: readonly T[], key: string) => list.find((x) => x.key === key)?.color ?? null;
+/** How each part of a look is shifted; null leaves that part as rendered. */
+export interface BabyLookColors { skin: LookShift | null; hair: LookShift | null; eyes: LookShift | null; cloth: LookShift | null }
+const colorOf = <T extends { key: string; shift: LookShift | null }>(list: readonly T[], key: string) => list.find((x) => x.key === key)?.shift ?? null;
 export function lookColors(config: AvatarConfig): BabyLookColors {
   return { skin: colorOf(SKIN_TONES, config.skin), hair: colorOf(HAIR_COLORS, config.hair), eyes: colorOf(EYE_COLORS, config.eyes), cloth: colorOf(CLOTH_COLORS, config.cloth) };
 }

@@ -71,7 +71,7 @@ describe('avatar', () => {
     expect(parseAvatar('{"stage":"crawl","outfit":"#123456"}')).toEqual({ stage: 'crawl', outfit: 'auto', skin: 'peach', hair: 'golden', eyes: 'brown', cloth: 'mint' });
     expect(parseAvatar('{"skin":"deep","hair":"purple","eyes":"blue","cloth":"sage"}')).toMatchObject({ skin: 'deep', hair: 'golden', eyes: 'blue', cloth: 'sage' });
     expect(lookColors(parseAvatar(null))).toEqual({ skin: null, hair: null, eyes: null, cloth: null });
-    expect(lookColors(parseAvatar('{"cloth":"rose"}')).cloth).toBe('#F5BFCB');
+    expect(lookColors(parseAvatar('{"cloth":"rose"}')).cloth).toHaveLength(4);
     expect(resolveOutfit(parseAvatar(null), 'male')).toBe('#A9D8DC');
     expect(resolveOutfit(parseAvatar(null), 'female')).toBe('#F5A9BF');
     expect(outfitKey(resolveOutfit(parseAvatar('{"outfit":"#C9B8F2"}'), 'male'))).toBe('lilac');
