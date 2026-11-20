@@ -317,6 +317,6 @@ const styles = StyleSheet.create({
   timerCard: { alignItems: 'center', borderRadius: radius.xl, paddingVertical: spacing.xxl, gap: spacing.xs },
   foodChip: { flexDirection: 'row', alignItems: 'center', gap: 6, minHeight: 42, paddingHorizontal: spacing.lg, borderRadius: radius.pill, borderWidth: 1 },
   addFood: { flexDirection: 'row', gap: spacing.sm, alignItems: 'center' },
-  addFoodInput: { flex: 1, minHeight: 48, borderRadius: radius.md, borderWidth: 1, borderColor: colors.borderStrong, backgroundColor: colors.surface, paddingHorizontal: spacing.lg, ...fonts.regular, fontSize: 16, color: colors.textPrimary, textAlign: 'right' },
+  addFoodInput: { flex: 1, flexBasis: 0, minWidth: 0, minHeight: 48, borderRadius: radius.md, borderWidth: 1, borderColor: colors.borderStrong, backgroundColor: colors.surface, paddingHorizontal: spacing.lg, ...fonts.regular, fontSize: 16, color: colors.textPrimary, textAlign: 'right' },
   switchRow: { flexDirection: 'row', alignItems: 'center', minHeight: 44 },
 });

@@ -180,6 +180,8 @@ export function isToday(d: Date) {
 const styles = StyleSheet.create({
   group: { gap: spacing.sm },
   input: {
+    // On web a text input has an intrinsic width; without minWidth 0 it refuses to shrink inside a row.
+    minWidth: 0,
     minHeight: 52, borderRadius: radius.md, borderWidth: 1, borderColor: colors.borderStrong, backgroundColor: colors.surface,
     paddingHorizontal: spacing.lg, ...fonts.regular, fontSize: 16, color: colors.textPrimary, textAlign: 'right',
   },
@@ -201,5 +203,5 @@ const styles = StyleSheet.create({
   },
   timeInput: { width: 40, ...fonts.semibold, fontSize: 18, color: colors.textPrimary, textAlign: 'center', paddingVertical: 8 },
   dateRow: { flexDirection: 'row', gap: spacing.sm },
-  datePart: { flex: 1, textAlign: 'center', paddingHorizontal: spacing.sm },
+  datePart: { flex: 1, flexBasis: 0, minWidth: 0, textAlign: 'center', paddingHorizontal: spacing.sm },
 });
