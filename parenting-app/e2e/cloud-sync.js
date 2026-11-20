@@ -83,7 +83,7 @@ const results = []; const check = (n, c) => { results.push(`${c ? 'PASS' : 'FAIL
   // ---------- offline on A: write is kept, then uploaded
   await A.tab('יומן'); await A.page.getByRole('button', { name: /^בקבוק,/ }).last().click(); await A.wait(900); await A.btn('סגירה בלי לשמור').click(); await A.wait(600); await A.tab('בית'); // web only: load the journal screen's code before cutting the network
   await A.ctx.setOffline(true);
-  await A.btn('חיתול רטוב').click(); await A.wait(1500);
+  await A.btn('תיעוד חיתול').click(); await A.wait(600); await A.btn('חיתול רטוב').click(); await A.wait(1500);
   t = await A.body();
   check('offline: diaper is saved locally and counted', t.includes('החלפה אחת'));
   await A.tab('הילד שלי'); await A.wait(16000);
