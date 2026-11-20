@@ -7,7 +7,8 @@ import { Avatar } from '@/components/Avatar';
 import { ConfirmDialog, useToast } from '@/components/ui/overlays';
 import { Button, Card, Notice, Screen, SectionHeader } from '@/components/ui/primitives';
 import { Text } from '@/components/ui/Text';
-import { colors, spacing } from '@/design/tokens';
+import { LinearGradient } from 'expo-linear-gradient';
+import { colors, gradients, shadow, spacing } from '@/design/tokens';
 import { formatAgeWithSex } from '@/domain/age';
 import { useActiveChild, useMeasurements, useUnsynced } from '@/hooks/data';
 import { formatDateFull, formatRelative, parseDayKey } from '@/lib/time';
@@ -91,16 +92,17 @@ export default function ChildScreen() {
     <Screen scroll>
       <Text variant="title" accessibilityRole="header" style={{ paddingTop: spacing.md }}>הילד שלי</Text>
 
-      <Card style={styles.profile}>
-        <Avatar name={child.name} uri={child.photoUri} size={84} />
+      <View style={styles.profile}>
+        <LinearGradient colors={gradients.brand} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={styles.cover} />
+        <View style={styles.avatarRing}><Avatar name={child.name} uri={child.photoUri} size={92} /></View>
         <Text variant="title" center>{child.name}</Text>
         <Text color={colors.textSecondary} center>{formatAgeWithSex(child.birthDate, child.sex) ?? ''}</Text>
         <Text variant="caption" color={colors.textSecondary} center>
           {birth ? `תאריך לידה: ${formatDateFull(birth)}` : ''}{child.gestationalWeeks ? ` · נולד/ה בשבוע ${child.gestationalWeeks}` : ''}
         </Text>
-        <Button label="עריכת פרופיל" icon={Pencil} variant="secondary" size="md" style={{ alignSelf: 'stretch', marginTop: spacing.sm }}
+        <Button label="עריכת פרופיל" icon={Pencil} variant="secondary" size="md" style={{ alignSelf: 'stretch', marginTop: spacing.md, marginHorizontal: spacing.lg }}
           onPress={() => router.push({ pathname: '/child/edit', params: { id: child.id } })} />
-      </Card>
+      </View>
 
       <SectionHeader title="גדילה" />
       <Card style={styles.list}>
@@ -167,7 +169,9 @@ export default function ChildScreen() {
 }
 
 const styles = StyleSheet.create({
-  profile: { alignItems: 'center', gap: spacing.xs, paddingVertical: spacing.xl },
+  profile: { alignItems: 'center', gap: spacing.xs, paddingBottom: spacing.lg, backgroundColor: colors.surface, borderRadius: 30, overflow: 'hidden', ...shadow.card },
+  cover: { alignSelf: 'stretch', height: 96 },
+  avatarRing: { marginTop: -50, borderRadius: 52, borderWidth: 4, borderColor: colors.surface, backgroundColor: colors.surface },
   list: { paddingVertical: spacing.xs, gap: 0 },
   row: { flexDirection: 'row', alignItems: 'center', gap: spacing.md, minHeight: 60, paddingVertical: spacing.sm },
   rowIcon: { width: 40, height: 40, borderRadius: 20, backgroundColor: colors.primaryLight, alignItems: 'center', justifyContent: 'center' },

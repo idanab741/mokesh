@@ -77,6 +77,51 @@ export function SkyScene({ part, width, height }: { part: DayPart; width: number
   );
 }
 
+/**
+ * Full "stage" behind the 3D baby on Home: sky for the current part of the day, with a soft
+ * floor for the baby to sit on. The top-right is kept calm for the greeting text.
+ */
+export function StageScene({ part, width, height }: { part: DayPart; width: number; height: number }) {
+  const t = skyThemes[part];
+  const night = part === 'night';
+  const evening = part === 'evening';
+  return (
+    <Svg width={width} height={height} viewBox="0 0 360 440" preserveAspectRatio="xMidYMid slice" accessibilityElementsHidden>
+      <Defs>
+        <LinearGradient id="stageSky" x1="0" y1="0" x2="0.6" y2="1">
+          <Stop offset="0" stopColor={t.from} />
+          <Stop offset="1" stopColor={t.to} />
+        </LinearGradient>
+        <LinearGradient id="stageFloor" x1="0" y1="0" x2="0" y2="1">
+          <Stop offset="0" stopColor="#FFFFFF" stopOpacity={night || evening ? 0.22 : 0.7} />
+          <Stop offset="1" stopColor="#FFFFFF" stopOpacity={night || evening ? 0.06 : 0.25} />
+        </LinearGradient>
+      </Defs>
+      <Rect width="360" height="440" fill="url(#stageSky)" />
+      {/* celestial body, top-left */}
+      {night ? (
+        <>
+          <Circle cx="70" cy="74" r="50" fill="#8F86F2" opacity={0.3} />
+          <Path d="M84 42a32 32 0 1 0 13 53a25 25 0 0 1-13-53z" fill="#FFF3C4" />
+          <Star x={150} y={40} r={2} /><Star x={36} y={150} r={1.6} o={0.8} /><Star x={318} y={150} r={1.6} o={0.7} />
+          <Star x={250} y={200} r={1.2} o={0.6} /><Star x={120} y={190} r={1.3} o={0.7} /><Star x={300} y={250} r={1.9} o={0.7} /><Star x={28} y={260} r={1.3} o={0.6} />
+        </>
+      ) : (
+        <>
+          <Circle cx="70" cy="76" r="56" fill={evening ? '#FFE0A3' : '#FFF6CF'} opacity={evening ? 0.35 : 0.65} />
+          <Circle cx="70" cy="76" r="33" fill={part === 'morning' ? '#FFD166' : evening ? '#FFD27A' : '#FFD23F'} />
+          {evening ? <><Star x={170} y={46} o={0.8} /><Star x={318} y={170} r={1.4} o={0.6} /></> : null}
+        </>
+      )}
+      <Cloud x={24} y={104} s={1.5} o={night ? 0.1 : evening ? 0.4 : 0.95} />
+      <Cloud x={262} y={176} s={1.2} o={night ? 0.08 : evening ? 0.28 : 0.85} />
+      <Cloud x={-10} y={236} s={1.0} o={night ? 0.06 : evening ? 0.2 : 0.7} />
+      {/* soft floor */}
+      <Ellipse cx="180" cy="372" rx="210" ry="74" fill="url(#stageFloor)" />
+    </Svg>
+  );
+}
+
 /** A nursery mobile: the app's illustration for welcome and empty states. */
 export function MobileIllustration({ size = 200 }: { size?: number }) {
   const rose = activityTones.bottle.solid, indigo = activityTones.sleep.solid, teal = activityTones.diaper.solid, amber = activityTones.solids.solid;

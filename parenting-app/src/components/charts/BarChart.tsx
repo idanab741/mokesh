@@ -1,6 +1,6 @@
-import { useState } from 'react';
+import { useId, useState } from 'react';
 import { type LayoutChangeEvent, View } from 'react-native';
-import Svg, { G, Line, Path, Rect, Text as SvgText } from 'react-native-svg';
+import Svg, { Defs, G, Line, LinearGradient, Path, Rect, Stop, Text as SvgText } from 'react-native-svg';
 import { Text } from '@/components/ui/Text';
 import { colors, svgFontFamily, spacing } from '@/design/tokens';
 
@@ -17,9 +17,11 @@ export interface BarDatum {
 export interface BarSeries {
   label: string;
   color: string;
+  /** Optional top-to-bottom gradient for the columns; `color` is still used for the legend. */
+  grad?: readonly [string, string];
 }
 
-const BAR_MAX = 24;
+const BAR_MAX = 22;
 const GAP = 2; // surface gap between stacked segments
 const PAD = { top: 10, bottom: 24, axis: 34 };
 
@@ -53,6 +55,7 @@ export function BarChart({ data, series, formatValue, formatTick, height = 168, 
 }) {
   const [width, setWidth] = useState(0);
   const [selected, setSelected] = useState<string | null>(null);
+  const gid = useId().replace(/[^a-zA-Z0-9]/g, '');
   const onLayout = (e: LayoutChangeEvent) => setWidth(Math.round(e.nativeEvent.layout.width));
 
   const totals = data.map((d) => d.values.reduce((a, b) => a + b, 0));
@@ -93,6 +96,14 @@ export function BarChart({ data, series, formatValue, formatTick, height = 168, 
       <View onLayout={onLayout} style={{ height, direction: 'ltr' }} accessible accessibilityRole="image" accessibilityLabel={summaryLabel}>
         {width > 0 ? (
           <Svg width={width} height={height}>
+            <Defs>
+              {series.map((sr, i) => sr.grad ? (
+                <LinearGradient key={i} id={`bar-${gid}-${i}`} x1="0" y1="0" x2="0" y2="1">
+                  <Stop offset="0" stopColor={sr.grad[0]} />
+                  <Stop offset="1" stopColor={sr.grad[1]} />
+                </LinearGradient>
+              ) : null)}
+            </Defs>
             {ticks.map((t) => (
               <G key={t}>
                 <Line x1={PAD.axis} x2={width} y1={y(t)} y2={y(t)} stroke={colors.border} strokeWidth={1} />
@@ -118,8 +129,8 @@ export function BarChart({ data, series, formatValue, formatTick, height = 168, 
                     const h = Math.max(1.5, yBottom - yTop - (isTop ? 0 : GAP));
                     const top = yBottom - h;
                     return isTop
-                      ? <Path key={si} d={topRounded(x, top, barW, h, 4)} fill={series[si]?.color ?? colors.primary} />
-                      : <Rect key={si} x={x} y={top} width={barW} height={h} fill={series[si]?.color ?? colors.primary} />;
+                      ? <Path key={si} d={topRounded(x, top, barW, h, 4)} fill={series[si]?.grad ? `url(#bar-${gid}-${si})` : series[si]?.color ?? colors.primary} />
+                      : <Rect key={si} x={x} y={top} width={barW} height={h} fill={series[si]?.grad ? `url(#bar-${gid}-${si})` : series[si]?.color ?? colors.primary} />;
                   })}
                   {d.axisLabel ? (
                     <SvgText x={cx} y={height - 6} fontSize={11} fontFamily={svgFontFamily} fontWeight={selected === d.key ? '600' : '400'}

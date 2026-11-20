@@ -6,7 +6,7 @@ import { openActivityForm } from '@/components/AddActivitySheet';
 import { EventRow } from '@/components/activity/EventRow';
 import { Chip, EmptyState, IconButton, Screen } from '@/components/ui/primitives';
 import { Text } from '@/components/ui/Text';
-import { colors, radius, spacing } from '@/design/tokens';
+import { colors, radius, shadow, spacing } from '@/design/tokens';
 import { type FilterKey, matchesFilter } from '@/domain/activity';
 import { eventsForDay, summarizeDay } from '@/domain/summary';
 import { useActiveChild, useEventsBetween, useNow } from '@/hooks/data';
@@ -16,6 +16,7 @@ import { useSession } from '@/state/session';
 import { useUi } from '@/state/ui';
 
 const FILTERS: FilterKey[] = ['all', 'feeding', 'sleep', 'diaper', 'solids', 'other'];
+const partOfDay = (hour: number) => (hour >= 5 && hour < 12 ? 'בוקר' : hour >= 12 && hour < 17 ? 'צהריים' : hour >= 17 && hour < 21 ? 'ערב' : 'לילה');
 
 export default function JournalScreen() {
   const params = useLocalSearchParams<{ filter?: string }>();
@@ -37,6 +38,18 @@ export default function JournalScreen() {
   const query = useEventsBetween(child?.id, day, day);
   const dayEvents = useMemo(() => eventsForDay(query.data ?? [], day, now), [query.data, day, now]);
   const visible = useMemo(() => dayEvents.filter((e) => matchesFilter(e, filter)), [dayEvents, filter]);
+  // Newest first, with a small heading whenever the part of the day changes.
+  const rows = useMemo(() => {
+    const out: ({ kind: 'header'; key: string; label: string } | { kind: 'event'; key: string; event: (typeof visible)[number] })[] = [];
+    let last = '';
+    for (const event of visible) {
+      const at = new Date(event.occurredAt);
+      const label = at.getTime() < startOfDay(day).getTime() ? 'מהיום הקודם' : partOfDay(at.getHours());
+      if (label !== last) { out.push({ kind: 'header', key: `h-${label}`, label }); last = label; }
+      out.push({ kind: 'event', key: event.id, event });
+    }
+    return out;
+  }, [visible, day]);
   const summary = useMemo(() => summarizeDay(query.data ?? [], day, now), [query.data, day, now]);
 
   const isToday = isSameDay(day, now);
@@ -94,8 +107,8 @@ export default function JournalScreen() {
       </View>
 
       <FlatList
-        data={visible}
-        keyExtractor={(e) => e.id}
+        data={rows}
+        keyExtractor={(r) => r.key}
         contentContainerStyle={styles.list}
         showsVerticalScrollIndicator={false}
         ListHeaderComponent={dayEvents.length > 0 ? (
@@ -108,9 +121,11 @@ export default function JournalScreen() {
             ))}
           </View>
         ) : undefined}
-        renderItem={({ item, index }) => (
-          <EventRow event={item} now={now} day={day} showSync={!!user} isLast={index === visible.length - 1}
-            onPress={() => openActivityForm(item.type, item.id)} />
+        renderItem={({ item }) => item.kind === 'header' ? (
+          <Text variant="label" color={colors.textSecondary} style={styles.partHeader} accessibilityRole="header">{item.label}</Text>
+        ) : (
+          <EventRow card event={item.event} now={now} day={day} showSync={!!user}
+            onPress={() => openActivityForm(item.event.type, item.event.id)} />
         )}
         ListEmptyComponent={query.isLoading ? undefined : (
           <EmptyState icon={CalendarDays}
@@ -128,9 +143,10 @@ const styles = StyleSheet.create({
   todayBtn: { backgroundColor: colors.primaryLight, paddingHorizontal: spacing.md, minHeight: 36, borderRadius: radius.pill, justifyContent: 'center' },
   dateNav: { flexDirection: 'row', alignItems: 'center', paddingHorizontal: spacing.xl, paddingVertical: spacing.sm, gap: spacing.md },
   strip: { flexDirection: 'row', gap: spacing.xs, paddingHorizontal: spacing.xl, marginBottom: spacing.md },
-  stripDay: { flex: 1, alignItems: 'center', paddingVertical: spacing.sm, borderRadius: radius.md, backgroundColor: colors.surface, borderWidth: 1, borderColor: colors.border, minHeight: 56, justifyContent: 'center' },
+  stripDay: { flex: 1, alignItems: 'center', paddingVertical: spacing.sm, borderRadius: 18, backgroundColor: 'rgba(255,255,255,0.8)', minHeight: 60, justifyContent: 'center' },
   stripDaySelected: { backgroundColor: colors.primaryStrong, borderColor: colors.primaryStrong },
   filters: { paddingHorizontal: spacing.xl, gap: spacing.sm, paddingBottom: spacing.md },
   list: { paddingHorizontal: spacing.xl, paddingBottom: 140, flexGrow: 1 },
-  totals: { flexDirection: 'row', backgroundColor: colors.surface, borderRadius: radius.lg, borderWidth: 1, borderColor: colors.border, paddingVertical: spacing.md, marginBottom: spacing.lg },
+  partHeader: { fontWeight: '600', marginTop: spacing.sm, marginBottom: spacing.sm, marginStart: spacing.xs },
+  totals: { flexDirection: 'row', backgroundColor: colors.surface, borderRadius: 22, paddingVertical: spacing.md, marginBottom: spacing.sm, ...shadow.card, shadowOpacity: 0.05 },
 });

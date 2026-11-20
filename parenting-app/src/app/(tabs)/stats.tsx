@@ -173,7 +173,7 @@ export default function StatsScreen() {
             {multiDay && t.bottleMl > 0 ? (
               <ChartOrNote show={daysWith((b) => b.bottleMl) >= 2}>
                 <Text variant="label" color={colors.textSecondary}>כמות בבקבוק לפי יום (מ״ל)</Text>
-                <BarChart data={chartData(stats, (b) => [b.bottleMl])} series={[{ label: 'מ״ל', color: activityTones.bottle.solid }]}
+                <BarChart data={chartData(stats, (b) => [b.bottleMl])} series={[{ label: 'מ״ל', color: activityTones.bottle.solid, grad: activityTones.bottle.grad }]}
                   formatValue={(v) => `${Math.round(v)} מ״ל`} formatTick={(v) => String(Math.round(v))}
                   summaryLabel={`גרף כמות בבקבוק לפי יום. סך הכול ${t.bottleMl} מ״ל ב-${length} ימים.`} />
               </ChartOrNote>
@@ -210,7 +210,7 @@ export default function StatsScreen() {
             {multiDay ? (
               <ChartOrNote show={daysWith((b) => b.diaperCount) >= 2}>
                 <Text variant="label" color={colors.textSecondary}>החלפות לפי יום</Text>
-                <BarChart data={chartData(stats, (b) => [b.diaperCount])} series={[{ label: 'החלפות', color: activityTones.diaper.solid }]}
+                <BarChart data={chartData(stats, (b) => [b.diaperCount])} series={[{ label: 'החלפות', color: activityTones.diaper.solid, grad: activityTones.diaper.grad }]}
                   formatValue={(v) => `${Math.round(v)} החלפות`} formatTick={(v) => (Number.isInteger(v) ? String(v) : '')}
                   summaryLabel={`גרף החלפות חיתול לפי יום. סך הכול ${t.diaperCount}.`} />
               </ChartOrNote>
@@ -259,7 +259,7 @@ const styles = StyleSheet.create({
   rangeNav: { flexDirection: 'row', alignItems: 'center', gap: spacing.md },
   sectionHead: { flexDirection: 'row', alignItems: 'center', gap: spacing.md },
   tiles: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing.sm },
-  tile: { flexBasis: '47%', flexGrow: 1, backgroundColor: colors.surfaceMuted, borderRadius: radius.md, padding: spacing.md, gap: 2 },
+  tile: { flexBasis: '47%', flexGrow: 1, backgroundColor: colors.surfaceMuted, borderRadius: 18, padding: spacing.md, gap: 2 },
   delta: { flexDirection: 'row', alignItems: 'center', gap: spacing.sm },
   foods: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing.sm },
   food: { flexDirection: 'row', alignItems: 'center', gap: 6, paddingHorizontal: spacing.md, minHeight: 36, borderRadius: radius.pill, borderWidth: 1, borderColor: colors.borderStrong, backgroundColor: colors.surface },

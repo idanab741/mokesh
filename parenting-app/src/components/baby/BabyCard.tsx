@@ -1,5 +1,4 @@
-import { Check, Palette } from 'lucide-react-native';
-import { useState } from 'react';
+import { Check } from 'lucide-react-native';
 import { Pressable, StyleSheet, View } from 'react-native';
 import { Avatar } from '@/components/Avatar';
 import { Sheet } from '@/components/ui/overlays';
@@ -40,62 +39,47 @@ function Swatches({ label, options, value, onChange, names }: {
 
 const STAGES: (BabyStage | 'auto')[] = ['auto', 'tummy', 'crawl', 'stand'];
 
-/** The 3D baby on Home, with the sheet that lets a parent make it look like their child. */
-export function BabyCard({ child, now }: { child: Child; now: Date }) {
-  const [open, setOpen] = useState(false);
-  const { setAvatar } = useChildMutations();
+/** Resolved look of a child's 3D baby. */
+export function useBabyLook(child: Child, now: Date) {
   const config = parseAvatar(child.avatar);
   const months = ageParts(child.birthDate, now)?.totalMonths ?? 0;
-  const stage = resolveStage(config, months);
+  return { config, months, stage: resolveStage(config, months) };
+}
+
+/** The sheet where a parent makes the 3D baby look like their child. A live preview stays on top. */
+export function BabyCustomizeSheet({ child, now, open, onClose }: { child: Child; now: Date; open: boolean; onClose: () => void }) {
+  const { setAvatar } = useChildMutations();
+  const { config, months, stage } = useBabyLook(child, now);
   const update = (patch: Partial<AvatarConfig>) => setAvatar.mutate({ id: child.id, avatar: JSON.stringify({ ...config, ...patch }) });
-
   return (
-    <View style={styles.card}>
-      <View style={styles.head}>
-        <View style={{ flex: 1 }}>
-          <Text variant="heading" accessibilityRole="header">{`${child.name} בתלת-ממד`}</Text>
-          <Text variant="caption" color={colors.textSecondary}>{`${stageLabel[stage]} · גררו כדי לסובב`}</Text>
-        </View>
-        <Pressable onPress={() => setOpen(true)} accessibilityRole="button" accessibilityLabel="התאמת המראה של הדמות" style={styles.edit} hitSlop={6}>
-          <Palette size={18} color={colors.primaryStrong} strokeWidth={2} />
-          <Text variant="label" color={colors.primaryStrong} style={{ fontWeight: '600' }}>התאמה</Text>
-        </Pressable>
+    <Sheet visible={open} onClose={onClose} title={`המראה של ${child.name}`}>
+      <View style={styles.preview}>
+        {open ? <Baby3D stage={stage} config={config} height={190} label={`תצוגה מקדימה של ${child.name}`} /> : null}
+        {child.photoUri ? <View style={styles.previewPhoto}><Avatar name={child.name} uri={child.photoUri} size={52} /></View> : null}
       </View>
-      <Baby3D stage={stage} config={config} height={250} label={`דמות תלת-ממדית של ${child.name}, ${stageLabel[stage]}`} />
-
-      <Sheet visible={open} onClose={() => setOpen(false)} title={`המראה של ${child.name}`}>
-        {child.photoUri ? (
-          <View style={styles.photoRow}>
-            <Avatar name={child.name} uri={child.photoUri} size={56} />
-            <Text variant="caption" color={colors.textSecondary} style={{ flex: 1 }}>התמונה כאן לעזר: בחרו את הגוונים הכי קרובים אליה.</Text>
-          </View>
-        ) : null}
-        <View style={{ gap: spacing.sm }}>
-          <Text variant="label" color={colors.textSecondary}>תנוחה</Text>
-          <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: spacing.sm }}>
-            {STAGES.map((s) => (
-              <Chip key={s} selected={config.stage === s} onPress={() => update({ stage: s })}
-                label={s === 'auto' ? `לפי הגיל (${stageLabel[defaultStageForAge(months)]})` : stageLabel[s]} />
-            ))}
-          </View>
+      <View style={{ gap: spacing.sm }}>
+        <Text variant="label" color={colors.textSecondary}>תנוחה</Text>
+        <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: spacing.sm }}>
+          {STAGES.map((s) => (
+            <Chip key={s} selected={config.stage === s} onPress={() => update({ stage: s })}
+              label={s === 'auto' ? `לפי הגיל (${stageLabel[defaultStageForAge(months)]})` : stageLabel[s]} />
+          ))}
         </View>
-        <Swatches label="גוון עור" options={SKIN_TONES} value={config.skin} onChange={(v) => v && update({ skin: v })} names={(i) => `גוון עור ${i + 1}`} />
-        <Swatches label="שיער" options={[...HAIR_COLORS, null]} value={config.hair} onChange={(v) => update({ hair: v })} names={(i, v) => (v ? `צבע שיער ${i + 1}` : 'בלי שיער')} />
-        <Swatches label="עיניים" options={EYE_COLORS} value={config.eyes} onChange={(v) => v && update({ eyes: v })} names={(i) => `צבע עיניים ${i + 1}`} />
-        <Swatches label="בגד" options={OUTFIT_COLORS} value={config.outfit} onChange={(v) => v && update({ outfit: v })} names={(i, v) => (v === '#FFFFFF' ? 'חיתול בלבד' : `צבע בגד ${i}`)} />
-        <Notice text="התנוחה לפי הגיל היא ברירת מחדל משחקית בלבד. כל ילד מתקדם בקצב שלו, ואפשר לבחור תנוחה אחרת בכל רגע." />
-      </Sheet>
-    </View>
+      </View>
+      <Swatches label="גוון עור" options={SKIN_TONES} value={config.skin} onChange={(v) => v && update({ skin: v })} names={(i) => `גוון עור ${i + 1}`} />
+      <Swatches label="שיער" options={[...HAIR_COLORS, null]} value={config.hair} onChange={(v) => update({ hair: v })} names={(i, v) => (v ? `צבע שיער ${i + 1}` : 'בלי שיער')} />
+      <Swatches label="עיניים" options={EYE_COLORS} value={config.eyes} onChange={(v) => v && update({ eyes: v })} names={(i) => `צבע עיניים ${i + 1}`} />
+      <Swatches label="בגד" options={OUTFIT_COLORS} value={config.outfit} onChange={(v) => v && update({ outfit: v })} names={(i, v) => (v === '#FFFFFF' ? 'חיתול בלבד' : `צבע בגד ${i}`)} />
+      <Notice text="התנוחה לפי הגיל היא ברירת מחדל משחקית בלבד. כל ילד מתקדם בקצב שלו, ואפשר לבחור תנוחה אחרת בכל רגע." />
+    </Sheet>
   );
 }
 
 const styles = StyleSheet.create({
-  card: { backgroundColor: '#FFF7F9', borderRadius: radius.xl, borderWidth: 1, borderColor: colors.border, paddingTop: spacing.lg, overflow: 'hidden' },
-  head: { flexDirection: 'row', alignItems: 'center', gap: spacing.md, paddingHorizontal: spacing.lg },
-  edit: { flexDirection: 'row', alignItems: 'center', gap: 6, backgroundColor: colors.primaryLight, paddingHorizontal: spacing.md, minHeight: 36, borderRadius: radius.pill },
   swatches: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing.md },
   swatch: { width: 44, height: 44, borderRadius: 22, alignItems: 'center', justifyContent: 'center', borderWidth: 2, borderColor: 'transparent' },
   swatchLight: { borderColor: colors.borderStrong },
   swatchSelected: { borderColor: colors.textPrimary, borderWidth: 3 },
-  photoRow: { flexDirection: 'row', alignItems: 'center', gap: spacing.md, backgroundColor: colors.surfaceMuted, borderRadius: radius.lg, padding: spacing.md },
+  preview: { height: 190, borderRadius: radius.xl, backgroundColor: '#FFF1F5', overflow: 'hidden' },
+  previewPhoto: { position: 'absolute', top: spacing.md, start: spacing.md, borderRadius: 30, borderWidth: 3, borderColor: colors.white },
 });
