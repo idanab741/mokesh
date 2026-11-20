@@ -110,7 +110,7 @@ export default function ChildScreen() {
       <SectionHeader title="הילדים שלנו" />
       <Card style={styles.list}>
         {children.map((c) => (
-          <Pressable key={c.id} onPress={() => select(c.id)} accessibilityRole="radio" accessibilityState={{ selected: c.id === child.id }}
+          <Pressable key={c.id} onPress={() => select(c.id)} accessibilityRole="radio" accessibilityState={{ checked: c.id === child.id }} aria-checked={c.id === child.id}
             accessibilityLabel={c.name} style={({ pressed }) => [styles.row, pressed && { opacity: 0.7 }]}>
             <Avatar name={c.name} uri={c.photoUri} size={40} />
             <View style={{ flex: 1 }}>

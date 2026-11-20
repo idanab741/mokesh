@@ -28,7 +28,7 @@ export function TabBar({ state, emitter, navigateToTab }: BottomTabBarProps) {
       if (!focused && !event.defaultPrevented) navigateToTab(route.key);
     };
     return (
-      <Pressable key={route.key} onPress={onPress} accessibilityRole="tab" accessibilityState={{ selected: focused }}
+      <Pressable key={route.key} onPress={onPress} accessibilityRole="tab" accessibilityState={{ selected: focused }} aria-selected={focused}
         accessibilityLabel={tab.label} style={styles.tab}>
         <View style={[styles.iconWrap, focused && styles.iconWrapFocused]}>
           <Icon size={22} color={focused ? colors.primaryStrong : colors.textSecondary} strokeWidth={focused ? 2.1 : 1.7} />

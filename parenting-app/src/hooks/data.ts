@@ -129,7 +129,11 @@ export function useChildMutations() {
   const create = useMutation({ mutationFn: (draft: ChildDraft) => children.create(draft), onSuccess: done });
   const update = useMutation({ mutationFn: ({ id, draft }: { id: string; draft: ChildDraft }) => children.update(id, draft), onSuccess: done });
   const remove = useMutation({ mutationFn: (id: string) => children.remove(id), onSuccess: done });
-  return { create, update, remove };
+  const setAvatar = useMutation({
+    mutationFn: ({ id, avatar }: { id: string; avatar: string }) => children.setAvatar(id, avatar),
+    onSuccess: () => qc.invalidateQueries({ queryKey: ['children'] }),
+  });
+  return { create, update, remove, setAvatar };
 }
 
 export function useMeasurements(childId: string | undefined) {

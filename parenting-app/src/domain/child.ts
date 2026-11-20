@@ -12,6 +12,8 @@ export interface Child {
   /** Gestational age at birth in weeks; used later for prematurity-corrected growth charts. */
   gestationalWeeks: number | null;
   photoUri: string | null;
+  /** Raw JSON of the 3D avatar settings; parse with parseAvatar(). */
+  avatar: string | null;
   notes: string | null;
   createdAt: string;
   updatedAt: string;

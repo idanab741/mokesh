@@ -183,7 +183,7 @@ export function Segmented<T extends string>({ options, value, onChange }: {
       {options.map((o) => {
         const selected = o.value === value;
         return (
-          <Pressable key={o.value} onPress={() => onChange(o.value)} accessibilityRole="tab" accessibilityState={{ selected }}
+          <Pressable key={o.value} onPress={() => onChange(o.value)} accessibilityRole="tab" accessibilityState={{ selected }} aria-selected={selected}
             style={[styles.segment, selected && styles.segmentSelected]}>
             <Text variant="label" color={selected ? colors.primaryStrong : colors.textSecondary}
               style={selected ? { fontWeight: '600' } : null}>{o.label}</Text>

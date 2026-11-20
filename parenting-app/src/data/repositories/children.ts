@@ -7,7 +7,7 @@ import type { SqlDriver, SqlRow } from '../db/driver';
 
 interface ChildRow extends SqlRow {
   id: string; family_id: string | null; name: string; birth_date: string; sex: string;
-  gestational_weeks: number | null; photo_uri: string | null; notes: string | null;
+  gestational_weeks: number | null; photo_uri: string | null; avatar: string | null; notes: string | null;
   created_at: string; updated_at: string; deleted_at: string | null; version: number; sync_status: string;
 }
 
@@ -19,6 +19,7 @@ const toChild = (r: ChildRow): Child => ({
   sex: r.sex as ChildSex,
   gestationalWeeks: r.gestational_weeks === null ? null : Number(r.gestational_weeks),
   photoUri: r.photo_uri,
+  avatar: r.avatar ?? null,
   notes: r.notes,
   createdAt: r.created_at,
   updatedAt: r.updated_at,
@@ -67,6 +68,10 @@ export function createChildrenRepository(db: SqlDriver) {
       const saved = await getById(id);
       if (!saved) throw new ValidationError('not_found');
       return saved;
+    },
+    /** Appearance of the 3D baby. Stays on this device, so it does not mark the row for sync. */
+    async setAvatar(id: string, avatarJson: string): Promise<void> {
+      await db.run('UPDATE children SET avatar = ? WHERE id = ?', [avatarJson, id]);
     },
     async remove(id: string, now: Date = new Date()): Promise<void> {
       const stamp = now.toISOString();
