@@ -221,7 +221,8 @@ export default function HomeScreen() {
       {/* Recent activity */}
       <SectionHeader title="פעילות אחרונה"
         action={recent.data && recent.data.length > 0 ? (
-          <Pressable onPress={() => router.push('/(tabs)/journal')} accessibilityRole="link" hitSlop={12}>
+          <Pressable onPress={() => router.push('/(tabs)/journal')} accessibilityRole="link" hitSlop={12}
+            style={{ minHeight: 44, minWidth: 44, justifyContent: 'center' }}>
             <Text variant="label" color={colors.primaryStrong}>ליומן המלא</Text>
           </Pressable>
         ) : undefined} />
