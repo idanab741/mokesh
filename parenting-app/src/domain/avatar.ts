@@ -1,4 +1,4 @@
-export type BabyStage = 'tummy' | 'crawl' | 'stand';
+export type BabyStage = 'tummy' | 'sit' | 'crawl' | 'stand';
 
 /** How the 3D baby looks. Chosen by the parent; nothing here is inferred from a photo. */
 export interface AvatarConfig {
@@ -18,14 +18,15 @@ export const OUTFIT_COLORS = ['#FFFFFF', '#EC5F88', '#6C63E8', '#17B39C', '#F2A3
 
 export const DEFAULT_AVATAR: AvatarConfig = { skin: SKIN_TONES[1], hair: HAIR_COLORS[1], eyes: EYE_COLORS[0], outfit: OUTFIT_COLORS[0], stage: 'auto' };
 
-export const stageLabel: Record<BabyStage, string> = { tummy: 'שכיבה על הבטן', crawl: 'זחילה', stand: 'עמידה' };
+export const stageLabel: Record<BabyStage, string> = { tummy: 'שכיבה על הבטן', sit: 'ישיבה', crawl: 'זחילה', stand: 'עמידה' };
 
 /**
  * A playful default only, not a developmental norm: children reach these stages at very
  * different ages, which is exactly why the parent can override it.
  */
 export function defaultStageForAge(totalMonths: number): BabyStage {
-  if (totalMonths < 6) return 'tummy';
+  if (totalMonths < 4) return 'tummy';
+  if (totalMonths < 8) return 'sit';
   if (totalMonths < 11) return 'crawl';
   return 'stand';
 }
@@ -43,7 +44,7 @@ export function parseAvatar(raw: string | null | undefined): AvatarConfig {
       hair: v.hair === null || typeof v.hair === 'string' ? v.hair : DEFAULT_AVATAR.hair,
       eyes: typeof v.eyes === 'string' ? v.eyes : DEFAULT_AVATAR.eyes,
       outfit: typeof v.outfit === 'string' ? v.outfit : DEFAULT_AVATAR.outfit,
-      stage: v.stage === 'tummy' || v.stage === 'crawl' || v.stage === 'stand' ? v.stage : 'auto',
+      stage: v.stage === 'tummy' || v.stage === 'sit' || v.stage === 'crawl' || v.stage === 'stand' ? v.stage : 'auto',
     };
   } catch {
     return DEFAULT_AVATAR;

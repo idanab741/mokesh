@@ -37,7 +37,7 @@ function Swatches({ label, options, value, onChange, names }: {
   );
 }
 
-const STAGES: (BabyStage | 'auto')[] = ['auto', 'tummy', 'crawl', 'stand'];
+const STAGES: (BabyStage | 'auto')[] = ['auto', 'tummy', 'sit', 'crawl', 'stand'];
 
 /** Resolved look of a child's 3D baby. */
 export function useBabyLook(child: Child, now: Date) {
@@ -54,7 +54,7 @@ export function BabyCustomizeSheet({ child, now, open, onClose }: { child: Child
   return (
     <Sheet visible={open} onClose={onClose} title={`המראה של ${child.name}`}>
       <View style={styles.preview}>
-        {open ? <Baby3D stage={stage} config={config} height={190} label={`תצוגה מקדימה של ${child.name}`} /> : null}
+        {open ? <Baby3D stage={stage} config={config} sex={child.sex} height={190} label={`תצוגה מקדימה של ${child.name}`} /> : null}
         {child.photoUri ? <View style={styles.previewPhoto}><Avatar name={child.name} uri={child.photoUri} size={52} /></View> : null}
       </View>
       <View style={{ gap: spacing.sm }}>
