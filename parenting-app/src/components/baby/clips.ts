@@ -14,5 +14,5 @@ export type BabyClipMap = Record<'boy' | 'girl', Partial<Record<BabyStage, BabyC
 /** The clips are played on the web build only for now (see clips.web.ts). */
 export const babyClips: BabyClipMap = { boy: {}, girl: {} };
 
-/** Shown for every character that has no clip of its own yet. None on native. */
-export const fallbackClips: BabyClips | null = null;
+/** Shown for a pose that has no clip of its own yet. None on native. */
+export const fallbackClips: Record<'boy' | 'girl', BabyClips | null> = { boy: null, girl: null };

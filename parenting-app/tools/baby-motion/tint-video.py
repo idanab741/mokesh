@@ -3,6 +3,18 @@ import sys, colorsys, numpy as np, cv2
 from scipy import ndimage
 src, out = sys.argv[1], sys.argv[2]
 
+TARGET_BG = np.array([241, 241, 239], np.float32) / 255              # the app's canvas colour
+def flat_field(first):
+    """Gain that brings the clip's backdrop (often darker towards the corners) to the app's canvas colour."""
+    mx = first.max(2); mn = first.min(2)
+    fig = ndimage.binary_dilation(~(((mx - mn) < 0.095) & (mx > 0.55)), iterations=25)
+    small = cv2.resize((first * 255).astype(np.uint8), None, fx=0.25, fy=0.25, interpolation=cv2.INTER_AREA)
+    hole = cv2.resize(fig.astype(np.uint8) * 255, (small.shape[1], small.shape[0]), interpolation=cv2.INTER_NEAREST)
+    bg = cv2.GaussianBlur(cv2.inpaint(small, hole, 9, cv2.INPAINT_TELEA), (0, 0), 14).astype(np.float32) / 255
+    bg = cv2.resize(bg, (first.shape[1], first.shape[0]), interpolation=cv2.INTER_CUBIC)
+    return np.clip(TARGET_BG[None, None] / np.maximum(bg, 0.3), 0.9, 1.45)
+
+MODEL = {}
 def masks(rgb):
     hsv = cv2.cvtColor(rgb, cv2.COLOR_RGB2HSV); H, S, V = hsv[..., 0] / 360, hsv[..., 1], hsv[..., 2]
     h, w = H.shape; rows = np.arange(h)[:, None]
@@ -12,9 +24,7 @@ def masks(rgb):
     cloth = figure & (H > 0.38) & (H < 0.62) & (S > 0.1)
     warm = figure & ~cloth & (S > 0.14) & ((H < 0.14) | (H > 0.96))
     ys, xs = np.where(figure); top, bottom = ys.min(), ys.max(); height = bottom - top
-    sure = warm & (H > 0.06) & (H < 0.125) & (S > 0.42) & (V < 0.84) & (rows < top + 0.3 * height)
-    sy, sx = np.where(sure)
-    head_cx = np.median(sx) if len(sx) else xs.mean(); head_top = sy.min() if len(sy) else top
+    head_cx = np.median(xs[ys < top + 0.3 * height]); head_top = top
     facebox = np.zeros_like(figure)
     facebox[int(head_top + 0.12 * height):int(head_top + 0.36 * height), int(head_cx - 0.13 * height):int(head_cx + 0.13 * height)] = True
     # eyes: the two dark round blobs in the face; the iris is the coloured disc around each pupil
@@ -29,21 +39,31 @@ def masks(rgb):
             blob = lab == t; by, bx = np.where(blob)
             bw, bh = bx.max() - bx.min() + 1, by.max() - by.min() + 1
             # an open eye is a round dark blob in the upper face; a closed eye (a thin lash line) or the mouth is not
-            if len(by) < 250 or bw > 1.7 * bh or by.mean() > head_top + 0.29 * height: continue
+            if len(by) < 250 or bw > 1.9 * bh or by.mean() > head_top + 0.31 * height: continue
             eyeblob |= ndimage.binary_dilation(blob, iterations=3)
             pupil = blob & (V < 0.12); py, px = np.where(pupil) if pupil.any() else (by, bx)
             r = 0.4 * min(bw, bh)
             disc = (yy - py.mean()) ** 2 + (xx - px.mean()) ** 2 < r * r
             iris |= disc & (V > 0.1) & (V < 0.8) & (S > 0.22) & (H > 0.02) & (H < 0.15)
-    # hair: grown from sure hair, never across the face; plus its light strands and highlights
-    maybe = warm & (V > 0.2) & (H > 0.062) & (H < 0.13) & (S > 0.4) & (V < 0.9) & (rows < head_top + 0.36 * height)
-    lab, n = ndimage.label(maybe); keep = np.unique(lab[sure & (lab > 0)])
-    hair = np.isin(lab, [t for t in keep if (lab == t).sum() > 400])
-    face = ndimage.binary_opening(warm & (V > 0.86) & (S < 0.42), iterations=4)
-    hair = ndimage.binary_fill_holes(ndimage.binary_closing(hair, iterations=4)) & figure & ~face
-    hair |= ndimage.binary_dilation(hair, iterations=6) & figure & ~cloth & ~face & (V > 0.2) & (rows < head_top + 0.36 * height)
-    hair &= ~(warm & (V > 0.9) & (S < 0.4) & (H < 0.075))             # clear skin showing between strands stays skin
-    brow_c = warm & facebox & ~hair & (H > 0.055) & (H < 0.12) & (S > 0.4) & (V > 0.45) & (V < 0.82)
+    # hair or skin? Both colours are learned once per clip from places where the answer is known:
+    # the crown of the head is hair, the middle of the face (nose and cheeks) is skin. Every warm
+    # pixel of the head then goes to the nearer of the two.
+    feat = np.stack([H * 6.0, S * 1.6, V * 2.0], -1)
+    if 'hair' not in MODEL:
+        crown_px = feat[warm & (rows < top + 0.14 * height) & (V > 0.3)]
+        mid = np.zeros_like(figure); mid[int(top + 0.25 * height):int(top + 0.36 * height), int(head_cx - 0.09 * height):int(head_cx + 0.09 * height)] = True
+        skin_px = feat[warm & mid & (V > 0.6)]
+        MODEL['hair'] = np.median(crown_px, axis=0); MODEL['skin'] = np.median(skin_px, axis=0)
+        MODEL['sd'] = np.maximum((crown_px.std(axis=0) + skin_px.std(axis=0)) / 2, 0.03)
+    dh = (((feat - MODEL['hair']) / MODEL['sd']) ** 2).sum(-1); ds = (((feat - MODEL['skin']) / MODEL['sd']) ** 2).sum(-1)
+    hairish = warm & (V > 0.25) & (dh < ds) & (rows < top + 0.38 * height)
+    # keep what belongs to the mop of hair: joined (across a headband too) to the top of the head
+    joined = ndimage.binary_closing(hairish | (cloth & (rows < top + 0.3 * height)), iterations=3)
+    lab, n = ndimage.label(joined); crown = np.unique(lab[(rows < top + 0.16 * height) & hairish & (lab > 0)])
+    hair = np.isin(lab, [t for t in crown if (lab == t).sum() > 400]) & hairish
+    face = ndimage.binary_opening(warm & ~hairish, iterations=5)
+    hair = ndimage.binary_closing(hair, iterations=2) & figure & ~cloth & ~face
+    brow_c = warm & facebox & ~hair & (V > 0.45) & (dh < ds)
     lab, n = ndimage.label(brow_c); brows = np.zeros_like(figure)
     if n:
         sizes = ndimage.sum(brow_c, lab, range(1, n + 1)); cms = ndimage.center_of_mass(brow_c, lab, range(1, n + 1))
@@ -113,7 +133,8 @@ def look(rgb, M, sk, ha, ey, cl):
 
 if out.endswith('.png'):                                              # palette sheet from the first frame
     from PIL import Image
-    cap = cv2.VideoCapture(src); ok, f = cap.read(); rgb = cv2.cvtColor(f, cv2.COLOR_BGR2RGB).astype(np.float32) / 255; M, _ = masks(rgb)
+    cap = cv2.VideoCapture(src); ok, f = cap.read(); rgb = cv2.cvtColor(f, cv2.COLOR_BGR2RGB).astype(np.float32) / 255
+    rgb = np.clip(rgb * flat_field(rgb), 0, 1)[:, 306:306 + 668] if rgb.shape[1] > 700 else rgb; M, _ = masks(rgb)
     rows = [[(k, 'golden', 'brown', 'mint') for k in SKIN], [('peach', k, 'brown', 'mint') for k in HAIR],
             [('peach', 'golden', k, 'mint') for k in EYES], [('peach', 'golden', 'brown', k) for k in CLOTH]]
     crops = [(150, 40, 520, 330), (150, 40, 520, 330), (210, 150, 460, 300), (84, 40, 584, 690)]; hs = [250, 250, 190, 330]
@@ -137,6 +158,8 @@ if out.endswith('.pack.mp4'):
         if not ok or n > last: break
         if n < first: continue
         rgb = cv2.cvtColor(f, cv2.COLOR_BGR2RGB).astype(np.float32) / 255
+        if not frames: field = flat_field(rgb)
+        rgb = np.clip(rgb * field, 0, 1)
         M, _ = masks(rgb); c = lambda a: np.ascontiguousarray(a[:, X0:X0 + CW])
         frames.append((c(rgb) * 255).astype(np.uint8))
         raw.append(np.stack([c(np.clip(M['skin'] + 0.4 * M['lips'], 0, 1)), c(M['hair']), c(M['cloth']), c(M['iris'])], -1).astype(np.float16))

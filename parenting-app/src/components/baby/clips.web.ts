@@ -14,8 +14,13 @@ export const babyClips: BabyClipMap = {
       wave: require('../../../assets/baby/clips/boy-stand-wave.mp4'),
     },
   },
-  girl: {},
+  girl: {
+    stand: {
+      idle: require('../../../assets/baby/clips/girl-stand-idle.mp4'),
+      poster: require('../../../assets/baby/clips/girl-stand-poster.jpg'),
+    },
+  },
 };
 
-/** Shown for every character that has no clip of its own yet (girl, other poses). */
-export const fallbackClips: BabyClips | null = babyClips.boy.stand ?? null;
+/** Shown for a pose that has no clip of its own yet: the standing character of the same sex. */
+export const fallbackClips: Record<'boy' | 'girl', BabyClips | null> = { boy: babyClips.boy.stand ?? null, girl: babyClips.girl.stand ?? babyClips.boy.stand ?? null };
