@@ -46,11 +46,15 @@ vec3 fromOk(vec3 lab) {
 // folds); only the middle of that variation moves. src is the rendered colour of the region
 // (lightness, chroma, hue); sh is how the chosen look differs from it, as measured on rendered
 // references: lightness shift, chroma ratio, hue shift, contrast ratio.
-vec3 shift(vec3 img, vec3 src, vec4 sh) {
+// keep: how much of the region's own hue variation is carried over. A pixel whose hue strays far
+// from the region's (a dark seam, a deep fold) would otherwise land on a foreign colour.
+vec3 shift(vec3 img, vec3 src, vec4 sh, float keep) {
   vec3 lab = toOk(img);
   float L = src.x + sh.x + (lab.x - src.x) * sh.w;
   float C = src.y * sh.y * pow(clamp(length(lab.yz) / max(src.y, 0.001), 0.0, 2.2), 0.85);
-  float h = atan(lab.z, lab.y) + sh.z;
+  float stray = atan(lab.z, lab.y) - src.z;
+  stray = atan(sin(stray), cos(stray));
+  float h = src.z + sh.z + clamp(stray * keep, -0.4 * keep, 0.4 * keep);
   return fromOk(vec3(L, C * cos(h), C * sin(h)));
 }
 vec2 mask(float col, float row) { return vec2((uv.x + col) / 2.0, 0.5 - (1.0 - uv.y + row) / 4.0); }
@@ -58,12 +62,29 @@ void main() {
   vec3 img = texture2D(frame, vec2(uv.x, 0.5 + uv.y / 2.0)).rgb;
   float mSkin = texture2D(frame, mask(0.0, 0.0)).g * skinOn;
   float mHair = texture2D(frame, mask(1.0, 0.0)).g * hairOn;
-  float mCloth = texture2D(frame, mask(0.0, 1.0)).g * clothOn;
+  float mCloth = texture2D(frame, mask(0.0, 1.0)).g;
+  // The mask is stored at half size, so the thin rim of the clothes, the seams and the tint the
+  // fabric throws on its buttons would keep the rendered colour. Next to the clothes, every
+  // pixel that still carries that colour is therefore treated as fabric as well.
+  float near = mCloth;
+  for (int i = 0; i < 8; i++) {
+    float a = float(i) * 0.7853982;
+    near = max(near, texture2D(frame, mask(0.0, 1.0) + vec2(cos(a) * 0.006, sin(a) * 0.003)).g);
+  }
+  vec3 okc = toOk(img);
+  float dh = atan(okc.z, okc.y) - clothSrc.z;
+  dh = abs(atan(sin(dh), cos(dh)));
+  float sameHue = smoothstep(0.005, 0.016, length(okc.yz)) * (1.0 - smoothstep(0.95, 1.35, dh));
+  // The dark seam lines at the cuffs, ankles and neckline are fabric in shadow: right at the
+  // clothes, dark, and neither skin nor hair.
+  float notBody = (1.0 - texture2D(frame, mask(0.0, 0.0)).g) * (1.0 - texture2D(frame, mask(1.0, 0.0)).g);
+  float seam = smoothstep(0.2, 0.45, near) * notBody * (1.0 - smoothstep(0.68, 0.8, okc.x));
+  mCloth = clamp(max(max(mCloth * 1.08, sameHue * smoothstep(0.04, 0.25, near)), seam), 0.0, 1.0) * clothOn;
   float mEye = texture2D(frame, mask(1.0, 1.0)).g * eyeOn;
-  if (mSkin > 0.003) img = mix(img, shift(img, skinSrc, skinShift), mSkin);
-  if (mHair > 0.003) img = mix(img, shift(img, hairSrc, hairShift), mHair);
-  if (mEye > 0.003) img = mix(img, shift(img, eyeSrc, eyeShift), mEye);
-  if (mCloth > 0.003) img = mix(img, shift(img, clothSrc, clothShift), mCloth);
+  if (mSkin > 0.003) img = mix(img, shift(img, skinSrc, skinShift, 0.85), mSkin);
+  if (mHair > 0.003) img = mix(img, shift(img, hairSrc, hairShift, 0.6), mHair);
+  if (mEye > 0.003) img = mix(img, shift(img, eyeSrc, eyeShift, 0.5), mEye);
+  if (mCloth > 0.003) img = mix(img, shift(img, clothSrc, clothShift, 0.35), mCloth);
   gl_FragColor = vec4(img, 1.0);
 }`;
 
