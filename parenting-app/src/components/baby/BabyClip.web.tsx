@@ -64,10 +64,31 @@ vec2 mask(float col, float row) { return vec2((uv.x + col) / 2.0, 0.5 - (1.0 - u
 void main() {
   if (probe > 0.5) { gl_FragColor = vec4(texture2D(frame, mask(0.0, 1.0)).rgb, 1.0); return; }
   vec3 img = px(vec2(uv.x, 0.5 + uv.y / 2.0));
-  // The soft edge of a mask shimmers a little from frame to frame in a compressed clip, and a
-  // big change of lightness (dark hair to blond) makes that visible. A firmer edge keeps still.
-  float mSkin = smoothstep(0.22, 0.78, px(mask(0.0, 0.0)).g) * skinOn;
-  float mHair = smoothstep(0.22, 0.78, px(mask(1.0, 0.0)).g) * hairOn;
+  // Hair or skin at the hairline is decided per pixel, at full sharpness: the stored mask says
+  // roughly where the hair is, and the pixel's own lightness says which of the two it shows.
+  // Without this a rim of the rendered hair colour stays around recoloured hair, and thin
+  // wisps over the forehead paint the skin under them as hair.
+  float pSkin = px(mask(0.0, 0.0)).g;
+  float pHair = px(mask(1.0, 0.0)).g;
+  float nearHair = pHair;
+  for (int j = 0; j < 4; j++) {
+    float b = float(j) * 1.5707963 + 0.7853982;
+    nearHair = max(nearHair, px(mask(1.0, 0.0) + vec2(cos(b) * 0.005, sin(b) * 0.0025)).g);
+  }
+  vec3 ok0 = toOk(img);
+  float lum = ok0.x;
+  float edgeL = mix(hairSrc.x, skinSrc.x, 0.72);
+  float looksHair = 1.0 - smoothstep(edgeL - 0.06, edgeL + 0.06, lum);
+  float prior = max(pHair, nearHair * 0.6);
+  float hairFinal = smoothstep(0.45, 0.6, 0.5 * prior + 0.5 * looksHair) * smoothstep(0.02, 0.2, nearHair) * (1.0 - smoothstep(0.5, 0.9, pSkin) * (1.0 - looksHair));
+  // Loose strands over the backdrop are a thin mix of hair and backdrop: recolour them by as
+  // much hair as they carry, so no halo of the rendered hair colour stays around the head.
+  float warm = atan(ok0.z, ok0.y) - hairSrc.z;
+  warm = 1.0 - smoothstep(0.5, 0.8, abs(atan(sin(warm), cos(warm))));   // hair-coloured, not a headband
+  float strand = warm * (1.0 - smoothstep(0.05, 0.3, px(mask(0.0, 1.0)).g)) * smoothstep(0.02, 0.2, nearHair) * (1.0 - smoothstep(0.05, 0.3, pSkin)) * clamp(length(ok0.yz) / max(hairSrc.y, 0.001), 0.0, 1.0) * smoothstep(0.008, 0.02, length(ok0.yz));
+  hairFinal = max(hairFinal, strand);
+  float mHair = hairFinal * hairOn;
+  float mSkin = clamp(pSkin + max(pHair - hairFinal, 0.0), 0.0, 1.0) * skinOn;
   float mCloth = px(mask(0.0, 1.0)).g;
   // The mask is stored at half size, so the thin rim of the clothes, the seams and the tint the
   // fabric throws on its buttons would keep the rendered colour. Next to the clothes, every
