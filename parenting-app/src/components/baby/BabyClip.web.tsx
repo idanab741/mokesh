@@ -24,6 +24,7 @@ const FRAG = `
 precision highp float;
 varying vec2 uv;
 uniform sampler2D frame;
+uniform float probe; uniform vec2 levels;
 uniform vec3 skinSrc; uniform vec4 skinShift; uniform float skinOn;
 uniform vec3 hairSrc; uniform vec4 hairShift; uniform float hairOn;
 uniform vec3 clothSrc; uniform vec4 clothShift; uniform float clothOn;
@@ -56,19 +57,23 @@ vec3 shift(vec3 img, vec3 src, vec4 sh, float keep) {
   float h = src.z + sh.z + clamp(stray * keep, -0.4 * keep, 0.4 * keep);
   return fromOk(vec3(L, C * cos(h), C * sin(h)));
 }
+// Some phones hand video frames to WebGL in "video range" (black is not 0, white is not 1).
+// The levels measured on this device stretch them back, for the picture and the masks alike.
+vec3 px(vec2 at) { return clamp((texture2D(frame, at).rgb - levels.x) / (levels.y - levels.x), 0.0, 1.0); }
 vec2 mask(float col, float row) { return vec2((uv.x + col) / 2.0, 0.5 - (1.0 - uv.y + row) / 4.0); }
 void main() {
-  vec3 img = texture2D(frame, vec2(uv.x, 0.5 + uv.y / 2.0)).rgb;
-  float mSkin = texture2D(frame, mask(0.0, 0.0)).g * skinOn;
-  float mHair = texture2D(frame, mask(1.0, 0.0)).g * hairOn;
-  float mCloth = texture2D(frame, mask(0.0, 1.0)).g;
+  if (probe > 0.5) { gl_FragColor = vec4(texture2D(frame, mask(0.0, 1.0)).rgb, 1.0); return; }
+  vec3 img = px(vec2(uv.x, 0.5 + uv.y / 2.0));
+  float mSkin = px(mask(0.0, 0.0)).g * skinOn;
+  float mHair = px(mask(1.0, 0.0)).g * hairOn;
+  float mCloth = px(mask(0.0, 1.0)).g;
   // The mask is stored at half size, so the thin rim of the clothes, the seams and the tint the
   // fabric throws on its buttons would keep the rendered colour. Next to the clothes, every
   // pixel that still carries that colour is therefore treated as fabric as well.
   float near = mCloth;
   for (int i = 0; i < 8; i++) {
     float a = float(i) * 0.7853982;
-    near = max(near, texture2D(frame, mask(0.0, 1.0) + vec2(cos(a) * 0.006, sin(a) * 0.003)).g);
+    near = max(near, px(mask(0.0, 1.0) + vec2(cos(a) * 0.006, sin(a) * 0.003)).g);
   }
   vec3 okc = toOk(img);
   float dh = atan(okc.z, okc.y) - clothSrc.z;
@@ -76,10 +81,10 @@ void main() {
   float sameHue = smoothstep(0.005, 0.016, length(okc.yz)) * (1.0 - smoothstep(0.95, 1.35, dh));
   // The dark seam lines at the cuffs, ankles and neckline are fabric in shadow: right at the
   // clothes, dark, and neither skin nor hair.
-  float notBody = (1.0 - texture2D(frame, mask(0.0, 0.0)).g) * (1.0 - texture2D(frame, mask(1.0, 0.0)).g);
+  float notBody = (1.0 - px(mask(0.0, 0.0)).g) * (1.0 - px(mask(1.0, 0.0)).g);
   float seam = smoothstep(0.2, 0.45, near) * notBody * (1.0 - smoothstep(0.68, 0.8, okc.x));
   mCloth = clamp(max(max(mCloth * 1.08, sameHue * smoothstep(0.04, 0.25, near)), seam), 0.0, 1.0) * clothOn;
-  float mEye = texture2D(frame, mask(1.0, 1.0)).g * eyeOn;
+  float mEye = px(mask(1.0, 1.0)).g * eyeOn;
   if (mSkin > 0.003) img = mix(img, shift(img, skinSrc, skinShift, 0.85), mSkin);
   if (mHair > 0.003) img = mix(img, shift(img, hairSrc, hairShift, 0.6), mHair);
   if (mEye > 0.003) img = mix(img, shift(img, eyeSrc, eyeShift, 0.5), mEye);
@@ -87,7 +92,7 @@ void main() {
   gl_FragColor = vec4(img, 1.0);
 }`;
 
-interface Painter { draw: (video: HTMLVideoElement) => boolean; setLook: (look: BabyClipProps['look'], base: BabyClipProps['clips']['base']) => void; dispose: () => void }
+interface Painter { draw: (video: HTMLVideoElement) => boolean | 'wait'; setLook: (look: BabyClipProps['look'], base: BabyClipProps['clips']['base']) => void; dispose: () => void }
 
 function createPainter(canvas: HTMLCanvasElement): Painter | null {
   const gl = canvas.getContext('webgl', { premultipliedAlpha: false, antialias: false });
@@ -110,6 +115,9 @@ function createPainter(canvas: HTMLCanvasElement): Painter | null {
   gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, 1);
   for (const [k, v] of [[gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE], [gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE], [gl.TEXTURE_MIN_FILTER, gl.LINEAR], [gl.TEXTURE_MAG_FILTER, gl.LINEAR]]) gl.texParameteri(gl.TEXTURE_2D, k, v);
   const u = (name: string) => gl.getUniformLocation(program, name);
+  let calibrated = false;
+  gl.uniform2f(u('levels'), 0, 1);
+  gl.uniform1f(u('probe'), 0);
   return {
     setLook(look, base) {
       for (const part of ['skin', 'hair', 'cloth'] as const) {
@@ -124,6 +132,20 @@ function createPainter(canvas: HTMLCanvasElement): Painter | null {
     draw(video) {
       gl.viewport(0, 0, canvas.width, canvas.height);
       gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, video);
+      if (!calibrated) {
+        // Measure this device's black and white on the clothes mask (pure black and white in the file).
+        gl.uniform1f(u('probe'), 1);
+        gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
+        const w = canvas.width, h = canvas.height, data = new Uint8Array(w * h * 4);
+        gl.readPixels(0, 0, w, h, gl.RGBA, gl.UNSIGNED_BYTE, data);
+        let lo = 255, hi = 0;
+        for (let i = 1; i < data.length; i += 4 * 5) { const v = data[i]; if (v < lo) lo = v; if (v > hi) hi = v; }
+        gl.uniform1f(u('probe'), 0);
+        // A frame that is not there yet (all one value) is not painted; the clip itself stays visible.
+        if (hi - lo < 120) return 'wait';
+        gl.uniform2f(u('levels'), lo / 255, hi / 255);
+        calibrated = true;
+      }
       gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
       return gl.getError() === gl.NO_ERROR && !gl.isContextLost();
     },
@@ -193,8 +215,9 @@ export function BabyClip({ clips, height, label, active, look, greet = true }: B
       frame = requestAnimationFrame(tick);
       const source = wavingRef.current ? wave.current : idle.current;
       if (!painter.current || !source || source.readyState < 2) return;
-      let ok = false;
+      let ok: boolean | 'wait' = false;
       try { ok = painter.current.draw(source); } catch { ok = false; }
+      if (ok === 'wait') return;
       // If painting fails on this device, stop and show the clip itself, in its own colours.
       if (ok) setPainted(true); else { painter.current = null; setPlain(true); }
     };
@@ -208,19 +231,14 @@ export function BabyClip({ clips, height, label, active, look, greet = true }: B
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [active]);
 
-  // Once the canvas is being painted, the clip underneath must not be seen at all: on phones a
-  // video can be drawn above the canvas for a moment, which showed the original colours
-  // through the chosen ones. It stays in place (and playing) only as the source of the frames.
-  const covered = painted && !plain;
-  const under: CSSProperties = covered ? { ...firstPanel, opacity: 0 } : firstPanel;
   return (
     <div role="img" aria-label={label} data-testid="baby-clip" data-waving={waving ? '1' : '0'} data-painted={painted ? '1' : '0'} onClick={playWave}
       style={{ position: 'relative', overflow: 'hidden', width: Math.round(height * ASPECT), height, cursor: clips.wave ? 'pointer' : 'default', maskImage: FEATHER, WebkitMaskImage: FEATHER, maskComposite: 'intersect', WebkitMaskComposite: 'source-in' }}>
       
-      <video ref={idle} src={Asset.fromModule(clips.idle).uri} poster={Asset.fromModule(clips.poster).uri} muted loop playsInline autoPlay preload="auto" style={under} />
+      <video ref={idle} src={Asset.fromModule(clips.idle).uri} poster={Asset.fromModule(clips.poster).uri} muted loop playsInline autoPlay preload="auto" style={firstPanel} />
       {clips.wave ? (
         <video ref={wave} src={Asset.fromModule(clips.wave).uri} muted playsInline preload="auto" onEnded={backToIdle}
-          style={{ ...under, opacity: covered ? 0 : waving ? 1 : 0 }} />
+          style={{ ...firstPanel, visibility: waving ? 'visible' : 'hidden' }} />
       ) : null}
       {/* The canvas is only shown while it is being painted; underneath, the clip keeps playing. */}
       <canvas ref={canvas} width={PANEL_W} height={PANEL_H} style={{ ...fill, opacity: painted && !plain ? 1 : 0 }} />
