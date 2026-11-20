@@ -61,6 +61,7 @@ describe('insights', () => {
 describe('avatar', () => {
   it('uses the age only as a default the parent can override', () => {
     expect(defaultStageForAge(2)).toBe('tummy');
+    expect(defaultStageForAge(6)).toBe('sit');
     expect(defaultStageForAge(8)).toBe('crawl');
     expect(defaultStageForAge(14)).toBe('stand');
     expect(resolveStage({ ...parseAvatar(null), stage: 'stand' }, 2)).toBe('stand');

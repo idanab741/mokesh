@@ -41,7 +41,7 @@ const check = (name, cond) => { results.push(`${cond ? 'PASS' : 'FAIL'} ${name}`
 
   // --- 3D baby: stage follows age by default, the parent can change pose and colours
   t = await body();
-  check('3D baby card shows the default stage for a 6-month-old', t.includes('· זחילה') && t.includes('גררו כדי לסובב'));
+  check('3D baby card shows the default stage for a 6-month-old', t.includes('· ישיבה') && t.includes('גררו כדי לסובב'));
   check('WebGL canvas is rendered', (await page.locator('canvas').count()) >= 1);
   await btn('התאמת המראה של הדמות').click(); await wait(600);
   await page.getByRole('button', { name: 'עמידה', exact: true }).click(); await wait(300);

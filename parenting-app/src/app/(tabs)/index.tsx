@@ -1,7 +1,7 @@
-import { router } from 'expo-router';
+import { router, useFocusEffect } from 'expo-router';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Bell, ChevronDown, Moon, Palette, Plus } from 'lucide-react-native';
-import { useMemo, useState } from 'react';
+import { useCallback, useMemo, useState } from 'react';
 import { Pressable, StyleSheet, View } from 'react-native';
 import { openActivityForm } from '@/components/AddActivitySheet';
 import { EventRow } from '@/components/activity/EventRow';
@@ -76,6 +76,9 @@ export default function HomeScreen() {
   const { create, remove, endSleep } = useEventMutations();
   const [heroWidth, setHeroWidth] = useState(0);
   const [lookOpen, setLookOpen] = useState(false);
+  // The 3D scene only renders while Home is actually on screen.
+  const [focused, setFocused] = useState(true);
+  useFocusEffect(useCallback(() => { setFocused(true); return () => setFocused(false); }, []));
 
   const summary = summarizeDay(today.data ?? [], now, now);
   const insights = useMemo(() => buildInsights(month.data ?? [], now), [month.data, now]);
@@ -152,7 +155,7 @@ export default function HomeScreen() {
             <Text variant="label" color={sky.sub}>{formatDateLong(now)}</Text>
           </View>
           <View style={styles.stageBaby}>
-            <Baby3D stage={look.stage} config={look.config} height={250} label={`דמות תלת-ממדית של ${child.name}, ${stageLabel[look.stage]}`} />
+            <Baby3D active={focused && !lookOpen} stage={look.stage} config={look.config} sex={child.sex} height={250} label={`דמות תלת-ממדית של ${child.name}, ${stageLabel[look.stage]}`} />
           </View>
           <View style={styles.stageBottom}>
             <PressScale onPress={openChildSheet} accessibilityRole="button"
