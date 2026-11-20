@@ -6,7 +6,7 @@ export interface BabyClips {
   /** First frame of the idle clip, shown until the clip plays. */
   poster: number;
   /** The colours the character was rendered with (OKLab lightness, chroma, hue), measured by tools/baby-motion/tint-video.py. */
-  base: { skin: [number, number, number]; hair: [number, number, number]; cloth: [number, number, number] };
+  base: { skin: [number, number, number]; hair: [number, number, number]; cloth: [number, number, number]; iris: readonly [number, number, number] };
   /** One-shot clip that starts and ends on the idle pose. */
   wave?: number;
 }

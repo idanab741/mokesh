@@ -42,7 +42,7 @@ export function BabyLookSheet({ child, clips, open, onClose }: { child: Child; c
   return (
     <Sheet visible={open} onClose={onClose} title={`המראה של ${child.name}`}>
       <View style={styles.preview}>
-        {open ? <BabyClip clips={clips} height={230} label={`תצוגה מקדימה של ${child.name}`} active look={lookColors(config)} greet={false} /> : null}
+        {open ? <BabyClip clips={clips} height={230} label={`תצוגה מקדימה של ${child.name}`} active look={lookColors(config, child.sex)} greet={false} /> : null}
       </View>
       <Palette title="גוון העור" options={SKIN_TONES} value={config.skin} onPick={(skin) => update({ skin: skin as AvatarConfig['skin'] })} />
       <Palette title="צבע השיער" options={HAIR_COLORS} value={config.hair} onPick={(hair) => update({ hair: hair as AvatarConfig['hair'] })} />

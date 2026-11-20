@@ -50,9 +50,11 @@ def hexof(tile, mask):
 out = {}
 cl = tiles(os.path.join(HERE, 'reference', 'boy-clothes.png'), 4, 2); m = core_masks(cl[0]); o = stats(cl[0], m['cloth'])
 out['cloth'] = [dict(key=k, shift=diff(stats(t, m['cloth']), o), swatch=hexof(t, m['cloth'])) for k, t in zip(['mint', 'rose', 'peach', 'butter', 'sky', 'lilac', 'sage', 'cream'], cl)]
-sk = tiles(os.path.join(HERE, 'reference', 'boy-skin-hair-eyes.png'), 3, 2); m = core_masks(sk[1]); O = {k: stats(sk[1], m[k]) for k in ('skin', 'hair', 'iris')}
 names = dict(skin=['porcelain', 'peach', 'honey', 'tan', 'brown', 'deep'], hair=['blond', 'golden', 'chestnut', 'brown', 'softblack', 'black'], iris=['blue', 'brown', 'hazel', 'green', 'darkbrown', 'darkbrown2'])
-for part in ('skin', 'hair', 'iris'):
-    out[part] = [dict(key=k, shift=diff(stats(t, m[part]), O[part]), swatch=hexof(t, m[part])) for k, t in zip(names[part], sk)]
-out['irisBase'] = [round(O['iris'][k], 4) for k in ('L', 'C', 'h')]
+for who in ('boy', 'girl'):
+    sk = tiles(os.path.join(HERE, 'reference', f'{who}-skin-hair-eyes.png'), 3, 2); m = core_masks(sk[1]); O = {k: stats(sk[1], m[k]) for k in ('skin', 'hair', 'iris')}
+    suffix = '' if who == 'boy' else 'Girl'
+    for part in ('skin', 'hair', 'iris'):
+        out[part + suffix] = [dict(key=k, shift=diff(stats(t, m[part]), O[part]), swatch=hexof(t, m[part])) for k, t in zip(names[part], sk)]
+    out['irisBase' + suffix] = [round(O['iris'][k], 4) for k in ('L', 'C', 'h')]
 print(json.dumps(out, indent=1))

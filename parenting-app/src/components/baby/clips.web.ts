@@ -1,3 +1,4 @@
+import { IRIS_BASE } from '@/domain/avatar';
 import type { BabyClipMap, BabyClips } from './clips';
 
 export type { BabyClipMap, BabyClips } from './clips';
@@ -11,7 +12,7 @@ export const babyClips: BabyClipMap = {
     stand: {
       idle: require('../../../assets/baby/clips/boy-stand-idle.mp4'),
       poster: require('../../../assets/baby/clips/boy-stand-poster.jpg'),
-      base: { skin: [0.8176, 0.0687, 0.9233], hair: [0.5648, 0.0759, 1.0303], cloth: [0.8201, 0.0522, -2.9964] },
+      base: { skin: [0.8176, 0.0687, 0.9233], hair: [0.5648, 0.0759, 1.0303], cloth: [0.8201, 0.0522, -2.9964], iris: IRIS_BASE.boy },
       wave: require('../../../assets/baby/clips/boy-stand-wave.mp4'),
     },
   },
@@ -19,7 +20,7 @@ export const babyClips: BabyClipMap = {
     stand: {
       idle: require('../../../assets/baby/clips/girl-stand-idle.mp4'),
       poster: require('../../../assets/baby/clips/girl-stand-poster.jpg'),
-      base: { skin: [0.8511, 0.0698, 0.8631], hair: [0.6113, 0.0735, 1.0459], cloth: [0.86, 0.0613, -2.9909] },
+      base: { skin: [0.8511, 0.0698, 0.8631], hair: [0.6113, 0.0735, 1.0459], cloth: [0.86, 0.0613, -2.9909], iris: IRIS_BASE.girl },
       wave: require('../../../assets/baby/clips/girl-stand-wave.mp4'),
     },
   },
