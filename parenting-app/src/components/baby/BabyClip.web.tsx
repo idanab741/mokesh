@@ -52,10 +52,12 @@ void main() {
   vec3 s = srgb(lin(img) * skinGain);
   s += clamp(mx(img) - 0.62, 0.0, 1.0) * 0.22 * (1.0 - s);
   img = mix(img, s, mSkin);
-  // hair: one clean colour, with the strands carried over as light and shade
-  float hs = clamp(mx(img) / 0.66, 0.35, 1.5);
-  vec3 h = clamp(hairTo * (0.18 + 0.82 * hs), 0.0, 1.0);
-  h += clamp(hs - 1.05, 0.0, 1.0) * 0.45 * (1.0 - h);
+  // hair: the strands' light and shade are kept; shadows become a deeper, richer version
+  // of the colour and highlights a lighter one, so the hair keeps its depth
+  float hs = clamp(mx(img) / 0.66, 0.0, 1.6);
+  vec3 deep = hairTo * hairTo * 0.62 + hairTo * 0.10;
+  vec3 light = hairTo + (1.0 - hairTo) * 0.42;
+  vec3 h = hs < 1.0 ? mix(deep, hairTo, smoothstep(0.42, 1.0, hs)) : mix(hairTo, light, clamp((hs - 1.0) / 0.42, 0.0, 1.0));
   img = mix(img, h, mHair);
   // eyes: only the hue and strength of the iris change
   vec3 e = rgb2hsv(img);
