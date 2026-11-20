@@ -8,7 +8,6 @@ import { EventRow } from '@/components/activity/EventRow';
 import { Avatar } from '@/components/Avatar';
 import { BabyCustomizeSheet, useBabyLook } from '@/components/baby/BabyCard';
 import { BabyFigure, clipsFor } from '@/components/baby/BabyFigure';
-import { BabyLookSheet } from '@/components/baby/BabyLookSheet';
 import { MobileIllustration } from '@/components/brand/Illustrations';
 import { Logo } from '@/components/brand/Logo';
 import { DayStrip } from '@/components/home/DayStrip';
@@ -171,9 +170,11 @@ export default function HomeScreen() {
               </View>
               <ChevronDown size={20} color={colors.textSecondary} strokeWidth={2.2} />
             </PressScale>
-            <PressScale onPress={() => setLookOpen(true)} accessibilityRole="button" accessibilityLabel="התאמת המראה של הדמות" style={styles.lookBtn}>
-              <Palette size={20} color={colors.primaryStrong} strokeWidth={2} />
-            </PressScale>
+            {onClip ? null : (
+              <PressScale onPress={() => setLookOpen(true)} accessibilityRole="button" accessibilityLabel="התאמת המראה של הדמות" style={styles.lookBtn}>
+                <Palette size={20} color={colors.primaryStrong} strokeWidth={2} />
+              </PressScale>
+            )}
           </View>
         </View>
       </Rise>
@@ -263,8 +264,7 @@ export default function HomeScreen() {
         )}
       </Rise>
 
-      {clips ? <BabyLookSheet child={child} clips={clips} open={lookOpen} onClose={() => setLookOpen(false)} />
-        : <BabyCustomizeSheet child={child} now={now} open={lookOpen} onClose={() => setLookOpen(false)} />}
+      {onClip ? null : <BabyCustomizeSheet child={child} now={now} open={lookOpen} onClose={() => setLookOpen(false)} />}
     </Screen>
   );
 }

@@ -1,6 +1,6 @@
 import { View } from 'react-native';
 import type { ChildSex } from '@/domain/age';
-import { type AvatarConfig, type BabyStage, lookColors } from '@/domain/avatar';
+import type { AvatarConfig, BabyStage } from '@/domain/avatar';
 import type { BabyMood } from '@/domain/mood';
 import { BabyClip } from './BabyClip';
 import { BabySprite } from './BabySprite';
@@ -24,7 +24,7 @@ export function BabyFigure({ stage, config, sex = 'unspecified', height, label, 
 }) {
   const clips = clipsFor(stage, sex);
   if (clips) {
-    return <View style={{ height, alignItems: 'center' }}><BabyClip clips={clips} height={height} label={label} active={active} look={lookColors(config, sex)} /></View>;
+    return <View style={{ height, alignItems: 'center' }}><BabyClip clips={clips} height={height} label={label} active={active} /></View>;
   }
   return <BabySprite active={active} mood={mood} stage={stage} config={config} sex={sex} height={Math.round(height * 0.86)} label={label} />;
 }
