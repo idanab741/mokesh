@@ -40,7 +40,7 @@ const RECOLOUR_GLSL = /* glsl */ `
       h /= 6.0;
     }
     float s = mx > 0.0 ? d / mx : 0.0;
-    float cloth = smoothstep(0.39, 0.42, h) * (1.0 - smoothstep(0.59, 0.62, h)) * smoothstep(0.08, 0.13, s);
+    float cloth = smoothstep(0.39, 0.42, h) * (1.0 - smoothstep(uClothBase.z - 0.01, uClothBase.z + 0.02, h)) * smoothstep(0.06, 0.11, s);
     float ns = clamp(s * uOutfit.y / uClothBase.x, 0.0, 1.0);
     float nv = clamp(mx * uOutfit.z / uClothBase.y, 0.0, 1.0);
     if (uOutfit.y < 0.05) { ns = s * 0.06; nv = clamp(0.55 + mx * 0.52, 0.0, 1.0); }
@@ -116,7 +116,7 @@ export function BabyModel({ model, outfit, size, active, onReady, onError }: Bab
       const uniforms = {
         uOutfitOn: { value: 0 },
         uOutfit: { value: new THREE.Vector3() },
-        uClothBase: { value: new THREE.Vector2(model.clothS, model.clothV) },
+        uClothBase: { value: new THREE.Vector3(model.clothS, model.clothV, model.hueMax ?? 0.6) },
       };
       const materials: import('three').Material[] = [];
       const baby = source.clone(true);
@@ -133,7 +133,7 @@ export function BabyModel({ model, outfit, size, active, onReady, onError }: Bab
         material.onBeforeCompile = (shader) => {
           Object.assign(shader.uniforms, uniforms);
           shader.fragmentShader = shader.fragmentShader
-            .replace('void main() {', 'uniform float uOutfitOn;\nuniform vec3 uOutfit;\nuniform vec2 uClothBase;\nvoid main() {')
+            .replace('void main() {', 'uniform float uOutfitOn;\nuniform vec3 uOutfit;\nuniform vec3 uClothBase;\nvoid main() {')
             .replace('#include <map_fragment>', `#include <map_fragment>\n${RECOLOUR_GLSL}`);
         };
         mesh.material = material;

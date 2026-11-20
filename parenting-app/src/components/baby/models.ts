@@ -6,6 +6,8 @@ export interface BabyModelSource {
   /** Median saturation and brightness of the teal clothes in the model's texture (used to recolour them). */
   clothS: number;
   clothV: number;
+  /** Upper end of the clothing's hue range (0-1). Default 0.6; higher when the cloth has bluish shading. */
+  hueMax?: number;
 }
 
 export type BabyModels = Record<'boy' | 'girl', Partial<Record<BabyStage, BabyModelSource>>>;
