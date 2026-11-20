@@ -87,8 +87,41 @@ def figures(path: str) -> list[Image.Image]:
     return out
 
 
+def hair_stats(fig: Image.Image):
+    """Soft mask of the hair (brown, darker than skin) and its median colour."""
+    arr = np.asarray(fig).astype(np.float32) / 255.0
+    rgb, a = arr[..., :3], arr[..., 3]
+    mx, mn = rgb.max(axis=2), rgb.min(axis=2)
+    sat = np.where(mx > 0, (mx - mn) / np.maximum(mx, 1e-6), 0)
+    warm = (rgb[..., 0] >= rgb[..., 1]) & (rgb[..., 1] >= rgb[..., 2])
+    # Hair is warm, saturated and clearly darker than the skin; eyes and mouth are tiny next to it.
+    mask = np.clip((0.86 - mx) / 0.10, 0, 1) * np.clip((sat - 0.30) / 0.10, 0, 1) * warm * (a > 0.5)
+    strong = mask > 0.9
+    med = np.median(rgb[strong], axis=0) if strong.sum() > 500 else None
+    return mask, med
+
+
+def match_hair(figs: list[Image.Image], target) -> list[Image.Image]:
+    """Brings the hair colour of one source image to the colour of the first one."""
+    meds = [m for m in (hair_stats(f)[1] for f in figs) if m is not None]
+    if target is None or not meds:
+        return figs
+    gain = np.clip(target / np.maximum(np.median(np.array(meds), axis=0), 1e-3), 0.7, 1.45)
+    out = []
+    for f in figs:
+        arr = np.asarray(f).astype(np.float32) / 255.0
+        mask = hair_stats(f)[0][..., None]
+        arr[..., :3] = np.clip(arr[..., :3] * (1 + (gain - 1) * mask), 0, 1)
+        out.append(Image.fromarray((arr * 255).round().astype(np.uint8), 'RGBA'))
+    return out
+
+
 def build(name: str, moods_only: bool = False) -> None:
-    views = [v for part in 'abc' for v in figures(os.path.join(SRC, f'{name}-{part}.png'))]
+    parts = [figures(os.path.join(SRC, f'{name}-{part}.png')) for part in 'abc']
+    # The source images are separate generations: keep the hair one colour all the way round.
+    meds = [m for m in (hair_stats(f)[1] for f in parts[0]) if m is not None]
+    target = np.median(np.array(meds), axis=0) if meds else None
+    views = parts[0] + match_hair(parts[1], target) + match_hair(parts[2], target)
     # The two source images draw the character at different sizes: bring all to one height.
     height = max(v.height for v in views)
     views = [v.resize((round(v.width * height / v.height), height), Image.LANCZOS) for v in views]
@@ -155,11 +188,13 @@ if __name__ == '__main__':
     os.makedirs(MOOD_OUT, exist_ok=True)
     moods_only = '--moods-only' in sys.argv
     names = sorted({f[:-6] for f in os.listdir(SRC) if f.endswith('-a.png')})
+    only = [a for a in sys.argv[1:] if not a.startswith('--')]
+    todo = [n for n in names if not only or n in only]
     from multiprocessing import Pool
     with Pool() as pool:
-        for n in pool.starmap(build, [(n, moods_only) for n in names]):
+        for n in pool.starmap(build, [(n, moods_only) for n in todo]):
             pass
-    print('built', ', '.join(names))
+    print('built', ', '.join(todo))
     for sex in ('boy', 'girl'):
         build_asleep(sex)
     # The list of turn sheets the app can show.
