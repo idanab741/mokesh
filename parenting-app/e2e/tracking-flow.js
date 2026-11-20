@@ -21,9 +21,15 @@ const check = (name, cond) => { results.push(`${cond ? 'PASS' : 'FAIL'} ${name}`
   await wait();
   // --- child profile
   await page.getByLabel('שם', { exact: true }).fill('עלמה');
-  await page.getByLabel('תאריך לידה, יום').fill('19');
-  await page.getByLabel('תאריך לידה, חודש').fill('5');
-  await page.getByLabel('תאריך לידה, שנה').fill('2026');
+  // Real clicks and key presses (not fill): this is how the "cannot type the year" bug was missed.
+  await page.getByLabel('תאריך לידה, יום').click(); await page.keyboard.type('19', { delay: 30 });
+  await page.getByLabel('תאריך לידה, חודש').click(); await page.keyboard.type('5', { delay: 30 });
+  await page.getByLabel('תאריך לידה, שנה').click(); await page.keyboard.type('2026', { delay: 30 });
+  check('year can be typed into the birth-date field', (await page.getByLabel('תאריך לידה, שנה').inputValue()) === '2026');
+  const boxes = [];
+  for (const l of ['תאריך לידה, יום', 'תאריך לידה, חודש', 'תאריך לידה, שנה']) boxes.push(await page.getByLabel(l).boundingBox());
+  check('date fields fit inside the screen and do not overlap',
+    boxes.every((b) => b.x >= 0 && b.x + b.width <= 390) && boxes[2].x + boxes[2].width <= boxes[1].x && boxes[1].x + boxes[1].width <= boxes[0].x);
   await page.getByRole('tab', { name: 'בת', exact: true }).click();
   await shot('02-add-child');
   await btn('שמירה והמשך').click();
