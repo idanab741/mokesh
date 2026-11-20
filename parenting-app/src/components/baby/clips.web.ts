@@ -1,4 +1,4 @@
-import type { BabyClipMap } from './clips';
+import type { BabyClipMap, BabyClips } from './clips';
 
 export type { BabyClipMap, BabyClips } from './clips';
 
@@ -16,3 +16,6 @@ export const babyClips: BabyClipMap = {
   },
   girl: {},
 };
+
+/** Shown for every character that has no clip of its own yet (girl, other poses). */
+export const fallbackClips: BabyClips | null = babyClips.boy.stand ?? null;

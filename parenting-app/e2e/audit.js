@@ -82,9 +82,6 @@ const scan = () => {
   await tapBtn('שמירה והמשך'); await w(1500);
   if (!(await page.innerText('body')).includes('עלמה')) note('child-form', 'saving the child did not reach Home');
   await scrollAll('home-empty');
-  // --- baby customise sheet
-  await page.evaluate(() => { for (const d of document.querySelectorAll('div')) d.scrollTop = 0; }); await w(300);
-  await tapBtn('התאמת המראה של הדמות'); await audit('baby-sheet'); await tapBtn('סגירה');
   // --- add sheet + every form
   const openForm = async (label) => { await tapBtn('הוספת פעילות'); await audit('add-sheet'); await tapBtn(label); await w(900); };
   await openForm('בקבוק'); await scrollAll('form-bottle');

@@ -7,7 +7,7 @@ import { openActivityForm } from '@/components/AddActivitySheet';
 import { EventRow } from '@/components/activity/EventRow';
 import { Avatar } from '@/components/Avatar';
 import { BabyCustomizeSheet, useBabyLook } from '@/components/baby/BabyCard';
-import { BabyFigure, hasBabyClip } from '@/components/baby/BabyFigure';
+import { BabyFigure, clipsFor } from '@/components/baby/BabyFigure';
 import { MobileIllustration } from '@/components/brand/Illustrations';
 import { Logo } from '@/components/brand/Logo';
 import { DayStrip } from '@/components/home/DayStrip';
@@ -129,6 +129,8 @@ export default function HomeScreen() {
   const isBrandNew = recent.data !== undefined && recent.data.length === 0;
 
   const look = useBabyLook(child, now);
+  // While the character is shown as video, the pose and outfit of the still pictures do not apply.
+  const onClip = clipsFor(look.stage, child.sex) !== null;
   // The baby's expression mirrors the diary: asleep, just fed, or waiting longer than usual.
   const mood = babyMood(month.data ?? [], now, child.sex);
 
@@ -151,10 +153,10 @@ export default function HomeScreen() {
             <Text variant="label" color={colors.textSecondary}>{formatDateLong(now)}</Text>
           </View>
           <View style={styles.stageBaby}>
-            <BabyFigure active={focused && !lookOpen} mood={mood.mood} stage={look.stage} config={look.config} sex={child.sex} height={320} label={`הדמות של ${child.name}, ${stageLabel[look.stage]}`} />
+            <BabyFigure active={focused && !lookOpen} mood={mood.mood} stage={look.stage} config={look.config} sex={child.sex} height={320} label={onClip ? `הדמות של ${child.name}` : `הדמות של ${child.name}, ${stageLabel[look.stage]}`} />
           </View>
           <Text variant="caption" color={colors.textSecondary} style={styles.dragHint} testID="baby-mood-reason">
-            {mood.reason ?? (hasBabyClip(look.stage, look.config, child.sex, mood.mood) ? 'הקישו על הדמות לנפנוף' : 'גררו כדי לסובב')}
+            {mood.reason ?? (onClip ? 'הקישו על הדמות לנפנוף' : 'גררו כדי לסובב')}
           </Text>
           <View style={styles.stageBottom}>
             <PressScale onPress={openChildSheet} accessibilityRole="button"
@@ -163,13 +165,15 @@ export default function HomeScreen() {
               <Avatar name={child.name} uri={child.photoUri} size={44} />
               <View style={{ flex: 1 }}>
                 <Text variant="heading" numberOfLines={1}>{child.name}</Text>
-                <Text variant="caption" color={colors.textSecondary} numberOfLines={1}>{`${formatAgeWithSex(child.birthDate, child.sex, now) ?? ''} · ${stageLabel[look.stage]}`}</Text>
+                <Text variant="caption" color={colors.textSecondary} numberOfLines={1}>{onClip ? formatAgeWithSex(child.birthDate, child.sex, now) ?? '' : `${formatAgeWithSex(child.birthDate, child.sex, now) ?? ''} · ${stageLabel[look.stage]}`}</Text>
               </View>
               <ChevronDown size={20} color={colors.textSecondary} strokeWidth={2.2} />
             </PressScale>
-            <PressScale onPress={() => setLookOpen(true)} accessibilityRole="button" accessibilityLabel="התאמת המראה של הדמות" style={styles.lookBtn}>
-              <Palette size={20} color={colors.primaryStrong} strokeWidth={2} />
-            </PressScale>
+            {onClip ? null : (
+              <PressScale onPress={() => setLookOpen(true)} accessibilityRole="button" accessibilityLabel="התאמת המראה של הדמות" style={styles.lookBtn}>
+                <Palette size={20} color={colors.primaryStrong} strokeWidth={2} />
+              </PressScale>
+            )}
           </View>
         </View>
       </Rise>
