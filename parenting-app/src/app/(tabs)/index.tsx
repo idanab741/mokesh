@@ -7,8 +7,8 @@ import { openActivityForm } from '@/components/AddActivitySheet';
 import { EventRow } from '@/components/activity/EventRow';
 import { Avatar } from '@/components/Avatar';
 import { BabyCustomizeSheet, useBabyLook } from '@/components/baby/BabyCard';
-import { BabySprite } from '@/components/baby/BabySprite';
-import { MobileIllustration, StageScene, dayPartForHour, skyThemes } from '@/components/brand/Illustrations';
+import { BabyFigure, clipsFor } from '@/components/baby/BabyFigure';
+import { MobileIllustration } from '@/components/brand/Illustrations';
 import { Logo } from '@/components/brand/Logo';
 import { DayStrip } from '@/components/home/DayStrip';
 import { InsightsRow } from '@/components/home/InsightsRow';
@@ -75,7 +75,6 @@ export default function HomeScreen() {
   const lastBottle = useLastBottle(child?.id);
   const unsynced = useUnsynced();
   const { create, remove, endSleep } = useEventMutations();
-  const [heroWidth, setHeroWidth] = useState(0);
   const [lookOpen, setLookOpen] = useState(false);
   // The baby only turns while Home is actually on screen.
   const [focused, setFocused] = useState(true);
@@ -88,8 +87,6 @@ export default function HomeScreen() {
   const tick = useNow(1000, !!activeSleep);
   if (!child) return <Screen><View /></Screen>;
 
-  const part = dayPartForHour(now.getHours());
-  const sky = skyThemes[part];
   const hasConflicts = (unsynced.data?.conflicts ?? 0) > 0;
   const goJournal = (filter: FilterKey) => router.push({ pathname: '/(tabs)/journal', params: { filter } });
 
@@ -132,9 +129,10 @@ export default function HomeScreen() {
   const isBrandNew = recent.data !== undefined && recent.data.length === 0;
 
   const look = useBabyLook(child, now);
+  // While the character is shown as video, the pose and outfit of the still pictures do not apply.
+  const onClip = clipsFor(look.stage, child.sex) !== null;
   // The baby's expression mirrors the diary: asleep, just fed, or waiting longer than usual.
   const mood = babyMood(month.data ?? [], now, child.sex);
-  const glassInk = part === 'night' || part === 'evening';
 
   return (
     <Screen scroll>
@@ -147,19 +145,19 @@ export default function HomeScreen() {
         </PressScale>
       </Rise>
 
-      {/* The stage: sky for the real time of day, the greeting, and the child as a 3D baby. */}
+      {/* The stage: the greeting and the child's baby character, standing on the screen itself. */}
       <Rise index={1}>
-        <View style={styles.stage} onLayout={(e) => setHeroWidth(Math.round(e.nativeEvent.layout.width))}>
-          <View style={StyleSheet.absoluteFill}>
-            {heroWidth > 0 ? <StageScene part={part} width={heroWidth} height={STAGE_H} /> : null}
-          </View>
+        <View style={styles.stage}>
           <View style={styles.stageText}>
-            <Text variant="display" color={sky.ink} accessibilityRole="header">{greetingForHour(now.getHours())}</Text>
-            <Text variant="label" color={sky.sub}>{formatDateLong(now)}</Text>
+            <Text variant="display" accessibilityRole="header">{greetingForHour(now.getHours())}</Text>
+            <Text variant="label" color={colors.textSecondary}>{formatDateLong(now)}</Text>
           </View>
           <View style={styles.stageBaby}>
-            <BabySprite active={focused && !lookOpen} mood={mood.mood} stage={look.stage} config={look.config} sex={child.sex} height={262} label={`הדמות של ${child.name}, ${stageLabel[look.stage]}`} />
+            <BabyFigure active={focused && !lookOpen} mood={mood.mood} stage={look.stage} config={look.config} sex={child.sex} height={320} label={onClip ? `הדמות של ${child.name}` : `הדמות של ${child.name}, ${stageLabel[look.stage]}`} />
           </View>
+          <Text variant="caption" color={colors.textSecondary} style={styles.dragHint} testID="baby-mood-reason">
+            {mood.reason ?? (onClip ? 'הקישו על הדמות לנפנוף' : 'גררו כדי לסובב')}
+          </Text>
           <View style={styles.stageBottom}>
             <PressScale onPress={openChildSheet} accessibilityRole="button"
               accessibilityLabel={`${child.name}, ${formatAgeWithSex(child.birthDate, child.sex, now) ?? ''}`}
@@ -167,15 +165,16 @@ export default function HomeScreen() {
               <Avatar name={child.name} uri={child.photoUri} size={44} />
               <View style={{ flex: 1 }}>
                 <Text variant="heading" numberOfLines={1}>{child.name}</Text>
-                <Text variant="caption" color={colors.textSecondary} numberOfLines={1}>{`${formatAgeWithSex(child.birthDate, child.sex, now) ?? ''} · ${stageLabel[look.stage]}`}</Text>
+                <Text variant="caption" color={colors.textSecondary} numberOfLines={1}>{onClip ? formatAgeWithSex(child.birthDate, child.sex, now) ?? '' : `${formatAgeWithSex(child.birthDate, child.sex, now) ?? ''} · ${stageLabel[look.stage]}`}</Text>
               </View>
               <ChevronDown size={20} color={colors.textSecondary} strokeWidth={2.2} />
             </PressScale>
-            <PressScale onPress={() => setLookOpen(true)} accessibilityRole="button" accessibilityLabel="התאמת המראה של הדמות" style={styles.lookBtn}>
-              <Palette size={20} color={colors.primaryStrong} strokeWidth={2} />
-            </PressScale>
+            {onClip ? null : (
+              <PressScale onPress={() => setLookOpen(true)} accessibilityRole="button" accessibilityLabel="התאמת המראה של הדמות" style={styles.lookBtn}>
+                <Palette size={20} color={colors.primaryStrong} strokeWidth={2} />
+              </PressScale>
+            )}
           </View>
-          <Text variant="caption" color={glassInk ? '#FFFFFF' : sky.sub} style={styles.dragHint} testID="baby-mood-reason">{mood.reason ?? 'גררו כדי לסובב'}</Text>
         </View>
       </Rise>
 
@@ -269,19 +268,17 @@ export default function HomeScreen() {
   );
 }
 
-const STAGE_H = 452;
-
 const styles = StyleSheet.create({
   topBar: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingTop: spacing.sm },
   bell: { width: 44, height: 44, borderRadius: 22, backgroundColor: colors.surface, alignItems: 'center', justifyContent: 'center', ...shadow.card },
   bellDot: { position: 'absolute', top: 10, end: 11, width: 9, height: 9, borderRadius: 5, backgroundColor: colors.danger, borderWidth: 1.5, borderColor: colors.white },
-  stage: { height: STAGE_H, borderRadius: 34, overflow: 'hidden', ...shadow.card },
-  stageText: { paddingHorizontal: spacing.xl, paddingTop: spacing.xl },
-  stageBaby: { position: 'absolute', top: 92, start: 0, end: 0 },
-  stageBottom: { position: 'absolute', bottom: spacing.md, start: spacing.md, end: spacing.md, flexDirection: 'row', alignItems: 'center', gap: spacing.sm },
-  childPill: { flex: 1, flexDirection: 'row', alignItems: 'center', gap: spacing.md, backgroundColor: 'rgba(255,255,255,0.94)', borderRadius: 26, padding: spacing.sm, paddingEnd: spacing.lg },
-  lookBtn: { width: 60, height: 60, borderRadius: 26, backgroundColor: 'rgba(255,255,255,0.94)', alignItems: 'center', justifyContent: 'center' },
-  dragHint: { position: 'absolute', bottom: 86, alignSelf: 'center', opacity: 0.85 },
+  stage: { gap: spacing.xs },
+  stageText: { paddingHorizontal: spacing.xs, zIndex: 1 },
+  stageBaby: { marginTop: -spacing.lg, alignItems: 'center', justifyContent: 'flex-end', height: 320 },
+  stageBottom: { flexDirection: 'row', alignItems: 'center', gap: spacing.sm },
+  childPill: { flex: 1, flexDirection: 'row', alignItems: 'center', gap: spacing.md, backgroundColor: colors.surface, borderRadius: 26, padding: spacing.sm, paddingEnd: spacing.lg, ...shadow.card },
+  lookBtn: { width: 60, height: 60, borderRadius: 26, backgroundColor: colors.surface, alignItems: 'center', justifyContent: 'center', ...shadow.card },
+  dragHint: { alignSelf: 'center', marginBottom: spacing.sm },
   sleepBanner: { flexDirection: 'row', alignItems: 'center', gap: spacing.md, borderRadius: radius.xl, padding: spacing.lg },
   sleepIcon: { width: 44, height: 44, borderRadius: 16, backgroundColor: 'rgba(255,255,255,0.2)', alignItems: 'center', justifyContent: 'center' },
   grid: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing.md },

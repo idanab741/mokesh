@@ -8,7 +8,8 @@ import type { ActivityType } from '@/domain/activity';
  * the day can be read by colour. Text/background pairs are measured for WCAG AA (ratios noted).
  */
 export const colors = {
-  background: '#F6F5F3',
+  /** The canvas takes the backdrop colour of the baby clips, so the character stands on the screen itself. */
+  background: '#F1F1EF',
   surface: '#FFFFFF',
   surfaceMuted: '#F3F1EF',
   primary: '#E4668A', // accents and icons
@@ -31,7 +32,7 @@ export const colors = {
 /** Gradients are part of the identity: warm rose into soft lilac, never flat fills for hero surfaces. */
 export const gradients = {
   /** Wash at the top of every screen, fading into the canvas. */
-  wash: ['#FFE6EE', '#F1EBFF', '#F6F5F3'],
+  wash: ['#F1F1EF', '#F1F1EF', '#F1F1EF'],
   primary: ['#F0628C', '#C7375F'],
   brand: ['#FF8FB0', '#B45CF0'],
 } as const;
