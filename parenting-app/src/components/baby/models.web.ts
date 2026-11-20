@@ -7,5 +7,7 @@ export const babyModels: BabyModels = {
   boy: {
     sit: { file: require('../../../assets/baby/models/boy-sit.glb'), clothS: 0.4, clothV: 0.67 },
   },
-  girl: {},
+  girl: {
+    sit: { file: require('../../../assets/baby/models/girl-sit.glb'), clothS: 0.42, clothV: 0.78, hueMax: 0.72 },
+  },
 };
