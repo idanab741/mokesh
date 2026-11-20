@@ -2,13 +2,15 @@
 """
 Builds the 360° turn sheets of the baby characters from the generated source images.
 
-Every character has two source images (tools/baby-turn/source):
-  <sex>-<pose>-front.png : 3 figures, the character at 0°, 30°, 60°
-  <sex>-<pose>-back.png  : 4 figures, at 90°, 120°, 150°, 180°
-The other half of the turn (210°..330°) is the mirror image of 150°..30°.
+Every character has three source images (tools/baby-turn/source), each a 2 x 2 grid of the
+character on a white background, turning in steps of 15°:
+  <sex>-<pose>-a.png :   0°,  15°,  30°,  45°
+  <sex>-<pose>-b.png :  60°,  75°,  90°, 105°
+  <sex>-<pose>-c.png : 120°, 135°, 150°, 165°
+The other half of the turn (195°..345°) is the mirror image of 165°..15°.
 
-Output: assets/baby/turn/<sex>-<pose>-<colour>.webp, a 4 x 3 grid of 12 frames (30° apart),
-one file per outfit colour.
+Output: assets/baby/turn/<sex>-<pose>-<colour>.webp, a 5 x 5 grid holding 23 frames, one
+file per outfit colour.
 
     python3 tools/baby-turn/build.py        # needs Pillow and numpy
 """
@@ -24,8 +26,12 @@ from build import OUTFITS, recolour  # noqa: E402
 
 SRC = os.path.join(HERE, 'source')
 OUT = os.path.join(HERE, '..', '..', 'assets', 'baby', 'turn')
-FRAME = 640
-COLS, ROWS = 4, 3
+MOODS = os.path.join(HERE, 'moods')
+MOOD_OUT = os.path.join(HERE, '..', '..', 'assets', 'baby', 'mood')
+FRAME = 600
+COLS, ROWS = 5, 5
+# The model's own teal differs a little between source images: repaint it to one teal.
+TEAL = '#8DD5D0'
 
 
 def cut_white(img: Image.Image) -> Image.Image:
@@ -51,43 +57,42 @@ def cut_white(img: Image.Image) -> Image.Image:
     return out
 
 
-def figures(path: str, count: int) -> list[Image.Image]:
-    """Cuts a source image into its separate figures, left to right, background removed."""
-    img = Image.open(path)
-    has_alpha = img.mode == 'RGBA' and img.getextrema()[3][0] < 250
-    if has_alpha:
-        img = img.convert('RGBA')
-        # Drop the faint glow some generations leave around the figure.
-        a = np.asarray(img.getchannel('A')).astype(np.float32)
-        a = np.clip((a - 150) * (255 / 105), 0, 255).astype(np.uint8)
-        img.putalpha(Image.fromarray(a, 'L'))
-    else:
-        img = cut_white(img)
-    solid = np.asarray(img.getchannel('A')) > 40
-    cols = solid.sum(axis=0) > 2
-    runs, start = [], None
-    for x, on in enumerate(list(cols) + [False]):
-        if on and start is None:
-            start = x
-        elif not on and start is not None:
-            runs.append((start, x))
+def runs(on, count):
+    """The `count` longest stretches of True in a 1-D array, in order."""
+    found, start = [], None
+    for i, v in enumerate(list(on) + [False]):
+        if v and start is None:
+            start = i
+        elif not v and start is not None:
+            found.append((start, i))
             start = None
-    runs = sorted(sorted(runs, key=lambda r: r[1] - r[0], reverse=True)[:count])
-    if len(runs) != count:
-        raise SystemExit(f'{path}: expected {count} separate figures, found {len(runs)}')
+    return sorted(sorted(found, key=lambda r: r[1] - r[0], reverse=True)[:count])
+
+
+def figures(path: str) -> list[Image.Image]:
+    """Cuts a 2 x 2 source image into its four figures (row by row), background removed."""
+    img = cut_white(Image.open(path))
+    solid = np.asarray(img.getchannel('A')) > 40
     out = []
-    for x0, x1 in runs:
-        fig = img.crop((x0, 0, x1, img.height))
-        out.append(fig.crop(fig.getbbox()))
+    rows = runs(solid.sum(axis=1) > 2, 2)
+    if len(rows) != 2:
+        raise SystemExit(f'{path}: expected 2 rows of figures, found {len(rows)}')
+    for y0, y1 in rows:
+        cols = runs(solid[y0:y1].sum(axis=0) > 2, 2)
+        if len(cols) != 2:
+            raise SystemExit(f'{path}: expected 2 figures in a row, found {len(cols)}')
+        for x0, x1 in cols:
+            fig = img.crop((x0, y0, x1, y1))
+            out.append(fig.crop(fig.getbbox()))
     return out
 
 
-def build(name: str) -> None:
-    views = figures(os.path.join(SRC, f'{name}-front.png'), 3) + figures(os.path.join(SRC, f'{name}-back.png'), 4)
+def build(name: str, moods_only: bool = False) -> None:
+    views = [v for part in 'abc' for v in figures(os.path.join(SRC, f'{name}-{part}.png'))]
     # The two source images draw the character at different sizes: bring all to one height.
     height = max(v.height for v in views)
     views = [v.resize((round(v.width * height / v.height), height), Image.LANCZOS) for v in views]
-    views += [views[i].transpose(Image.FLIP_LEFT_RIGHT) for i in (5, 4, 3, 2, 1)]
+    views += [views[i].transpose(Image.FLIP_LEFT_RIGHT) for i in range(11, 0, -1)]
     scale = min(FRAME * 0.94 / max(v.width for v in views), FRAME * 0.9 / height)
     frames = []
     for v in views:
@@ -95,21 +100,70 @@ def build(name: str) -> None:
         canvas = Image.new('RGBA', (FRAME, FRAME), (0, 0, 0, 0))
         canvas.alpha_composite(v, ((FRAME - v.width) // 2, FRAME - v.height - round(FRAME * 0.06)))
         frames.append(canvas)
+    if not moods_only:
+        for key, colour in OUTFITS.items():
+            sheet = Image.new('RGBA', (FRAME * COLS, FRAME * ROWS), (0, 0, 0, 0))
+            for i, frame in enumerate(frames):
+                sheet.alpha_composite(recolour(frame, colour or TEAL), ((i % COLS) * FRAME, (i // COLS) * FRAME))
+            sheet.save(os.path.join(OUT, f'{name}-{key}.webp'), 'WEBP', quality=84, method=4)
+
+    # Mood faces (laughing, sad): same pose from the front, drawn at the size and place of
+    # the front view so the baby does not jump when its expression changes.
+    front = views[0]
+    faces = []
+    for fig in figures_row(os.path.join(MOODS, f'{name}.png'), 2):
+        k = (front.height * scale) / fig.height
+        fig = fig.resize((round(fig.width * k), round(fig.height * k)), Image.LANCZOS)
+        if fig.width > FRAME:
+            fig = fig.resize((FRAME, round(fig.height * FRAME / fig.width)), Image.LANCZOS)
+        canvas = Image.new('RGBA', (FRAME, FRAME), (0, 0, 0, 0))
+        canvas.alpha_composite(fig, ((FRAME - fig.width) // 2, FRAME - fig.height - round(FRAME * 0.06)))
+        faces.append(canvas)
     for key, colour in OUTFITS.items():
-        sheet = Image.new('RGBA', (FRAME * COLS, FRAME * ROWS), (0, 0, 0, 0))
-        for i, frame in enumerate(frames):
-            sheet.alpha_composite(recolour(frame, colour) if colour else frame, ((i % COLS) * FRAME, (i // COLS) * FRAME))
-        sheet.save(os.path.join(OUT, f'{name}-{key}.webp'), 'WEBP', quality=88, method=6)
+        sheet = Image.new('RGBA', (FRAME * 2, FRAME), (0, 0, 0, 0))
+        for i, face in enumerate(faces):
+            sheet.alpha_composite(recolour(face, colour or TEAL), (i * FRAME, 0))
+        sheet.save(os.path.join(MOOD_OUT, f'{name}-{key}.webp'), 'WEBP', quality=88, method=4)
+
+
+def figures_row(path: str, count: int) -> list[Image.Image]:
+    """Cuts a source image with `count` figures side by side."""
+    img = cut_white(Image.open(path))
+    solid = np.asarray(img.getchannel('A')) > 40
+    cols = runs(solid.sum(axis=0) > 2, count)
+    if len(cols) != count:
+        raise SystemExit(f'{path}: expected {count} figures, found {len(cols)}')
+    out = []
+    for x0, x1 in cols:
+        fig = img.crop((x0, 0, x1, img.height))
+        out.append(fig.crop(fig.getbbox()))
+    return out
+
+
+def build_asleep(sex: str) -> None:
+    fig = figures_row(os.path.join(MOODS, f'{sex}-asleep.png'), 1)[0]
+    k = min(FRAME * 0.92 / fig.width, FRAME * 0.8 / fig.height)
+    fig = fig.resize((round(fig.width * k), round(fig.height * k)), Image.LANCZOS)
+    canvas = Image.new('RGBA', (FRAME, FRAME), (0, 0, 0, 0))
+    canvas.alpha_composite(fig, ((FRAME - fig.width) // 2, FRAME - fig.height - round(FRAME * 0.06)))
+    for key, colour in OUTFITS.items():
+        recolour(canvas, colour or TEAL).save(os.path.join(MOOD_OUT, f'{sex}-asleep-{key}.webp'), 'WEBP', quality=88, method=4)
 
 
 if __name__ == '__main__':
     os.makedirs(OUT, exist_ok=True)
-    names = sorted({f[:-10] for f in os.listdir(SRC) if f.endswith('-front.png')})
-    for n in names:
-        build(n)
-        print('built', n)
+    os.makedirs(MOOD_OUT, exist_ok=True)
+    moods_only = '--moods-only' in sys.argv
+    names = sorted({f[:-6] for f in os.listdir(SRC) if f.endswith('-a.png')})
+    from multiprocessing import Pool
+    with Pool() as pool:
+        for n in pool.starmap(build, [(n, moods_only) for n in names]):
+            pass
+    print('built', ', '.join(names))
+    for sex in ('boy', 'girl'):
+        build_asleep(sex)
     # The list of turn sheets the app can show.
-    lines = ['// Generated by tools/baby-turn/build.py. One sheet = 12 views, 30° apart, on a 4 x 3 grid.',
+    lines = ['// Generated by tools/baby-turn/build.py. One sheet = 23 views of a full turn on a 5 x 5 grid.',
              '/* eslint-disable @typescript-eslint/no-require-imports */',
              "import type { BabyStage } from '@/domain/avatar';", '',
              "export const babyTurns: Record<'boy' | 'girl', Partial<Record<BabyStage, Record<string, number>>>> = {"]
@@ -121,6 +175,24 @@ if __name__ == '__main__':
                 lines.append(f'    {stage}: {{')
                 lines += [f"      {key}: require('../../../assets/baby/turn/{n}-{key}.webp')," for key in OUTFITS]
                 lines.append('    },')
+        lines.append('  },')
+    lines += ['};', '',
+              '/** Front view with another expression: frame 0 = laughing, frame 1 = sad. */',
+              "export const babyFaces: Record<'boy' | 'girl', Partial<Record<BabyStage, Record<string, number>>>> = {"]
+    for sex in ('boy', 'girl'):
+        lines.append(f'  {sex}: {{')
+        for n in names:
+            if n.startswith(sex + '-'):
+                stage = n.split('-')[1]
+                lines.append(f'    {stage}: {{')
+                lines += [f"      {key}: require('../../../assets/baby/mood/{n}-{key}.webp')," for key in OUTFITS]
+                lines.append('    },')
+        lines.append('  },')
+    lines += ['};', '', '/** The sleeping baby (one picture, whatever the pose). */',
+              "export const babyAsleep: Record<'boy' | 'girl', Record<string, number>> = {"]
+    for sex in ('boy', 'girl'):
+        lines.append(f'  {sex}: {{')
+        lines += [f"    {key}: require('../../../assets/baby/mood/{sex}-asleep-{key}.webp')," for key in OUTFITS]
         lines.append('  },')
     lines += ['};', '']
     with open(os.path.join(HERE, '..', '..', 'src', 'components', 'baby', 'turns.ts'), 'w') as f:
