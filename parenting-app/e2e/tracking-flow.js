@@ -48,7 +48,18 @@ const check = (name, cond) => { results.push(`${cond ? 'PASS' : 'FAIL'} ${name}`
   const waved = (await clip.getAttribute('data-waving')) === '1';
   const canPlay = await clip.locator('video').first().evaluate((v) => v.readyState >= 2);
   check('tapping the baby plays the wave (when the browser can play the clip)', waved || !canPlay);
-  check('pose and outfit editor is hidden while the baby is video', (await page.getByRole('button', { name: 'התאמת המראה של הדמות' }).count()) === 0);
+  // the look editor: skin, hair, eyes and clothes, saved with the child
+  await btn('התאמת המראה של הדמות').click(); await wait(900);
+  const sheet = await body();
+  check('look editor offers skin, hair, eye and clothing colours', ['גוון העור', 'צבע השיער', 'צבע העיניים', 'צבע הבגדים'].every((x) => sheet.includes(x)));
+  await page.getByRole('radio', { name: 'צבע הבגדים: ורוד' }).click(); await wait(300);
+  await page.getByRole('radio', { name: 'צבע השיער: חום' }).click(); await wait(400);
+  await btn('סגירה').click(); await wait(500);
+  await page.reload(); await wait(3000);
+  await btn('התאמת המראה של הדמות').click(); await wait(900);
+  check('the chosen look is saved', (await page.getByRole('radio', { name: 'צבע הבגדים: ורוד' }).getAttribute('aria-checked')) === 'true'
+    && (await page.getByRole('radio', { name: 'צבע השיער: חום' }).getAttribute('aria-checked')) === 'true');
+  await btn('סגירה').click(); await wait(500);
   await shot('03c-home-with-baby');
 
   // --- add sheet

@@ -49,9 +49,17 @@ def masks(rgb):
     lips = warm & ((H < 0.03) | (H > 0.96)) & (S > 0.42) & facebox
     skin = warm & ~hair & ~brows & ~iris & ~(eyeblob & (V < 0.45))
     f = lambda m: ndimage.gaussian_filter(m.astype(np.float32), 1.2)
+    # Clothes: a soft measure of "how teal" every pixel is, so the blended pixels along the
+    # outline, the seams and the buttons are repainted too and no layer of the old colour stays.
+    win = np.clip((H - 0.30) / 0.07, 0, 1) * np.clip((0.70 - H) / 0.07, 0, 1)
+    tealness = win * np.clip((S - 0.02) / 0.09, 0, 1)
+    around = ndimage.binary_dilation(cloth, iterations=5)
+    # the dark seam lines at the cuffs, ankles and neckline are fabric in shadow: greyish, not skin
+    seam = around & figure & ~warm & (V < 0.78) & ~eyeblob
+    cloth_soft = np.clip(np.maximum(np.maximum(f(cloth), tealness * around), f(seam)) * 1.25, 0, 1)
     # thin, light wisps of hair over the forehead are half hair, half the skin showing through
     wisp = np.clip((V - 0.74) / 0.16, 0, 1) * hair * ndimage.binary_dilation(skin, iterations=10)
-    return dict(cloth=f(cloth), hair=f(hair | brows) * (1 - 0.6 * f(wisp)), iris=f(iris), skin=np.clip(f(skin) + 0.85 * f(wisp), 0, 1), lips=f(lips)), (H, S, V)
+    return dict(cloth=cloth_soft, hair=f(hair | brows) * (1 - 0.6 * f(wisp)), iris=f(iris), skin=np.clip(f(skin) + 0.85 * f(wisp), 0, 1), lips=f(lips)), (H, S, V)
 
 lin = lambda c: np.power(np.clip(c, 0, 1), 2.2); srgb = lambda c: np.power(np.clip(c, 0, 1), 1 / 2.2)
 hexrgb = lambda x: np.array([int(x[i:i + 2], 16) / 255 for i in (1, 3, 5)], dtype=np.float32)
@@ -69,7 +77,7 @@ def cloth_to(img, mask, target):
     """Repaints the fabric and keeps its folds: the fabric's own light and shade is carried over
     as a gentle multiply, so pastel colours stay soft instead of flat or neon."""
     t = hexrgb(target); hs = cv2.cvtColor(img.astype(np.float32), cv2.COLOR_RGB2HSV)
-    shade = np.clip(hs[..., 2:3] / CV, 0.55, 1.18)                     # fold shading around 1.0
+    shade = np.clip(hs[..., 2:3] / CV, 0.5, 1.2)                       # fold shading around 1.0
     new = np.clip(t[None, None] * (0.25 + 0.75 * shade), 0, 1)
     new = new + np.clip(shade - 1.0, 0, 1) * 0.5 * (1 - new)           # highlights lift towards white
     return img + (new - img) * mask[..., None]
@@ -111,6 +119,23 @@ if out.endswith('.png'):                                              # palette 
             t = Image.fromarray((np.clip(look(rgb, M, *L), 0, 1) * 255).astype(np.uint8)).crop(c).resize((tw, hgt), Image.LANCZOS); sheet.paste(t, (10 + i * (tw + 8), y))
         y += hgt + 10
     sheet.save(out); sys.exit(0)
+if out.endswith('.pack.mp4'):
+    first, last = (int(sys.argv[3]), int(sys.argv[4])) if len(sys.argv) > 4 else (0, 10 ** 9)
+    cap = cv2.VideoCapture(src); fps = cap.get(cv2.CAP_PROP_FPS); CW, CH, X0 = 668, 720, 306
+    vw = cv2.VideoWriter(out + '.raw.mp4', cv2.VideoWriter_fourcc(*'mp4v'), fps, (CW * 3, CH * 2)); n = -1; wrote = 0
+    while True:
+        ok, f = cap.read(); n += 1
+        if not ok or n > last: break
+        if n < first: continue
+        rgb = cv2.cvtColor(f, cv2.COLOR_BGR2RGB).astype(np.float32) / 255
+        M, _ = masks(rgb); c = lambda a: a[:, X0:X0 + CW]
+        g = lambda m: np.repeat((np.clip(c(m), 0, 1) * 255).astype(np.uint8)[..., None], 3, 2)
+        grid = np.zeros((CH * 2, CW * 3, 3), np.uint8)
+        grid[:CH, :CW] = (c(rgb) * 255).astype(np.uint8); grid[:CH, CW:2 * CW] = g(np.clip(M['skin'] + 0.4 * M['lips'], 0, 1)); grid[:CH, 2 * CW:] = g(M['hair'])
+        grid[CH:, :CW] = g(M['cloth']); grid[CH:, CW:2 * CW] = g(M['iris'])
+        vw.write(cv2.cvtColor(grid, cv2.COLOR_RGB2BGR)); wrote += 1
+    vw.release(); print('packed', wrote, 'frames'); sys.exit(0)
+
 cap = cv2.VideoCapture(src); fps = cap.get(cv2.CAP_PROP_FPS); TW, TH = 400, 520; X0, X1, Y0, Y1 = 84, 584, 40, 690
 vw = cv2.VideoWriter(out, cv2.VideoWriter_fourcc(*'mp4v'), fps, (TW * 3, TH * 2)); n = 0
 while True:
