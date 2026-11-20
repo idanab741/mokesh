@@ -69,11 +69,7 @@ export function createChildrenRepository(db: SqlDriver) {
       if (!saved) throw new ValidationError('not_found');
       return saved;
     },
-    /** Appearance of the 3D baby. Stays on this device, so it does not mark the row for sync. */
-    /** Profile photo. Stays on this device for now (uploading to Storage is not built yet). */
-    async setPhoto(id: string, uri: string | null): Promise<void> {
-      await db.run('UPDATE children SET photo_uri = ? WHERE id = ?', [uri, id]);
-    },
+    /** Clothes colour and pose of the baby character. Stays on this device, so it does not mark the row for sync. */
     async setAvatar(id: string, avatarJson: string): Promise<void> {
       await db.run('UPDATE children SET avatar = ? WHERE id = ?', [avatarJson, id]);
     },

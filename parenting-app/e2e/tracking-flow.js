@@ -42,29 +42,30 @@ const check = (name, cond) => { results.push(`${cond ? 'PASS' : 'FAIL'} ${name}`
   // --- 3D baby: stage follows age by default, the parent can change pose and colours
   t = await body();
   check('3D baby card shows the default stage for a 6-month-old', t.includes('· ישיבה') && t.includes('גררו כדי לסובב'));
-  check('WebGL canvas is rendered', (await page.locator('canvas').count()) >= 1);
+  const babyImages = async () => page.locator('img').evaluateAll((els) => els.filter((e) => /baby|\.webp/.test(e.src) && e.naturalWidth > 0).length);
+  check('baby character image is loaded', (await babyImages()) >= 1);
+  // dragging sideways turns the baby to another of its eight views
+  const stageBox = await page.getByRole('img', { name: /^הדמות של עלמה/ }).boundingBox();
+  const frameOf = () => page.getByRole('img', { name: /^הדמות של עלמה/ }).getAttribute('data-testid');
+  const before = await frameOf();
+  await page.mouse.move(stageBox.x + stageBox.width / 2, stageBox.y + stageBox.height / 2);
+  await page.mouse.down(); await page.mouse.move(stageBox.x + stageBox.width / 2 - 110, stageBox.y + stageBox.height / 2, { steps: 8 }); await page.mouse.up();
+  await wait(400);
+  check('dragging rotates the baby to a different view', (await frameOf()) !== before);
   await btn('התאמת המראה של הדמות').click(); await wait(600);
   let sheet = await body();
-  check('look editor offers clothes colour only (no skin or eye pickers)', sheet.includes('צבע הבגדים') && !sheet.includes('גוון עור') && !sheet.includes('עיניים'));
+  check('look editor offers clothes colour and pose only', sheet.includes('צבע הבגדים') && sheet.includes('תנוחה') && !sheet.includes('גוון עור') && !sheet.includes('עיניים'));
   await page.getByRole('button', { name: 'עמידה', exact: true }).click(); await wait(300);
-  await page.getByRole('radio', { name: 'בגדים בצבע סגול בהיר' }).click(); await wait(300);
+  await page.getByRole('radio', { name: 'בגדים בצבע סגול בהיר' }).click(); await wait(500);
   await shot('03b-baby-customise');
   await btn('סגירה').click(); await wait(500);
   check('parent override changes the pose label', (await body()).includes('· עמידה'));
   await page.reload(); await wait(3000);
   check('avatar choices persist after reload', (await body()).includes('· עמידה'));
+  const lilac = await page.locator('img').evaluateAll((els) => els.some((e) => /lilac/.test(e.src)));
+  check('the chosen clothes colour is the one shown', lilac);
   await btn('התאמת המראה של הדמות').click(); await wait(600);
   check('saved clothes colour is still selected', (await page.getByRole('radio', { name: 'בגדים בצבע סגול בהיר' }).getAttribute('aria-checked')) === 'true');
-  // --- photo -> look, read on the device
-  const chooser = page.waitForEvent('filechooser');
-  await btn('העלאת תמונה').click();
-  await (await chooser).setFiles(require('path').join(__dirname, 'fixtures', 'portrait.png'));
-  await wait(2500);
-  sheet = await body();
-  check('uploading a photo sets the look from it', sheet.includes('נקבעו לפי התמונה') && sheet.includes('החלפת תמונה'));
-  const avatar = await page.evaluate(() => new Promise((resolve) => { const r = indexedDB.open('parenting-app'); r.onsuccess = () => resolve('opened'); r.onerror = () => resolve('err'); }));
-  check('local store is reachable after the photo update', avatar === 'opened');
-  await shot('03d-baby-from-photo');
   await page.getByRole('button', { name: /^לפי הגיל/ }).click(); await wait(300);
   await btn('סגירה').click(); await wait(500);
   await shot('03c-home-with-baby');

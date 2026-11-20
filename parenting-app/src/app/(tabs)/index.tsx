@@ -6,8 +6,8 @@ import { Pressable, StyleSheet, View } from 'react-native';
 import { openActivityForm } from '@/components/AddActivitySheet';
 import { EventRow } from '@/components/activity/EventRow';
 import { Avatar } from '@/components/Avatar';
-import { Baby3D } from '@/components/baby/Baby3D';
-import { BabyCustomizeSheet, useBabyLook, useLookFromPhoto } from '@/components/baby/BabyCard';
+import { BabyCustomizeSheet, useBabyLook } from '@/components/baby/BabyCard';
+import { BabySprite } from '@/components/baby/BabySprite';
 import { MobileIllustration, StageScene, dayPartForHour, skyThemes } from '@/components/brand/Illustrations';
 import { Logo } from '@/components/brand/Logo';
 import { DayStrip } from '@/components/home/DayStrip';
@@ -76,8 +76,7 @@ export default function HomeScreen() {
   const { create, remove, endSleep } = useEventMutations();
   const [heroWidth, setHeroWidth] = useState(0);
   const [lookOpen, setLookOpen] = useState(false);
-  useLookFromPhoto(child);
-  // The 3D scene only renders while Home is actually on screen.
+  // The baby only turns while Home is actually on screen.
   const [focused, setFocused] = useState(true);
   useFocusEffect(useCallback(() => { setFocused(true); return () => setFocused(false); }, []));
 
@@ -156,7 +155,7 @@ export default function HomeScreen() {
             <Text variant="label" color={sky.sub}>{formatDateLong(now)}</Text>
           </View>
           <View style={styles.stageBaby}>
-            <Baby3D active={focused && !lookOpen} stage={look.stage} config={look.config} sex={child.sex} height={250} label={`דמות תלת-ממדית של ${child.name}, ${stageLabel[look.stage]}`} />
+            <BabySprite active={focused && !lookOpen} stage={look.stage} config={look.config} sex={child.sex} height={262} label={`הדמות של ${child.name}, ${stageLabel[look.stage]}`} />
           </View>
           <View style={styles.stageBottom}>
             <PressScale onPress={openChildSheet} accessibilityRole="button"
@@ -275,7 +274,7 @@ const styles = StyleSheet.create({
   bellDot: { position: 'absolute', top: 10, end: 11, width: 9, height: 9, borderRadius: 5, backgroundColor: colors.danger, borderWidth: 1.5, borderColor: colors.white },
   stage: { height: STAGE_H, borderRadius: 34, overflow: 'hidden', ...shadow.card },
   stageText: { paddingHorizontal: spacing.xl, paddingTop: spacing.xl },
-  stageBaby: { position: 'absolute', top: 96, start: 0, end: 0 },
+  stageBaby: { position: 'absolute', top: 92, start: 0, end: 0 },
   stageBottom: { position: 'absolute', bottom: spacing.md, start: spacing.md, end: spacing.md, flexDirection: 'row', alignItems: 'center', gap: spacing.sm },
   childPill: { flex: 1, flexDirection: 'row', alignItems: 'center', gap: spacing.md, backgroundColor: 'rgba(255,255,255,0.94)', borderRadius: 26, padding: spacing.sm, paddingEnd: spacing.lg },
   lookBtn: { width: 60, height: 60, borderRadius: 26, backgroundColor: 'rgba(255,255,255,0.94)', alignItems: 'center', justifyContent: 'center' },
