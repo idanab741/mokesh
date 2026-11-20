@@ -7,7 +7,7 @@ import { openActivityForm } from '@/components/AddActivitySheet';
 import { EventRow } from '@/components/activity/EventRow';
 import { Avatar } from '@/components/Avatar';
 import { Baby3D } from '@/components/baby/Baby3D';
-import { BabyCustomizeSheet, useBabyLook } from '@/components/baby/BabyCard';
+import { BabyCustomizeSheet, useBabyLook, useLookFromPhoto } from '@/components/baby/BabyCard';
 import { MobileIllustration, StageScene, dayPartForHour, skyThemes } from '@/components/brand/Illustrations';
 import { Logo } from '@/components/brand/Logo';
 import { DayStrip } from '@/components/home/DayStrip';
@@ -76,6 +76,7 @@ export default function HomeScreen() {
   const { create, remove, endSleep } = useEventMutations();
   const [heroWidth, setHeroWidth] = useState(0);
   const [lookOpen, setLookOpen] = useState(false);
+  useLookFromPhoto(child);
   // The 3D scene only renders while Home is actually on screen.
   const [focused, setFocused] = useState(true);
   useFocusEffect(useCallback(() => { setFocused(true); return () => setFocused(false); }, []));

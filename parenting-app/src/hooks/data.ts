@@ -133,7 +133,11 @@ export function useChildMutations() {
     mutationFn: ({ id, avatar }: { id: string; avatar: string }) => children.setAvatar(id, avatar),
     onSuccess: () => qc.invalidateQueries({ queryKey: ['children'] }),
   });
-  return { create, update, remove, setAvatar };
+  const setPhoto = useMutation({
+    mutationFn: ({ id, uri }: { id: string; uri: string | null }) => children.setPhoto(id, uri),
+    onSuccess: () => qc.invalidateQueries({ queryKey: ['children'] }),
+  });
+  return { create, update, remove, setAvatar, setPhoto };
 }
 
 export function useMeasurements(childId: string | undefined) {
