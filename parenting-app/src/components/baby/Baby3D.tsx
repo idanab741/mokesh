@@ -163,38 +163,44 @@ function Foot({ pos, rot, skin }: { pos: V3; rot: V3; skin: string }) {
   );
 }
 
-function Eye({ x, color, lashes, browColor }: { x: number; color: string; lashes: boolean; browColor: string }) {
-  const lid = useRef<THREE.Group>(null);
+function Eye({ x, color, lashes, browColor, skin }: { x: number; color: string; lashes: boolean; browColor: string; skin: string }) {
+  const ball = useRef<THREE.Group>(null);
   const side = x > 0 ? 1 : -1;
   useFrame((state) => {
     // A quick blink every few seconds keeps the face alive.
-    const t = state.clock.elapsedTime % 4.2;
-    const closed = t > 4.0 ? Math.sin(((t - 4.0) / 0.2) * Math.PI) : 0;
-    if (lid.current) lid.current.scale.y = 1 - closed * 0.9;
+    const t = state.clock.elapsedTime % 4.6;
+    const closed = t > 4.42 ? Math.sin(((t - 4.42) / 0.18) * Math.PI) : 0;
+    if (ball.current) ball.current.scale.y = 1 - closed * 0.92;
   });
   return (
-    <group position={[x, -0.02, 0.5]}>
-      <group ref={lid}>
-        <Ball pos={[0, 0, 0]} scale={[1, 1.1, 0.6]} r={0.155} color="#FFFFFF" kind="gloss" />
-        <Ball pos={[0, -0.01, 0.068]} scale={[1, 1.08, 0.42]} r={0.124} color={color} kind="gloss" />
-        <Ball pos={[0, -0.01, 0.1]} scale={[1, 1.08, 0.4]} r={0.074} color="#15100F" kind="gloss" />
-        <Ball pos={[0.045, 0.05, 0.128]} r={0.034} color="#FFFFFF" kind="gloss" />
-        <Ball pos={[-0.04, -0.045, 0.124]} r={0.017} color="#FFFFFF" kind="gloss" />
+    <group position={[x, -0.06, 0]}>
+      {/*
+        What makes a cartoon baby sweet rather than startled: the eye sits flush in the face,
+        the iris fills almost all of it (very little white shows), the highlight is large, and
+        the upper lid rests on the top of the iris.
+      */}
+      <group ref={ball} position={[0, 0, 0.515]}>
+        <Ball pos={[0, 0, 0]} scale={[1, 1.1, 0.34]} r={0.128} color="#FFFDFB" kind="gloss" />
+        <Ball pos={[0, -0.004, 0.02]} scale={[1, 1.1, 0.3]} r={0.116} color={color} kind="gloss" />
+        <Ball pos={[0, -0.004, 0.045]} scale={[1, 1.1, 0.3]} r={0.07} color="#1B1210" kind="gloss" />
+        <Ball pos={[0.04, 0.046, 0.062]} scale={[1, 1, 0.45]} r={0.032} color="#FFFFFF" kind="gloss" />
+        <Ball pos={[-0.034, -0.048, 0.062]} scale={[1, 1, 0.45]} r={0.015} color="#FFFFFF" kind="gloss" />
       </group>
-      {/* upper lash line */}
-      <mesh position={[0, 0.03, 0.055]} rotation={[0.1, 0, 0]}>
-        <torusGeometry args={[0.152, 0.011, 10, 28, Math.PI]} />
-        <meshStandardMaterial color="#2A1A14" roughness={0.6} />
+      {/* upper lid resting on the eye */}
+      <Ball pos={[0, 0.112, 0.508]} scale={[1.08, 0.5, 0.42]} r={0.14} color={skin} kind="skin" />
+      {/* a fine lash line along the lid, brown rather than black */}
+      <mesh position={[0, 0.036, 0.548]} rotation={[0.25, 0, 0]}>
+        <torusGeometry args={[0.128, 0.0075, 8, 26, Math.PI]} />
+        <meshStandardMaterial color="#5A3A2A" roughness={0.7} />
       </mesh>
       {lashes ? (
         <>
-          <Segment from={[side * 0.14, 0.07, 0.05]} to={[side * 0.215, 0.12, 0.02]} radius={0.011} color="#2A1A14" />
-          <Segment from={[side * 0.15, 0.035, 0.05]} to={[side * 0.23, 0.06, 0.02]} radius={0.011} color="#2A1A14" />
+          <Segment from={[side * 0.118, 0.07, 0.535]} to={[side * 0.17, 0.105, 0.5]} radius={0.007} color="#5A3A2A" />
+          <Segment from={[side * 0.128, 0.045, 0.53]} to={[side * 0.185, 0.062, 0.495]} radius={0.007} color="#5A3A2A" />
         </>
       ) : null}
-      {/* eyebrow */}
-      {/* short, soft brows; the inner end sits a touch higher, which reads as sweet rather than stern */}
-      <Segment from={[-side * 0.05, 0.29, 0.03]} to={[side * 0.06, 0.27, 0.01]} radius={0.016} color={browColor} />
+      {/* short, thin brows set high: calm and friendly */}
+      <Segment from={[-side * 0.045, 0.315, 0.5]} to={[side * 0.055, 0.3, 0.485]} radius={0.011} color={browColor} />
     </group>
   );
 }
@@ -221,24 +227,24 @@ function Head({ config, sex, outfit }: { config: AvatarConfig; sex: ChildSex; ou
         </group>
       ))}
       {/* face */}
-      <Eye x={0.21} color={config.eyes} lashes={girl} browColor={brow} />
-      <Eye x={-0.21} color={config.eyes} lashes={girl} browColor={brow} />
-      <Ball pos={[0, -0.125, 0.6]} r={0.052} color={skin} kind="skin" />
-      <Ball pos={[0.385, -0.21, 0.4]} scale={[1, 0.82, 0.7]} r={0.165} color="#FF7F96" opacity={0.38} />
-      <Ball pos={[-0.385, -0.21, 0.4]} scale={[1, 0.82, 0.7]} r={0.165} color="#FF7F96" opacity={0.38} />
-      {/* open smile: the lower half of a sphere gives a flat top lip and a round bottom */}
-      <mesh position={[0, -0.235, 0.535]} scale={[0.15, 0.125, 0.07]}>
-        <sphereGeometry args={[1, SEG, SEG, 0, Math.PI * 2, Math.PI / 2, Math.PI / 2]} />
-        <meshStandardMaterial color="#A3324A" roughness={0.6} side={THREE.DoubleSide} />
+      <Eye x={0.225} color={config.eyes} lashes={girl} browColor={brow} skin={skin} />
+      <Eye x={-0.225} color={config.eyes} lashes={girl} browColor={brow} skin={skin} />
+      <Ball pos={[0, -0.15, 0.6]} r={0.044} color={skin} kind="skin" />
+      <Ball pos={[0.33, -0.245, 0.452]} scale={[1, 0.74, 0.42]} r={0.118} color="#FF8FA6" opacity={0.5} />
+      <Ball pos={[-0.33, -0.245, 0.452]} scale={[1, 0.74, 0.42]} r={0.118} color="#FF8FA6" opacity={0.5} />
+      {/* a small, gentle smile: a short upturned line with a tiny open centre */}
+      <mesh position={[0, -0.235, 0.555]} rotation={[0.12, 0, Math.PI]}>
+        <torusGeometry args={[0.075, 0.011, 8, 24, Math.PI]} />
+        <meshStandardMaterial color="#B8566A" roughness={0.6} />
       </mesh>
-      <mesh position={[0, -0.236, 0.537]} rotation={[-Math.PI / 2, 0, 0]} scale={[0.15, 0.07, 1]}>
-        <circleGeometry args={[1, SEG]} />
-        <meshStandardMaterial color="#A3324A" roughness={0.6} side={THREE.DoubleSide} />
+      <mesh position={[0, -0.25, 0.552]} scale={[0.05, 0.045, 0.03]}>
+        <sphereGeometry args={[1, 20, 16, 0, Math.PI * 2, Math.PI / 2, Math.PI / 2]} />
+        <meshStandardMaterial color="#C9667A" roughness={0.6} side={THREE.DoubleSide} />
       </mesh>
-      <Ball pos={[0, -0.325, 0.56]} scale={[0.085, 0.04, 0.04]} r={1} color="#FF93A7" />
-      {/* smile corners */}
-      <Ball pos={[0.158, -0.228, 0.52]} r={0.022} color={skin} kind="skin" />
-      <Ball pos={[-0.158, -0.228, 0.52]} r={0.022} color={skin} kind="skin" />
+      <Ball pos={[0, -0.282, 0.556]} scale={[0.03, 0.014, 0.02]} r={1} color="#FFA9B8" />
+      {/* dimples at the corners of the smile */}
+      <Ball pos={[0.088, -0.232, 0.535]} r={0.016} color={skin} kind="skin" />
+      <Ball pos={[-0.088, -0.232, 0.535]} r={0.016} color={skin} kind="skin" />
 
       {hair ? (
         <>
@@ -249,12 +255,10 @@ function Head({ config, sex, outfit }: { config: AvatarConfig; sex: ChildSex; ou
           </mesh>
           {boy ? (
             <>
-              {/* one big quiff: a low, wide wave over the forehead that sweeps to one side and curls up */}
-              <Ball pos={[-0.02, 0.5, 0.35]} scale={[1.95, 0.62, 1.05]} r={0.21} rot={[0.2, 0, -0.1]} color={hair} kind="cloth" />
-              <Ball pos={[0.1, 0.6, 0.31]} scale={[1.5, 0.78, 1]} r={0.19} rot={[0, 0, -0.42]} color={hair} kind="cloth" />
-              <Ball pos={[0.22, 0.7, 0.27]} scale={[1.15, 0.9, 0.95]} r={0.15} rot={[0, 0, -0.6]} color={hair} kind="cloth" />
-              <Ball pos={[0.31, 0.77, 0.25]} r={0.1} color={hair} kind="cloth" />
-              <Ball pos={[0.37, 0.81, 0.24]} r={0.06} color={hair} kind="cloth" />
+              {/* a smooth side-swept fringe with a small flick at the end */}
+              <Ball pos={[0.0, 0.485, 0.33]} scale={[2.05, 0.6, 1.05]} r={0.21} rot={[0.22, 0, -0.08]} color={hair} kind="cloth" />
+              <Ball pos={[0.2, 0.585, 0.3]} scale={[1.25, 0.8, 1]} r={0.16} rot={[0, 0, -0.5]} color={hair} kind="cloth" />
+              <Ball pos={[0.33, 0.675, 0.27]} r={0.085} color={hair} kind="cloth" />
             </>
           ) : (
             <>
@@ -295,8 +299,8 @@ function Baby({ stage, config, sex, spin, autoRotate }: { stage: BabyStage; conf
   const skin = config.skin;
   const outfit = resolveOutfit(config, sex);
   const girl = sex === 'female';
-  /** The onesie colour, or null for the girl, who wears a diaper with a matching collar and headband. */
-  const suit = girl ? null : outfit;
+  /** Everyone wears the onesie; the girl also gets a matching headband and bow. */
+  const suit: string | null = outfit;
   const trim = outfit === '#FFFFFF' ? '#E4E9EE' : '#FFFFFF';
 
   useFrame((state, delta) => {
