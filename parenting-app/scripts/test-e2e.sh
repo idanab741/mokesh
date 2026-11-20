@@ -11,4 +11,5 @@ trap 'kill $SERVER 2>/dev/null || true' EXIT
 sleep 1
 mkdir -p "$OUT/shots"
 SHOTS_DIR="$OUT/shots" node e2e/tracking-flow.js
+node e2e/baby-3d.js
 echo "screenshots: $OUT/shots"
