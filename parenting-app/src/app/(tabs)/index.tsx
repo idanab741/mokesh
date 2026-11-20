@@ -86,12 +86,12 @@ export default function HomeScreen() {
   const nextBasis = (kind: keyof typeof nextTitle, usual: string) =>
     kind === 'sleep' ? `אצלכם אחרי ${usual} ערות` : kind === 'wake' ? `שנת יום אצלכם: ${usual}` : `אצלכם כל ${usual}`;
   const nextType: ActivityType = !next ? 'bottle' : next.kind === 'feed' ? 'bottle' : next.kind === 'diaper' ? 'diaper' : 'sleep';
-  const bubbles: { type: ActivityType; filter: FilterKey; label: string; value: string | null; pos: object }[] = [
-    { type: 'bottle', filter: 'feeding', label: 'מאז האכלה', value: sinceText(routine.feed.lastAt), pos: { top: 34, start: 0 } },
+  const bubbles: { type: ActivityType; filter: FilterKey; label: string; value: string | null }[] = [
+    { type: 'bottle', filter: 'feeding', label: 'מאז האכלה', value: sinceText(routine.feed.lastAt) },
     activeSleep && sleepStart
-      ? { type: 'sleep', filter: 'sleep', label: `${child.name} ${sleepingWord(child.sex)}`, value: formatClock((tick.getTime() - sleepStart.getTime()) / 1000), pos: { top: 128, end: 0 } }
-      : { type: 'sleep', filter: 'sleep', label: 'זמן ערות', value: sinceText(routine.sleep.lastWakeAt), pos: { top: 128, end: 0 } },
-    { type: 'diaper', filter: 'diaper', label: 'מאז חיתול', value: sinceText(routine.diaper.lastAt), pos: { bottom: 18, start: 0 } },
+      ? { type: 'sleep', filter: 'sleep', label: `${child.name} ${sleepingWord(child.sex)}`, value: formatClock((tick.getTime() - sleepStart.getTime()) / 1000) }
+      : { type: 'sleep', filter: 'sleep', label: 'זמן ערות', value: sinceText(routine.sleep.lastWakeAt) },
+    { type: 'diaper', filter: 'diaper', label: 'מאז חיתול', value: sinceText(routine.diaper.lastAt) },
   ];
   const dock: { type: ActivityType; label: string; a11y: string; onPress: () => void }[] = [
     { type: 'bottle', label: 'האכלה', a11y: 'תיעוד האכלה', onPress: () => setQuick('feed') },
@@ -139,20 +139,6 @@ export default function HomeScreen() {
         </View>
         <View style={styles.stageBaby}>
           <BabyFigure active={focused && !lookOpen && quick === null} mood={mood.mood} stage={look.stage} config={look.config} sex={child.sex} height={320} label={onClip ? `הדמות של ${child.name}` : `הדמות של ${child.name}, ${stageLabel[look.stage]}`} />
-          {bubbles.map((b) => {
-            if (b.value === null) return null;
-            const tone = activityTones[b.type];
-            const Icon = activityIcons[b.type];
-            return (
-              <PressScale key={b.type} onPress={() => goJournal(b.filter)} accessibilityRole="button" accessibilityLabel={`${b.label}: ${b.value}`} style={[styles.bubble, b.pos]}>
-                <View style={[styles.bubbleIcon, { backgroundColor: tone.bg }]}><Icon size={16} color={tone.ink} /></View>
-                <View>
-                  <Text variant="caption" color={colors.textSecondary}>{b.label}</Text>
-                  <Text variant="bodyStrong" style={b.type === 'sleep' && activeSleep ? { writingDirection: 'ltr', textAlign: 'right' } : null}>{b.value}</Text>
-                </View>
-              </PressScale>
-            );
-          })}
           {onClip ? null : (
             <PressScale onPress={() => setLookOpen(true)} accessibilityRole="button" accessibilityLabel="התאמת המראה של הדמות" style={styles.lookBtn}>
               <Palette size={18} color={colors.primaryStrong} strokeWidth={2} />
@@ -162,6 +148,20 @@ export default function HomeScreen() {
         <Text variant="caption" color={colors.textSecondary} style={styles.moodLine} testID="baby-mood-reason">
           {mood.reason ?? (clips?.wave ? 'הקישו על הדמות לנפנוף' : onClip ? '' : 'גררו כדי לסובב')}
         </Text>
+        {/* How long since each thing: below the character, never over it. */}
+        <View style={styles.sinceRow}>
+          {bubbles.map((b) => {
+            const tone = activityTones[b.type];
+            const Icon = activityIcons[b.type];
+            return (
+              <PressScale key={b.type} onPress={() => goJournal(b.filter)} accessibilityRole="button" accessibilityLabel={`${b.label}: ${b.value ?? 'אין עדיין'}`} style={styles.since}>
+                <View style={[styles.bubbleIcon, { backgroundColor: tone.bg }]}><Icon size={16} color={tone.ink} /></View>
+                <Text variant="caption" color={colors.textSecondary} numberOfLines={1}>{b.label}</Text>
+                <Text variant="bodyStrong" numberOfLines={1} adjustsFontSizeToFit style={b.type === 'sleep' && activeSleep ? { writingDirection: 'ltr' } : null}>{b.value ?? '—'}</Text>
+              </PressScale>
+            );
+          })}
+        </View>
       </Rise>
 
       {/* What the family's own routine expects next, or how far the learning is. */}
@@ -272,10 +272,11 @@ const styles = StyleSheet.create({
   childPill: { flexDirection: 'row', alignItems: 'center', gap: 6, height: 44, maxWidth: 170, backgroundColor: colors.surface, borderRadius: 22, paddingStart: 6, paddingEnd: spacing.md, ...shadow.card },
   stageText: { paddingHorizontal: spacing.xs, zIndex: 1 },
   stageBaby: { marginTop: -spacing.lg, alignItems: 'center', justifyContent: 'flex-end', height: 320 },
-  bubble: { position: 'absolute', flexDirection: 'row', alignItems: 'center', gap: spacing.sm, backgroundColor: colors.surface, borderRadius: 18, paddingVertical: 6, paddingStart: 6, paddingEnd: spacing.md, ...shadow.card },
   bubbleIcon: { width: 32, height: 32, borderRadius: 12, alignItems: 'center', justifyContent: 'center' },
   lookBtn: { position: 'absolute', bottom: 0, end: 0, width: 44, height: 44, borderRadius: 16, backgroundColor: colors.surface, alignItems: 'center', justifyContent: 'center', ...shadow.card },
   moodLine: { alignSelf: 'center', marginTop: spacing.xs },
+  sinceRow: { flexDirection: 'row', gap: spacing.sm, marginTop: spacing.md },
+  since: { flex: 1, alignItems: 'center', gap: 2, backgroundColor: colors.surface, borderRadius: 20, paddingVertical: spacing.sm, paddingHorizontal: spacing.xs, ...shadow.card },
   next: { flexDirection: 'row', alignItems: 'center', gap: spacing.md, backgroundColor: colors.surface, borderRadius: 22, padding: spacing.md, paddingEnd: spacing.lg, ...shadow.card },
   dock: { flexDirection: 'row', justifyContent: 'space-between' },
   dockItem: { alignItems: 'center', gap: 6, flex: 1 },
