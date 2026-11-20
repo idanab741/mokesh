@@ -1,22 +1,26 @@
 import { router } from 'expo-router';
-import { Bell, ChevronDown, Moon, Plus } from 'lucide-react-native';
+import { LinearGradient } from 'expo-linear-gradient';
+import { Bell, ChevronDown, Moon, Palette, Plus } from 'lucide-react-native';
 import { useMemo, useState } from 'react';
 import { Pressable, StyleSheet, View } from 'react-native';
 import { openActivityForm } from '@/components/AddActivitySheet';
 import { EventRow } from '@/components/activity/EventRow';
 import { Avatar } from '@/components/Avatar';
-import { BabyCard } from '@/components/baby/BabyCard';
-import { MobileIllustration, SkyScene, dayPartForHour, skyThemes } from '@/components/brand/Illustrations';
+import { Baby3D } from '@/components/baby/Baby3D';
+import { BabyCustomizeSheet, useBabyLook } from '@/components/baby/BabyCard';
+import { MobileIllustration, StageScene, dayPartForHour, skyThemes } from '@/components/brand/Illustrations';
 import { Logo } from '@/components/brand/Logo';
 import { DayStrip } from '@/components/home/DayStrip';
 import { InsightsRow } from '@/components/home/InsightsRow';
-import { BottleIcon, DiaperIcon, activityIcons } from '@/components/ui/Icons';
+import { BottleIcon, DiaperIcon } from '@/components/ui/Icons';
+import { Float, PressScale, Rise } from '@/components/ui/motion';
 import { useToast } from '@/components/ui/overlays';
 import { ActivityBadge, Button, Card, Screen, SectionHeader } from '@/components/ui/primitives';
 import { Text } from '@/components/ui/Text';
-import { activityTones, colors, radius, spacing } from '@/design/tokens';
+import { activityTones, colors, radius, shadow, spacing } from '@/design/tokens';
 import type { ActivityType, FilterKey } from '@/domain/activity';
 import { formatAgeWithSex } from '@/domain/age';
+import { stageLabel } from '@/domain/avatar';
 import { buildInsights, daysUntilInsights } from '@/domain/insights';
 import { summarizeDay } from '@/domain/summary';
 import { useActiveChild, useEventMutations, useEventsBetween, useLastBottle, useNow, useRecentEvents, useUnsynced } from '@/hooks/data';
@@ -29,34 +33,30 @@ function TrackerCard({ type, title, metric, detail, onPress, onAdd, addLabel }: 
   type: ActivityType; title: string; metric: string; detail: string; onPress: () => void; onAdd: () => void; addLabel: string;
 }) {
   const tone = activityTones[type];
-  const Icon = activityIcons[type];
   return (
-    <Pressable onPress={onPress} accessibilityRole="button" accessibilityLabel={`${title}: ${metric}. ${detail}`}
-      style={({ pressed }) => [styles.tracker, { backgroundColor: tone.bg }, pressed && { opacity: 0.85 }]}>
-      {/* Large watermark of the activity icon gives each card its own shape, not just its own colour. */}
-      <View style={styles.watermark} pointerEvents="none">
-        <Icon size={92} color={tone.solid} strokeWidth={1.4} />
-      </View>
+    <PressScale onPress={onPress} accessibilityRole="button" accessibilityLabel={`${title}: ${metric}. ${detail}`} style={styles.tracker}>
+      {/* A soft colour bloom in the corner ties the white card to its activity. */}
+      <View style={[styles.bloom, { backgroundColor: tone.bg }]} pointerEvents="none" />
       <View style={styles.trackerTop}>
-        <Text variant="label" color={tone.ink} style={{ fontWeight: '600' }} numberOfLines={1}>{title}</Text>
+        <ActivityBadge type={type} size={42} />
         <Pressable onPress={onAdd} accessibilityRole="button" accessibilityLabel={addLabel} hitSlop={10}
-          style={({ pressed }) => [styles.trackerAdd, pressed && { opacity: 0.6 }]}>
+          style={({ pressed }) => [styles.trackerAdd, { backgroundColor: tone.bg }, pressed && { opacity: 0.6 }]}>
           <Plus size={18} color={tone.ink} strokeWidth={2.6} />
         </Pressable>
       </View>
+      <Text variant="label" color={colors.textSecondary} numberOfLines={1}>{title}</Text>
       <Text variant="metric" numberOfLines={1} adjustsFontSizeToFit style={metric.length > 8 ? { fontSize: 21, letterSpacing: -0.3 } : null}>{metric}</Text>
-      <Text variant="caption" color={tone.ink} numberOfLines={2}>{detail}</Text>
-    </Pressable>
+      <Text variant="caption" color={colors.textSecondary} numberOfLines={2}>{detail}</Text>
+    </PressScale>
   );
 }
 
 function QuickAction({ label, onPress, children, tone }: { label: string; onPress: () => void; children: React.ReactNode; tone: { bg: string; ink: string } }) {
   return (
-    <Pressable onPress={onPress} accessibilityRole="button" accessibilityLabel={label}
-      style={({ pressed }) => [styles.quick, { backgroundColor: tone.bg }, pressed && { opacity: 0.7 }]}>
+    <PressScale onPress={onPress} accessibilityRole="button" accessibilityLabel={label} style={[styles.quick, { backgroundColor: tone.bg }]}>
       {children}
       <Text variant="label" color={tone.ink} style={{ fontWeight: '600', flexShrink: 1 }} numberOfLines={1}>{label}</Text>
-    </Pressable>
+    </PressScale>
   );
 }
 
@@ -75,6 +75,7 @@ export default function HomeScreen() {
   const unsynced = useUnsynced();
   const { create, remove, endSleep } = useEventMutations();
   const [heroWidth, setHeroWidth] = useState(0);
+  const [lookOpen, setLookOpen] = useState(false);
 
   const summary = summarizeDay(today.data ?? [], now, now);
   const insights = useMemo(() => buildInsights(month.data ?? [], now), [month.data, now]);
@@ -126,58 +127,68 @@ export default function HomeScreen() {
 
   const isBrandNew = recent.data !== undefined && recent.data.length === 0;
 
+  const look = useBabyLook(child, now);
+  const glassInk = part === 'night' || part === 'evening';
+
   return (
     <Screen scroll>
-      <View style={{ paddingTop: spacing.sm }}><Logo size={26} /></View>
+      <Rise index={0} style={styles.topBar}>
+        <Logo size={28} />
+        <PressScale onPress={() => router.push('/updates')} accessibilityRole="button"
+          accessibilityLabel={hasConflicts ? 'עדכונים, יש פריטים שדורשים תשומת לב' : 'עדכונים'} style={styles.bell}>
+          <Bell size={20} color={colors.textPrimary} strokeWidth={2} />
+          {hasConflicts ? <View style={styles.bellDot} /> : null}
+        </PressScale>
+      </Rise>
 
-      {/* Hero: sky that follows the real time of day, greeting, and the child */}
-      <View style={styles.hero} onLayout={(e) => setHeroWidth(Math.round(e.nativeEvent.layout.width))}>
-        <View style={StyleSheet.absoluteFill}>
-          {heroWidth > 0 ? <SkyScene part={part} width={heroWidth} height={212} /> : null}
-        </View>
-        <View style={styles.heroTop}>
-          <View style={{ flex: 1 }}>
+      {/* The stage: sky for the real time of day, the greeting, and the child as a 3D baby. */}
+      <Rise index={1}>
+        <View style={styles.stage} onLayout={(e) => setHeroWidth(Math.round(e.nativeEvent.layout.width))}>
+          <View style={StyleSheet.absoluteFill}>
+            {heroWidth > 0 ? <StageScene part={part} width={heroWidth} height={STAGE_H} /> : null}
+          </View>
+          <View style={styles.stageText}>
             <Text variant="display" color={sky.ink} accessibilityRole="header">{greetingForHour(now.getHours())}</Text>
             <Text variant="label" color={sky.sub}>{formatDateLong(now)}</Text>
           </View>
-          <Pressable onPress={() => router.push('/updates')} accessibilityRole="button"
-            accessibilityLabel={hasConflicts ? 'עדכונים, יש פריטים שדורשים תשומת לב' : 'עדכונים'} style={styles.bell} hitSlop={6}>
-            <Bell size={20} color={colors.textPrimary} strokeWidth={2} />
-            {hasConflicts ? <View style={styles.bellDot} /> : null}
-          </Pressable>
-        </View>
-        <Pressable onPress={openChildSheet} accessibilityRole="button"
-          accessibilityLabel={`${child.name}, ${formatAgeWithSex(child.birthDate, child.sex, now) ?? ''}`}
-          accessibilityHint={children.length > 1 ? 'מעבר בין ילדים' : 'ניהול ילדים'}
-          style={({ pressed }) => [styles.child, pressed && { opacity: 0.9 }]}>
-          <Avatar name={child.name} uri={child.photoUri} size={48} />
-          <View style={{ flex: 1 }}>
-            <Text variant="heading">{child.name}</Text>
-            <Text variant="caption" color={colors.textSecondary}>{formatAgeWithSex(child.birthDate, child.sex, now) ?? ''}</Text>
+          <View style={styles.stageBaby}>
+            <Baby3D stage={look.stage} config={look.config} height={250} label={`דמות תלת-ממדית של ${child.name}, ${stageLabel[look.stage]}`} />
           </View>
-          <ChevronDown size={20} color={colors.textSecondary} strokeWidth={2.2} />
-        </Pressable>
-      </View>
+          <View style={styles.stageBottom}>
+            <PressScale onPress={openChildSheet} accessibilityRole="button"
+              accessibilityLabel={`${child.name}, ${formatAgeWithSex(child.birthDate, child.sex, now) ?? ''}`}
+              accessibilityHint={children.length > 1 ? 'מעבר בין ילדים' : 'ניהול ילדים'} style={styles.childPill}>
+              <Avatar name={child.name} uri={child.photoUri} size={44} />
+              <View style={{ flex: 1 }}>
+                <Text variant="heading" numberOfLines={1}>{child.name}</Text>
+                <Text variant="caption" color={colors.textSecondary} numberOfLines={1}>{`${formatAgeWithSex(child.birthDate, child.sex, now) ?? ''} · ${stageLabel[look.stage]}`}</Text>
+              </View>
+              <ChevronDown size={20} color={colors.textSecondary} strokeWidth={2.2} />
+            </PressScale>
+            <PressScale onPress={() => setLookOpen(true)} accessibilityRole="button" accessibilityLabel="התאמת המראה של הדמות" style={styles.lookBtn}>
+              <Palette size={20} color={colors.primaryStrong} strokeWidth={2} />
+            </PressScale>
+          </View>
+          <Text variant="caption" color={glassInk ? '#FFFFFF' : sky.sub} style={styles.dragHint}>גררו כדי לסובב</Text>
+        </View>
+      </Rise>
 
       {/* Running sleep */}
       {activeSleep ? (
-        <View style={styles.sleepBanner} accessibilityRole="timer">
-          <ActivityBadge type="sleep" size={44} />
+        <LinearGradient colors={activityTones.sleep.grad} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={styles.sleepBanner} accessibilityRole="timer">
+          <View style={styles.sleepIcon}><Moon size={22} color={colors.white} strokeWidth={2} /></View>
           <View style={{ flex: 1 }}>
-            <Text variant="label" color={activityTones.sleep.ink}>{child.name} {sleepingWord(child.sex)}</Text>
-            <Text variant="title" color={activityTones.sleep.ink} style={{ writingDirection: 'ltr' }}>
+            <Text variant="label" color="#EDEBFF">{child.name} {sleepingWord(child.sex)}</Text>
+            <Text variant="title" color={colors.white} style={{ writingDirection: 'ltr' }}>
               {formatClock((tick.getTime() - Date.parse(activeSleep.startedAt ?? activeSleep.occurredAt)) / 1000)}
             </Text>
           </View>
-          <Button label="סיום שינה" size="md" onPress={stopSleep} loading={endSleep.isPending} style={{ backgroundColor: activityTones.sleep.ink }} />
-        </View>
+          <Button label="סיום שינה" size="md" variant="secondary" onPress={stopSleep} loading={endSleep.isPending} style={{ backgroundColor: colors.white }} />
+        </LinearGradient>
       ) : null}
 
-      <BabyCard child={child} now={now} />
-
       {/* One-tap actions */}
-      <SectionHeader title="תיעוד בלחיצה" />
-      <View style={styles.quickRow}>
+      <Rise index={2} style={styles.quickRow}>
         <QuickAction label="חיתול רטוב" tone={activityTones.diaper}
           onPress={() => quickSave({ type: 'diaper', occurredAt: new Date().toISOString(), payload: { kind: 'wet' } }, 'חיתול רטוב נשמר')}>
           <DiaperIcon size={20} color={activityTones.diaper.ink} />
@@ -195,19 +206,10 @@ export default function HomeScreen() {
             <BottleIcon size={20} color={activityTones.bottle.ink} />
           </QuickAction>
         ) : null}
-      </View>
-
-      <SectionHeader title="תובנות מהשגרה שלכם" />
-      <InsightsRow insights={insights} daysMissing={daysMissing} />
-
-      {/* Today at a glance */}
-      <Card style={{ gap: spacing.sm }}>
-        <Text variant="heading" accessibilityRole="header">היום במבט</Text>
-        <DayStrip events={today.data ?? []} now={now} />
-      </Card>
+      </Rise>
 
       {/* Trackers */}
-      <View style={styles.grid}>
+      <Rise index={3} style={styles.grid}>
         <TrackerCard type="bottle" title="האכלות" metric={f.count === 1 ? 'האכלה אחת' : `${f.count} האכלות`} detail={feedingDetail}
           onPress={() => goJournal('feeding')} onAdd={() => openActivityForm('bottle')} addLabel="הוספת האכלה" />
         <TrackerCard type="sleep" title="שינה" metric={s.minutes > 0 ? formatDuration(s.minutes) : '0 ד׳'} detail={sleepDetail}
@@ -216,48 +218,72 @@ export default function HomeScreen() {
           onPress={() => goJournal('diaper')} onAdd={() => openActivityForm('diaper')} addLabel="הוספת חיתול" />
         <TrackerCard type="solids" title="מוצקים" metric={so.count === 1 ? 'ארוחה אחת' : `${so.count} ארוחות`} detail={solidsDetail}
           onPress={() => goJournal('solids')} onAdd={() => openActivityForm('solids')} addLabel="הוספת ארוחה" />
-      </View>
+      </Rise>
+
+      <Rise index={4} style={{ gap: spacing.md }}>
+        <SectionHeader title="תובנות מהשגרה שלכם" />
+        <InsightsRow insights={insights} daysMissing={daysMissing} />
+      </Rise>
+
+      <Rise index={5}>
+        <Card style={{ gap: spacing.sm }}>
+          <Text variant="heading" accessibilityRole="header">היום במבט</Text>
+          <DayStrip events={today.data ?? []} now={now} />
+        </Card>
+      </Rise>
 
       {/* Recent activity */}
-      <SectionHeader title="פעילות אחרונה"
-        action={recent.data && recent.data.length > 0 ? (
-          <Pressable onPress={() => router.push('/(tabs)/journal')} accessibilityRole="link" hitSlop={12}
-            style={{ minHeight: 44, minWidth: 44, justifyContent: 'center' }}>
-            <Text variant="label" color={colors.primaryStrong}>ליומן המלא</Text>
-          </Pressable>
-        ) : undefined} />
-      {isBrandNew ? (
-        <Card style={styles.firstRun}>
-          <MobileIllustration size={190} />
-          <Text variant="heading" center>{`מתחילים לתעד את ${child.name}`}</Text>
-          <Text color={colors.textSecondary} center>בקבוק, חיתול או שינה – כל תיעוד יופיע כאן ויצטרף לסיכום היומי.</Text>
-          <Button label="תיעוד ראשון" size="md" onPress={openAddSheet} style={{ alignSelf: 'center', paddingHorizontal: spacing.xxl, marginTop: spacing.xs }} />
-        </Card>
-      ) : (
-        <Card style={{ paddingBottom: 0 }}>
-          {(recent.data ?? []).map((event, i, all) => (
-            <EventRow key={event.id} event={event} now={now} isLast={i === all.length - 1} showSync={!!user}
-              onPress={() => openActivityForm(event.type, event.id)} />
-          ))}
-        </Card>
-      )}
+      <Rise index={6} style={{ gap: spacing.md }}>
+        <SectionHeader title="פעילות אחרונה"
+          action={recent.data && recent.data.length > 0 ? (
+            <Pressable onPress={() => router.push('/(tabs)/journal')} accessibilityRole="link" hitSlop={12}
+              style={{ minHeight: 44, minWidth: 44, justifyContent: 'center' }}>
+              <Text variant="label" color={colors.primaryStrong} style={{ fontWeight: '600' }}>ליומן המלא</Text>
+            </Pressable>
+          ) : undefined} />
+        {isBrandNew ? (
+          <Card style={styles.firstRun}>
+            <Float><MobileIllustration size={190} /></Float>
+            <Text variant="heading" center>{`מתחילים לתעד את ${child.name}`}</Text>
+            <Text color={colors.textSecondary} center>בקבוק, חיתול או שינה – כל תיעוד יופיע כאן ויצטרף לסיכום היומי.</Text>
+            <Button label="תיעוד ראשון" size="md" onPress={openAddSheet} style={{ alignSelf: 'center', paddingHorizontal: spacing.xxl, marginTop: spacing.xs }} />
+          </Card>
+        ) : (
+          <Card style={{ paddingBottom: 0 }}>
+            {(recent.data ?? []).map((event, i, all) => (
+              <EventRow key={event.id} event={event} now={now} isLast={i === all.length - 1} showSync={!!user}
+                onPress={() => openActivityForm(event.type, event.id)} />
+            ))}
+          </Card>
+        )}
+      </Rise>
+
+      <BabyCustomizeSheet child={child} now={now} open={lookOpen} onClose={() => setLookOpen(false)} />
     </Screen>
   );
 }
 
+const STAGE_H = 452;
+
 const styles = StyleSheet.create({
-  hero: { borderRadius: radius.xl, overflow: 'hidden', padding: spacing.lg, gap: spacing.xl, minHeight: 212, justifyContent: 'space-between' },
-  heroTop: { flexDirection: 'row', alignItems: 'flex-start', gap: spacing.md },
-  bell: { width: 42, height: 42, borderRadius: 21, backgroundColor: 'rgba(255,255,255,0.85)', alignItems: 'center', justifyContent: 'center' },
-  bellDot: { position: 'absolute', top: 9, end: 10, width: 9, height: 9, borderRadius: 5, backgroundColor: colors.danger, borderWidth: 1.5, borderColor: colors.white },
-  child: { flexDirection: 'row', alignItems: 'center', gap: spacing.md, backgroundColor: 'rgba(255,255,255,0.94)', borderRadius: radius.lg, padding: spacing.md },
-  sleepBanner: { flexDirection: 'row', alignItems: 'center', gap: spacing.md, backgroundColor: activityTones.sleep.bg, borderRadius: radius.xl, padding: spacing.lg },
+  topBar: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingTop: spacing.sm },
+  bell: { width: 44, height: 44, borderRadius: 22, backgroundColor: colors.surface, alignItems: 'center', justifyContent: 'center', ...shadow.card },
+  bellDot: { position: 'absolute', top: 10, end: 11, width: 9, height: 9, borderRadius: 5, backgroundColor: colors.danger, borderWidth: 1.5, borderColor: colors.white },
+  stage: { height: STAGE_H, borderRadius: 34, overflow: 'hidden', ...shadow.card },
+  stageText: { paddingHorizontal: spacing.xl, paddingTop: spacing.xl },
+  stageBaby: { position: 'absolute', top: 96, start: 0, end: 0 },
+  stageBottom: { position: 'absolute', bottom: spacing.md, start: spacing.md, end: spacing.md, flexDirection: 'row', alignItems: 'center', gap: spacing.sm },
+  childPill: { flex: 1, flexDirection: 'row', alignItems: 'center', gap: spacing.md, backgroundColor: 'rgba(255,255,255,0.94)', borderRadius: 26, padding: spacing.sm, paddingEnd: spacing.lg },
+  lookBtn: { width: 60, height: 60, borderRadius: 26, backgroundColor: 'rgba(255,255,255,0.94)', alignItems: 'center', justifyContent: 'center' },
+  dragHint: { position: 'absolute', bottom: 86, alignSelf: 'center', opacity: 0.85 },
+  sleepBanner: { flexDirection: 'row', alignItems: 'center', gap: spacing.md, borderRadius: radius.xl, padding: spacing.lg },
+  sleepIcon: { width: 44, height: 44, borderRadius: 16, backgroundColor: 'rgba(255,255,255,0.2)', alignItems: 'center', justifyContent: 'center' },
   grid: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing.md },
-  tracker: { flexBasis: '47%', flexGrow: 1, gap: 2, minHeight: 150, borderRadius: radius.lg, padding: spacing.lg, overflow: 'hidden' },
-  watermark: { position: 'absolute', bottom: -18, end: -14, opacity: 0.16 },
+  tracker: { flexBasis: '47%', flexGrow: 1, gap: 2, minHeight: 158, borderRadius: 26, padding: spacing.lg, overflow: 'hidden', backgroundColor: colors.surface, ...shadow.card },
+  bloom: { position: 'absolute', width: 150, height: 150, borderRadius: 75, top: -62, start: -52, opacity: 0.75 },
   trackerTop: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: spacing.md },
-  trackerAdd: { width: 34, height: 34, borderRadius: 17, alignItems: 'center', justifyContent: 'center', backgroundColor: 'rgba(255,255,255,0.9)' },
+  trackerAdd: { width: 36, height: 36, borderRadius: 18, alignItems: 'center', justifyContent: 'center' },
   quickRow: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing.sm },
-  quick: { flexDirection: 'row', alignItems: 'center', gap: spacing.sm, minHeight: 48, paddingHorizontal: spacing.lg, borderRadius: radius.pill, flexGrow: 1, justifyContent: 'center' },
+  quick: { flexDirection: 'row', alignItems: 'center', gap: spacing.sm, minHeight: 50, paddingHorizontal: spacing.lg, borderRadius: radius.pill, flexGrow: 1, justifyContent: 'center' },
   firstRun: { alignItems: 'center', gap: spacing.sm, paddingVertical: spacing.xl },
 });

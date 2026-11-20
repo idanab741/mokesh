@@ -28,6 +28,14 @@ export const colors = {
   white: '#FFFFFF',
 } as const;
 
+/** Gradients are part of the identity: warm rose into soft lilac, never flat fills for hero surfaces. */
+export const gradients = {
+  /** Wash at the top of every screen, fading into the canvas. */
+  wash: ['#FFE6EE', '#F1EBFF', '#F6F5F3'],
+  primary: ['#F0628C', '#C7375F'],
+  brand: ['#FF8FB0', '#B45CF0'],
+} as const;
+
 export interface ActivityTone {
   /** Soft tint for surfaces. */
   bg: string;
@@ -35,20 +43,22 @@ export interface ActivityTone {
   ink: string;
   /** Saturated colour for marks: chart bars, timeline segments, dots. */
   solid: string;
+  /** Two-stop gradient for icon chips and chart marks. */
+  grad: readonly [string, string];
 }
 
 export const activityTones: Record<ActivityType, ActivityTone> = {
-  bottle: { bg: '#FFE8EF', ink: '#BE2C55', solid: '#EC5F88' },
-  nursing: { bg: '#FFE8EF', ink: '#BE2C55', solid: '#EC5F88' },
-  pumping: { bg: '#E4F0FF', ink: '#1F6BC2', solid: '#4C9BEF' },
-  sleep: { bg: '#ECEAFF', ink: '#4740C2', solid: '#6C63E8' },
-  diaper: { bg: '#DDF6F0', ink: '#0A7767', solid: '#17B39C' },
-  solids: { bg: '#FFF0D6', ink: '#955400', solid: '#F2A32B' },
-  other: { bg: '#EFEEF1', ink: '#55505C', solid: '#8E8896' },
+  bottle: { bg: '#FFE8EF', ink: '#BE2C55', solid: '#EC5F88', grad: ['#FF8FAE', '#E8527E'] },
+  nursing: { bg: '#FFE8EF', ink: '#BE2C55', solid: '#EC5F88', grad: ['#FF8FAE', '#E8527E'] },
+  pumping: { bg: '#E4F0FF', ink: '#1F6BC2', solid: '#4C9BEF', grad: ['#7DB9FF', '#3E86E0'] },
+  sleep: { bg: '#ECEAFF', ink: '#4740C2', solid: '#6C63E8', grad: ['#9C94FF', '#5B52D6'] },
+  diaper: { bg: '#DDF6F0', ink: '#0A7767', solid: '#17B39C', grad: ['#4FD9C4', '#0FA08B'] },
+  solids: { bg: '#FFF0D6', ink: '#955400', solid: '#F2A32B', grad: ['#FFC457', '#EE922A'] },
+  other: { bg: '#EFEEF1', ink: '#55505C', solid: '#8E8896', grad: ['#B0AAB8', '#7B7585'] },
 };
 
 export const spacing = { xs: 4, sm: 8, md: 12, lg: 16, xl: 20, xxl: 24, xxxl: 32 } as const;
-export const radius = { sm: 10, md: 14, lg: 22, xl: 28, pill: 999 } as const;
+export const radius = { sm: 10, md: 16, lg: 22, xl: 28, pill: 999 } as const;
 
 /**
  * System typeface: San Francisco (incl. SF Hebrew) on iPhone, iPad and Mac, Roboto / Noto on
@@ -66,7 +76,7 @@ export const fonts = { regular: face('400'), medium: face('500'), semibold: face
 export const svgFontFamily = family ?? 'System';
 
 export const type = {
-  display: { ...fonts.bold, fontSize: 32, lineHeight: 38, letterSpacing: -0.6 },
+  display: { ...fonts.bold, fontSize: 34, lineHeight: 40, letterSpacing: -0.8 },
   title: { ...fonts.bold, fontSize: 24, lineHeight: 30, letterSpacing: -0.4 },
   heading: { ...fonts.semibold, fontSize: 18, lineHeight: 24, letterSpacing: -0.2 },
   body: { ...fonts.regular, fontSize: 16, lineHeight: 23 },
@@ -79,7 +89,7 @@ export const type = {
 export type TextVariant = keyof typeof type;
 
 export const shadow = {
-  card: { shadowColor: '#1C1A1F', shadowOpacity: 0.05, shadowRadius: 16, shadowOffset: { width: 0, height: 6 }, elevation: 2 },
+  card: { shadowColor: '#3B2147', shadowOpacity: 0.08, shadowRadius: 24, shadowOffset: { width: 0, height: 10 }, elevation: 3 },
   floating: { shadowColor: '#C7375F', shadowOpacity: 0.32, shadowRadius: 16, shadowOffset: { width: 0, height: 8 }, elevation: 8 },
 } as const;
 

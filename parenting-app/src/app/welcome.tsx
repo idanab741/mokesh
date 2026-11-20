@@ -3,6 +3,7 @@ import { CalendarHeart, ChartColumn, ShieldCheck } from 'lucide-react-native';
 import { StyleSheet, View } from 'react-native';
 import { MobileIllustration } from '@/components/brand/Illustrations';
 import { Logo } from '@/components/brand/Logo';
+import { Float } from '@/components/ui/motion';
 import { Button, Notice, Screen } from '@/components/ui/primitives';
 import { Text } from '@/components/ui/Text';
 import { activityTones, colors, radius, spacing } from '@/design/tokens';
@@ -25,7 +26,7 @@ export default function WelcomeScreen() {
     <Screen scroll edges={['top', 'bottom']} contentStyle={styles.content}>
       <View style={styles.hero}>
         <Logo size={40} />
-        <MobileIllustration size={230} />
+        <Float><MobileIllustration size={240} /></Float>
         <Text variant="display" center accessibilityRole="header">כל מה שהורים צריכים, במקום אחד</Text>
         <Text color={colors.textSecondary} center>מעקב יומיומי רגוע אחרי האכלות, שינה, חיתולים ומוצקים – מהלידה ועד גיל שלוש.</Text>
       </View>
@@ -66,6 +67,6 @@ export default function WelcomeScreen() {
 const styles = StyleSheet.create({
   content: { flexGrow: 1, justifyContent: 'space-between', paddingTop: spacing.xl, paddingBottom: spacing.xxl, gap: spacing.xl },
   hero: { alignItems: 'center', gap: spacing.md },
-  point: { flexDirection: 'row', alignItems: 'center', gap: spacing.md, backgroundColor: colors.surface, borderRadius: radius.lg, padding: spacing.lg, borderWidth: 1, borderColor: colors.border },
+  point: { flexDirection: 'row', alignItems: 'center', gap: spacing.md, backgroundColor: 'rgba(255,255,255,0.86)', borderRadius: 24, padding: spacing.lg },
   pointIcon: { width: 44, height: 44, borderRadius: 22, backgroundColor: colors.primaryLight, alignItems: 'center', justifyContent: 'center' },
 });

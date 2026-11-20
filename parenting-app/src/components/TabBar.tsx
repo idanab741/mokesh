@@ -3,7 +3,10 @@ import { CalendarDays, ChartColumn, House, type LucideIcon, Plus, Smile } from '
 import { Pressable, StyleSheet, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Text } from '@/components/ui/Text';
-import { colors, radius, shadow, spacing } from '@/design/tokens';
+import { BlurView } from 'expo-blur';
+import { LinearGradient } from 'expo-linear-gradient';
+import { PressScale } from '@/components/ui/motion';
+import { colors, gradients, shadow, spacing } from '@/design/tokens';
 import { useUi } from '@/state/ui';
 
 const TABS: Record<string, { label: string; icon: LucideIcon }> = {
@@ -44,30 +47,30 @@ export function TabBar({ state, emitter, navigateToTab }: BottomTabBarProps) {
 
   const middle = Math.ceil(items.length / 2);
   return (
-    <View style={[styles.bar, { paddingBottom: Math.max(insets.bottom, spacing.sm) }]} accessibilityRole="tablist">
-      {items.slice(0, middle)}
-      <View style={styles.addSlot}>
-        <Pressable onPress={openAddSheet} accessibilityRole="button" accessibilityLabel="הוספת פעילות"
-          style={({ pressed }) => [styles.add, pressed && { transform: [{ scale: 0.95 }] }]}>
-          <Plus size={30} color={colors.white} strokeWidth={2.2} />
-        </Pressable>
+    <View style={[styles.wrap, { bottom: Math.max(insets.bottom, spacing.md) }]} pointerEvents="box-none">
+      <View style={styles.bar} accessibilityRole="tablist">
+        <BlurView intensity={40} tint="light" style={StyleSheet.absoluteFill} />
+        <View style={[StyleSheet.absoluteFill, { backgroundColor: 'rgba(255,255,255,0.82)' }]} />
+        {items.slice(0, middle)}
+        <View style={styles.addSlot}>
+          <PressScale onPress={openAddSheet} accessibilityRole="button" accessibilityLabel="הוספת פעילות" scaleTo={0.9} style={styles.add}>
+            <LinearGradient colors={gradients.primary} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={[StyleSheet.absoluteFill, { borderRadius: 30 }]} />
+            <View style={{ zIndex: 1 }}><Plus size={30} color={colors.white} strokeWidth={2.4} /></View>
+          </PressScale>
+        </View>
+        {items.slice(middle)}
       </View>
-      {items.slice(middle)}
     </View>
   );
 }
 
 const styles = StyleSheet.create({
-  bar: {
-    flexDirection: 'row', alignItems: 'flex-end', backgroundColor: colors.surface, paddingTop: spacing.sm, paddingHorizontal: spacing.sm,
-    borderTopLeftRadius: radius.xl, borderTopRightRadius: radius.xl, borderTopWidth: 1, borderColor: colors.border, ...shadow.card,
-  },
-  tab: { flex: 1, alignItems: 'center', gap: 2, minHeight: 56, justifyContent: 'center' },
-  iconWrap: { width: 48, height: 30, borderRadius: 15, alignItems: 'center', justifyContent: 'center' },
+  // Floats above the content so screens scroll underneath it.
+  wrap: { position: 'absolute', start: spacing.lg, end: spacing.lg },
+  bar: { flexDirection: 'row', alignItems: 'center', height: 68, borderRadius: 34, overflow: 'hidden', paddingHorizontal: spacing.sm, ...shadow.card, shadowOpacity: 0.16 },
+  tab: { flex: 1, alignItems: 'center', gap: 2, height: 68, justifyContent: 'center', zIndex: 1 },
+  iconWrap: { width: 46, height: 30, borderRadius: 15, alignItems: 'center', justifyContent: 'center' },
   iconWrapFocused: { backgroundColor: colors.primaryLight },
-  addSlot: { width: 76, alignItems: 'center' },
-  add: {
-    width: 62, height: 62, borderRadius: 31, backgroundColor: colors.primaryStrong, alignItems: 'center', justifyContent: 'center',
-    marginTop: -26, borderWidth: 4, borderColor: colors.background, ...shadow.floating,
-  },
+  addSlot: { width: 72, alignItems: 'center', zIndex: 1 },
+  add: { width: 56, height: 56, borderRadius: 28, alignItems: 'center', justifyContent: 'center', overflow: 'hidden' },
 });

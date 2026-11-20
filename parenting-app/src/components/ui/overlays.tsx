@@ -121,7 +121,7 @@ export function ToastHost() {
 
 const styles = StyleSheet.create({
   sheetRoot: { flex: 1, justifyContent: 'flex-end' },
-  sheet: { backgroundColor: colors.background, borderTopLeftRadius: radius.xl, borderTopRightRadius: radius.xl, paddingHorizontal: spacing.xl, paddingTop: spacing.sm },
+  sheet: { backgroundColor: colors.background, borderTopLeftRadius: 34, borderTopRightRadius: 34, paddingHorizontal: spacing.xl, paddingTop: spacing.sm },
   grabber: { alignSelf: 'center', width: 40, height: 4, borderRadius: 2, backgroundColor: colors.borderStrong, marginBottom: spacing.md },
   sheetHeader: { flexDirection: 'row', alignItems: 'center', marginBottom: spacing.lg },
   dialogRoot: { flex: 1, alignItems: 'center', justifyContent: 'center', padding: spacing.xxl },

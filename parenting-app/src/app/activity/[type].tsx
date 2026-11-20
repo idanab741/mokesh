@@ -8,7 +8,8 @@ import { BottleForm, DiaperForm, NursingForm, OtherForm, PumpingForm, SleepForm,
 import { ConfirmDialog, useToast } from '@/components/ui/overlays';
 import { ActivityBadge, Button, EmptyState, IconButton, Notice } from '@/components/ui/primitives';
 import { Text } from '@/components/ui/Text';
-import { colors, radius, spacing } from '@/design/tokens';
+import { LinearGradient } from 'expo-linear-gradient';
+import { activityTones, colors, radius, spacing } from '@/design/tokens';
 import { ACTIVITY_TYPES, type ActivityType } from '@/domain/activity';
 import { useActiveChild, useActiveSleep, useEvent, useEventMutations, useFoodHistory, useLastBottle } from '@/hooks/data';
 import { activityLabel, errorMessage } from '@/i18n/he';
@@ -136,6 +137,7 @@ export default function ActivityScreen() {
 
   return (
     <SafeAreaView style={styles.root} edges={['top', 'bottom']}>
+      <LinearGradient colors={[activityTones[type].bg, colors.background]} style={styles.wash} pointerEvents="none" />
       <View style={styles.header}>
         <IconButton icon={X} label="סגירה בלי לשמור" tone="surface" onPress={discard} />
         <View style={styles.headerTitle}>
@@ -188,10 +190,11 @@ export default function ActivityScreen() {
 
 const styles = StyleSheet.create({
   root: { flex: 1, backgroundColor: colors.background },
+  wash: { position: 'absolute', top: 0, start: 0, end: 0, height: 300 },
   header: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: spacing.lg, paddingVertical: spacing.sm },
   headerTitle: { flexDirection: 'row', alignItems: 'center', gap: spacing.sm },
   loading: { flex: 1, alignItems: 'center', justifyContent: 'center' },
   content: { paddingHorizontal: spacing.xl, paddingTop: spacing.md, paddingBottom: spacing.xxxl, gap: spacing.xl },
-  footer: { paddingHorizontal: spacing.xl, paddingTop: spacing.md, paddingBottom: spacing.md, gap: spacing.xs, borderTopWidth: 1, borderColor: colors.border, backgroundColor: colors.background },
+  footer: { paddingHorizontal: spacing.xl, paddingTop: spacing.md, paddingBottom: spacing.md, gap: spacing.xs, backgroundColor: 'transparent' },
   conflict: { gap: spacing.sm, backgroundColor: colors.surface, borderRadius: radius.lg, padding: spacing.md, borderWidth: 1, borderColor: colors.border },
 });

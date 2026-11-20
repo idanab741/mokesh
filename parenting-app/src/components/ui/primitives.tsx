@@ -1,13 +1,16 @@
 import type { LucideIcon } from 'lucide-react-native';
 import type { ReactNode } from 'react';
 import { ActivityIndicator, Pressable, type PressableProps, ScrollView, type StyleProp, StyleSheet, View, type ViewStyle } from 'react-native';
+import { LinearGradient } from 'expo-linear-gradient';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { HIT, activityTones, colors, radius, shadow, spacing } from '@/design/tokens';
+import { HIT, activityTones, colors, gradients, radius, shadow, spacing } from '@/design/tokens';
 import type { ActivityType } from '@/domain/activity';
 import { activityIcons } from './Icons';
+import { PressScale } from './motion';
 import { Text } from './Text';
 
 /* ---------- Screen ---------- */
+/** Every screen sits on the same soft colour wash, so the app never looks like flat grey panels. */
 export function Screen({ children, scroll, edges = ['top'], contentStyle, footer }: {
   children: ReactNode;
   scroll?: boolean;
@@ -16,16 +19,19 @@ export function Screen({ children, scroll, edges = ['top'], contentStyle, footer
   footer?: ReactNode;
 }) {
   return (
-    <SafeAreaView style={styles.screen} edges={edges}>
-      {scroll ? (
-        <ScrollView contentContainerStyle={[styles.screenContent, contentStyle]} keyboardShouldPersistTaps="handled" showsVerticalScrollIndicator={false}>
-          {children}
-        </ScrollView>
-      ) : (
-        <View style={[styles.screenFill, contentStyle]}>{children}</View>
-      )}
-      {footer}
-    </SafeAreaView>
+    <View style={styles.screen}>
+      <LinearGradient colors={gradients.wash} locations={[0, 0.45, 1]} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={styles.wash} pointerEvents="none" />
+      <SafeAreaView style={{ flex: 1 }} edges={edges}>
+        {scroll ? (
+          <ScrollView contentContainerStyle={[styles.screenContent, contentStyle]} keyboardShouldPersistTaps="handled" showsVerticalScrollIndicator={false}>
+            {children}
+          </ScrollView>
+        ) : (
+          <View style={[styles.screenFill, contentStyle]}>{children}</View>
+        )}
+        {footer}
+      </SafeAreaView>
+    </View>
   );
 }
 
@@ -38,13 +44,9 @@ export function Card({ children, style, onPress, accessibilityLabel }: {
 }) {
   if (!onPress) return <View style={[styles.card, style]}>{children}</View>;
   return (
-    <Pressable
-      onPress={onPress}
-      accessibilityRole="button"
-      accessibilityLabel={accessibilityLabel}
-      style={({ pressed }) => [styles.card, style, pressed && styles.pressed]}>
+    <PressScale onPress={onPress} accessibilityRole="button" accessibilityLabel={accessibilityLabel} style={[styles.card, style]}>
       {children}
-    </Pressable>
+    </PressScale>
   );
 }
 
@@ -63,33 +65,40 @@ export function Button({ label, onPress, variant = 'primary', icon: Icon, loadin
 }) {
   const inactive = disabled || loading;
   const fg = variant === 'primary' ? colors.textOnPrimary : variant === 'danger' ? colors.danger : colors.primaryStrong;
+  const flat = StyleSheet.flatten(style) ?? {};
+  // A caller may recolour a primary button (e.g. the sleep banner); then the gradient is skipped.
+  const custom = variant === 'primary' && !!flat.backgroundColor;
   return (
-    <Pressable
+    <PressScale
       onPress={onPress}
       disabled={inactive}
       accessibilityRole="button"
       accessibilityLabel={label}
       accessibilityHint={accessibilityHint}
       accessibilityState={{ disabled: !!inactive, busy: !!loading }}
-      style={({ pressed }) => [
+      style={[
         styles.button,
         size === 'md' && styles.buttonMd,
         variant === 'primary' && styles.buttonPrimary,
         variant === 'secondary' && styles.buttonSecondary,
         variant === 'danger' && styles.buttonDanger,
-        pressed && styles.pressed,
-        inactive && styles.disabled,
         style,
       ]}>
-      {loading ? (
-        <ActivityIndicator color={fg} />
-      ) : (
-        <>
-          {Icon ? <Icon size={20} color={fg} strokeWidth={2} /> : null}
-          <Text variant="bodyStrong" color={fg}>{label}</Text>
-        </>
-      )}
-    </Pressable>
+      {variant === 'primary' && !custom ? (
+        <LinearGradient colors={gradients.primary} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={[StyleSheet.absoluteFill, { borderRadius: radius.pill }]} pointerEvents="none" />
+      ) : null}
+      {/* zIndex keeps the label above the absolutely-positioned gradient. */}
+      <View style={styles.buttonContent}>
+        {loading ? (
+          <ActivityIndicator color={fg} />
+        ) : (
+          <>
+            {Icon ? <Icon size={20} color={fg} strokeWidth={2} /> : null}
+            <Text variant="bodyStrong" color={fg}>{label}</Text>
+          </>
+        )}
+      </View>
+    </PressScale>
   );
 }
 
@@ -123,13 +132,21 @@ export function IconButton({ icon: Icon, onPress, label, tone = 'plain', size = 
 }
 
 /* ---------- Activity badge ---------- */
-export function ActivityBadge({ type, size = 44 }: { type: ActivityType; size?: number }) {
+export function ActivityBadge({ type, size = 44, soft }: { type: ActivityType; size?: number; soft?: boolean }) {
   const tone = activityTones[type];
   const Icon = activityIcons[type];
+  if (soft) {
+    return (
+      <View style={{ width: size, height: size, borderRadius: size / 2, backgroundColor: tone.bg, alignItems: 'center', justifyContent: 'center' }}>
+        <Icon size={Math.round(size * 0.5)} color={tone.ink} />
+      </View>
+    );
+  }
   return (
-    <View style={{ width: size, height: size, borderRadius: size / 2, backgroundColor: tone.bg, alignItems: 'center', justifyContent: 'center' }}>
-      <Icon size={Math.round(size * 0.5)} color={tone.ink} />
-    </View>
+    <LinearGradient colors={tone.grad} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }}
+      style={{ width: size, height: size, borderRadius: size * 0.36, alignItems: 'center', justifyContent: 'center' }}>
+      <Icon size={Math.round(size * 0.52)} color={colors.white} strokeWidth={2} />
+    </LinearGradient>
   );
 }
 
@@ -238,14 +255,16 @@ export function Notice({ text, tone = 'info', icon: Icon }: { text: string; tone
 
 const styles = StyleSheet.create({
   screen: { flex: 1, backgroundColor: colors.background },
+  wash: { position: 'absolute', top: 0, start: 0, end: 0, height: 420 },
   screenContent: { paddingHorizontal: spacing.xl, paddingBottom: 120, gap: spacing.lg },
   screenFill: { flex: 1 },
-  card: { backgroundColor: colors.surface, borderRadius: radius.lg, padding: spacing.lg, borderWidth: 1, borderColor: colors.border, ...shadow.card },
+  card: { backgroundColor: colors.surface, borderRadius: radius.xl, padding: spacing.lg, ...shadow.card },
   pressed: { opacity: 0.72 },
   disabled: { opacity: 0.45 },
   button: { minHeight: 54, borderRadius: radius.pill, paddingHorizontal: spacing.xl, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: spacing.sm },
   buttonMd: { minHeight: HIT },
-  buttonPrimary: { backgroundColor: colors.primaryStrong },
+  buttonContent: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: spacing.sm, zIndex: 1 },
+  buttonPrimary: { backgroundColor: colors.primaryStrong, overflow: 'hidden', ...shadow.floating },
   buttonSecondary: { backgroundColor: colors.primaryLight },
   buttonDanger: { backgroundColor: colors.dangerLight },
   badgeDot: { position: 'absolute', top: 9, end: 10, width: 9, height: 9, borderRadius: 5, backgroundColor: colors.danger, borderWidth: 1.5, borderColor: colors.surface },
