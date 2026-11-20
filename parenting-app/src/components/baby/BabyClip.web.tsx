@@ -1,6 +1,5 @@
 import { Asset } from 'expo-asset';
 import { type CSSProperties, useEffect, useRef, useState } from 'react';
-import { IRIS_BASE } from '@/domain/avatar';
 import type { BabyClipProps } from './BabyClip';
 
 export type { BabyClipProps } from './BabyClip';
@@ -119,7 +118,7 @@ function createPainter(canvas: HTMLCanvasElement): Painter | null {
         if (look[part]) gl.uniform4fv(u(`${part}Shift`), look[part] as unknown as number[]);
       }
       gl.uniform1f(u('eyeOn'), look.eyes ? 1 : 0);
-      gl.uniform3fv(u('eyeSrc'), IRIS_BASE as unknown as number[]);
+      gl.uniform3fv(u('eyeSrc'), base.iris as unknown as number[]);
       if (look.eyes) gl.uniform4fv(u('eyeShift'), look.eyes as unknown as number[]);
     },
     draw(video) {
