@@ -304,3 +304,12 @@ summary for the doctor), משפחה, and הגדרות (character and colour, acc
 - Girls' crawl: all six girls now crawl, cut from one new six-girl clip that matches the six skin tones. It replaces the
   three clips from the first three-girl clip (which had other faces and blue eyes on the blonde) and fills the three
   that had none. Standing clips exist only for the default boy and the default girl.
+
+## Home as three daily needs (2026-11-21)
+
+The user asked for main categories rather than a tracker: sleep, food, diaper. The sheet under the character is now
+"היום של <name>" with three cards. Each card has the ring, where things stand now and what the family's routine expects
+next, a "+" that logs, and facts about the day: today's total, and how this family's own usual day looks (from the seven
+days before today, once three of them have records), plus the last dirty diaper. Feeding and meal were merged into
+"אוכל": the quick sheet offers bottle, nursing and solids. The two sentences above and the four rings were removed
+because the cards say the same things.

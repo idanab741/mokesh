@@ -46,7 +46,7 @@ export function QuickLog({ kind, onClose, childId, routine, activeSleep }: {
   const toast = useToast((s) => s.show);
   const { create, update, remove } = useEventMutations();
   const [ago, setAgo] = useState(0);
-  const [feedKind, setFeedKind] = useState<'bottle' | 'nursing'>('bottle');
+  const [feedKind, setFeedKind] = useState<'bottle' | 'nursing' | 'solids'>('bottle');
   const [amount, setAmount] = useState(120);
   const [milk, setMilk] = useState<'formula' | 'breast_milk'>('formula');
 
@@ -70,21 +70,21 @@ export function QuickLog({ kind, onClose, childId, routine, activeSleep }: {
       onError: fail,
     });
   };
-  const toForm = (type: 'bottle' | 'nursing' | 'sleep' | 'diaper') => { onClose(); openActivityForm(type); };
+  const toForm = (type: 'bottle' | 'nursing' | 'sleep' | 'diaper' | 'solids') => { onClose(); openActivityForm(type); };
   const more = (label: string, type: Parameters<typeof toForm>[0]) => (
     <Pressable onPress={() => toForm(type)} accessibilityRole="button" accessibilityLabel={label} hitSlop={8} style={styles.more}>
       <Text variant="label" color={colors.primaryStrong} style={{ fontWeight: '600' }}>{label}</Text>
     </Pressable>
   );
 
-  const title = kind === 'feed' ? 'תיעוד האכלה' : kind === 'diaper' ? 'תיעוד חיתול' : activeSleep ? 'סיום שינה' : 'תיעוד שינה';
+  const title = kind === 'feed' ? 'תיעוד אוכל' : kind === 'diaper' ? 'תיעוד חיתול' : activeSleep ? 'סיום שינה' : 'תיעוד שינה';
   const tone = activityTones[kind === 'feed' ? 'bottle' : kind === 'diaper' ? 'diaper' : 'sleep'];
 
   return (
     <Sheet visible={kind !== null} onClose={onClose} title={title}>
       {kind === 'feed' ? (
         <>
-          <Segmented options={[{ value: 'bottle', label: 'בקבוק' }, { value: 'nursing', label: 'הנקה' }]} value={feedKind} onChange={setFeedKind} />
+          <Segmented options={[{ value: 'bottle', label: 'בקבוק' }, { value: 'nursing', label: 'הנקה' }, { value: 'solids', label: 'מוצקים' }]} value={feedKind} onChange={setFeedKind} />
           {feedKind === 'bottle' ? (
             <>
               <View style={{ gap: spacing.sm }}>
@@ -115,10 +115,15 @@ export function QuickLog({ kind, onClose, childId, routine, activeSleep }: {
                 onPress={() => save({ type: 'bottle', occurredAt: iso, payload: { milkType: milk, amountMl: amount } }, `בקבוק ${amount} מ״ל (${milkTypeLabel[milk]}) נשמר`)} />
               {more('שעה אחרת או הערה', 'bottle')}
             </>
-          ) : (
+          ) : feedKind === 'nursing' ? (
             <>
               <Text color={colors.textSecondary}>בהנקה מודדים זמן לכל צד. הטיימר נפתח במסך מלא, ואפשר גם להזין משך בדיעבד.</Text>
               <Button label="פתיחת טיימר הנקה" onPress={() => toForm('nursing')} />
+            </>
+          ) : (
+            <>
+              <Text color={colors.textSecondary}>בארוחת מוצקים רושמים מה נאכל, כמה, ואם זה מזון חדש או אלרגני.</Text>
+              <Button label="תיעוד ארוחת מוצקים" onPress={() => toForm('solids')} />
             </>
           )}
         </>
