@@ -263,3 +263,18 @@ not a medical document and draws no conclusions. The JSON export now includes mo
 - Home, below the tracking area and without touching the character: "עוד על <name>" with five shortcuts (moments,
   health, tastings, summary, family) and a short list of what is current (a medicine given in the last 24 hours, the
   next visit, the latest moment). The new screens were reachable only from "הילד שלי" and the user saw nothing new.
+
+## "Arch" design direction (2026-11-21)
+
+The user chose direction A of five sketches. Built so far, on Home and in the shared chrome:
+- A gradient sky behind the greeting; the character stands in an arch window painted in the clip's backdrop colour, so
+  the sky can be any colour while the clip still blends. The character keeps its size and place.
+- A white sheet rises over the sky with one sentence about now, one about what the routine expects next, and four soft
+  tiles that log (feeding, sleep, diaper, meal) and show their status. They replace the "since" tiles, the next card
+  and the gradient dock.
+- Three colour worlds (`domain/theme.ts`): rose (default for a girl), sky (default for a boy), meadow (default when the
+  sex was not given). A parent can pick any of them in "החלפת דמות וצבע". The tab bar and the wash at the top of the
+  other screens follow it.
+- Rubik on the web, loaded from Google Fonts at startup; the system face is the fallback.
+- Not yet restyled: primary buttons and selected chips are still rose in every colour world; journal, stats, forms and
+  the other screens keep their layout.

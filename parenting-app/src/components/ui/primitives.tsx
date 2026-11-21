@@ -6,6 +6,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { HIT, activityTones, colors, gradients, radius, shadow, spacing } from '@/design/tokens';
 import type { ActivityType } from '@/domain/activity';
 import { activityIcons } from './Icons';
+import { useAppTheme } from '@/hooks/data';
 import { PressScale } from './motion';
 import { Text } from './Text';
 
@@ -20,9 +21,10 @@ export function Screen({ children, scroll, edges = ['top'], contentStyle, footer
   contentStyle?: StyleProp<ViewStyle>;
   footer?: ReactNode;
 }) {
+  const theme = useAppTheme();
   return (
     <View style={styles.screen}>
-      {wash ? <LinearGradient colors={gradients.wash} locations={[0, 0.45, 1]} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={styles.wash} pointerEvents="none" /> : null}
+      {wash ? <LinearGradient colors={[theme.sky[1], theme.sky[2], colors.background]} locations={[0, 0.45, 1]} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={styles.wash} pointerEvents="none" /> : null}
       <SafeAreaView style={{ flex: 1 }} edges={edges}>
         {scroll ? (
           <ScrollView contentContainerStyle={[styles.screenContent, contentStyle]} keyboardShouldPersistTaps="handled" showsVerticalScrollIndicator={false}>
@@ -257,7 +259,7 @@ export function Notice({ text, tone = 'info', icon: Icon }: { text: string; tone
 
 const styles = StyleSheet.create({
   screen: { flex: 1, backgroundColor: colors.background },
-  wash: { position: 'absolute', top: 0, start: 0, end: 0, height: 420 },
+  wash: { position: 'absolute', top: 0, start: 0, end: 0, height: 360, opacity: 0.55 },
   screenContent: { paddingHorizontal: spacing.xl, paddingBottom: 120, gap: spacing.lg },
   screenFill: { flex: 1 },
   card: { backgroundColor: colors.surface, borderRadius: radius.xl, padding: spacing.lg, ...shadow.card },

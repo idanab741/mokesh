@@ -26,7 +26,7 @@ import { buildInsights, daysUntilInsights } from '@/domain/insights';
 import { babyMood } from '@/domain/mood';
 import { learnRoutine, predictNext } from '@/domain/routine';
 import { summarizeDay } from '@/domain/summary';
-import { useActiveChild, useEventsBetween, useHealth, useMilestones, useNow, useRecentEvents, useUnsynced } from '@/hooks/data';
+import { useActiveChild, useEventsBetween, useAppTheme, useHealth, useMilestones, useNow, useRecentEvents, useUnsynced } from '@/hooks/data';
 import { diaperKindLabel, sleepingWord } from '@/i18n/he';
 import { formatDateShort, formatRelative, addDays, formatClock, formatDateLong, formatDuration, formatTime, greetingForHour } from '@/lib/time';
 import { useSession } from '@/state/session';
@@ -46,6 +46,7 @@ export default function HomeScreen() {
   const [lookOpen, setLookOpen] = useState(false);
   const [quick, setQuick] = useState<QuickKind | null>(null);
   const [pickOpen, setPickOpen] = useState(false);
+  const theme = useAppTheme();
   const health = useHealth(child?.id);
   const moments = useMilestones(child?.id);
   // The baby only turns while Home is actually on screen.
@@ -121,6 +122,18 @@ export default function HomeScreen() {
     { type: 'solids', label: 'ארוחה', a11y: 'תיעוד ארוחה', onPress: () => openActivityForm('solids') },
   ];
 
+  // One sentence that says what is going on, and one that says what the family's routine expects next.
+  const awakeFor = sinceText(routine.sleep.lastWakeAt);
+  const nowLead = activeSleep && sleepStart ? `${child.name} ${sleepingWord(child.sex)} כבר`
+    : awakeFor ? (child.sex === 'female' ? 'ערה כבר' : child.sex === 'male' ? 'ער כבר' : 'זמן ערות:') : null;
+  const nowValue = activeSleep && sleepStart ? formatClock((tick.getTime() - sleepStart.getTime()) / 1000) : awakeFor;
+  const tiles: { type: ActivityType; label: string; a11y: string; status: string; onPress: () => void }[] = [
+    { type: 'bottle', label: 'האכלה', a11y: 'תיעוד האכלה', status: bubbles[0].value ? (bubbles[0].value === 'עכשיו' ? 'עכשיו' : `לפני ${bubbles[0].value}`) : 'עוד לא היום', onPress: () => setQuick('feed') },
+    { type: 'sleep', label: activeSleep ? 'סיום שינה' : 'שינה', a11y: activeSleep ? 'סיום שינה' : 'התחלת שינה', status: activeSleep ? 'בשינה עכשיו' : s.minutes > 0 ? `${formatDuration(s.minutes)} היום` : 'עוד לא היום', onPress: () => setQuick('sleep') },
+    { type: 'diaper', label: 'חיתול', a11y: 'תיעוד חיתול', status: bubbles[2].value ? (bubbles[2].value === 'עכשיו' ? 'עכשיו' : `לפני ${bubbles[2].value}`) : 'עוד לא היום', onPress: () => setQuick('diaper') },
+    { type: 'solids', label: 'ארוחה', a11y: 'תיעוד ארוחה', status: so.count === 0 ? 'עוד לא היום' : so.count === 1 ? 'אחת היום' : `${so.count} היום`, onPress: () => openActivityForm('solids') },
+  ];
+
   const isBrandNew = recent.data !== undefined && recent.data.length === 0;
 
   const look = useBabyLook(child, now);
@@ -132,9 +145,9 @@ export default function HomeScreen() {
   const mood = babyMood(month.data ?? [], now, child.sex);
 
   return (
-    <Screen scroll wash={false}>
-      {/* The colour wash scrolls with the page and fades to the clip's own backdrop before the baby begins. */}
-      <LinearGradient colors={gradients.wash} locations={[0, 0.5, 1]} style={styles.wash} pointerEvents="none" />
+    <Screen scroll wash={false} contentStyle={{ paddingBottom: 0 }}>
+      {/* The sky behind the character. It scrolls with the page and ends under the white sheet. */}
+      <LinearGradient colors={theme.sky} locations={[0, 0.5, 1]} start={{ x: 0.3, y: 0 }} end={{ x: 0.7, y: 1 }} style={styles.sky} pointerEvents="none" />
       <Rise index={0} style={styles.topBar}>
         <Logo size={28} />
         <View style={styles.topEnd}>
@@ -153,85 +166,66 @@ export default function HomeScreen() {
         </View>
       </Rise>
 
-      {/* The stage: the child's baby character at full size, with the three "how long since" facts around it. */}
+      {/* The stage: the greeting, and the child's baby character standing in an arch window. */}
       <Rise index={1}>
         <View style={styles.stageText}>
-          <Text variant="display" accessibilityRole="header">{greetingForHour(now.getHours())}</Text>
-          <Text variant="label" color={colors.textSecondary}>{`${formatDateLong(now)} · ${formatAgeWithSex(child.birthDate, child.sex, now) ?? ''}`}</Text>
+          <Text variant="display" accessibilityRole="header">{`${greetingForHour(now.getHours())}, ${child.name}`}</Text>
+          <Text variant="label" color={theme.onSky}>{`${formatDateLong(now)} · ${formatAgeWithSex(child.birthDate, child.sex, now) ?? ''}`}</Text>
         </View>
-        <View style={styles.stageBaby}>
-          <BabyFigure active={focused && !lookOpen && !pickOpen && quick === null} mood={mood.mood} stage={look.stage} config={look.config} sex={child.sex} height={320} label={onClip ? `הדמות של ${child.name}` : `הדמות של ${child.name}, ${stageLabel[look.stage]}`} />
+        <View style={styles.archRing}>
+          <View style={styles.arch}>
+            <BabyFigure active={focused && !lookOpen && !pickOpen && quick === null} mood={mood.mood} stage={look.stage} config={look.config} sex={child.sex} height={320} label={onClip ? `הדמות של ${child.name}` : `הדמות של ${child.name}, ${stageLabel[look.stage]}`} />
+          </View>
           {onClip ? null : (
             <PressScale onPress={() => setLookOpen(true)} accessibilityRole="button" accessibilityLabel="התאמת המראה של הדמות" style={styles.lookBtn}>
               <Palette size={18} color={colors.primaryStrong} strokeWidth={2} />
             </PressScale>
           )}
         </View>
-        <Text variant="caption" color={colors.textSecondary} style={styles.moodLine} testID="baby-mood-reason">
-          {mood.reason ?? (clips?.wave ? 'הקישו על הדמות לנפנוף' : onClip ? '' : 'גררו כדי לסובב')}
-        </Text>
-        {canPick ? (
-          <Pressable onPress={() => setPickOpen(true)} accessibilityRole="button" accessibilityLabel="החלפת דמות" hitSlop={8} style={styles.pick}>
-            <Text variant="label" color={colors.primaryStrong} style={{ fontWeight: '600' }}>החלפת דמות</Text>
-          </Pressable>
-        ) : null}
-        {/* How long since each thing: below the character, never over it. */}
-        <View style={styles.sinceRow}>
-          {bubbles.map((b) => {
-            const tone = activityTones[b.type];
-            const Icon = activityIcons[b.type];
+      </Rise>
+
+      {/* The sheet that rises over the sky: what is going on now, and the four things to log. */}
+      <View style={styles.sheet}>
+        <Rise index={2} style={{ gap: 2 }}>
+          <View testID="baby-mood-reason" accessible accessibilityLabel={`${nowLead ?? ''} ${nowValue ?? ''}`}>
+            {nowLead && nowValue ? (
+              <Text variant="heading" color="#5B4353" style={styles.nowLine}>
+                {nowLead} <Text variant="heading" color={theme.accent} style={activeSleep ? { writingDirection: 'ltr' } : null}>{nowValue}</Text>
+              </Text>
+            ) : (
+              <Text variant="heading" color="#5B4353" style={styles.nowLine}>{`עוד לא תיעדתם היום את ${child.name}`}</Text>
+            )}
+          </View>
+          <View testID="next-up">
+            {next ? (
+              <>
+                <Text variant="heading" color="#5B4353" style={styles.nowLine}>
+                  {nextTitle[next.kind]} בסביבות <Text variant="heading" color={theme.accent}>{formatTime(next.at)}</Text>
+                </Text>
+                <Text variant="caption" color={colors.textSecondary}>{nextBasis(next.kind, formatDuration(next.usualMin))}</Text>
+              </>
+            ) : (
+              <Text variant="label" color={colors.textSecondary}>לומדים את השגרה שלכם: עוד כמה תיעודים ונדע לומר מה הבא.</Text>
+            )}
+          </View>
+        </Rise>
+
+        <Rise index={3} style={styles.tiles}>
+          {tiles.map((tl) => {
+            const tone = activityTones[tl.type];
+            const Icon = activityIcons[tl.type];
             return (
-              <PressScale key={b.type} onPress={() => goJournal(b.filter)} accessibilityRole="button" accessibilityLabel={`${b.label}: ${b.value ?? 'אין עדיין'}`} style={styles.since}>
-                <View style={[styles.bubbleIcon, { backgroundColor: tone.bg }]}><Icon size={16} color={tone.ink} /></View>
-                <Text variant="caption" color={colors.textSecondary} numberOfLines={1}>{b.label}</Text>
-                <Text variant="bodyStrong" numberOfLines={1} adjustsFontSizeToFit style={b.type === 'sleep' && activeSleep ? { writingDirection: 'ltr' } : null}>{b.value ?? '—'}</Text>
+              <PressScale key={tl.type} onPress={tl.onPress} accessibilityRole="button" accessibilityLabel={tl.a11y} scaleTo={0.94} style={[styles.tile, { backgroundColor: tone.bg }]}>
+                {tl.type === 'sleep' && activeSleep ? <Square size={24} color={tone.ink} strokeWidth={2.4} /> : tl.type === 'sleep' ? <Moon size={26} color={tone.ink} strokeWidth={1.9} /> : <Icon size={26} color={tone.ink} />}
+                <Text variant="label" color={tone.ink} style={{ fontWeight: '700' }} numberOfLines={1}>{tl.label}</Text>
+                <Text variant="caption" color={tone.ink} numberOfLines={1} adjustsFontSizeToFit style={{ opacity: 0.8, fontSize: 11 }}>{tl.status}</Text>
               </PressScale>
             );
           })}
-        </View>
-      </Rise>
-
-      {/* What the family's own routine expects next, or how far the learning is. */}
-      <Rise index={2}>
-        {next ? (
-          <View style={styles.next} testID="next-up" accessible
-            accessibilityLabel={`${nextTitle[next.kind]} בסביבות ${formatTime(next.at)}. ${nextBasis(next.kind, formatDuration(next.usualMin))}`}>
-            <ActivityBadge type={nextType} size={40} soft />
-            <View style={{ flex: 1 }}>
-              <Text variant="bodyStrong">{nextTitle[next.kind]}</Text>
-              <Text variant="caption" color={colors.textSecondary}>{nextBasis(next.kind, formatDuration(next.usualMin))}</Text>
-            </View>
-            <View style={{ alignItems: 'flex-end' }}>
-              <Text variant="heading" color={activityTones[nextType].ink} style={{ writingDirection: 'ltr' }}>{`~${formatTime(next.at)}`}</Text>
-              <Text variant="caption" color={colors.textSecondary}>
-                {next.minutesUntil > 5 ? `בעוד ${formatDuration(next.minutesUntil)}` : next.minutesUntil >= -10 ? 'בערך עכשיו' : `עברו ${formatDuration(-next.minutesUntil)}`}
-              </Text>
-            </View>
-          </View>
-        ) : (
-          <View style={styles.next} testID="next-up">
-            <View style={{ flex: 1 }}>
-              <Text variant="bodyStrong">לומדים את השגרה שלכם</Text>
-              <Text variant="caption" color={colors.textSecondary}>ככל שתתעדו, נראה כאן מתי בדרך כלל מגיעות ההאכלה, השינה וההחלפה הבאות.</Text>
-            </View>
-          </View>
-        )}
-      </Rise>
-
-      {/* Logging: four big buttons, each opens a short sheet. */}
-      <Rise index={3} style={styles.dock}>
-        {dock.map((b) => {
-          const Icon = activityIcons[b.type];
-          return (
-            <PressScale key={b.type} onPress={b.onPress} accessibilityRole="button" accessibilityLabel={b.a11y} scaleTo={0.93} style={styles.dockItem}>
-              <LinearGradient colors={activityTones[b.type].grad} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={styles.dockIcon}>
-                {b.type === 'sleep' && activeSleep ? <Square size={24} color={colors.white} strokeWidth={2.6} /> : b.type === 'sleep' ? <Moon size={28} color={colors.white} strokeWidth={2} /> : <Icon size={28} color={colors.white} />}
-              </LinearGradient>
-              <Text variant="label" style={{ fontWeight: '700' }} numberOfLines={1}>{b.label}</Text>
-            </PressScale>
-          );
-        })}
-      </Rise>
+        </Rise>
+        <Pressable onPress={() => setPickOpen(true)} accessibilityRole="button" accessibilityLabel="החלפת דמות" hitSlop={8} style={styles.pick}>
+          <Text variant="label" color={theme.accent} style={{ fontWeight: '600' }}>{canPick ? 'החלפת דמות וצבע' : 'החלפת צבע'}</Text>
+        </Pressable>
 
       {/* Today in numbers */}
       <Rise index={4} style={styles.stats}>
@@ -312,6 +306,8 @@ export default function HomeScreen() {
         )}
       </Rise>
 
+      </View>
+
       <BabyLookPicker child={child} open={pickOpen} onClose={() => setPickOpen(false)} />
       <QuickLog kind={quick} onClose={() => setQuick(null)} childId={child.id} routine={routine} activeSleep={activeSleep ?? null} />
       {onClip ? null : <BabyCustomizeSheet child={child} now={now} open={lookOpen} onClose={() => setLookOpen(false)} />}
@@ -322,23 +318,9 @@ export default function HomeScreen() {
 const styles = StyleSheet.create({
   topBar: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingTop: spacing.sm },
   bellDot: { position: 'absolute', top: 10, end: 11, width: 9, height: 9, borderRadius: 5, backgroundColor: colors.danger, borderWidth: 1.5, borderColor: colors.white },
-  wash: { position: 'absolute', top: -80, start: -40, end: -40, height: 185 },
   topEnd: { flexDirection: 'row', alignItems: 'center', gap: spacing.sm },
   bell: { width: 44, height: 44, borderRadius: 22, backgroundColor: colors.surface, alignItems: 'center', justifyContent: 'center', ...shadow.card },
   childPill: { flexDirection: 'row', alignItems: 'center', gap: 6, height: 44, maxWidth: 170, backgroundColor: colors.surface, borderRadius: 22, paddingStart: 6, paddingEnd: spacing.md, ...shadow.card },
-  stageText: { paddingHorizontal: spacing.xs, zIndex: 1 },
-  // A solid canvas behind the clip: the clip is blended against it (see BabyClip).
-  stageBaby: { marginTop: -spacing.lg, alignItems: 'center', justifyContent: 'flex-end', height: 320, backgroundColor: colors.background },
-  bubbleIcon: { width: 32, height: 32, borderRadius: 12, alignItems: 'center', justifyContent: 'center' },
-  lookBtn: { position: 'absolute', bottom: 0, end: 0, width: 44, height: 44, borderRadius: 16, backgroundColor: colors.surface, alignItems: 'center', justifyContent: 'center', ...shadow.card },
-  pick: { alignSelf: 'center', minHeight: 36, justifyContent: 'center' },
-  moodLine: { alignSelf: 'center', marginTop: spacing.xs },
-  sinceRow: { flexDirection: 'row', gap: spacing.sm, marginTop: spacing.md },
-  since: { flex: 1, alignItems: 'center', gap: 2, backgroundColor: colors.surface, borderRadius: 20, paddingVertical: spacing.sm, paddingHorizontal: spacing.xs, ...shadow.card },
-  next: { flexDirection: 'row', alignItems: 'center', gap: spacing.md, backgroundColor: colors.surface, borderRadius: 22, padding: spacing.md, paddingEnd: spacing.lg, ...shadow.card },
-  dock: { flexDirection: 'row', justifyContent: 'space-between' },
-  dockItem: { alignItems: 'center', gap: 6, flex: 1 },
-  dockIcon: { width: 68, height: 68, borderRadius: 24, alignItems: 'center', justifyContent: 'center' },
   stats: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing.sm },
   stat: { flexBasis: '47%', flexGrow: 1, flexDirection: 'row', alignItems: 'center', gap: spacing.sm, backgroundColor: colors.surface, borderRadius: 18, padding: spacing.sm, paddingEnd: spacing.md },
   shortcuts: { flexDirection: 'row', justifyContent: 'space-between', gap: spacing.xs },
@@ -346,5 +328,16 @@ const styles = StyleSheet.create({
   shortcutIcon: { width: 56, height: 56, borderRadius: 20, alignItems: 'center', justifyContent: 'center' },
   highlight: { flexDirection: 'row', alignItems: 'center', gap: spacing.md, minHeight: 60, paddingVertical: spacing.sm },
   highlightIcon: { width: 40, height: 40, borderRadius: 20, backgroundColor: colors.primaryLight, alignItems: 'center', justifyContent: 'center' },
+  sky: { position: 'absolute', top: -120, start: -spacing.xl, end: -spacing.xl, height: 720 },
+  stageText: { paddingHorizontal: spacing.xs, zIndex: 1 },
+  // The arch is painted in the clip's own backdrop colour, so the character stands in a window and the sky can be any colour.
+  archRing: { alignSelf: 'center', marginTop: spacing.md, padding: 8, borderTopLeftRadius: 164, borderTopRightRadius: 164, borderBottomLeftRadius: 42, borderBottomRightRadius: 42, backgroundColor: 'rgba(255,255,255,0.55)' },
+  arch: { width: 312, height: 336, alignItems: 'center', justifyContent: 'flex-end', overflow: 'hidden', backgroundColor: colors.background, borderTopLeftRadius: 156, borderTopRightRadius: 156, borderBottomLeftRadius: 34, borderBottomRightRadius: 34 },
+  lookBtn: { position: 'absolute', bottom: 14, end: 14, width: 44, height: 44, borderRadius: 16, backgroundColor: colors.surface, alignItems: 'center', justifyContent: 'center', ...shadow.card },
+  sheet: { marginHorizontal: -spacing.xl, paddingHorizontal: spacing.xl, paddingTop: spacing.xl, paddingBottom: 130, gap: spacing.lg, backgroundColor: '#FDFBFA', borderTopLeftRadius: 34, borderTopRightRadius: 34 },
+  nowLine: { lineHeight: 28 },
+  tiles: { flexDirection: 'row', gap: spacing.sm },
+  tile: { flex: 1, alignItems: 'center', gap: 3, borderRadius: 24, paddingVertical: spacing.md, paddingHorizontal: 4 },
+  pick: { alignSelf: 'center', minHeight: 32, justifyContent: 'center', marginTop: -spacing.sm },
   firstRun: { alignItems: 'center', gap: spacing.sm, paddingVertical: spacing.xl },
 });

@@ -6,7 +6,8 @@ import { Text } from '@/components/ui/Text';
 import { BlurView } from 'expo-blur';
 import { LinearGradient } from 'expo-linear-gradient';
 import { PressScale } from '@/components/ui/motion';
-import { colors, gradients, shadow, spacing } from '@/design/tokens';
+import { colors, shadow, spacing } from '@/design/tokens';
+import { useAppTheme } from '@/hooks/data';
 import { useUi } from '@/state/ui';
 
 const TABS: Record<string, { label: string; icon: LucideIcon }> = {
@@ -20,6 +21,7 @@ const TABS: Record<string, { label: string; icon: LucideIcon }> = {
 export function TabBar({ state, emitter, navigateToTab }: BottomTabBarProps) {
   const insets = useSafeAreaInsets();
   const openAddSheet = useUi((s) => s.openAddSheet);
+  const theme = useAppTheme();
 
   const items = state.routes.map((route, index) => {
     const tab = TABS[route.name];
@@ -33,11 +35,11 @@ export function TabBar({ state, emitter, navigateToTab }: BottomTabBarProps) {
     return (
       <Pressable key={route.key} onPress={onPress} accessibilityRole="tab" accessibilityState={{ selected: focused }} aria-selected={focused}
         accessibilityLabel={tab.label} style={styles.tab}>
-        <View style={[styles.iconWrap, focused && styles.iconWrapFocused]}>
-          <Icon size={22} color={focused ? colors.primaryStrong : colors.textSecondary} strokeWidth={focused ? 2.1 : 1.7} />
+        <View style={[styles.iconWrap, focused && { backgroundColor: theme.accentSoft }]}>
+          <Icon size={22} color={focused ? theme.accent : colors.textSecondary} strokeWidth={focused ? 2.1 : 1.7} />
         </View>
         <Text variant="caption" maxFontSizeMultiplier={1.2} numberOfLines={1}
-          color={focused ? colors.primaryStrong : colors.textSecondary}
+          color={focused ? theme.accent : colors.textSecondary}
           style={focused ? { fontWeight: '600' } : null}>
           {tab.label}
         </Text>
@@ -54,7 +56,7 @@ export function TabBar({ state, emitter, navigateToTab }: BottomTabBarProps) {
         {items.slice(0, middle)}
         <View style={styles.addSlot}>
           <PressScale onPress={openAddSheet} accessibilityRole="button" accessibilityLabel="הוספת פעילות" scaleTo={0.9} style={styles.add}>
-            <LinearGradient colors={gradients.primary} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={[StyleSheet.absoluteFill, { borderRadius: 30 }]} />
+            <LinearGradient colors={theme.button} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={[StyleSheet.absoluteFill, { borderRadius: 30 }]} />
             <View style={{ zIndex: 1 }}><Plus size={30} color={colors.white} strokeWidth={2.4} /></View>
           </PressScale>
         </View>
