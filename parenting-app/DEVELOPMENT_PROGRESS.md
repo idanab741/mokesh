@@ -214,3 +214,18 @@ Six girls lying on their backs with a newborn look (thin hair, small body), cut 
 the same six keys as the boys (porcelain, default, olive, tan, brown, deep); the earlier `blonde` and `dark` crawl clips
 became `porcelain` and `deep`, and saved configs with the old keys are mapped. Olive, tan and brown girls have the lying
 clip only. The boys' lying clip still has full hair; a newborn version would need a new clip.
+
+## Family sharing (2026-11-21)
+
+Client side of the sharing that the schema already had (families, family_members, invitations + RPCs):
+- `/family` screen (from "הילד שלי" → "משפחה ושיתוף"): members with roles, invite, join with a code, leave, remove.
+- An invitation is a one-time 64-character code (server stores its hash, valid 7 days). It is shared as a link
+  `…/parents/?join=CODE`; the code is taken from the address at startup, removed from the address bar, kept until the
+  person is signed in, and accepted before the first sync. A code can also be pasted in the family screen.
+- Roles offered: parent (everything) and caregiver (daily tracking; no profile edit, no growth). View-only is not
+  offered yet because the app cannot yet block a read-only member from logging locally.
+- Joining resets the pull cursors (`pullEverything`), because the family's rows are older than the device's cursors;
+  without this an existing user who joined saw nothing. Leaving deletes that family's rows from the device.
+- `e2e/family-invite.js` runs against the real project with two test accounts: 11 checks.
+- Not built: listing or revoking pending invitations (select on `invitations` is revoked for clients; needs an RPC),
+  transferring ownership, native deep links.

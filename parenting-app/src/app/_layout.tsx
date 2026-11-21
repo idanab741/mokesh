@@ -1,3 +1,4 @@
+import { captureInviteFromUrl } from '@/services/family';
 import { Stack } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
 import { StatusBar } from 'expo-status-bar';
@@ -9,6 +10,8 @@ import { initAuth } from '@/state/auth';
 import { ServicesProvider, useServices } from '@/state/services';
 
 void SplashScreen.preventAutoHideAsync().catch(() => {});
+// An invitation link carries its code in the address; keep it before anything navigates.
+captureInviteFromUrl();
 
 // Hebrew-first: the whole layout is right-to-left. On native this is also set at build
 // time by the expo-localization config plugin (forcesRTL), so the very first launch is RTL.
@@ -45,3 +48,4 @@ export default function RootLayout() {
     </ServicesProvider>
   );
 }
+

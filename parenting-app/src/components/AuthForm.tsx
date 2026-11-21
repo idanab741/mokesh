@@ -1,3 +1,4 @@
+import { acceptPendingInvite } from '@/services/family';
 import { router } from 'expo-router';
 import { ChevronRight, MailCheck } from 'lucide-react-native';
 import { useState } from 'react';
@@ -19,7 +20,7 @@ export function AuthForm({ mode }: { mode: 'sign-in' | 'sign-up' }) {
   const [busy, setBusy] = useState(false);
   const [sent, setSent] = useState(false);
   const isSignUp = mode === 'sign-up';
-  const { syncNow } = useServices();
+  const { syncNow, syncAfterJoin } = useServices();
 
   const submit = async () => {
     if (!EMAIL.test(email.trim())) return setError('כתובת האימייל אינה תקינה.');
@@ -37,7 +38,9 @@ export function AuthForm({ mode }: { mode: 'sign-in' | 'sign-up' }) {
     }
     // On a new device the family's data lives on the server: fetch it before deciding where to go,
     // otherwise an existing family would be sent through onboarding again.
-    await syncNow();
+    // Someone who came through an invitation joins that family before the first sync, so its children arrive with it.
+    const invite = await acceptPendingInvite().catch(() => 'none');
+    if (invite === 'joined') await syncAfterJoin(); else await syncNow();
     setBusy(false);
     router.replace('/');
   };

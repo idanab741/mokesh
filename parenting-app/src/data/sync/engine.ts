@@ -269,6 +269,16 @@ export function createSyncEngine({ db, kv, remote, defaultFamilyName = 'המשפ
       return running;
     },
 
+    /**
+     * After joining a family: its rows are older than the pull cursors of this device, so the next
+     * round has to read everything again. Waits for a round that is already running to end first.
+     */
+    async pullEverything(): Promise<SyncResult> {
+      if (running) await running.catch(() => undefined);
+      for (const spec of SPECS) await kv.set(`sync_cursor:${spec.table}`, '');
+      return this.sync();
+    },
+
     /** Conflict resolution chosen by the parent. */
     async resolveConflict(table: SyncTable, id: string, choice: 'mine' | 'theirs'): Promise<void> {
       const spec = SPECS.find((s) => s.table === table)!;

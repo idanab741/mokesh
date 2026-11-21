@@ -9,7 +9,7 @@ import { Button, Card, EmptyState, IconButton, Notice, Screen, SectionHeader, Se
 import { Text } from '@/components/ui/Text';
 import { colors, spacing } from '@/design/tokens';
 import type { Measurement } from '@/domain/child';
-import { useActiveChild, useMeasurementMutations, useMeasurements } from '@/hooks/data';
+import { useActiveChild, useCanManage, useMeasurementMutations, useMeasurements } from '@/hooks/data';
 import { dayKey, formatDateFull, formatDateShort, parseDayKey } from '@/lib/time';
 
 type Metric = 'weight' | 'length' | 'head';
@@ -27,6 +27,7 @@ const decimal = (t: string) => t.replace(',', '.').replace(/[^\d.]/g, '').replac
 
 export default function GrowthScreen() {
   const { child } = useActiveChild();
+  const canManage = useCanManage(child?.familyId);
   const list = useMeasurements(child?.id);
   const { create, remove } = useMeasurementMutations(child?.id);
   const toast = useToast((s) => s.show);
@@ -69,7 +70,9 @@ export default function GrowthScreen() {
         <Text variant="title" accessibilityRole="header" style={{ flex: 1 }}>גדילה</Text>
       </View>
       <Text color={colors.textSecondary}>{child ? `המדידות של ${child.name}, כפי שהוזנו.` : ''}</Text>
-      <Button label="הוספת מדידה" onPress={() => { setError(null); setSheet(true); }} />
+      {canManage
+        ? <Button label="הוספת מדידה" onPress={() => { setError(null); setSheet(true); }} />
+        : <Notice text="מדידות גדילה מוסיפים ההורים. ההרשאה שלך היא לתיעוד היומי." />}
 
       {(list.data?.length ?? 0) === 0 ? (
         <Card><EmptyState icon={Ruler} title="עוד אין מדידות" body="אפשר להזין משקל, אורך והיקף ראש אחרי ביקור בטיפת חלב או אצל הרופא/ה." /></Card>
