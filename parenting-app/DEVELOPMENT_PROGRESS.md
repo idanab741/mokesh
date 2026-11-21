@@ -182,3 +182,10 @@ look picker. The boy still falls back to his standing clip in the crawl pose.
 plain bright pixels pulled to #F1F1EF, 12-frame crossfade). Six boys in six skin tones crawl; the boy picker offers all
 six. Only the default boy has a standing clip, the others crawl at every age for now. All crawl clips (boys and girls)
 were re-cut with the same script. Eye colour is meant to be changed offline on the finished clips, not generated.
+
+## Pale box around the clip on iPhone (2026-11-21)
+
+On iPhone Safari the clip's backdrop showed as a slightly lighter box: the phone draws video a touch lighter than the
+same colour in CSS. `BabyClip.web` now lays a canvas-coloured layer over the clip with `mix-blend-mode: darken`, so no
+pixel of the clip is lighter than the canvas. Checked in Chromium by brightening the video 3% (box gone, backdrop equals
+the canvas exactly); not confirmed on an iPhone from here.

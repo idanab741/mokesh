@@ -275,12 +275,13 @@ export default function HomeScreen() {
 const styles = StyleSheet.create({
   topBar: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingTop: spacing.sm },
   bellDot: { position: 'absolute', top: 10, end: 11, width: 9, height: 9, borderRadius: 5, backgroundColor: colors.danger, borderWidth: 1.5, borderColor: colors.white },
-  wash: { position: 'absolute', top: -80, start: -40, end: -40, height: 250 },
+  wash: { position: 'absolute', top: -80, start: -40, end: -40, height: 185 },
   topEnd: { flexDirection: 'row', alignItems: 'center', gap: spacing.sm },
   bell: { width: 44, height: 44, borderRadius: 22, backgroundColor: colors.surface, alignItems: 'center', justifyContent: 'center', ...shadow.card },
   childPill: { flexDirection: 'row', alignItems: 'center', gap: 6, height: 44, maxWidth: 170, backgroundColor: colors.surface, borderRadius: 22, paddingStart: 6, paddingEnd: spacing.md, ...shadow.card },
   stageText: { paddingHorizontal: spacing.xs, zIndex: 1 },
-  stageBaby: { marginTop: -spacing.lg, alignItems: 'center', justifyContent: 'flex-end', height: 320 },
+  // A solid canvas behind the clip: the clip is blended against it (see BabyClip).
+  stageBaby: { marginTop: -spacing.lg, alignItems: 'center', justifyContent: 'flex-end', height: 320, backgroundColor: colors.background },
   bubbleIcon: { width: 32, height: 32, borderRadius: 12, alignItems: 'center', justifyContent: 'center' },
   lookBtn: { position: 'absolute', bottom: 0, end: 0, width: 44, height: 44, borderRadius: 16, backgroundColor: colors.surface, alignItems: 'center', justifyContent: 'center', ...shadow.card },
   pick: { alignSelf: 'center', minHeight: 36, justifyContent: 'center' },
