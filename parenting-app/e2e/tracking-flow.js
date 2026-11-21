@@ -94,7 +94,7 @@ const check = (name, cond) => { results.push(`${cond ? 'PASS' : 'FAIL'} ${name}`
   await btn('התחלת שינה').click(); await wait(600);
   await btn('התחלת שינה · עכשיו').click(); await wait(1500);
   t = await body();
-  check('sleep timer running banner', t.includes('עלמה ישנה') && t.includes('סיום שינה'));
+  check('sleep timer running banner', t.includes('עלמה ישנה') && (await page.getByRole('button', { name: 'סיום שינה', exact: true }).count()) === 1);
   await shot('06-home-sleeping');
   await page.reload(); await wait(3000);
   t = await body();
@@ -312,7 +312,7 @@ const check = (name, cond) => { results.push(`${cond ? 'PASS' : 'FAIL'} ${name}`
   await page.goto('http://localhost:4173/'); await wait(2500);
   for (const hour of [6, 9, 12, 15, 18, 21]) await addBottle(120, 1, hour);
   t = await body();
-  check('routine learned: next feeding predicted from the family\'s own 3-hour gap', t.includes('הבאה בסביבות') && /אצלכם כל 3 ש׳/.test((await page.getByTestId('next-up').getAttribute('aria-label')) || ''));
+  check('routine learned: next feeding predicted from the family\'s own 3-hour gap', t.includes('הבאה בסביבות') && t.includes('אצלכם כל 3 ש׳'));
   await page.evaluate(() => window.scrollTo(0, 0)); await shot('28-home-routine');
   await shot('29-tracking'); await page.mouse.move(195, 400); await page.mouse.wheel(0, 520); await wait(900); await shot('30-below');
 

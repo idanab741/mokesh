@@ -1,6 +1,6 @@
 import { router, useFocusEffect } from 'expo-router';
 import { LinearGradient } from 'expo-linear-gradient';
-import { Bell, CalendarClock, ChevronDown, ChevronLeft, ClipboardList, HeartPulse, type LucideIcon, Moon, Palette, Pill, Sparkles, Square, Users, Utensils } from 'lucide-react-native';
+import { Bell, CalendarClock, ChevronDown, ChevronLeft, ClipboardList, HeartPulse, type LucideIcon, Moon, Palette, Pill, Sparkles, Square, Users, Utensils, Plus } from 'lucide-react-native';
 import { useCallback, useMemo, useState } from 'react';
 import { Pressable, StyleSheet, View } from 'react-native';
 import { openActivityForm } from '@/components/AddActivitySheet';
@@ -25,6 +25,7 @@ import { stageLabel } from '@/domain/avatar';
 import { buildInsights, daysUntilInsights } from '@/domain/insights';
 import { babyMood } from '@/domain/mood';
 import { learnRoutine, predictNext } from '@/domain/routine';
+import { computeRangeStats } from '@/domain/stats';
 import { summarizeDay } from '@/domain/summary';
 import { useActiveChild, useEventsBetween, useAppTheme, useHealth, useMilestones, useNow, useRecentEvents, useUnsynced } from '@/hooks/data';
 import { diaperKindLabel, sleepingWord } from '@/i18n/he';
@@ -137,6 +138,38 @@ export default function HomeScreen() {
   };
   const anyLearned = Object.values(ringOf).some((v) => v !== null);
 
+  // The family's own usual day, from the seven days before today (only once three of them have records).
+  const usualDay = useMemo(() => {
+    const st = computeRangeStats(month.data ?? [], addDays(now, -7), addDays(now, -1), now);
+    return st.daysWithData >= 3 ? st.averages : null;
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [month.data]);
+  const lastDirty = (month.data ?? []).filter((e) => e.type === 'diaper' && e.deletedAt === null && e.payload.kind !== 'wet')
+    .sort((a, b) => b.occurredAt.localeCompare(a.occurredAt))[0];
+  const nextAt = (kind: 'feed' | 'sleep' | 'wake' | 'diaper') => { const p = predictions.find((x) => x.kind === kind); return p ? formatTime(p.at) : null; };
+  // The three things a baby's day is made of. Each says where things stand, what the day adds up to, and how that compares with this family's own usual day.
+  const needs: { type: ActivityType; title: string; a11y: string; status: string; facts: string[]; ring: number | null; onPress: () => void; filter: FilterKey }[] = [
+    {
+      type: 'sleep', title: 'שינה', a11y: activeSleep ? 'סיום שינה' : 'התחלת שינה', filter: 'sleep', ring: ringOf.sleep, onPress: () => setQuick('sleep'),
+      status: activeSleep && sleepStart ? `${child.name} ${sleepingWord(child.sex)} כבר ${formatClock((tick.getTime() - sleepStart.getTime()) / 1000)}${nextAt('wake') ? ` · התעוררות בסביבות ${nextAt('wake')}` : ''}`
+        : awakeFor ? `${child.sex === 'female' ? 'ערה' : child.sex === 'male' ? 'ער' : 'ערות'} ${awakeFor}${nextAt('sleep') ? ` · השינה הבאה בסביבות ${nextAt('sleep')}` : ''}` : 'עוד לא תועדה שינה',
+      facts: [`${s.minutes > 0 ? formatDuration(s.minutes) : '0 ד׳'} היום`, ...(usualDay?.sleepMinPerDay ? [`אצלכם בדרך כלל ${formatDuration(usualDay.sleepMinPerDay)}`] : [])],
+    },
+    {
+      type: 'bottle', title: 'אוכל', a11y: 'תיעוד האכלה', filter: 'feeding', ring: ringOf.bottle, onPress: () => setQuick('feed'),
+      status: bubbles[0].value ? `${bubbles[0].value === 'עכשיו' ? (child.sex === 'female' ? 'אכלה עכשיו' : child.sex === 'male' ? 'אכל עכשיו' : 'האכלה עכשיו') : `האכלה אחרונה לפני ${bubbles[0].value}`}${nextAt('feed') ? ` · הבאה בסביבות ${nextAt('feed')}` : ''}` : 'עוד לא תועדה האכלה',
+      facts: [`${f.count === 1 ? 'האכלה אחת' : `${f.count} האכלות`} היום`, ...(f.totalMl > 0 ? [`${f.totalMl} מ״ל בבקבוק`] : []),
+        ...(so.count > 0 ? [so.count === 1 ? 'ארוחת מוצקים אחת' : `${so.count} ארוחות מוצקים`] : []),
+        ...(routine.feed.gapMin ? [`אצלכם כל ${formatDuration(routine.feed.gapMin)} בערך`] : [])],
+    },
+    {
+      type: 'diaper', title: 'חיתול', a11y: 'תיעוד חיתול', filter: 'diaper', ring: ringOf.diaper, onPress: () => setQuick('diaper'),
+      status: bubbles[2].value ? `${bubbles[2].value === 'עכשיו' ? 'הוחלף עכשיו' : `הוחלף לפני ${bubbles[2].value}`}${nextAt('diaper') ? ` · הבא בסביבות ${nextAt('diaper')}` : ''}` : 'עוד לא תועדה החלפה',
+      facts: [`${d.count === 1 ? 'החלפה אחת' : `${d.count} החלפות`} היום`, ...(lastDirty ? [`יציאה אחרונה: ${formatRelative(new Date(lastDirty.occurredAt), now)}`] : []),
+        ...(usualDay?.diapersPerDay ? [`אצלכם בדרך כלל ${Math.round(usualDay.diapersPerDay)} ביום`] : [])],
+    },
+  ];
+
   const isBrandNew = recent.data !== undefined && recent.data.length === 0;
 
   const look = useBabyLook(child, now);
@@ -188,48 +221,41 @@ export default function HomeScreen() {
       {/* The sheet that rises over the sky: what is going on now, and the four things to log. */}
       <View style={styles.sheet}>
         <Rise index={2}>
-          <View testID="baby-mood-reason">
-            <Text style={styles.nowLine} color="#5B4353">
-              {nowLead && nowValue ? <>{nowLead} <Text style={styles.nowStrong} color={colors.primaryStrong}>{nowValue}</Text>.</> : `עוד לא תיעדתם היום את ${child.name}.`}
-            </Text>
-          </View>
-          <View testID="next-up" accessible={!!next} accessibilityLabel={next ? `${nextTitle[next.kind]} בסביבות ${formatTime(next.at)}. ${nextBasis(next.kind, formatDuration(next.usualMin))}` : undefined}>
-            <Text style={styles.nowLine} color="#5B4353">
-              {next ? <>{nextTitle[next.kind]} בסביבות <Text style={styles.nowStrong} color={colors.primaryStrong}>{formatTime(next.at)}</Text></> : 'עוד כמה תיעודים ונדע לומר מה הבא.'}
-            </Text>
-          </View>
+          <Text variant="title" color={colors.ink} accessibilityRole="header">{`היום של ${child.name}`}</Text>
+          <Text variant="label" color={colors.textSecondary}>שלושת הדברים שהיום של תינוק בנוי מהם.</Text>
         </Rise>
 
-        <Rise index={3} style={{ gap: spacing.sm }}>
-          <View style={styles.rings}>
-            {tiles.map((tl) => {
-              const tone = activityTones[tl.type];
-              const Icon = activityIcons[tl.type];
-              return (
-                <PressScale key={tl.type} onPress={tl.onPress} accessibilityRole="button" accessibilityLabel={tl.a11y} accessibilityHint={tl.status} scaleTo={0.93} style={styles.ringItem}>
-                  <Ring progress={ringOf[tl.type]} color={tone.ink} track={tone.bg}>
-                    {tl.type === 'sleep' && activeSleep ? <Square size={22} color={tone.ink} strokeWidth={2.4} /> : tl.type === 'sleep' ? <Moon size={26} color={tone.ink} strokeWidth={1.9} /> : <Icon size={26} color={tone.ink} />}
-                  </Ring>
-                  <Text variant="label" color={colors.ink} style={{ fontWeight: '700' }} numberOfLines={1}>{tl.label}</Text>
-                  <Text variant="caption" color={colors.textSecondary} numberOfLines={1} adjustsFontSizeToFit style={{ fontSize: 11.5 }}>{tl.status}</Text>
-                </PressScale>
-              );
-            })}
-          </View>
+        <Rise index={3} style={{ gap: spacing.md }}>
+          {needs.map((n) => {
+            const tone = activityTones[n.type];
+            const Icon = activityIcons[n.type];
+            return (
+              <View key={n.type} style={[styles.need, { backgroundColor: tone.bg }]}>
+                <View style={styles.needHead}>
+                  <Pressable onPress={() => goJournal(n.filter)} accessibilityRole="button" accessibilityLabel={`${n.title}: ${n.status}. מעבר ליומן`} style={styles.needInfo}>
+                    <Ring size={60} progress={n.ring} color={tone.ink} track="#FFFFFF">
+                      {n.type === 'sleep' ? <Moon size={24} color={tone.ink} strokeWidth={1.9} /> : <Icon size={24} color={tone.ink} />}
+                    </Ring>
+                    <View style={{ flex: 1 }}>
+                      <Text variant="heading" color={tone.ink}>{n.title}</Text>
+                      <Text variant="label" color={colors.ink}>{n.status}</Text>
+                    </View>
+                  </Pressable>
+                  <PressScale onPress={n.onPress} accessibilityRole="button" accessibilityLabel={n.a11y} scaleTo={0.9} style={[styles.needAdd, { backgroundColor: tone.ink }]}>
+                    {n.type === 'sleep' && activeSleep ? <Square size={20} color={colors.white} strokeWidth={2.6} /> : <Plus size={24} color={colors.white} strokeWidth={2.6} />}
+                  </PressScale>
+                </View>
+                <View style={styles.facts}>
+                  {n.facts.map((fact) => (
+                    <View key={fact} style={styles.fact}><Text variant="caption" color={colors.ink} style={{ fontWeight: '600' }}>{fact}</Text></View>
+                  ))}
+                </View>
+              </View>
+            );
+          })}
           <Text variant="caption" color={colors.textSecondary} center>
             {anyLearned ? 'הטבעת מתמלאת ככל שמתקרבים לזמן הרגיל שלכם' : 'הטבעות יתחילו להתמלא אחרי כמה ימי תיעוד'}
           </Text>
-        </Rise>
-
-        {/* Today in one line */}
-        <Rise index={4} style={styles.todayLine}>
-          {todayStats.slice(0, 3).map((st, i) => (
-            <Pressable key={st.type} onPress={() => goJournal(st.filter)} accessibilityRole="button" accessibilityLabel={`${st.main}, ${st.sub}. מעבר ליומן`}
-              style={[styles.todayCell, i > 0 && styles.todayDivider]}>
-              <Text variant="bodyStrong" color={colors.ink} numberOfLines={1} adjustsFontSizeToFit>{st.main}</Text>
-              <Text variant="caption" color={colors.textSecondary} numberOfLines={1}>{st.sub}</Text>
-            </Pressable>
-          ))}
         </Rise>
 
       {/* Only when there is something current: a medicine given today, the next visit, the latest moment */}
@@ -310,10 +336,11 @@ const styles = themed(() => StyleSheet.create({
   nowLine: { fontSize: 19, lineHeight: 28, fontWeight: '500' },
   nowStrong: { fontSize: 19, lineHeight: 28, fontWeight: '700' },
   childBtn: { borderRadius: 24, padding: 3, backgroundColor: colors.surface, ...shadow.card },
-  rings: { flexDirection: 'row', justifyContent: 'space-between' },
-  ringItem: { flex: 1, alignItems: 'center', gap: 2 },
-  todayLine: { flexDirection: 'row', backgroundColor: colors.surface, borderRadius: 24, paddingVertical: spacing.md, ...shadow.card },
-  todayCell: { flex: 1, alignItems: 'center', gap: 2, paddingHorizontal: 4 },
-  todayDivider: { borderStartWidth: StyleSheet.hairlineWidth, borderStartColor: colors.borderStrong },
+  need: { borderRadius: 28, padding: spacing.md, gap: spacing.md },
+  needHead: { flexDirection: 'row', alignItems: 'center', gap: spacing.md },
+  needInfo: { flex: 1, flexDirection: 'row', alignItems: 'center', gap: spacing.md },
+  needAdd: { width: 52, height: 52, borderRadius: 26, alignItems: 'center', justifyContent: 'center' },
+  facts: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing.sm },
+  fact: { backgroundColor: 'rgba(255,255,255,0.75)', borderRadius: 999, paddingHorizontal: spacing.md, paddingVertical: 4 },
   firstRun: { alignItems: 'center', gap: spacing.sm, paddingVertical: spacing.xl },
 }));
