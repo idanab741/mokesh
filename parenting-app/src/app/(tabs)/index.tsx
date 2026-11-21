@@ -1,6 +1,6 @@
 import { router, useFocusEffect } from 'expo-router';
 import { LinearGradient } from 'expo-linear-gradient';
-import { Bell, ChevronDown, Moon, Palette, Square } from 'lucide-react-native';
+import { Bell, CalendarClock, ChevronDown, ChevronLeft, ClipboardList, HeartPulse, type LucideIcon, Moon, Palette, Pill, Sparkles, Square, Users, Utensils } from 'lucide-react-native';
 import { useCallback, useMemo, useState } from 'react';
 import { Pressable, StyleSheet, View } from 'react-native';
 import { openActivityForm } from '@/components/AddActivitySheet';
@@ -26,9 +26,9 @@ import { buildInsights, daysUntilInsights } from '@/domain/insights';
 import { babyMood } from '@/domain/mood';
 import { learnRoutine, predictNext } from '@/domain/routine';
 import { summarizeDay } from '@/domain/summary';
-import { useActiveChild, useEventsBetween, useNow, useRecentEvents, useUnsynced } from '@/hooks/data';
+import { useActiveChild, useEventsBetween, useHealth, useMilestones, useNow, useRecentEvents, useUnsynced } from '@/hooks/data';
 import { diaperKindLabel, sleepingWord } from '@/i18n/he';
-import { addDays, formatClock, formatDateLong, formatDuration, formatTime, greetingForHour } from '@/lib/time';
+import { formatDateShort, formatRelative, addDays, formatClock, formatDateLong, formatDuration, formatTime, greetingForHour } from '@/lib/time';
 import { useSession } from '@/state/session';
 import { useUi } from '@/state/ui';
 
@@ -46,6 +46,8 @@ export default function HomeScreen() {
   const [lookOpen, setLookOpen] = useState(false);
   const [quick, setQuick] = useState<QuickKind | null>(null);
   const [pickOpen, setPickOpen] = useState(false);
+  const health = useHealth(child?.id);
+  const moments = useMilestones(child?.id);
   // The baby only turns while Home is actually on screen.
   const [focused, setFocused] = useState(true);
   useFocusEffect(useCallback(() => { setFocused(true); return () => setFocused(false); }, []));
@@ -81,6 +83,23 @@ export default function HomeScreen() {
     { type: 'sleep', filter: 'sleep', main: s.minutes > 0 ? formatDuration(s.minutes) : '0 ד׳', sub: 'שינה היום' },
     { type: 'diaper', filter: 'diaper', main: d.count === 1 ? 'החלפה אחת' : `${d.count} החלפות`, sub: d.last ? `אחרון: ${diaperKindLabel[d.last.payload.kind]}` : 'היום' },
     { type: 'solids', filter: 'solids', main: so.count === 1 ? 'ארוחה אחת' : `${so.count} ארוחות`, sub: so.last ? so.last.payload.foods.map((x) => x.name).join(', ') : 'היום' },
+  ];
+  // What is going on beyond the daily tracking: the next visit, a medicine given in the last day, the latest moment.
+  const nextVisit = (health.visits.data ?? []).filter((v) => new Date(v.at).getTime() >= now.getTime()).slice(-1)[0];
+  const lastMed = (health.given.data ?? [])[0];
+  const recentMed = lastMed && now.getTime() - new Date(lastMed.at).getTime() < 24 * 60 * 60_000 ? lastMed : null;
+  const lastMoment = (moments.data ?? [])[0];
+  const highlights: { key: string; icon: LucideIcon; title: string; detail: string; href: '/health' | '/milestones' }[] = [
+    ...(recentMed ? [{ key: 'med', icon: Pill, title: `${recentMed.name} ניתן ${formatRelative(new Date(recentMed.at), now)}`, detail: 'חום ותרופות', href: '/health' as const }] : []),
+    ...(nextVisit ? [{ key: 'visit', icon: CalendarClock, title: `${nextVisit.title} · ${formatDateShort(new Date(nextVisit.at))} ${formatTime(new Date(nextVisit.at))}`, detail: 'הביקור הקרוב', href: '/health' as const }] : []),
+    ...(lastMoment ? [{ key: 'moment', icon: Sparkles, title: lastMoment.title, detail: 'הרגע האחרון שסימנתם', href: '/milestones' as const }] : []),
+  ];
+  const shortcuts: { label: string; icon: LucideIcon; href: '/milestones' | '/health' | '/foods' | '/report' | '/family'; bg: string; ink: string }[] = [
+    { label: 'רגעים', icon: Sparkles, href: '/milestones', bg: '#FFE8EF', ink: '#BE2C55' },
+    { label: 'בריאות', icon: HeartPulse, href: '/health', bg: '#DDF6F0', ink: '#0A7767' },
+    { label: 'טעימות', icon: Utensils, href: '/foods', bg: '#FFF0D6', ink: '#955400' },
+    { label: 'סיכום לרופא', icon: ClipboardList, href: '/report', bg: '#E4F0FF', ink: '#1F6BC2' },
+    { label: 'משפחה', icon: Users, href: '/family', bg: '#ECEAFF', ink: '#4740C2' },
   ];
   // The soonest thing the family's own routine expects.
   const next = predictions[0];
@@ -227,6 +246,34 @@ export default function HomeScreen() {
         ))}
       </Rise>
 
+      {/* Everything beyond the daily tracking, one tap away */}
+      <Rise index={4} style={{ gap: spacing.md }}>
+        <SectionHeader title={`עוד על ${child.name}`} />
+        <View style={styles.shortcuts}>
+          {shortcuts.map((sc) => (
+            <PressScale key={sc.href} onPress={() => router.push(sc.href)} accessibilityRole="button" accessibilityLabel={sc.label} scaleTo={0.94} style={styles.shortcut}>
+              <View style={[styles.shortcutIcon, { backgroundColor: sc.bg }]}><sc.icon size={24} color={sc.ink} strokeWidth={1.9} /></View>
+              <Text variant="caption" center numberOfLines={2} style={{ fontWeight: '600' }}>{sc.label}</Text>
+            </PressScale>
+          ))}
+        </View>
+        {highlights.length > 0 ? (
+          <Card style={{ paddingVertical: spacing.xs, gap: 0 }}>
+            {highlights.map((hl) => (
+              <Pressable key={hl.key} onPress={() => router.push(hl.href)} accessibilityRole="button" accessibilityLabel={`${hl.detail}: ${hl.title}`}
+                style={({ pressed }) => [styles.highlight, pressed && { opacity: 0.7 }]}>
+                <View style={styles.highlightIcon}><hl.icon size={18} color={colors.primaryStrong} strokeWidth={2} /></View>
+                <View style={{ flex: 1 }}>
+                  <Text variant="caption" color={colors.textSecondary}>{hl.detail}</Text>
+                  <Text variant="bodyStrong" numberOfLines={1}>{hl.title}</Text>
+                </View>
+                <ChevronLeft size={18} color={colors.textSecondary} />
+              </Pressable>
+            ))}
+          </Card>
+        ) : null}
+      </Rise>
+
       <Rise index={4} style={{ gap: spacing.md }}>
         <SectionHeader title="תובנות מהשגרה שלכם" />
         <InsightsRow insights={insights} daysMissing={daysMissing} />
@@ -294,5 +341,10 @@ const styles = StyleSheet.create({
   dockIcon: { width: 68, height: 68, borderRadius: 24, alignItems: 'center', justifyContent: 'center' },
   stats: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing.sm },
   stat: { flexBasis: '47%', flexGrow: 1, flexDirection: 'row', alignItems: 'center', gap: spacing.sm, backgroundColor: colors.surface, borderRadius: 18, padding: spacing.sm, paddingEnd: spacing.md },
+  shortcuts: { flexDirection: 'row', justifyContent: 'space-between', gap: spacing.xs },
+  shortcut: { flex: 1, alignItems: 'center', gap: 6 },
+  shortcutIcon: { width: 56, height: 56, borderRadius: 20, alignItems: 'center', justifyContent: 'center' },
+  highlight: { flexDirection: 'row', alignItems: 'center', gap: spacing.md, minHeight: 60, paddingVertical: spacing.sm },
+  highlightIcon: { width: 40, height: 40, borderRadius: 20, backgroundColor: colors.primaryLight, alignItems: 'center', justifyContent: 'center' },
   firstRun: { alignItems: 'center', gap: spacing.sm, paddingVertical: spacing.xl },
 });

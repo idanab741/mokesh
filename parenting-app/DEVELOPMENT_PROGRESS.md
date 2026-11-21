@@ -260,3 +260,6 @@ not a medical document and draws no conclusions. The JSON export now includes mo
 - The server gates these tables with the health permission, so a caregiver neither sees nor adds them. That includes
   "medicine given", which a caregiver would reasonably want; changing it is a server policy decision.
 - Checked against the real project: a second device sees the temperature, medicine, vaccination and visit.
+- Home, below the tracking area and without touching the character: "עוד על <name>" with five shortcuts (moments,
+  health, tastings, summary, family) and a short list of what is current (a medicine given in the last 24 hours, the
+  next visit, the latest moment). The new screens were reachable only from "הילד שלי" and the user saw nothing new.
