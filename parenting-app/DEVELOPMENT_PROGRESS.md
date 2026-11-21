@@ -329,3 +329,16 @@ because the cards say the same things.
   still clean (the batch minus every bottle feeding logged since). 1 Jest test.
 - The album on Home: up to five badges (caught moments in colour, the next ones locked) and the count, opening the
   moments screen.
+
+## Journal time line, bottom bar, tour, steriliser (2026-11-21)
+
+- Journal: the day is one time line (hour, rail, soft badge, title and detail) instead of stacked cards. Today it shows
+  "עכשיו" and, above it, what the family's routine expects next as dashed "צפוי" rows. The list draws the whole day.
+- Bottom bar: on the bottom edge, full width, icons only (labels stay for screen readers). A soft pill sits behind the
+  current tab and springs to the next; dragging along the bar moves the pill with the finger and letting go opens what
+  is under it, including "+". Modelled on the Triplace bar (drag lens) with an Instagram-like flat look.
+- Tour before the welcome screen: four steps with Lili (who she is; sleep, food, diaper; learning the routine; moments,
+  health and family), dots, "הבא" and "דלג", like the Triplace onboarding. E2E scripts skip it.
+- "עיקור" renamed to "סטריליזטור" everywhere; records saved under the old title still count.
+- `scripts/test-audit.sh` (overlap, off-screen and unreachable controls on an iPhone-size touch screen): no problems.
+  It does not walk the newer screens (health, moments, tastings, family, summary).

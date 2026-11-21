@@ -1,10 +1,12 @@
 import type { ActivityEvent } from './activity';
 
 /**
- * Sterilising bottles and gear. It is logged as an "other" activity with a fixed title, so it
+ * The steriliser: bottles and gear. It is logged as an "other" activity with a fixed title, so it
  * syncs and shows in the journal like everything else; the note says what was sterilised.
  */
-export const STERILIZE_TITLE = 'עיקור ציוד';
+export const STERILIZE_TITLE = 'סטריליזטור';
+/** The title used before the rename; records saved under it still count. */
+const OLD_TITLE = 'עיקור ציוד';
 export const STERILIZE_ITEMS = ['פטמות', 'מוצצים', 'חלקי משאבה'] as const;
 export type SterilizeItem = (typeof STERILIZE_ITEMS)[number];
 
@@ -24,7 +26,7 @@ export interface SterilizeState {
 }
 
 export function isSterilize(e: ActivityEvent): boolean {
-  return e.type === 'other' && e.deletedAt === null && e.payload.title === STERILIZE_TITLE;
+  return e.type === 'other' && e.deletedAt === null && (e.payload.title === STERILIZE_TITLE || e.payload.title === OLD_TITLE);
 }
 
 /** The latest sterilisation and how many of its bottles are still clean; null when none was logged. */

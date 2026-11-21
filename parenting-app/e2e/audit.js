@@ -1,4 +1,5 @@
 // Layout + interaction audit on an iPhone-sized touch screen, using real taps and key presses.
+const skipTour = async (page) => { const b = page.getByRole('button', { name: 'דילוג על ההסבר' }); if (await b.count()) { await b.tap(); await page.waitForTimeout(500); } };
 const { chromium, devices } = require('playwright');
 const problems = [];
 const note = (screen, msg) => { problems.push(`[${screen}] ${msg}`); };
@@ -63,7 +64,7 @@ const scan = () => {
     }
   };
 
-  await page.goto('http://localhost:4173/'); await w(3000);
+  await page.goto('http://localhost:4173/'); await w(3000); await audit('tour'); await skipTour(page);
   await scrollAll('welcome');
   // --- auth screens
   await tapBtn('כבר יש לי חשבון'); await audit('sign-in');
@@ -72,7 +73,7 @@ const scan = () => {
   await type('sign-up', 'השם שלך', 'דנה'); await type('sign-up', 'אימייל', 'someone@example.com'); await type('sign-up', 'סיסמה', 'abcd1234');
   await tapBtn('חזרה'); await w(800);
   // --- child form
-  await page.goto('http://localhost:4173/'); await w(2500);
+  await page.goto('http://localhost:4173/'); await w(2500); await skipTour(page);
   await page.getByText('להתחיל בלי חשבון').tap(); await w(900);
   await scrollAll('child-form');
   await page.evaluate(() => { for (const d of document.querySelectorAll('div')) d.scrollTop = 0; });

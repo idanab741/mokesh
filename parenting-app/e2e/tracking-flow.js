@@ -1,4 +1,6 @@
 const { chromium } = require('playwright');
+// The tour shows before the welcome screen; tests skip it.
+const skipTour = async (page) => { const b = page.getByRole('button', { name: 'דילוג על ההסבר' }); if (await b.count()) { await b.click(); await page.waitForTimeout(500); } };
 const S = (process.env.SHOTS_DIR || require('os').tmpdir()) + '/';
 const results = [];
 const check = (name, cond) => { results.push(`${cond ? 'PASS' : 'FAIL'} ${name}`); };
@@ -16,7 +18,7 @@ const check = (name, cond) => { results.push(`${cond ? 'PASS' : 'FAIL'} ${name}`
 
   await page.clock.install({ time: new Date('2026-11-19T20:00:00+02:00') });
   await page.goto('http://localhost:4173/');
-  await page.waitForTimeout(2500);
+  await page.waitForTimeout(2500); await skipTour(page);
   await page.getByText('מתחילים').click();
   await wait();
   // --- child profile
@@ -92,10 +94,10 @@ const check = (name, cond) => { results.push(`${cond ? 'PASS' : 'FAIL'} ${name}`
   await shot('05b-quick-feed');
   await btn('סגירה').click(); await wait(500);
 
-  // --- Lili and sterilising
+  // --- Lili and the steriliser
   t = await body();
   check('the companion says something on Home', t.includes('לילי, המלווה שלכם'));
-  await btn('תיעוד עיקור').click(); await wait(600);
+  await btn('תיעוד סטריליזטור').click(); await wait(600);
   await shot('05d-sterilize');
   await page.getByRole('button', { name: /^שמירה: 6 בקבוקים/ }).click(); await wait(900);
   t = await body();
@@ -328,7 +330,7 @@ const check = (name, cond) => { results.push(`${cond ? 'PASS' : 'FAIL'} ${name}`
   await page.goto('http://localhost:4173/updates'); await wait(2500); await shot('27-updates');
 
   // --- the routine is learned from the diary: six bottles three hours apart yesterday
-  await page.goto('http://localhost:4173/'); await wait(2500);
+  await page.goto('http://localhost:4173/'); await wait(2500); await skipTour(page);
   for (const hour of [6, 9, 12, 15, 18, 21]) await addBottle(120, 1, hour);
   t = await body();
   check('routine learned: next feeding predicted from the family\'s own 3-hour gap', t.includes('הבאה בסביבות') && t.includes('אצלכם כל 3 ש׳'));
