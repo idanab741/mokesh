@@ -1,6 +1,6 @@
 import { useQueryClient } from '@tanstack/react-query';
 import { router } from 'expo-router';
-import { ChevronLeft, CloudOff, Download, LogOut, type LucideIcon, Pencil, Plus, RefreshCw, Ruler, Trash2, UserRound } from 'lucide-react-native';
+import { ChevronLeft, CloudOff, Download, LogOut, type LucideIcon, Pencil, Plus, RefreshCw, Ruler, Trash2, UserRound, Users } from 'lucide-react-native';
 import { useState } from 'react';
 import { Pressable, StyleSheet, View } from 'react-native';
 import { Avatar } from '@/components/Avatar';
@@ -10,7 +10,7 @@ import { Text } from '@/components/ui/Text';
 import { LinearGradient } from 'expo-linear-gradient';
 import { colors, gradients, shadow, spacing } from '@/design/tokens';
 import { formatAgeWithSex } from '@/domain/age';
-import { useActiveChild, useMeasurements, useUnsynced } from '@/hooks/data';
+import { useActiveChild, useCanManage, useMeasurements, useUnsynced } from '@/hooks/data';
 import { formatDateFull, formatRelative, parseDayKey } from '@/lib/time';
 import { config } from '@/services/config';
 import { exportData, wipeLocalData } from '@/services/dataExport';
@@ -48,6 +48,7 @@ export default function ChildScreen() {
   const measurements = useMeasurements(child?.id);
   const [confirm, setConfirm] = useState<'wipe' | 'account' | null>(null);
   const [busy, setBusy] = useState(false);
+  const canManage = useCanManage(child?.familyId);
   if (!child) return <Screen><View /></Screen>;
 
   const birth = parseDayKey(child.birthDate);
@@ -100,8 +101,8 @@ export default function ChildScreen() {
         <Text variant="caption" color={colors.textSecondary} center>
           {birth ? `תאריך לידה: ${formatDateFull(birth)}` : ''}{child.gestationalWeeks ? ` · נולד/ה בשבוע ${child.gestationalWeeks}` : ''}
         </Text>
-        <Button label="עריכת פרופיל" icon={Pencil} variant="secondary" size="md" style={{ alignSelf: 'stretch', marginTop: spacing.md, marginHorizontal: spacing.lg }}
-          onPress={() => router.push({ pathname: '/child/edit', params: { id: child.id } })} />
+        {canManage ? <Button label="עריכת פרופיל" icon={Pencil} variant="secondary" size="md" style={{ alignSelf: 'stretch', marginTop: spacing.md, marginHorizontal: spacing.lg }}
+          onPress={() => router.push({ pathname: '/child/edit', params: { id: child.id } })} /> : null}
       </View>
 
       <SectionHeader title="גדילה" />
@@ -123,6 +124,11 @@ export default function ChildScreen() {
           </Pressable>
         ))}
         <Row icon={Plus} title="הוספת ילד/ה" onPress={() => router.push('/child/edit')} />
+      </Card>
+
+      <SectionHeader title="משפחה" />
+      <Card style={styles.list}>
+        <Row icon={Users} title="משפחה ושיתוף" detail="הזמנת הורה נוסף, סבים או מטפלת" onPress={() => router.push('/family')} />
       </Card>
 
       <SectionHeader title="חשבון וגיבוי" />

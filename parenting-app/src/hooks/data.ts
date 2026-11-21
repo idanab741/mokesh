@@ -4,6 +4,7 @@ import type { ActivityDraft, ActivityEvent } from '@/domain/activity';
 import type { ChildDraft, MeasurementDraft } from '@/domain/child';
 import { addDays, startOfDay } from '@/lib/time';
 import { useServices } from '@/state/services';
+import { loadFamilies } from '@/services/family';
 import { useSession } from '@/state/session';
 
 /** Re-renders on an interval. Timers are always derived from stored timestamps, this only refreshes the view. */
@@ -151,4 +152,16 @@ export function useMeasurementMutations(childId: string | undefined) {
   const create = useMutation({ mutationFn: (draft: MeasurementDraft) => measurements.create(childId!, draft), onSuccess: done });
   const remove = useMutation({ mutationFn: (id: string) => measurements.remove(id), onSuccess: done });
   return { create, remove };
+}
+
+/** The signed-in user's families and what they may do in each. Undefined while signed out or loading. */
+export function useFamilies() {
+  const userId = useSession((s) => s.user?.id ?? null);
+  return useQuery({ queryKey: ['families', userId], queryFn: loadFamilies, enabled: !!userId, staleTime: 60_000 });
+}
+/** Whether the user may edit the child's profile and health data: true unless they joined that child's family as a caregiver or viewer. */
+export function useCanManage(familyId: string | null | undefined): boolean {
+  const families = useFamilies();
+  const role = families.data?.find((f) => f.id === familyId)?.myRole;
+  return role === undefined || role === 'owner' || role === 'parent';
 }

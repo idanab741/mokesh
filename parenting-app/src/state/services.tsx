@@ -27,6 +27,8 @@ export interface Services {
   /** Fire-and-forget: coalesces bursts of writes into one sync round. No-op when signed out. */
   requestSync: () => void;
   syncNow: () => Promise<void>;
+  /** A full sync after joining a family, whose rows are older than this device's pull cursors. */
+  syncAfterJoin: () => Promise<void>;
 }
 
 const ServicesContext = createContext<Services | null>(null);
@@ -78,6 +80,13 @@ export function ServicesProvider({ children }: { children: ReactNode }) {
         });
         await queryClient.invalidateQueries();
       };
+      const syncAfterJoin = async () => {
+        if (!syncEngine) return;
+        await syncEngine.pullEverything().catch(() => undefined);
+        await syncNow();
+        await queryClient.invalidateQueries();
+      };
+
       const requestSync = () => {
         if (!syncEngine || !useSession.getState().user) return;
         if (timer.current) clearTimeout(timer.current);
@@ -87,7 +96,7 @@ export function ServicesProvider({ children }: { children: ReactNode }) {
       const stored = await kv.get('active_child_id');
       useSession.getState().setActiveChildId(stored);
       setServices({
-        db, kv, syncEngine, requestSync, syncNow,
+        db, kv, syncEngine, requestSync, syncNow, syncAfterJoin,
         events: createEventsRepository(db),
         children: createChildrenRepository(db),
         measurements: createMeasurementsRepository(db),

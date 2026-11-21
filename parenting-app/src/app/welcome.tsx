@@ -1,3 +1,4 @@
+import { pendingInvite } from '@/services/family';
 import { Redirect, router } from 'expo-router';
 import { CalendarHeart, ChartColumn, ShieldCheck } from 'lucide-react-native';
 import { StyleSheet, View } from 'react-native';
@@ -44,6 +45,9 @@ export default function WelcomeScreen() {
       </View>
 
       <View style={{ gap: spacing.sm }}>
+        {config.isCloudConfigured && !user && pendingInvite() ? (
+          <Notice text="הוזמנת להצטרף למשפחה. אחרי יצירת חשבון או כניסה, הילדים והתיעוד של המשפחה יופיעו אצלך." />
+        ) : null}
         {config.isCloudConfigured && !user ? (
           <>
             <Button label="יצירת חשבון" onPress={() => router.push('/auth/sign-up')} />
