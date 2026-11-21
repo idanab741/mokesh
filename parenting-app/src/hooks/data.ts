@@ -2,6 +2,7 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useEffect, useMemo, useState } from 'react';
 import type { ActivityDraft, ActivityEvent } from '@/domain/activity';
 import type { ChildDraft, MeasurementDraft } from '@/domain/child';
+import type { MilestoneDraft } from '@/data/repositories/milestones';
 import { addDays, startOfDay } from '@/lib/time';
 import { useServices } from '@/state/services';
 import { loadFamilies } from '@/services/family';
@@ -164,4 +165,20 @@ export function useCanManage(familyId: string | null | undefined): boolean {
   const families = useFamilies();
   const role = families.data?.find((f) => f.id === familyId)?.myRole;
   return role === undefined || role === 'owner' || role === 'parent';
+}
+
+export function useMilestones(childId: string | undefined) {
+  const { milestones } = useServices();
+  return useQuery({ queryKey: ['milestones', childId], queryFn: () => milestones.list(childId!), enabled: !!childId });
+}
+
+export function useMilestoneMutations(childId: string | undefined) {
+  const { milestones, requestSync } = useServices();
+  const qc = useQueryClient();
+  const done = async () => { await qc.invalidateQueries({ queryKey: ['milestones'] }); requestSync(); };
+  const mark = useMutation({ mutationFn: ({ key, draft }: { key: string; draft: MilestoneDraft }) => milestones.markCatalog(childId!, key, draft), onSuccess: done });
+  const add = useMutation({ mutationFn: (draft: MilestoneDraft) => milestones.addCustom(childId!, draft), onSuccess: done });
+  const update = useMutation({ mutationFn: ({ id, draft }: { id: string; draft: MilestoneDraft }) => milestones.update(id, draft), onSuccess: done });
+  const remove = useMutation({ mutationFn: (id: string) => milestones.remove(id), onSuccess: done });
+  return { mark, add, update, remove };
 }

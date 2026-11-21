@@ -226,6 +226,23 @@ const check = (name, cond) => { results.push(`${cond ? 'PASS' : 'FAIL'} ${name}`
   t = await body();
   check('switching back shows the first child data', t.includes('עלמה') && t.includes('120 מ״ל בבקבוק'));
 
+  // --- moments: marking "stands" moves a six-month-old girl's character from crawling to standing
+  await page.getByRole('tab', { name: 'הילד שלי' }).click(); await wait(600);
+  await btn('רגעים ואבני דרך').click(); await wait(900);
+  await shot('25b-moments');
+  await btn('עומדת').click(); await wait(600);
+  await shot('25c-moment-sheet');
+  await btn('שמירה').click(); await wait(900);
+  t = await body();
+  check('a marked moment is listed with its date', t.includes('מה שכבר קרה') && t.includes('עומדת'));
+  await btn('רגע משלכם').click(); await wait(500);
+  await page.getByLabel('מה קרה?').fill('פעם ראשונה בים'); await btn('שמירה').click(); await wait(900);
+  check('a moment in the family\'s own words is saved', (await body()).includes('פעם ראשונה בים'));
+  await page.getByRole('button', { name: 'חזרה' }).click(); await wait(500);
+  await page.getByRole('tab', { name: 'בית' }).click(); await wait(2500);
+  check('the character follows the marked moment (standing)', await page.locator('[data-testid="baby-clip"]').last().locator('video').first().evaluate((v) => /girl-stand-idle.*\.mp4/.test(v.currentSrc || v.src)));
+  await shot('25d-home-standing');
+
   // --- growth
   await page.getByRole('tab', { name: 'הילד שלי' }).click(); await wait(600);
   await btn('מדידות גדילה').click(); await wait(800);

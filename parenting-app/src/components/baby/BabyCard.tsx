@@ -9,14 +9,18 @@ import {
   type AvatarConfig, type BabyStage, OUTFIT_COLORS, defaultStageForAge, outfitName, parseAvatar, resolveOutfit, resolveStage, stageLabel,
 } from '@/domain/avatar';
 import type { Child } from '@/domain/child';
-import { useChildMutations } from '@/hooks/data';
+import { stageFromMilestones } from '@/domain/milestones';
+import { useChildMutations, useMilestones } from '@/hooks/data';
 import { BabySprite } from './BabySprite';
 
 /** Resolved look of a child's baby character. */
 export function useBabyLook(child: Child, now: Date) {
   const config = parseAvatar(child.avatar);
   const months = ageParts(child.birthDate, now)?.totalMonths ?? 0;
-  return { config, months, stage: resolveStage(config, months) };
+  // What the family marked about this child decides the pose; the age is only the fallback.
+  const marked = useMilestones(child.id);
+  const fromMoments = config.stage === 'auto' ? stageFromMilestones(marked.data ?? []) : null;
+  return { config, months, stage: fromMoments ?? resolveStage(config, months), fromMoments: fromMoments !== null };
 }
 
 const STAGES: (BabyStage | 'auto')[] = ['auto', 'tummy', 'sit', 'crawl', 'stand'];

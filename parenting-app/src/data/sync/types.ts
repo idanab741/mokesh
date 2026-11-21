@@ -1,4 +1,4 @@
-export type SyncTable = 'children' | 'activity_events' | 'measurements';
+export type SyncTable = 'children' | 'activity_events' | 'measurements' | 'milestones';
 
 /** A row as the server returns it (snake_case, jsonb already parsed). */
 export interface RemoteRow {

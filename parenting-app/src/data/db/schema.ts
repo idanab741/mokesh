@@ -74,6 +74,26 @@ const MIGRATIONS: string[] = [
   `,
   // v2: how the 3D baby looks (JSON). Device-only for now, like photo_uri.
   `ALTER TABLE children ADD COLUMN avatar TEXT;`,
+  // v3: moments the family marked (first smile, crawls, ...). Columns match public.milestones.
+  `
+  CREATE TABLE milestones (
+    id TEXT PRIMARY KEY NOT NULL,
+    child_id TEXT NOT NULL,
+    created_by TEXT,
+    catalog_key TEXT,
+    domain TEXT NOT NULL,
+    title TEXT NOT NULL,
+    achieved_on TEXT,
+    notes TEXT,
+    created_at TEXT NOT NULL,
+    updated_at TEXT NOT NULL,
+    deleted_at TEXT,
+    version INTEGER NOT NULL DEFAULT 0,
+    sync_status TEXT NOT NULL DEFAULT 'pending',
+    conflict_remote TEXT
+  );
+  CREATE INDEX milestones_child ON milestones (child_id);
+  `,
 ];
 
 export async function migrate(driver: SqlDriver): Promise<void> {

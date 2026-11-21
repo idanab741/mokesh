@@ -1,3 +1,4 @@
+import { type MilestonesRepository, createMilestonesRepository } from '@/data/repositories/milestones';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import * as Network from 'expo-network';
 import { type ReactNode, createContext, useCallback, useContext, useEffect, useRef, useState } from 'react';
@@ -22,6 +23,7 @@ export interface Services {
   events: EventsRepository;
   children: ChildrenRepository;
   measurements: MeasurementsRepository;
+  milestones: MilestonesRepository;
   /** Null when no Supabase project is configured. */
   syncEngine: SyncEngine | null;
   /** Fire-and-forget: coalesces bursts of writes into one sync round. No-op when signed out. */
@@ -100,6 +102,7 @@ export function ServicesProvider({ children }: { children: ReactNode }) {
         events: createEventsRepository(db),
         children: createChildrenRepository(db),
         measurements: createMeasurementsRepository(db),
+        milestones: createMilestonesRepository(db),
       });
     } catch (err) {
       console.error('[boot] failed to open the local database', err);
