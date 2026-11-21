@@ -5,7 +5,7 @@ import { CalendarHeart, ChartColumn, UsersRound } from 'lucide-react-native';
 import { StyleSheet, useWindowDimensions, View } from 'react-native';
 import { Logo } from '@/components/brand/Logo';
 import { WelcomePoster } from '@/components/brand/WelcomePoster';
-import { POSTER_ASPECT, POSTER_SKY } from '@/components/brand/welcomePosterMeta';
+import { POSTER_ASPECT, POSTER_HEADROOM, POSTER_SKY } from '@/components/brand/welcomePosterMeta';
 import { Rise } from '@/components/ui/motion';
 import { Button, Notice, Screen } from '@/components/ui/primitives';
 import { Text } from '@/components/ui/Text';
@@ -23,8 +23,6 @@ const POINTS = [
 
 /** The logo and the headline above the poster. */
 const TOP = 104;
-/** How far the poster slides up under them: its own top is empty sky down to the moon. */
-const UNDER = 0.15;
 
 export default function WelcomeScreen() {
   const user = useSession((s) => s.user);
@@ -35,7 +33,7 @@ export default function WelcomeScreen() {
   const cloud = config.isCloudConfigured && !user;
   // The poster takes what the way in leaves free, so the main button is on screen without scrolling.
   const room = height - TOP - (cloud ? 236 : 150);
-  const posterHeight = Math.round(Math.max(300, Math.min(room / (1 - UNDER), Math.min(width, 520) / POSTER_ASPECT)));
+  const posterHeight = Math.round(Math.max(300, Math.min(room / (1 - POSTER_HEADROOM), Math.min(width, 520) / POSTER_ASPECT)));
   return (
     <Screen scroll wash={false} edges={['top']} contentStyle={styles.content}>
       <View style={styles.skyTop} pointerEvents="none" />
@@ -50,7 +48,7 @@ export default function WelcomeScreen() {
         </Rise>
       </View>
 
-      <View style={[styles.stage, { height: posterHeight, marginTop: -Math.round(posterHeight * UNDER) }]}>
+      <View style={[styles.stage, { height: posterHeight, marginTop: -Math.round(posterHeight * POSTER_HEADROOM) }]}>
         <LinearGradient colors={POSTER_SKY} style={StyleSheet.absoluteFill} pointerEvents="none" />
         <View style={{ zIndex: 1 }}><WelcomePoster height={posterHeight} /></View>
       </View>

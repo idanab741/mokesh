@@ -2,7 +2,8 @@ import { Asset } from 'expo-asset';
 import { useEffect, useRef } from 'react';
 import { POSTER_ASPECT, POSTER_LABEL, POSTER_STILL } from './welcomePosterMeta';
 
-const CLIP = require('../../../assets/welcome/poster.mp4');
+/** The looping clip of the poster; null while there is only the still picture. */
+const CLIP: number | null = null;
 
 /** The side edges melt into the page, which paints the same sky beside the clip on a wide or short screen. */
 const MASK = 'linear-gradient(to right, transparent 0, #000 7%, #000 93%, transparent 100%)';
@@ -19,9 +20,11 @@ export function WelcomePoster({ height }: { height: number }) {
     if (window.matchMedia?.('(prefers-reduced-motion: reduce)').matches) return;
     v.play().catch(() => undefined);
   }, []);
+  const box = { display: 'block', height, width: Math.round(height * POSTER_ASPECT), objectFit: 'cover' as const, ...FADE };
+  if (CLIP === null) return <img alt={POSTER_LABEL} data-testid="welcome-poster" src={Asset.fromModule(POSTER_STILL).uri} style={box} />;
   return (
     <video ref={ref} role="img" aria-label={POSTER_LABEL} data-testid="welcome-poster" src={Asset.fromModule(CLIP).uri} poster={Asset.fromModule(POSTER_STILL).uri}
       muted loop playsInline preload="auto" onClick={(e) => { e.currentTarget.play().catch(() => undefined); }}
-      style={{ display: 'block', height, width: Math.round(height * POSTER_ASPECT), objectFit: 'cover', ...FADE }} />
+      style={box} />
   );
 }
