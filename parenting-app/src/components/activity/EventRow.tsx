@@ -8,7 +8,7 @@ import { eventDetail, eventTitle } from '@/i18n/he';
 import { formatTime, isSameDay, ltr } from '@/lib/time';
 
 /** One line in a timeline. `day` lets a sleep that crosses midnight explain itself. */
-export function EventRow({ event, onPress, now, day, showSync, isLast, card }: {
+export function EventRow({ event, onPress, now, day, showSync, isLast, card, timeline }: {
   event: ActivityEvent;
   onPress: () => void;
   now: Date;
@@ -17,6 +17,8 @@ export function EventRow({ event, onPress, now, day, showSync, isLast, card }: {
   isLast?: boolean;
   /** Stand-alone white card (journal) instead of a row on a shared rail (Home). */
   card?: boolean;
+  /** A row of the journal's time line: the hour beside a rail that runs through the day. */
+  timeline?: boolean;
 }) {
   const start = new Date(event.startedAt ?? event.occurredAt);
   const end = event.endedAt ? new Date(event.endedAt) : null;
@@ -29,6 +31,29 @@ export function EventRow({ event, onPress, now, day, showSync, isLast, card }: {
     else if (day && end && !isSameDay(end, day)) crossNote = 'נמשכה ליום הבא';
   }
   const title = eventTitle(event);
+  if (timeline) {
+    return (
+      <Pressable onPress={onPress} accessibilityRole="button" accessibilityLabel={`${title}, ${timeText}${detail ? `, ${detail}` : ''}`}
+        accessibilityHint="פתיחת הרשומה לעריכה" style={({ pressed }) => [styles.tlRow, pressed && { opacity: 0.7 }]}>
+        <Text variant="label" color={colors.textSecondary} style={styles.tlTime}>{formatTime(start)}</Text>
+        <View style={styles.tlRail}>
+          <ActivityBadge type={event.type} size={38} soft />
+          {!isLast ? <View style={styles.line} /> : null}
+        </View>
+        <View style={styles.tlBody}>
+          <View style={styles.top}>
+            <Text variant="bodyStrong" style={{ flex: 1 }} numberOfLines={1}>{title}</Text>
+            {showSync && event.syncStatus === 'conflict' ? <GitCompareArrows size={16} color={colors.danger} accessibilityLabel="נדרשת הכרעה בין שתי גרסאות" /> : null}
+            {showSync && event.syncStatus === 'pending' ? <CloudOff size={15} color={colors.textSecondary} accessibilityLabel="עדיין לא סונכרן" /> : null}
+            {event.type === 'sleep' ? <Text variant="caption" color={colors.textSecondary}>{timeText}</Text> : null}
+          </View>
+          {detail ? <Text variant="caption" color={colors.textSecondary} numberOfLines={2}>{detail}</Text> : null}
+          {crossNote ? <Text variant="caption" color={colors.textSecondary}>{crossNote}</Text> : null}
+          {event.notes && event.type !== 'other' ? <Text variant="caption" color={colors.textSecondary} numberOfLines={2}>״{event.notes}״</Text> : null}
+        </View>
+      </Pressable>
+    );
+  }
   return (
     <Pressable
       onPress={onPress}
@@ -63,4 +88,8 @@ const styles = StyleSheet.create({
   body: { flex: 1, paddingBottom: spacing.lg, gap: 2, paddingTop: 2 },
   top: { flexDirection: 'row', alignItems: 'center', gap: spacing.sm },
   time: {},
+  tlRow: { flexDirection: 'row', gap: spacing.md, minHeight: 62 },
+  tlTime: { width: 44, paddingTop: 9, textAlign: 'left', writingDirection: 'ltr' },
+  tlRail: { alignItems: 'center', width: 38 },
+  tlBody: { flex: 1, paddingBottom: spacing.lg, paddingTop: 6, gap: 1 },
 });

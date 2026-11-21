@@ -4,14 +4,17 @@ import { useEffect, useMemo, useState } from 'react';
 import { FlatList, Pressable, ScrollView, StyleSheet, View } from 'react-native';
 import { openActivityForm } from '@/components/AddActivitySheet';
 import { EventRow } from '@/components/activity/EventRow';
+import { Mascot } from '@/components/home/Companion';
+import { activityIcons } from '@/components/ui/Icons';
 import { Chip, EmptyState, IconButton, Screen } from '@/components/ui/primitives';
 import { Text } from '@/components/ui/Text';
-import { colors, radius, shadow, spacing, themed } from '@/design/tokens';
-import { type FilterKey, matchesFilter } from '@/domain/activity';
+import { activityTones, colors, radius, shadow, spacing, themed } from '@/design/tokens';
+import { type ActivityType, type FilterKey, matchesFilter } from '@/domain/activity';
+import { learnRoutine, predictNext } from '@/domain/routine';
 import { eventsForDay, summarizeDay } from '@/domain/summary';
 import { useActiveChild, useEventsBetween, useNow } from '@/hooks/data';
 import { filterLabel } from '@/i18n/he';
-import { addDays, dayKey, formatDateFull, formatDayLabel, formatDuration, isSameDay, startOfDay, weekdayShort } from '@/lib/time';
+import { addDays, dayKey, formatDateFull, formatDayLabel, formatDuration, formatTime, isSameDay, startOfDay, weekdayShort } from '@/lib/time';
 import { useSession } from '@/state/session';
 import { useUi } from '@/state/ui';
 
@@ -38,9 +41,25 @@ export default function JournalScreen() {
   const query = useEventsBetween(child?.id, day, day);
   const dayEvents = useMemo(() => eventsForDay(query.data ?? [], day, now), [query.data, day, now]);
   const visible = useMemo(() => dayEvents.filter((e) => matchesFilter(e, filter)), [dayEvents, filter]);
+  // Today's time line also shows what the family's own routine expects next, above "now".
+  const recent = useEventsBetween(child?.id, addDays(now, -14), now);
+  const expected = useMemo(() => {
+    if (!isSameDay(day, now)) return [];
+    const active = summarizeDay(recent.data ?? [], now, now).sleep.active;
+    const routine = learnRoutine(recent.data ?? [], now);
+    return predictNext(routine, now, active ? new Date(active.startedAt ?? active.occurredAt) : null)
+      .filter((p) => p.minutesUntil > 0 && isSameDay(p.at, now))
+      .filter((p) => filter === 'all' || (filter === 'feeding' && p.kind === 'feed') || (filter === 'sleep' && (p.kind === 'sleep' || p.kind === 'wake')) || (filter === 'diaper' && p.kind === 'diaper'))
+      .sort((a, b) => b.at.getTime() - a.at.getTime());
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [recent.data, day, filter, now]);
   // Newest first, with a small heading whenever the part of the day changes.
   const rows = useMemo(() => {
-    const out: ({ kind: 'header'; key: string; label: string } | { kind: 'event'; key: string; event: (typeof visible)[number] })[] = [];
+    const out: ({ kind: 'header'; key: string; label: string } | { kind: 'event'; key: string; event: (typeof visible)[number]; last?: boolean }
+      | { kind: 'expected'; key: string; type: ActivityType; label: string; at: Date } | { kind: 'now'; key: string })[] = [];
+    const label2 = { feed: 'האכלה, לפי השגרה שלכם', sleep: 'שינה, לפי השגרה שלכם', wake: 'התעוררות, לפי השגרה שלכם', diaper: 'החלפת חיתול, לפי השגרה שלכם' } as const;
+    for (const p of expected) out.push({ kind: 'expected', key: `x-${p.kind}`, type: p.kind === 'feed' ? 'bottle' : p.kind === 'diaper' ? 'diaper' : 'sleep', label: label2[p.kind], at: p.at });
+    if (isSameDay(day, new Date()) && (visible.length > 0 || expected.length > 0)) out.push({ kind: 'now', key: 'now' });
     let last = '';
     for (const event of visible) {
       const at = new Date(event.occurredAt);
@@ -48,8 +67,9 @@ export default function JournalScreen() {
       if (label !== last) { out.push({ kind: 'header', key: `h-${label}`, label }); last = label; }
       out.push({ kind: 'event', key: event.id, event });
     }
+    for (let k = out.length - 1; k >= 0; k -= 1) { const r = out[k]; if (r.kind === 'event') { r.last = true; break; } }
     return out;
-  }, [visible, day]);
+  }, [visible, day, expected]);
   const summary = useMemo(() => summarizeDay(query.data ?? [], day, now), [query.data, day, now]);
 
   const isToday = isSameDay(day, now);
@@ -109,6 +129,8 @@ export default function JournalScreen() {
       <FlatList
         data={rows}
         keyExtractor={(r) => r.key}
+        // A day is a few dozen rows at most: draw them all, so the whole day is there to scroll and to search.
+        initialNumToRender={60}
         contentContainerStyle={styles.list}
         showsVerticalScrollIndicator={false}
         ListHeaderComponent={dayEvents.length > 0 ? (
@@ -121,12 +143,31 @@ export default function JournalScreen() {
             ))}
           </View>
         ) : undefined}
-        renderItem={({ item }) => item.kind === 'header' ? (
-          <Text variant="label" color={colors.textSecondary} style={styles.partHeader} accessibilityRole="header">{item.label}</Text>
-        ) : (
-          <EventRow card event={item.event} now={now} day={day} showSync={!!user}
-            onPress={() => openActivityForm(item.event.type, item.event.id)} />
-        )}
+        renderItem={({ item }) => {
+          if (item.kind === 'header') return <Text variant="caption" color={colors.textSecondary} style={styles.partHeader} accessibilityRole="header">{item.label}</Text>;
+          if (item.kind === 'now') {
+            return (
+              <View style={styles.nowRow} accessibilityLabel={`עכשיו, ${formatTime(now)}`}>
+                <View style={styles.nowLine} /><Text variant="caption" color={colors.primaryStrong} style={{ fontWeight: '700' }}>{`עכשיו · ${formatTime(now)}`}</Text><View style={styles.nowLine} />
+              </View>
+            );
+          }
+          if (item.kind === 'expected') {
+            const tone = activityTones[item.type];
+            const Icon = activityIcons[item.type];
+            return (
+              <View style={styles.expRow} accessibilityLabel={`צפוי: ${item.label}, בסביבות ${formatTime(item.at)}`}>
+                <Text variant="label" color={colors.textSecondary} style={styles.expTime}>{formatTime(item.at)}</Text>
+                <View style={styles.expRail}><View style={[styles.expDot, { borderColor: tone.ink }]}><Icon size={18} color={tone.ink} /></View><View style={styles.expLine} /></View>
+                <View style={styles.expBody}>
+                  <Text variant="body" color={colors.textSecondary} style={{ flex: 1 }} numberOfLines={1}>{item.label}</Text>
+                  <View style={styles.expTag}><Text variant="caption" color={colors.textSecondary} style={{ fontSize: 11 }}>צפוי</Text></View>
+                </View>
+              </View>
+            );
+          }
+          return <EventRow timeline isLast={item.last} event={item.event} now={now} day={day} showSync={!!user} onPress={() => openActivityForm(item.event.type, item.event.id)} />;
+        }}
         ListEmptyComponent={query.isLoading ? undefined : (
           <EmptyState icon={CalendarDays}
             title={dayEvents.length === 0 ? (isToday ? 'עוד אין תיעוד היום' : 'אין תיעוד ביום הזה') : `אין ${filterLabel[filter]} ביום הזה`}
@@ -147,6 +188,15 @@ const styles = themed(() => StyleSheet.create({
   stripDaySelected: { backgroundColor: colors.primaryStrong, borderColor: colors.primaryStrong },
   filters: { paddingHorizontal: spacing.xl, gap: spacing.sm, paddingBottom: spacing.md },
   list: { paddingHorizontal: spacing.xl, paddingBottom: 140, flexGrow: 1 },
-  partHeader: { fontWeight: '600', marginTop: spacing.sm, marginBottom: spacing.sm, marginStart: spacing.xs },
+  partHeader: { fontWeight: '700', marginTop: spacing.xs, marginBottom: spacing.sm, marginStart: 56, letterSpacing: 0.3 },
+  nowRow: { flexDirection: 'row', alignItems: 'center', gap: spacing.sm, marginVertical: spacing.sm },
+  nowLine: { flex: 1, height: 2, borderRadius: 1, backgroundColor: colors.primaryStrong, opacity: 0.45 },
+  expRow: { flexDirection: 'row', gap: spacing.md, minHeight: 54 },
+  expTime: { width: 44, paddingTop: 9, textAlign: 'left', writingDirection: 'ltr' },
+  expRail: { alignItems: 'center', width: 38 },
+  expDot: { width: 38, height: 38, borderRadius: 13, borderWidth: 1.5, borderStyle: 'dashed', alignItems: 'center', justifyContent: 'center', backgroundColor: colors.surface },
+  expLine: { flex: 1, width: 2, marginVertical: 4, borderRadius: 1, backgroundColor: colors.border },
+  expBody: { flex: 1, flexDirection: 'row', alignItems: 'center', gap: spacing.sm, height: 38 },
+  expTag: { borderWidth: 1, borderColor: colors.borderStrong, borderRadius: radius.pill, paddingHorizontal: spacing.sm, paddingVertical: 1 },
   totals: { flexDirection: 'row', backgroundColor: colors.surface, borderRadius: 22, paddingVertical: spacing.md, marginBottom: spacing.sm, ...shadow.card, shadowOpacity: 0.05 },
 }));

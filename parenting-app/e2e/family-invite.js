@@ -1,4 +1,6 @@
 const { chromium } = require('playwright');
+// The tour shows before the welcome screen; tests skip it.
+const skipTour = async (page) => { const b = page.getByRole('button', { name: 'דילוג על ההסבר' }); if (await b.count()) { await b.click(); await page.waitForTimeout(500); } };
 // Needs a cloud build served on :4173 and two existing, confirmed accounts:
 //   TEST_EMAIL=owner TEST_EMAIL_2=other TEST_PW=... node e2e/family-invite.js
 const PW = process.env.TEST_PW, OWNER = process.env.TEST_EMAIL, OTHER = process.env.TEST_EMAIL_2;
@@ -22,7 +24,7 @@ const results = []; const check = (n, c) => { results.push(`${c ? 'PASS' : 'FAIL
 
   // ---------- the owner creates an invitation
   const A = await device('A');
-  await A.page.goto('http://localhost:4173/'); await A.wait(3000);
+  await A.page.goto('http://localhost:4173/'); await A.wait(3000); await skipTour(A.page);
   await A.signIn(OWNER);
   let t = await A.body();
   if (t.includes('מתחילים')) {
@@ -49,7 +51,7 @@ const results = []; const check = (n, c) => { results.push(`${c ? 'PASS' : 'FAIL
 
   // ---------- the invited person opens the link, signs in, and sees the family's child
   const B = await device('B');
-  await B.page.goto(link); await B.wait(3500);
+  await B.page.goto(link); await B.wait(3500); await skipTour(B.page);
   t = await B.body();
   check('the link tells a signed-out visitor they were invited', t.includes('הוזמנת להצטרף למשפחה'));
   check('the code is removed from the address bar', !B.page.url().includes('join='));
@@ -68,7 +70,7 @@ const results = []; const check = (n, c) => { results.push(`${c ? 'PASS' : 'FAIL
 
   // ---------- a used code cannot be used again
   const C = await device('C');
-  await C.page.goto('http://localhost:4173/'); await C.wait(3000);
+  await C.page.goto('http://localhost:4173/'); await C.wait(3000); await skipTour(C.page);
   await C.signIn(OTHER); await C.wait(2000);
   await C.page.getByRole('tab', { name: 'הילד שלי', exact: true }).click(); await C.wait();
   await C.btn('משפחה ושיתוף').click(); await C.wait(3000);

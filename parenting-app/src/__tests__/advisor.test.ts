@@ -38,7 +38,7 @@ describe('companion', () => {
 
 describe('sterilising', () => {
   it('counts clean bottles: the batch minus every bottle feeding logged since', () => {
-    const batch = { ...makeEvent('other', '2026-11-19T07:00:00', { title: 'עיקור ציוד' }), notes: sterilizeNotes(6, ['פטמות']) };
+    const batch = { ...makeEvent('other', '2026-11-19T07:00:00', { title: 'סטריליזטור' }), notes: sterilizeNotes(6, ['פטמות']) };
     const events = [batch, makeEvent('bottle', '2026-11-19T06:00:00', { milkType: 'formula', amountMl: 120 }),
       makeEvent('bottle', '2026-11-19T08:00:00', { milkType: 'formula', amountMl: 120 }), makeEvent('bottle', '2026-11-19T09:30:00', { milkType: 'formula', amountMl: 120 })];
     expect(sterilizeState(events)).toMatchObject({ bottles: 6, cleanBottles: 4, items: ['פטמות'] });

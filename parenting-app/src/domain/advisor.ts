@@ -51,10 +51,10 @@ export function buildAdvice(i: AdviceInput): Advice {
     return { id: 'due-diaper', pose: 'point', text: `עבר כבר הזמן הרגיל שלכם בין החלפות (${formatDuration(due.usualMin)}). אולי הוחלף ולא תועד?`, action: { label: 'תיעוד חיתול', kind: 'diaper' } };
   }
   if (i.usesBottles && i.sterilize && i.sterilize.bottles > 0 && i.sterilize.cleanBottles <= 1) {
-    return { id: 'sterilize-low', pose: 'think', text: i.sterilize.cleanBottles === 0 ? 'לפי התיעוד, כל הבקבוקים מהעיקור האחרון כבר בשימוש.' : 'לפי התיעוד נשאר בקבוק נקי אחד מהעיקור האחרון.', action: { label: 'עיקרתי', kind: 'sterilize' } };
+    return { id: 'sterilize-low', pose: 'think', text: i.sterilize.cleanBottles === 0 ? 'לפי התיעוד, כל הבקבוקים מהסטריליזטור כבר בשימוש.' : 'לפי התיעוד נשאר בקבוק נקי אחד מהסטריליזטור.', action: { label: 'הפעלתי סטריליזטור', kind: 'sterilize' } };
   }
   if (i.usesBottles && !i.sterilize) {
-    return { id: 'sterilize-start', pose: 'think', text: 'רוצים שאזכור בשבילכם מתי עוקרו הבקבוקים וכמה נקיים נשארו?', action: { label: 'תיעוד עיקור', kind: 'sterilize' } };
+    return { id: 'sterilize-start', pose: 'think', text: 'רוצים שאזכור בשבילכם מתי הופעל הסטריליזטור וכמה בקבוקים נקיים נשארו?', action: { label: 'תיעוד סטריליזטור', kind: 'sterilize' } };
   }
   if (i.moments.latestTitle && i.moments.latestDaysAgo !== null && i.moments.latestDaysAgo <= 3) {
     return { id: 'moment-new', pose: 'cheer', text: `${i.moments.latestTitle}${i.moments.latestDaysAgo === 0 ? ' היום' : i.moments.latestDaysAgo === 1 ? ' אתמול' : ` לפני ${i.moments.latestDaysAgo} ימים`}! איזה רגע. יש עוד משהו חדש לאלבום?`, action: { label: 'הוספת רגע', kind: 'moments' } };

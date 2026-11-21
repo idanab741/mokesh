@@ -1,4 +1,6 @@
 const { chromium } = require('playwright');
+// The tour shows before the welcome screen; tests skip it.
+const skipTour = async (page) => { const b = page.getByRole('button', { name: 'דילוג על ההסבר' }); if (await b.count()) { await b.click(); await page.waitForTimeout(500); } };
 // Needs a cloud build served on :4173 and an existing, confirmed account:
 //   TEST_EMAIL=... TEST_PW=... node e2e/cloud-sync.js   (HTTPS_PROXY is used when set)
 const PW = process.env.TEST_PW, OWNER = process.env.TEST_EMAIL;
@@ -19,7 +21,7 @@ const results = []; const check = (n, c) => { results.push(`${c ? 'PASS' : 'FAIL
       tab: async (n) => { await page.getByRole('tab', { name: n, exact: true }).click(); await page.waitForTimeout(700); },
       shot: (n) => page.screenshot({ path: S + n + '.png' }),
       signIn: async () => {
-        await page.goto('http://localhost:4173/'); await page.waitForTimeout(3000);
+        await page.goto('http://localhost:4173/'); await page.waitForTimeout(3000); await skipTour(page);
         await d.btn('כבר יש לי חשבון').click(); await d.wait();
         await page.getByLabel('אימייל').fill(OWNER);
         await page.getByLabel('סיסמה').fill(PW);
@@ -33,7 +35,7 @@ const results = []; const check = (n, c) => { results.push(`${c ? 'PASS' : 'FAIL
 
   // ---------- device A: sign in, create child, log a bottle
   const A = await device('A');
-  await A.page.goto('http://localhost:4173/'); await A.wait(3000);
+  await A.page.goto('http://localhost:4173/'); await A.wait(3000); await skipTour(A.page);
   check('cloud build shows account options', (await A.body()).includes('יצירת חשבון') && (await A.body()).includes('כבר יש לי חשבון'));
   await A.shot('01-welcome-cloud');
   await A.btn('כבר יש לי חשבון').click(); await A.wait();
@@ -114,7 +116,7 @@ const results = []; const check = (n, c) => { results.push(`${c ? 'PASS' : 'FAIL
   await A.page.getByRole('button', { name: /^בקבוק,/ }).last().click(); await A.wait(1000);
   await A.shot('07-A-conflict-resolve');
   await A.btn('להשאיר את הגרסה שמוצגת כאן').click(); await A.wait(4000);
-  await A.page.goto('http://localhost:4173/'); await A.wait(3500);
+  await A.page.goto('http://localhost:4173/'); await A.wait(3500); await skipTour(A.page);
   await A.sync();
   await B.sync(); await B.tab('בית');
   check('resolution "keep mine" propagates to device B (100 ml)', (await B.body()).includes('100 מ״ל בבקבוק'));

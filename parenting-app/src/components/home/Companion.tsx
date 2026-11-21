@@ -53,21 +53,21 @@ export function SterilizeCard({ state, now, onLog }: { state: SterilizeState | n
     <View style={styles.card}>
       <View style={styles.sterIcon}><Droplets size={22} color="#1F6BC2" strokeWidth={1.9} /></View>
       <View style={{ flex: 1, gap: 2 }}>
-        <Text variant="bodyStrong" color={colors.ink}>עיקור ציוד</Text>
+        <Text variant="bodyStrong" color={colors.ink}>סטריליזטור</Text>
         {state ? (
           <>
             <Text variant="caption" color={colors.textSecondary}>
-              {`עוקר ${formatRelative(state.at, now)}`}{state.bottles > 0 ? ' · נשארו ' : ''}
+              {`הופעל ${formatRelative(state.at, now)}`}{state.bottles > 0 ? ' · נשארו ' : ''}
               {state.bottles > 0 ? <Text variant="caption" color="#1F6BC2" style={{ fontWeight: '700' }}>{state.cleanBottles === 1 ? 'בקבוק נקי אחד' : `${state.cleanBottles} בקבוקים נקיים`}</Text> : null}
             </Text>
             {state.items.length > 0 ? (
               <View style={styles.pills}>{state.items.map((it) => <View key={it} style={styles.pill}><Text variant="caption" color="#1F6BC2" style={{ fontWeight: '600', fontSize: 11 }}>{it}</Text></View>)}</View>
             ) : null}
           </>
-        ) : <Text variant="caption" color={colors.textSecondary}>עוד לא תועד. נזכור בשבילכם מתי עוקר וכמה בקבוקים נקיים נשארו.</Text>}
+        ) : <Text variant="caption" color={colors.textSecondary}>עוד לא תועד. נזכור בשבילכם מתי הופעל וכמה בקבוקים נקיים נשארו.</Text>}
       </View>
-      <PressScale onPress={onLog} accessibilityRole="button" accessibilityLabel="תיעוד עיקור" style={styles.sterBtn}>
-        <Text variant="label" color={colors.white} style={{ fontWeight: '700' }}>עיקרתי</Text>
+      <PressScale onPress={onLog} accessibilityRole="button" accessibilityLabel="תיעוד סטריליזטור" style={styles.sterBtn}>
+        <Text variant="label" color={colors.white} style={{ fontWeight: '700' }}>הפעלתי</Text>
       </PressScale>
     </View>
   );
@@ -82,18 +82,18 @@ export function SterilizeSheet({ open, onClose, childId, last }: { open: boolean
   const save = () => {
     const iso = new Date().toISOString();
     create.mutate({ childId, draft: { type: 'other', occurredAt: iso, notes: sterilizeNotes(bottles, items), payload: { title: STERILIZE_TITLE } } }, {
-      onSuccess: () => { onClose(); toast('העיקור נשמר'); },
+      onSuccess: () => { onClose(); toast('נשמר: הסטריליזטור הופעל'); },
       onError: (err) => toast(errorMessage(err), { tone: 'error' }),
     });
   };
   return (
-    <Sheet visible={open} onClose={onClose} title="מה עוקר?">
+    <Sheet visible={open} onClose={onClose} title="מה נכנס לסטריליזטור?">
       <Stepper label="בקבוקים" unit="בקבוקים" value={bottles} onChange={setBottles} step={1} min={0} max={30} large />
       <View style={styles.chips}>
         {STERILIZE_ITEMS.map((it) => <Chip key={it} label={it} selected={items.includes(it)} onPress={() => toggle(it)} />)}
       </View>
       <Text variant="caption" color={colors.textSecondary}>כל בקבוק שתתעדו מעכשיו יורד מהמספר, כך שתמיד רואים כמה נקיים נשארו.</Text>
-      <Button label={`שמירה: ${sterilizeNotes(bottles, items) || 'עיקור'}`} loading={create.isPending} onPress={save} />
+      <Button label={`שמירה: ${sterilizeNotes(bottles, items) || 'סטריליזטור'}`} loading={create.isPending} onPress={save} />
     </Sheet>
   );
 }
