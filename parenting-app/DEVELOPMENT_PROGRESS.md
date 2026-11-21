@@ -189,3 +189,7 @@ On iPhone Safari the clip's backdrop showed as a slightly lighter box: the phone
 same colour in CSS. `BabyClip.web` now lays a canvas-coloured layer over the clip with `mix-blend-mode: darken`, so no
 pixel of the clip is lighter than the canvas. Checked in Chromium by brightening the video 3% (box gone, backdrop equals
 the canvas exactly); not confirmed on an iPhone from here.
+- Follow-up: the user's iPhone screenshot measured the crawl backdrop at 240,240,238 against a 241,241,239 canvas (one
+  level darker, same as Chromium), so the box was not a lighter video. `split.py` now encodes the backdrop one level
+  higher; drawn raw (no mask, no blend layer) in Chromium it is exactly 241,241,239 on all nine crawl clips. The older
+  standing clips have an uneven backdrop (236-245) hidden only by the feathered edge; not yet re-cut.
