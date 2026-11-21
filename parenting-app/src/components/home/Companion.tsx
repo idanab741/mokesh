@@ -30,17 +30,28 @@ export function Mascot({ pose, size = 72 }: { pose: MascotPose; size?: number })
 }
 
 /** Lili, the companion: one thing worth knowing right now, and a button that does something about it. */
-export function Companion({ advice, onAction }: { advice: Advice; onAction: () => void }) {
+export function Companion({ advice, onAction, step }: {
+  advice: Advice; onAction: () => void;
+  /** One of Lili's first steps with a new family: where it is in the list, and a way to put it off. */
+  step?: { index: number; total: number; onSkip: () => void };
+}) {
   return (
     <View style={styles.companion} testID="companion">
       <Float distance={5} duration={3600}><Mascot pose={advice.pose} /></Float>
       <View style={styles.bubble}>
-        <Text variant="caption" color={colors.primaryStrong} style={{ fontWeight: '700' }}>לילי, המלווה שלכם</Text>
+        <Text variant="caption" color={colors.primaryStrong} style={{ fontWeight: '700' }}>{step ? `לילי · צעד ${step.index} מתוך ${step.total}` : 'לילי, המלווה שלכם'}</Text>
         <Text variant="body" color={colors.ink}>{advice.text}</Text>
         {advice.action ? (
-          <PressScale onPress={onAction} accessibilityRole="button" accessibilityLabel={`לילי מציעה: ${advice.action.label}`} style={styles.bubbleAction}>
-            <Text variant="label" color={colors.white} style={{ fontWeight: '700' }}>{advice.action.label}</Text>
-          </PressScale>
+          <View style={styles.bubbleRow}>
+            <PressScale onPress={onAction} accessibilityRole="button" accessibilityLabel={`לילי מציעה: ${advice.action.label}`} style={styles.bubbleAction}>
+              <Text variant="label" color={colors.white} style={{ fontWeight: '700' }}>{advice.action.label}</Text>
+            </PressScale>
+            {step ? (
+              <Pressable onPress={step.onSkip} accessibilityRole="button" accessibilityLabel="לא עכשיו" hitSlop={8} style={styles.bubbleSkip}>
+                <Text variant="label" color={colors.textSecondary}>לא עכשיו</Text>
+              </Pressable>
+            ) : null}
+          </View>
         ) : null}
       </View>
     </View>
@@ -126,7 +137,9 @@ export function Album({ marked, sex, name, onOpen }: { marked: readonly Mileston
 const styles = themed(() => StyleSheet.create({
   companion: { flexDirection: 'row', alignItems: 'flex-start', gap: spacing.sm },
   bubble: { flex: 1, gap: 4, backgroundColor: colors.surface, borderRadius: 24, borderTopStartRadius: 8, padding: spacing.md, ...shadow.card },
-  bubbleAction: { alignSelf: 'flex-start', marginTop: 6, backgroundColor: colors.primaryStrong, borderRadius: radius.pill, paddingHorizontal: spacing.lg, minHeight: 40, justifyContent: 'center' },
+  bubbleRow: { flexDirection: 'row', alignItems: 'center', gap: spacing.md, marginTop: 6, flexWrap: 'wrap' },
+  bubbleSkip: { minHeight: 40, justifyContent: 'center' },
+  bubbleAction: { backgroundColor: colors.primaryStrong, borderRadius: radius.pill, paddingHorizontal: spacing.lg, minHeight: 40, justifyContent: 'center' },
   card: { flexDirection: 'row', alignItems: 'center', gap: spacing.md, backgroundColor: colors.surface, borderRadius: 24, padding: spacing.md, ...shadow.card },
   sterIcon: { width: 46, height: 46, borderRadius: 16, backgroundColor: '#E1EEFF', alignItems: 'center', justifyContent: 'center' },
   sterBtn: { backgroundColor: '#1F6BC2', borderRadius: radius.pill, paddingHorizontal: spacing.lg, minHeight: 40, justifyContent: 'center' },

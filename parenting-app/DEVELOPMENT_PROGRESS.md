@@ -342,3 +342,18 @@ because the cards say the same things.
 - "עיקור" renamed to "סטריליזטור" everywhere; records saved under the old title still count.
 - `scripts/test-audit.sh` (overlap, off-screen and unreachable controls on an iPhone-size touch screen): no problems.
   It does not walk the newer screens (health, moments, tastings, family, summary).
+
+## Triplace-style bar and tour, Lili's first steps (2026-11-21)
+
+The user pointed out that the previous bar and tour were not what Triplace has. Rebuilt after reading the Triplace code
+(`src/components/ui/BottomNav.tsx`, `src/components/tour/SpotlightTour.tsx`):
+- Bottom bar: a floating glass capsule with a margin on every side, icons only, a tinted pill behind the current tab
+  that springs to the next one and follows the finger when dragged, and the round "+" rising out of the middle where
+  Triplace has its globe.
+- Tour: a spotlight over the real Home screen (`SpotlightTour.web`), shown once per device: the screen dims, the
+  spotlight moves from the character to Lili, the three needs, the steriliser, the album, the "+" and the bar, and Lili
+  says in a sentence what each is for; story-style progress, "הבא" / tap anywhere, "דלג". The slide tour before the
+  welcome screen was removed. Web only; native shows nothing.
+- Lili's first steps with a new family: a photo, the last sleep, the last feeding, the last diaper. Each explains why
+  it helps, shows "צעד N מתוך 4", has one button that opens the right form and "לא עכשיו". A step is done once its
+  record exists; put-off steps are remembered on the device.
