@@ -3,11 +3,14 @@ import { Image, Pressable, StyleSheet, View } from 'react-native';
 import { Sheet } from '@/components/ui/overlays';
 import { Text } from '@/components/ui/Text';
 import { colors, radius, spacing, themed } from '@/design/tokens';
-import { parseAvatar } from '@/domain/avatar';
+import { type BabyStage, defaultStageForAge, parseAvatar, stageLabel } from '@/domain/avatar';
+import { ageParts } from '@/domain/age';
+import { stageFromMilestones } from '@/domain/milestones';
+import { Chip } from '@/components/ui/primitives';
 import { THEMES, THEME_KEYS, resolveTheme } from '@/domain/theme';
 import { LinearGradient } from 'expo-linear-gradient';
 import type { Child } from '@/domain/child';
-import { useChildMutations } from '@/hooks/data';
+import { useChildMutations, useMilestones } from '@/hooks/data';
 import { babyClips, babyLooks } from './clips';
 
 /** The characters a parent can choose between for this child (same sex, other hair, eyes and skin). */
@@ -28,6 +31,15 @@ export function BabyLookPicker({ child, open, onClose }: { child: Child; open: b
   const looks = looksFor(child.sex);
   const saved = config.look === 'blonde' ? 'porcelain' : config.look === 'dark' ? 'deep' : config.look;
   const current = looks.some((l) => l.key === saved) ? saved : 'auto';
+  // Which pose "automatic" gives right now, and why: a moment the family marked, or the age.
+  const marked = useMilestones(child.id);
+  const fromMoments = stageFromMilestones(marked.data ?? []);
+  const autoStage = fromMoments ?? defaultStageForAge(ageParts(child.birthDate, new Date())?.totalMonths ?? 0);
+  // Only poses the chosen character really has a clip for.
+  const who = child.sex === 'female' ? 'girl' : 'boy';
+  const has = babyLooks[who].find((l) => l.key === current)?.clips ?? babyClips[who];
+  const POSES: (BabyStage | 'auto')[] = ['auto', ...(['tummy', 'crawl', 'stand'] as const).filter((p) => has[p])];
+  const set = (patch: object) => setAvatar.mutate({ id: child.id, avatar: JSON.stringify({ ...config, ...patch }) });
   return (
     <Sheet visible={open} onClose={onClose} title={`הדמות של ${child.name}`}>
       <View style={{ gap: spacing.sm }}>
@@ -47,6 +59,18 @@ export function BabyLookPicker({ child, open, onClose }: { child: Child; open: b
             );
           })}
         </View>
+      </View>
+      <View style={{ gap: spacing.sm }}>
+        <Text variant="label" color={colors.textSecondary}>תנוחה</Text>
+        <View style={styles.poses}>
+          {POSES.map((p) => (
+            <Chip key={p} selected={config.stage === p || (p === 'auto' && config.stage === 'sit')} onPress={() => set({ stage: p })}
+              label={p === 'auto' ? `אוטומטי (${stageLabel[autoStage === 'sit' ? 'crawl' : autoStage]})` : stageLabel[p]} />
+          ))}
+        </View>
+        <Text variant="caption" color={colors.textSecondary}>
+          {fromMoments ? 'אוטומטי הולך לפי הרגע האחרון שסימנתם ב"רגעים ואבני דרך".' : 'אוטומטי הולך לפי הגיל. סימון "זוחל/ת" או "עומד/ת" ברגעים יקבע את התנוחה במקומו.'}
+        </Text>
       </View>
       {looks.length > 0 ? <Text variant="label" color={colors.textSecondary}>הדמות</Text> : null}
       <View style={styles.row} accessibilityRole="radiogroup">
@@ -70,6 +94,7 @@ export function BabyLookPicker({ child, open, onClose }: { child: Child; open: b
 }
 
 const styles = themed(() => StyleSheet.create({
+  poses: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing.sm },
   themes: { flexDirection: 'row', gap: spacing.md },
   themeItem: { flex: 1, alignItems: 'center', gap: 4 },
   swatch: { alignSelf: 'stretch', height: 56, borderRadius: radius.lg, borderWidth: 3, borderColor: 'transparent', alignItems: 'center', justifyContent: 'center' },

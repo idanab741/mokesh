@@ -50,6 +50,14 @@ const check = (name, cond) => { results.push(`${cond ? 'PASS' : 'FAIL'} ${name}`
   await shot('03e-blonde');
   await page.getByRole('tab', { name: 'הילד שלי' }).click(); await wait(600); await btn('דמות וצבע').click(); await wait(600);
   await page.getByRole('radio', { name: 'עור בהיר, שיער חום־בהיר' }).click(); await wait(800); await page.getByRole('tab', { name: 'בית' }).click(); await wait(1500);
+  await page.getByRole('tab', { name: 'הילד שלי' }).click(); await wait(600); await btn('דמות וצבע').click(); await wait(800);
+  check('the picker says which pose is automatic and why', (await body()).includes('אוטומטי (זחילה)') && (await body()).includes('אוטומטי הולך לפי הגיל'));
+  await btn('עמידה').click(); await wait(600); await btn('סגירה').click(); await wait(400);
+  await page.getByRole('tab', { name: 'בית' }).click(); await wait(1500);
+  check('a pose picked by the parent is shown', await clip.locator('video').first().evaluate((v) => /girl-stand-idle.*\.mp4/.test(v.currentSrc || v.src)));
+  await page.getByRole('tab', { name: 'הילד שלי' }).click(); await wait(600); await btn('דמות וצבע').click(); await wait(800);
+  await page.getByRole('button', { name: /^אוטומטי/ }).click(); await wait(500); await btn('סגירה').click(); await wait(400);
+  await page.getByRole('tab', { name: 'בית' }).click(); await wait(1500);
   check('no look editor while the baby is a plain clip', (await page.getByRole('button', { name: 'התאמת המראה של הדמות' }).count()) === 0);
   await shot('03c-home-with-baby');
 

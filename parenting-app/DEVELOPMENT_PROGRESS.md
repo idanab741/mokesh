@@ -313,3 +313,6 @@ next, a "+" that logs, and facts about the day: today's total, and how this fami
 days before today, once three of them have records), plus the last dirty diaper. Feeding and meal were merged into
 "אוכל": the quick sheet offers bottle, nursing and solids. The two sentences above and the four rings were removed
 because the cards say the same things.
+- "דמות וצבע" now has a pose choice: automatic (it says which pose that gives and whether it comes from the age or
+  from a marked moment), lying, crawling, standing, limited to the poses the chosen character has clips for. Before this
+  a pose saved by the old look editor, or one implied by a marked moment, could not be seen or changed anywhere.
