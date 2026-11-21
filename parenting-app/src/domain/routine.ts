@@ -33,6 +33,8 @@ export interface Routine {
     lastWakeAt: Date | null;
   };
   diaper: { gapMin: number | null; samples: number; lastAt: Date | null };
+  /** Usual number of solid meals on a day that has any; null until three such days exist. */
+  solidsPerDay: number | null;
 }
 
 export interface Prediction {
@@ -121,6 +123,12 @@ export function learnRoutine(events: readonly ActivityEvent[], now: Date = new D
   const diaperTimes = sorted(live.filter((e) => e.type === 'diaper'));
   const diaperGaps = gaps(diaperTimes, 15, 8 * 60);
 
+  // --- solids: how many meals on a day that has any (today is still running, so it is left out)
+  const todayKey = now.toDateString();
+  const perDay = new Map<string, number>();
+  live.filter((e) => e.type === 'solids').forEach((e) => { const k = new Date(at(e)).toDateString(); if (k !== todayKey) perDay.set(k, (perDay.get(k) ?? 0) + 1); });
+  const solidsDays = [...perDay.values()];
+
   return {
     daysLogged: days.size,
     feed: {
@@ -136,6 +144,7 @@ export function learnRoutine(events: readonly ActivityEvent[], now: Date = new D
       napMin: usual(naps), napSamples: naps.length,
       lastWakeAt: lastWake === null ? null : new Date(lastWake),
     },
+    solidsPerDay: solidsDays.length >= 3 ? Math.max(1, Math.round(median(solidsDays))) : null,
     diaper: { gapMin: usual(diaperGaps), samples: diaperGaps.length, lastAt: diaperTimes.length ? new Date(diaperTimes[diaperTimes.length - 1]) : null },
   };
 }

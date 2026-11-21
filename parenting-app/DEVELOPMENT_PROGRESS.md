@@ -295,3 +295,7 @@ today, the next visit, the latest moment), insights only once there are any (no 
 Removed from Home: the 2x2 totals that repeated the tiles, the grid of six shortcuts, and "דמות וצבע".
 "הילד שלי" is the one place for everything else, in four groups: התפתחות (moments, growth, tastings), בריאות (health,
 summary for the doctor), משפחה, and הגדרות (character and colour, account, data).
+- The user picked option 4 of five sheet sketches: four rings instead of tiles. A ring fills as the time since the last
+  feeding / wake-up / diaper approaches the family's own usual gap (from `predictNext`); the meal ring fills with today's
+  meals against the usual number on a day with solids (`routine.solidsPerDay`, at least three such days). A ring with
+  nothing learned shows only its track. Under the rings: one line with today's three totals. The day strip left Home.

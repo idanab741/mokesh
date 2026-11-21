@@ -13,6 +13,7 @@ import { Logo } from '@/components/brand/Logo';
 import { DayStrip } from '@/components/home/DayStrip';
 import { InsightsRow } from '@/components/home/InsightsRow';
 import { QuickLog, type QuickKind } from '@/components/home/QuickLog';
+import { Ring } from '@/components/home/Ring';
 import { activityIcons } from '@/components/ui/Icons';
 import { Float, PressScale, Rise } from '@/components/ui/motion';
 import { ActivityBadge, Button, Card, Screen, SectionHeader } from '@/components/ui/primitives';
@@ -125,6 +126,17 @@ export default function HomeScreen() {
     { type: 'solids', label: 'ארוחה', a11y: 'תיעוד ארוחה', status: so.count === 0 ? 'עוד לא היום' : so.count === 1 ? 'אחת היום' : `${so.count} היום`, onPress: () => openActivityForm('solids') },
   ];
 
+  // How far each thing is toward the family's own usual time: the ring is full when that time has come.
+  const toward = (kind: 'feed' | 'sleep' | 'wake' | 'diaper'): number | null => {
+    const p = predictions.find((x) => x.kind === kind);
+    return p ? Math.max(0.04, Math.min(1, 1 - p.minutesUntil / p.usualMin)) : null;
+  };
+  const ringOf: Record<string, number | null> = {
+    bottle: toward('feed'), sleep: toward(activeSleep ? 'wake' : 'sleep'), diaper: toward('diaper'),
+    solids: routine.solidsPerDay ? Math.min(1, so.count / routine.solidsPerDay) : null,
+  };
+  const anyLearned = Object.values(ringOf).some((v) => v !== null);
+
   const isBrandNew = recent.data !== undefined && recent.data.length === 0;
 
   const look = useBabyLook(child, now);
@@ -188,41 +200,37 @@ export default function HomeScreen() {
           </View>
         </Rise>
 
-        <Rise index={3} style={styles.tiles}>
-          {tiles.map((tl) => {
-            const tone = activityTones[tl.type];
-            const Icon = activityIcons[tl.type];
-            return (
-              <PressScale key={tl.type} onPress={tl.onPress} accessibilityRole="button" accessibilityLabel={tl.a11y} scaleTo={0.94} style={[styles.tile, { backgroundColor: tone.bg }]}>
-                {tl.type === 'sleep' && activeSleep ? <Square size={24} color={tone.ink} strokeWidth={2.4} /> : tl.type === 'sleep' ? <Moon size={26} color={tone.ink} strokeWidth={1.9} /> : <Icon size={26} color={tone.ink} />}
-                <Text variant="label" color={tone.ink} style={{ fontWeight: '700' }} numberOfLines={1}>{tl.label}</Text>
-                <Text variant="caption" color={tone.ink} numberOfLines={1} adjustsFontSizeToFit style={{ opacity: 0.8, fontSize: 11 }}>{tl.status}</Text>
-              </PressScale>
-            );
-          })}
+        <Rise index={3} style={{ gap: spacing.sm }}>
+          <View style={styles.rings}>
+            {tiles.map((tl) => {
+              const tone = activityTones[tl.type];
+              const Icon = activityIcons[tl.type];
+              return (
+                <PressScale key={tl.type} onPress={tl.onPress} accessibilityRole="button" accessibilityLabel={tl.a11y} accessibilityHint={tl.status} scaleTo={0.93} style={styles.ringItem}>
+                  <Ring progress={ringOf[tl.type]} color={tone.ink} track={tone.bg}>
+                    {tl.type === 'sleep' && activeSleep ? <Square size={22} color={tone.ink} strokeWidth={2.4} /> : tl.type === 'sleep' ? <Moon size={26} color={tone.ink} strokeWidth={1.9} /> : <Icon size={26} color={tone.ink} />}
+                  </Ring>
+                  <Text variant="label" color={colors.ink} style={{ fontWeight: '700' }} numberOfLines={1}>{tl.label}</Text>
+                  <Text variant="caption" color={colors.textSecondary} numberOfLines={1} adjustsFontSizeToFit style={{ fontSize: 11.5 }}>{tl.status}</Text>
+                </PressScale>
+              );
+            })}
+          </View>
+          <Text variant="caption" color={colors.textSecondary} center>
+            {anyLearned ? 'הטבעת מתמלאת ככל שמתקרבים לזמן הרגיל שלכם' : 'הטבעות יתחילו להתמלא אחרי כמה ימי תיעוד'}
+          </Text>
         </Rise>
 
-      {/* Today: three totals and the day as a strip, in one card */}
-      <Rise index={4}>
-        <Card style={{ gap: spacing.md }}>
-          <View style={styles.todayHead}>
-            <Text variant="heading" accessibilityRole="header">היום</Text>
-            <Pressable onPress={() => router.push('/(tabs)/journal')} accessibilityRole="link" accessibilityLabel="ליומן של היום" hitSlop={12}>
-              <Text variant="label" color={colors.primaryStrong} style={{ fontWeight: '600' }}>ליומן</Text>
+        {/* Today in one line */}
+        <Rise index={4} style={styles.todayLine}>
+          {todayStats.slice(0, 3).map((st, i) => (
+            <Pressable key={st.type} onPress={() => goJournal(st.filter)} accessibilityRole="button" accessibilityLabel={`${st.main}, ${st.sub}. מעבר ליומן`}
+              style={[styles.todayCell, i > 0 && styles.todayDivider]}>
+              <Text variant="bodyStrong" color={colors.ink} numberOfLines={1} adjustsFontSizeToFit>{st.main}</Text>
+              <Text variant="caption" color={colors.textSecondary} numberOfLines={1}>{st.sub}</Text>
             </Pressable>
-          </View>
-          <View style={styles.todayRow}>
-            {todayStats.slice(0, 3).map((st, i) => (
-              <Pressable key={st.type} onPress={() => goJournal(st.filter)} accessibilityRole="button" accessibilityLabel={`${st.main}, ${st.sub}. מעבר ליומן`}
-                style={[styles.todayCell, i > 0 && styles.todayDivider]}>
-                <Text variant="bodyStrong" color={activityTones[st.type].ink} numberOfLines={1} adjustsFontSizeToFit>{st.main}</Text>
-                <Text variant="caption" color={colors.textSecondary} numberOfLines={1}>{st.sub}</Text>
-              </Pressable>
-            ))}
-          </View>
-          <DayStrip events={today.data ?? []} now={now} />
-        </Card>
-      </Rise>
+          ))}
+        </Rise>
 
       {/* Only when there is something current: a medicine given today, the next visit, the latest moment */}
       {highlights.length > 0 ? (
@@ -302,10 +310,9 @@ const styles = themed(() => StyleSheet.create({
   nowLine: { fontSize: 19, lineHeight: 28, fontWeight: '500' },
   nowStrong: { fontSize: 19, lineHeight: 28, fontWeight: '700' },
   childBtn: { borderRadius: 24, padding: 3, backgroundColor: colors.surface, ...shadow.card },
-  tiles: { flexDirection: 'row', gap: spacing.sm },
-  tile: { flex: 1, alignItems: 'center', gap: 3, borderRadius: 24, paddingVertical: spacing.md, paddingHorizontal: 4 },
-  todayHead: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
-  todayRow: { flexDirection: 'row' },
+  rings: { flexDirection: 'row', justifyContent: 'space-between' },
+  ringItem: { flex: 1, alignItems: 'center', gap: 2 },
+  todayLine: { flexDirection: 'row', backgroundColor: colors.surface, borderRadius: 24, paddingVertical: spacing.md, ...shadow.card },
   todayCell: { flex: 1, alignItems: 'center', gap: 2, paddingHorizontal: 4 },
   todayDivider: { borderStartWidth: StyleSheet.hairlineWidth, borderStartColor: colors.borderStrong },
   firstRun: { alignItems: 'center', gap: spacing.sm, paddingVertical: spacing.xl },
