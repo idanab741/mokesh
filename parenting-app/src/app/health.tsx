@@ -6,7 +6,7 @@ import { DateField, DateTimeField, TextField } from '@/components/ui/inputs';
 import { ConfirmDialog, Sheet, useToast } from '@/components/ui/overlays';
 import { Button, Card, Chip, EmptyState, IconButton, Notice, Screen, SectionHeader, Segmented } from '@/components/ui/primitives';
 import { Text } from '@/components/ui/Text';
-import { colors, radius, spacing } from '@/design/tokens';
+import { colors, radius, spacing, themed } from '@/design/tokens';
 import { type Visit, type VisitKind, parseClock, parseTemperature, visitKindLabel } from '@/domain/health';
 import { useActiveChild, useCanManage, useHealth, useNow } from '@/hooks/data';
 import { errorMessage } from '@/i18n/he';
@@ -243,7 +243,7 @@ export default function HealthScreen() {
   );
 }
 
-const styles = StyleSheet.create({
+const styles = themed(() => StyleSheet.create({
   head: { flexDirection: 'row', alignItems: 'center', gap: spacing.md, paddingTop: spacing.sm },
   actions: { flexDirection: 'row', gap: spacing.sm },
   list: { paddingVertical: spacing.xs, gap: 0 },
@@ -251,4 +251,4 @@ const styles = StyleSheet.create({
   lastRow: { flexDirection: 'row', alignItems: 'center', gap: spacing.md, minHeight: 36 },
   dot: { width: 40, height: 40, borderRadius: 20, backgroundColor: colors.primaryLight, alignItems: 'center', justifyContent: 'center' },
   chips: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing.sm },
-});
+}));

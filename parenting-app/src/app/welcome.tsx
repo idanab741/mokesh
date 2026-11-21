@@ -7,7 +7,7 @@ import { Logo } from '@/components/brand/Logo';
 import { Float } from '@/components/ui/motion';
 import { Button, Notice, Screen } from '@/components/ui/primitives';
 import { Text } from '@/components/ui/Text';
-import { activityTones, colors, radius, spacing } from '@/design/tokens';
+import { activityTones, colors, radius, spacing, themed } from '@/design/tokens';
 import { useChildren } from '@/hooks/data';
 import { config } from '@/services/config';
 import { useSession } from '@/state/session';
@@ -68,9 +68,9 @@ export default function WelcomeScreen() {
   );
 }
 
-const styles = StyleSheet.create({
+const styles = themed(() => StyleSheet.create({
   content: { flexGrow: 1, justifyContent: 'space-between', paddingTop: spacing.xl, paddingBottom: spacing.xxl, gap: spacing.xl },
   hero: { alignItems: 'center', gap: spacing.md },
   point: { flexDirection: 'row', alignItems: 'center', gap: spacing.md, backgroundColor: 'rgba(255,255,255,0.86)', borderRadius: 24, padding: spacing.lg },
   pointIcon: { width: 44, height: 44, borderRadius: 22, backgroundColor: colors.primaryLight, alignItems: 'center', justifyContent: 'center' },
-});
+}));

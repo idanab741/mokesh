@@ -3,9 +3,10 @@ import { Stack } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
 import { StatusBar } from 'expo-status-bar';
 import { useEffect } from 'react';
-import { I18nManager, Platform } from 'react-native';
+import { I18nManager, Platform, View } from 'react-native';
 import { ToastHost } from '@/components/ui/overlays';
-import { colors } from '@/design/tokens';
+import { colors, setAccent } from '@/design/tokens';
+import { useAppTheme } from '@/hooks/data';
 import { initAuth } from '@/state/auth';
 import { ServicesProvider, useServices } from '@/state/services';
 
@@ -36,6 +37,13 @@ function AuthBridge() {
   return null;
 }
 
+/** Sets the accent before anything below renders; a new colour world remounts the screens so every style picks it up. */
+function Themed({ children }: { children: React.ReactNode }) {
+  const theme = useAppTheme();
+  setAccent({ key: theme.key, accent: theme.accent, accentSoft: theme.accentSoft, button: theme.button, ink: theme.ink });
+  return <View key={theme.key} style={{ flex: 1 }}>{children}</View>;
+}
+
 export default function RootLayout() {
   useEffect(() => {
     void SplashScreen.hideAsync().catch(() => {});
@@ -45,10 +53,12 @@ export default function RootLayout() {
     <ServicesProvider>
       <AuthBridge />
       <StatusBar style="dark" />
+      <Themed>
       <Stack screenOptions={{ headerShown: false, contentStyle: { backgroundColor: colors.background } }}>
         <Stack.Screen name="activity/[type]" options={{ presentation: 'modal' }} />
         <Stack.Screen name="child/edit" options={{ presentation: 'modal' }} />
       </Stack>
+      </Themed>
       <ToastHost />
     </ServicesProvider>
   );

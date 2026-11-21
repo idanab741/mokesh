@@ -33,7 +33,7 @@ export function BabyFigure({ stage, config, sex = 'unspecified', height, label, 
 }) {
   const clips = clipsFor(stage, sex, config.look);
   if (clips) {
-    return <View style={{ height, alignItems: 'center', justifyContent: 'flex-end' }}><BabyClip key={clips.idle} clips={clips} height={Math.round(height * (clips.scale ?? 1))} label={label} active={active} /></View>;
+    return <View style={{ height, alignItems: 'center', justifyContent: 'center' }}><BabyClip key={clips.idle} clips={clips} height={Math.round(height * (clips.scale ?? 1))} label={label} active={active} /></View>;
   }
   return <BabySprite active={active} mood={mood} stage={stage} config={config} sex={sex} height={Math.round(height * 0.86)} label={label} />;
 }

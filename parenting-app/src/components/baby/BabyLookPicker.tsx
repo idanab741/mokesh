@@ -2,7 +2,7 @@ import { Check } from 'lucide-react-native';
 import { Image, Pressable, StyleSheet, View } from 'react-native';
 import { Sheet } from '@/components/ui/overlays';
 import { Text } from '@/components/ui/Text';
-import { colors, radius, spacing } from '@/design/tokens';
+import { colors, radius, spacing, themed } from '@/design/tokens';
 import { parseAvatar } from '@/domain/avatar';
 import { THEMES, THEME_KEYS, resolveTheme } from '@/domain/theme';
 import { LinearGradient } from 'expo-linear-gradient';
@@ -69,7 +69,7 @@ export function BabyLookPicker({ child, open, onClose }: { child: Child; open: b
   );
 }
 
-const styles = StyleSheet.create({
+const styles = themed(() => StyleSheet.create({
   themes: { flexDirection: 'row', gap: spacing.md },
   themeItem: { flex: 1, alignItems: 'center', gap: 4 },
   swatch: { alignSelf: 'stretch', height: 56, borderRadius: radius.lg, borderWidth: 3, borderColor: 'transparent', alignItems: 'center', justifyContent: 'center' },
@@ -79,4 +79,4 @@ const styles = StyleSheet.create({
   poster: { width: '100%', aspectRatio: 668 / 720, borderRadius: radius.md, overflow: 'hidden' },
   posterImage: { width: '100%', height: '100%' },
   check: { position: 'absolute', top: 10, end: 10, width: 26, height: 26, borderRadius: 13, backgroundColor: colors.primaryStrong, alignItems: 'center', justifyContent: 'center' },
-});
+}));

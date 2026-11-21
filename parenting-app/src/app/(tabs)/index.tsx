@@ -18,7 +18,7 @@ import { activityIcons } from '@/components/ui/Icons';
 import { Float, PressScale, Rise } from '@/components/ui/motion';
 import { ActivityBadge, Button, Card, Screen, SectionHeader } from '@/components/ui/primitives';
 import { Text } from '@/components/ui/Text';
-import { activityTones, colors, gradients, shadow, spacing } from '@/design/tokens';
+import { activityTones, colors, gradients, shadow, spacing, themed } from '@/design/tokens';
 import type { ActivityType, FilterKey } from '@/domain/activity';
 import { formatAgeWithSex } from '@/domain/age';
 import { stageLabel } from '@/domain/avatar';
@@ -151,17 +151,16 @@ export default function HomeScreen() {
       <Rise index={0} style={styles.topBar}>
         <Logo size={28} />
         <View style={styles.topEnd}>
+          {hasConflicts ? (
+            <PressScale onPress={() => router.push('/updates')} accessibilityRole="button" accessibilityLabel="עדכונים, יש פריטים שדורשים תשומת לב" style={styles.bell}>
+              <Bell size={20} color={colors.ink} strokeWidth={2} />
+              <View style={styles.bellDot} />
+            </PressScale>
+          ) : null}
           <PressScale onPress={openChildSheet} accessibilityRole="button"
             accessibilityLabel={`${child.name}, ${formatAgeWithSex(child.birthDate, child.sex, now) ?? ''}`}
-            accessibilityHint={children.length > 1 ? 'מעבר בין ילדים' : 'ניהול ילדים'} style={styles.childPill}>
-            <Avatar name={child.name} uri={child.photoUri} size={32} />
-            <Text variant="label" style={{ fontWeight: '700', flexShrink: 1 }} numberOfLines={1}>{child.name}</Text>
-            <ChevronDown size={16} color={colors.textSecondary} strokeWidth={2.4} />
-          </PressScale>
-          <PressScale onPress={() => router.push('/updates')} accessibilityRole="button"
-            accessibilityLabel={hasConflicts ? 'עדכונים, יש פריטים שדורשים תשומת לב' : 'עדכונים'} style={styles.bell}>
-            <Bell size={20} color={colors.textPrimary} strokeWidth={2} />
-            {hasConflicts ? <View style={styles.bellDot} /> : null}
+            accessibilityHint={children.length > 1 ? 'מעבר בין ילדים' : 'ניהול ילדים'} style={styles.childBtn}>
+            <Avatar name={child.name} uri={child.photoUri} size={40} />
           </PressScale>
         </View>
       </Rise>
@@ -169,7 +168,7 @@ export default function HomeScreen() {
       {/* The stage: the greeting, and the child's baby character standing in an arch window. */}
       <Rise index={1}>
         <View style={styles.stageText}>
-          <Text variant="display" accessibilityRole="header">{`${greetingForHour(now.getHours())}, ${child.name}`}</Text>
+          <Text variant="display" color={colors.ink} accessibilityRole="header" numberOfLines={1} adjustsFontSizeToFit>{`${greetingForHour(now.getHours())}, ${child.name}`}</Text>
           <Text variant="label" color={theme.onSky}>{`${formatDateLong(now)} · ${formatAgeWithSex(child.birthDate, child.sex, now) ?? ''}`}</Text>
         </View>
         <View style={styles.archRing}>
@@ -186,27 +185,16 @@ export default function HomeScreen() {
 
       {/* The sheet that rises over the sky: what is going on now, and the four things to log. */}
       <View style={styles.sheet}>
-        <Rise index={2} style={{ gap: 2 }}>
-          <View testID="baby-mood-reason" accessible accessibilityLabel={`${nowLead ?? ''} ${nowValue ?? ''}`}>
-            {nowLead && nowValue ? (
-              <Text variant="heading" color="#5B4353" style={styles.nowLine}>
-                {nowLead} <Text variant="heading" color={theme.accent} style={activeSleep ? { writingDirection: 'ltr' } : null}>{nowValue}</Text>
-              </Text>
-            ) : (
-              <Text variant="heading" color="#5B4353" style={styles.nowLine}>{`עוד לא תיעדתם היום את ${child.name}`}</Text>
-            )}
+        <Rise index={2}>
+          <View testID="baby-mood-reason">
+            <Text style={styles.nowLine} color="#5B4353">
+              {nowLead && nowValue ? <>{nowLead} <Text style={styles.nowStrong} color={colors.primaryStrong}>{nowValue}</Text>.</> : `עוד לא תיעדתם היום את ${child.name}.`}
+            </Text>
           </View>
-          <View testID="next-up">
-            {next ? (
-              <>
-                <Text variant="heading" color="#5B4353" style={styles.nowLine}>
-                  {nextTitle[next.kind]} בסביבות <Text variant="heading" color={theme.accent}>{formatTime(next.at)}</Text>
-                </Text>
-                <Text variant="caption" color={colors.textSecondary}>{nextBasis(next.kind, formatDuration(next.usualMin))}</Text>
-              </>
-            ) : (
-              <Text variant="label" color={colors.textSecondary}>לומדים את השגרה שלכם: עוד כמה תיעודים ונדע לומר מה הבא.</Text>
-            )}
+          <View testID="next-up" accessible={!!next} accessibilityLabel={next ? `${nextTitle[next.kind]} בסביבות ${formatTime(next.at)}. ${nextBasis(next.kind, formatDuration(next.usualMin))}` : undefined}>
+            <Text style={styles.nowLine} color="#5B4353">
+              {next ? <>{nextTitle[next.kind]} בסביבות <Text style={styles.nowStrong} color={colors.primaryStrong}>{formatTime(next.at)}</Text></> : 'עוד כמה תיעודים ונדע לומר מה הבא.'}
+            </Text>
           </View>
         </Rise>
 
@@ -223,9 +211,6 @@ export default function HomeScreen() {
             );
           })}
         </Rise>
-        <Pressable onPress={() => setPickOpen(true)} accessibilityRole="button" accessibilityLabel="החלפת דמות" hitSlop={8} style={styles.pick}>
-          <Text variant="label" color={theme.accent} style={{ fontWeight: '600' }}>{canPick ? 'החלפת דמות וצבע' : 'החלפת צבע'}</Text>
-        </Pressable>
 
       {/* Today in numbers */}
       <Rise index={4} style={styles.stats}>
@@ -244,6 +229,10 @@ export default function HomeScreen() {
       <Rise index={4} style={{ gap: spacing.md }}>
         <SectionHeader title={`עוד על ${child.name}`} />
         <View style={styles.shortcuts}>
+          <PressScale onPress={() => setPickOpen(true)} accessibilityRole="button" accessibilityLabel="החלפת דמות" scaleTo={0.94} style={styles.shortcut}>
+            <View style={[styles.shortcutIcon, { backgroundColor: colors.primaryLight }]}><Palette size={24} color={colors.primaryStrong} strokeWidth={1.9} /></View>
+            <Text variant="caption" center numberOfLines={2} style={{ fontWeight: '600' }}>דמות וצבע</Text>
+          </PressScale>
           {shortcuts.map((sc) => (
             <PressScale key={sc.href} onPress={() => router.push(sc.href)} accessibilityRole="button" accessibilityLabel={sc.label} scaleTo={0.94} style={styles.shortcut}>
               <View style={[styles.shortcutIcon, { backgroundColor: sc.bg }]}><sc.icon size={24} color={sc.ink} strokeWidth={1.9} /></View>
@@ -315,16 +304,15 @@ export default function HomeScreen() {
   );
 }
 
-const styles = StyleSheet.create({
+const styles = themed(() => StyleSheet.create({
   topBar: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingTop: spacing.sm },
   bellDot: { position: 'absolute', top: 10, end: 11, width: 9, height: 9, borderRadius: 5, backgroundColor: colors.danger, borderWidth: 1.5, borderColor: colors.white },
   topEnd: { flexDirection: 'row', alignItems: 'center', gap: spacing.sm },
   bell: { width: 44, height: 44, borderRadius: 22, backgroundColor: colors.surface, alignItems: 'center', justifyContent: 'center', ...shadow.card },
-  childPill: { flexDirection: 'row', alignItems: 'center', gap: 6, height: 44, maxWidth: 170, backgroundColor: colors.surface, borderRadius: 22, paddingStart: 6, paddingEnd: spacing.md, ...shadow.card },
   stats: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing.sm },
   stat: { flexBasis: '47%', flexGrow: 1, flexDirection: 'row', alignItems: 'center', gap: spacing.sm, backgroundColor: colors.surface, borderRadius: 18, padding: spacing.sm, paddingEnd: spacing.md },
-  shortcuts: { flexDirection: 'row', justifyContent: 'space-between', gap: spacing.xs },
-  shortcut: { flex: 1, alignItems: 'center', gap: 6 },
+  shortcuts: { flexDirection: 'row', flexWrap: 'wrap', rowGap: spacing.md },
+  shortcut: { flexBasis: '33.33%', alignItems: 'center', gap: 6 },
   shortcutIcon: { width: 56, height: 56, borderRadius: 20, alignItems: 'center', justifyContent: 'center' },
   highlight: { flexDirection: 'row', alignItems: 'center', gap: spacing.md, minHeight: 60, paddingVertical: spacing.sm },
   highlightIcon: { width: 40, height: 40, borderRadius: 20, backgroundColor: colors.primaryLight, alignItems: 'center', justifyContent: 'center' },
@@ -332,12 +320,13 @@ const styles = StyleSheet.create({
   stageText: { paddingHorizontal: spacing.xs, zIndex: 1 },
   // The arch is painted in the clip's own backdrop colour, so the character stands in a window and the sky can be any colour.
   archRing: { alignSelf: 'center', marginTop: spacing.md, padding: 8, borderTopLeftRadius: 164, borderTopRightRadius: 164, borderBottomLeftRadius: 42, borderBottomRightRadius: 42, backgroundColor: 'rgba(255,255,255,0.55)' },
-  arch: { width: 312, height: 336, alignItems: 'center', justifyContent: 'flex-end', overflow: 'hidden', backgroundColor: colors.background, borderTopLeftRadius: 156, borderTopRightRadius: 156, borderBottomLeftRadius: 34, borderBottomRightRadius: 34 },
+  arch: { width: 312, height: 336, alignItems: 'center', justifyContent: 'center', overflow: 'hidden', backgroundColor: colors.background, borderTopLeftRadius: 156, borderTopRightRadius: 156, borderBottomLeftRadius: 34, borderBottomRightRadius: 34 },
   lookBtn: { position: 'absolute', bottom: 14, end: 14, width: 44, height: 44, borderRadius: 16, backgroundColor: colors.surface, alignItems: 'center', justifyContent: 'center', ...shadow.card },
   sheet: { marginHorizontal: -spacing.xl, paddingHorizontal: spacing.xl, paddingTop: spacing.xl, paddingBottom: 130, gap: spacing.lg, backgroundColor: '#FDFBFA', borderTopLeftRadius: 34, borderTopRightRadius: 34 },
-  nowLine: { lineHeight: 28 },
+  nowLine: { fontSize: 19, lineHeight: 28, fontWeight: '500' },
+  nowStrong: { fontSize: 19, lineHeight: 28, fontWeight: '700' },
+  childBtn: { borderRadius: 24, padding: 3, backgroundColor: colors.surface, ...shadow.card },
   tiles: { flexDirection: 'row', gap: spacing.sm },
   tile: { flex: 1, alignItems: 'center', gap: 3, borderRadius: 24, paddingVertical: spacing.md, paddingHorizontal: 4 },
-  pick: { alignSelf: 'center', minHeight: 32, justifyContent: 'center', marginTop: -spacing.sm },
   firstRun: { alignItems: 'center', gap: spacing.sm, paddingVertical: spacing.xl },
-});
+}));

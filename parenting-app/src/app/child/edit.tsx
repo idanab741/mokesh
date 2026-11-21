@@ -9,7 +9,7 @@ import { DateField, FieldGroup, TextField } from '@/components/ui/inputs';
 import { ConfirmDialog, useToast } from '@/components/ui/overlays';
 import { Button, IconButton, Notice, Segmented } from '@/components/ui/primitives';
 import { Text } from '@/components/ui/Text';
-import { colors, spacing } from '@/design/tokens';
+import { colors, spacing, themed } from '@/design/tokens';
 import type { ChildSex } from '@/domain/age';
 import { useChildMutations, useChildren } from '@/hooks/data';
 import { dayKey } from '@/lib/time';
@@ -135,11 +135,11 @@ export default function ChildEditScreen() {
   );
 }
 
-const styles = StyleSheet.create({
+const styles = themed(() => StyleSheet.create({
   root: { flex: 1, backgroundColor: colors.background },
   header: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: spacing.lg, paddingVertical: spacing.sm },
   content: { paddingHorizontal: spacing.xl, paddingTop: spacing.md, paddingBottom: spacing.xxxl, gap: spacing.xl },
   photo: { alignSelf: 'center' },
   photoBadge: { position: 'absolute', bottom: 0, end: 0, width: 32, height: 32, borderRadius: 16, backgroundColor: colors.primaryStrong, alignItems: 'center', justifyContent: 'center', borderWidth: 2, borderColor: colors.background },
   footer: { paddingHorizontal: spacing.xl, paddingVertical: spacing.md, borderTopWidth: 1, borderColor: colors.border },
-});
+}));

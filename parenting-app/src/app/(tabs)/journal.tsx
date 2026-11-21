@@ -6,7 +6,7 @@ import { openActivityForm } from '@/components/AddActivitySheet';
 import { EventRow } from '@/components/activity/EventRow';
 import { Chip, EmptyState, IconButton, Screen } from '@/components/ui/primitives';
 import { Text } from '@/components/ui/Text';
-import { colors, radius, shadow, spacing } from '@/design/tokens';
+import { colors, radius, shadow, spacing, themed } from '@/design/tokens';
 import { type FilterKey, matchesFilter } from '@/domain/activity';
 import { eventsForDay, summarizeDay } from '@/domain/summary';
 import { useActiveChild, useEventsBetween, useNow } from '@/hooks/data';
@@ -138,7 +138,7 @@ export default function JournalScreen() {
   );
 }
 
-const styles = StyleSheet.create({
+const styles = themed(() => StyleSheet.create({
   header: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: spacing.xl, paddingTop: spacing.md, minHeight: 52 },
   todayBtn: { backgroundColor: colors.primaryLight, paddingHorizontal: spacing.md, minHeight: 36, borderRadius: radius.pill, justifyContent: 'center' },
   dateNav: { flexDirection: 'row', alignItems: 'center', paddingHorizontal: spacing.xl, paddingVertical: spacing.sm, gap: spacing.md },
@@ -149,4 +149,4 @@ const styles = StyleSheet.create({
   list: { paddingHorizontal: spacing.xl, paddingBottom: 140, flexGrow: 1 },
   partHeader: { fontWeight: '600', marginTop: spacing.sm, marginBottom: spacing.sm, marginStart: spacing.xs },
   totals: { flexDirection: 'row', backgroundColor: colors.surface, borderRadius: 22, paddingVertical: spacing.md, marginBottom: spacing.sm, ...shadow.card, shadowOpacity: 0.05 },
-});
+}));

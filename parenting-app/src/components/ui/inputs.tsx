@@ -1,7 +1,7 @@
 import { ChevronLeft, ChevronRight, Minus, Plus } from 'lucide-react-native';
 import { useEffect, useState } from 'react';
 import { StyleSheet, TextInput, type TextInputProps, View } from 'react-native';
-import { colors, fonts, radius, spacing } from '@/design/tokens';
+import { colors, fonts, radius, spacing, themed } from '@/design/tokens';
 import { addDays, dayKey, formatDayLabel, isSameDay } from '@/lib/time';
 import { IconButton } from './primitives';
 import { Text } from './Text';
@@ -207,7 +207,7 @@ export function isToday(d: Date) {
   return isSameDay(d, new Date());
 }
 
-const styles = StyleSheet.create({
+const styles = themed(() => StyleSheet.create({
   group: { gap: spacing.sm },
   input: {
     // On web a text input has an intrinsic width; without minWidth 0 it refuses to shrink inside a row.
@@ -234,4 +234,4 @@ const styles = StyleSheet.create({
   timeInput: { width: 40, ...fonts.semibold, fontSize: 18, color: colors.textPrimary, textAlign: 'center', paddingVertical: 8 },
   dateRow: { flexDirection: 'row', gap: spacing.sm },
   datePart: { flex: 1, flexBasis: 0, minWidth: 0, textAlign: 'center', paddingHorizontal: spacing.sm },
-});
+}));
