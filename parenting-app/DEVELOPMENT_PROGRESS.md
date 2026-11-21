@@ -357,3 +357,9 @@ The user pointed out that the previous bar and tour were not what Triplace has. 
 - Lili's first steps with a new family: a photo, the last sleep, the last feeding, the last diaper. Each explains why
   it helps, shows "צעד N מתוך 4", has one button that opens the right form and "לא עכשיו". A step is done once its
   record exists; put-off steps are remembered on the device.
+- Tour rework after the user's review (things were cut, the card jumped, the flow was rough): the card now stays in one
+  place above the bottom bar; the screen scrolls at once under it so each control sits just above the card; one
+  spotlight glides between controls (it closes to a point for the opening and closing cards, so the dimming never
+  flashes); a control taller than the free space is lit only as far as the card; the needs step lights one card, not
+  all three; the text slides in per step, with "N מתוך 9" and "חזרה". Checked at 390x844 and 375x667: on every step the
+  spotlight is inside the screen and does not meet the card.
