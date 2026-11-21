@@ -299,3 +299,5 @@ summary for the doctor), משפחה, and הגדרות (character and colour, acc
   feeding / wake-up / diaper approaches the family's own usual gap (from `predictNext`); the meal ring fills with today's
   meals against the usual number on a day with solids (`routine.solidsPerDay`, at least three such days). A ring with
   nothing learned shows only its track. Under the rings: one line with today's three totals. The day strip left Home.
+- Boys' lying clip replaced with the newborn version (thin hair, small body), cut from a new six-boy clip; boys and
+  girls are now drawn at the same lying scale (0.82).
