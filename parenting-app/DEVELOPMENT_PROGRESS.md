@@ -286,3 +286,12 @@ The user chose direction A of five sketches. Built so far, on Home and in the sh
   needs attention), headings in the colour world's deep tone, two plain sentences in the sheet, and "דמות וצבע" moved
   into the shortcuts. The `darken` layer over the clip was removed: with rounded clipping it drew black patches while
   the wave clip played, and the backdrops are exact without it.
+
+## Home simplified (2026-11-21)
+
+The user found the area under the four tiles generic and random. Home now has, under the tiles: one "היום" card (three
+totals and the day strip, with a link to the journal), "כדאי לדעת" only when something is current (a medicine given
+today, the next visit, the latest moment), insights only once there are any (no placeholder card), and recent activity.
+Removed from Home: the 2x2 totals that repeated the tiles, the grid of six shortcuts, and "דמות וצבע".
+"הילד שלי" is the one place for everything else, in four groups: התפתחות (moments, growth, tastings), בריאות (health,
+summary for the doctor), משפחה, and הגדרות (character and colour, account, data).

@@ -1,9 +1,10 @@
 import { useQueryClient } from '@tanstack/react-query';
 import { router } from 'expo-router';
-import { ChevronLeft, CloudOff, ClipboardList, Download, HeartPulse, LogOut, type LucideIcon, Pencil, Plus, RefreshCw, Ruler, Sparkles, Trash2, UserRound, Users, Utensils } from 'lucide-react-native';
+import { ChevronLeft, CloudOff, ClipboardList, Download, HeartPulse, LogOut, type LucideIcon, Palette, Pencil, Plus, RefreshCw, Ruler, Sparkles, Trash2, UserRound, Users, Utensils } from 'lucide-react-native';
 import { useState } from 'react';
 import { Pressable, StyleSheet, View } from 'react-native';
 import { Avatar } from '@/components/Avatar';
+import { BabyLookPicker } from '@/components/baby/BabyLookPicker';
 import { ConfirmDialog, useToast } from '@/components/ui/overlays';
 import { Button, Card, Notice, Screen, SectionHeader } from '@/components/ui/primitives';
 import { Text } from '@/components/ui/Text';
@@ -48,6 +49,7 @@ export default function ChildScreen() {
   const measurements = useMeasurements(child?.id);
   const [confirm, setConfirm] = useState<'wipe' | 'account' | null>(null);
   const [busy, setBusy] = useState(false);
+  const [lookOpen, setLookOpen] = useState(false);
   const canManage = useCanManage(child?.familyId);
   if (!child) return <Screen><View /></Screen>;
 
@@ -105,16 +107,16 @@ export default function ChildScreen() {
           onPress={() => router.push({ pathname: '/child/edit', params: { id: child.id } })} /> : null}
       </View>
 
-      <SectionHeader title="רגעים" />
+      <SectionHeader title="התפתחות" />
       <Card style={styles.list}>
         <Row icon={Sparkles} title="רגעים ואבני דרך" detail="חיוך ראשון, זחילה, מילה ראשונה" onPress={() => router.push('/milestones')} />
+        <Row icon={Ruler} title="מדידות גדילה" detail={latest ? `אחרונה: ${latestText}` : latestText} onPress={() => router.push('/growth')} />
+        <Row icon={Utensils} title="טעימות ואלרגנים" detail="מה כבר נוסה, מתי, וההערות שלכם" onPress={() => router.push('/foods')} />
       </Card>
 
-      <SectionHeader title="גדילה ובריאות" />
+      <SectionHeader title="בריאות" />
       <Card style={styles.list}>
-        <Row icon={Ruler} title="מדידות גדילה" detail={latest ? `אחרונה: ${latestText}` : latestText} onPress={() => router.push('/growth')} />
         <Row icon={HeartPulse} title="בריאות" detail="חום ותרופות, חיסונים, ביקורים" onPress={() => router.push('/health')} />
-        <Row icon={Utensils} title="טעימות ואלרגנים" detail="מה כבר נוסה, מתי, וההערות שלכם" onPress={() => router.push('/foods')} />
         <Row icon={ClipboardList} title="סיכום לרופא/ה" detail="עמוד אחד עם האכלות, שינה, חיתולים ומדידות" onPress={() => router.push('/report')} />
       </Card>
 
@@ -137,6 +139,11 @@ export default function ChildScreen() {
       <SectionHeader title="משפחה" />
       <Card style={styles.list}>
         <Row icon={Users} title="משפחה ושיתוף" detail="הזמנת הורה נוסף, סבים או מטפלת" onPress={() => router.push('/family')} />
+      </Card>
+
+      <SectionHeader title="הגדרות" />
+      <Card style={styles.list}>
+        <Row icon={Palette} title="דמות וצבע" detail="הדמות של הילד/ה וצבע הרקע של האפליקציה" onPress={() => setLookOpen(true)} />
       </Card>
 
       <SectionHeader title="חשבון וגיבוי" />
@@ -174,6 +181,7 @@ export default function ChildScreen() {
           : <Row icon={Trash2} danger title="מחיקת כל הנתונים מהמכשיר" detail="פעולה סופית שאי אפשר לבטל" onPress={() => setConfirm('wipe')} />}
       </Card>
 
+      <BabyLookPicker child={child} open={lookOpen} onClose={() => setLookOpen(false)} />
       <ConfirmDialog visible={confirm !== null} destructive loading={busy}
         title={confirm === 'account' ? 'למחוק את החשבון וכל הנתונים?' : 'למחוק את כל הנתונים מהמכשיר?'}
         body="כל הילדים, התיעוד והמדידות יימחקו לצמיתות. מומלץ לייצא קודם."
