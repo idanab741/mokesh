@@ -379,3 +379,7 @@ The user pointed out that the previous bar and tour were not what Triplace has. 
 - `WelcomePoster` (תמונה) ו-`WelcomePoster.web` (וידאו בלולאה, קצוות צד מתמזגים). הקבועים ב-`welcomePosterMeta.ts` כדי למנוע ייבוא מעגלי בווב.
 - `welcome.tsx`: לוגו וכותרת מעל, הפוסטר בגובה שמשאיר את הכפתורים על המסך, גיליון לבן עם הכפתורים ואחריהם שלושת היתרונות. הקשת, לילי ושורת הפרצופים ירדו מהעמוד הזה.
 - נבדק ב-Chromium ב-390×844, 375×667 ו-430×932 בלבד.
+
+## עמוד הפתיחה: שתי דמויות ולילי (תמונה קפואה)
+- הפוסטר של תשע הדמויות היה עמוס; הוחלף בתמונה `tools/baby-motion/source/welcome-duo.png` (בן, בת ולילי), כ-`assets/welcome/poster.jpg` 720×1280.
+- `WelcomePoster.web` מציג תמונה כל עוד `CLIP` הוא null. כשיגיע סרטון: להריץ `poster.py SOURCE assets/welcome/poster.mp4 assets/welcome/poster.jpg 0`, לעדכן POSTER_SKY ולהחזיר את ה-require.
