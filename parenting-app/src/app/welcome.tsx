@@ -1,7 +1,6 @@
 import { pendingInvite } from '@/services/family';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Redirect, router } from 'expo-router';
-import { CalendarHeart, ChartColumn, UsersRound } from 'lucide-react-native';
 import { StyleSheet, useWindowDimensions, View } from 'react-native';
 import { Logo } from '@/components/brand/Logo';
 import { WelcomePoster } from '@/components/brand/WelcomePoster';
@@ -14,12 +13,6 @@ import { THEMES } from '@/domain/theme';
 import { useChildren } from '@/hooks/data';
 import { config } from '@/services/config';
 import { useSession } from '@/state/session';
-
-const POINTS = [
-  { icon: CalendarHeart, title: 'תיעוד מהיר', body: 'שינה, אוכל וחיתול בשתי לחיצות' },
-  { icon: ChartColumn, title: 'השגרה שלכם', body: 'נלמדת מהיומן שלכם' },
-  { icon: UsersRound, title: 'כל המשפחה', body: 'משתפים רק את מי שבוחרים' },
-] as const;
 
 /** The logo and the headline above the poster. */
 const TOP = 104;
@@ -73,15 +66,6 @@ export default function WelcomeScreen() {
           </>
         )}
 
-        <View style={styles.points}>
-          {POINTS.map(({ icon: Icon, title, body }) => (
-            <View key={title} style={styles.point}>
-              <View style={styles.pointIcon}><Icon size={20} color={colors.primaryStrong} strokeWidth={2} /></View>
-              <Text variant="label" center color={colors.ink} style={{ fontWeight: '700' }}>{title}</Text>
-              <Text variant="caption" center color={colors.textSecondary}>{body}</Text>
-            </View>
-          ))}
-        </View>
       </View>
     </Screen>
   );
@@ -96,7 +80,4 @@ const styles = themed(() => StyleSheet.create({
   headline: { fontSize: 23, lineHeight: 32, marginTop: spacing.xs },
   stage: { marginHorizontal: -spacing.xl, alignItems: 'center', overflow: 'hidden' },
   sheet: { flexGrow: 1, marginTop: -26, marginHorizontal: -spacing.xl, paddingHorizontal: spacing.xl, paddingTop: spacing.lg, paddingBottom: spacing.xxl, gap: spacing.sm, backgroundColor: '#FDFBFA', borderTopLeftRadius: 34, borderTopRightRadius: 34 },
-  points: { flexDirection: 'row', gap: spacing.sm, marginTop: spacing.md },
-  point: { flex: 1, alignItems: 'center', gap: 4, backgroundColor: colors.primaryLight, borderRadius: 22, paddingVertical: spacing.md, paddingHorizontal: spacing.xs },
-  pointIcon: { width: 38, height: 38, borderRadius: 19, backgroundColor: colors.white, alignItems: 'center', justifyContent: 'center', marginBottom: 2 },
 }));
