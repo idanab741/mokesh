@@ -43,11 +43,7 @@ const check = (name, cond) => { results.push(`${cond ? 'PASS' : 'FAIL'} ${name}`
   t = await body();
   const clip = page.locator('[data-testid="baby-clip"]');
   check('home shows the baby as video, for a girl too', (await clip.count()) === 1);
-  check('the baby clip is a playing video', await clip.locator('video').first().evaluate((v) => /\.mp4/.test(v.currentSrc || v.src)));
-  // the greeting wave plays by itself first; once it is over, a tap must start it again
-  await page.waitForSelector('[data-testid="baby-clip"][data-waving="0"]', { timeout: 15000 }).catch(() => {});
-  await wait(600); await clip.click();
-  check('tapping the baby plays the wave', await page.waitForSelector('[data-testid="baby-clip"][data-waving="1"]', { timeout: 4000 }).then(() => true, () => false));
+  check('a six-month-old girl is shown crawling, not standing', await clip.locator('video').first().evaluate((v) => /girl-crawl-idle.*\.mp4/.test(v.currentSrc || v.src)));
   check('no look editor while the baby is a plain clip', (await page.getByRole('button', { name: 'התאמת המראה של הדמות' }).count()) === 0);
   await shot('03c-home-with-baby');
 
@@ -211,6 +207,11 @@ const check = (name, cond) => { results.push(`${cond ? 'PASS' : 'FAIL'} ${name}`
   await btn('שמירה והמשך').click(); await wait(1200);
   t = await body();
   check('new child is active with empty data (no leak from sibling)', t.includes('נועם') && t.includes('בן שנתיים ו-3 חודשים') && t.includes('0 האכלות') && !t.includes('בטטה'));
+  check('a two-year-old boy stands', await clip.last().locator('video').first().evaluate((v) => /boy-stand-idle.*\.mp4/.test(v.currentSrc || v.src)));
+  // the greeting wave plays by itself first; once it is over, a tap must start it again
+  await page.waitForSelector('[data-testid="baby-clip"][data-waving="0"]', { timeout: 15000 }).catch(() => {});
+  await wait(600); await clip.last().click();
+  check('tapping the baby plays the wave', await page.waitForSelector('[data-testid="baby-clip"][data-waving="1"]', { timeout: 4000 }).then(() => true, () => false));
   await shot('24-second-child');
   await page.getByRole('button', { name: /^נועם/ }).first().click(); await wait(600);
   await shot('25-child-switcher');

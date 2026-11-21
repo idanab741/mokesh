@@ -6,13 +6,19 @@ import { BabyClip } from './BabyClip';
 import { BabySprite } from './BabySprite';
 import { type BabyClips, babyClips, fallbackClips } from './clips';
 
+const ORDER: BabyStage[] = ['tummy', 'sit', 'crawl', 'stand'];
+
 /**
- * The clips to show for a child: the boy or the girl, in the child's pose where that pose has
- * clips, and standing otherwise.
+ * The clips to show for a child: the boy or the girl in the child's pose. A pose that has no
+ * clip yet takes the nearest pose that has one (a sitting-age baby crawls rather than stands).
  */
 export function clipsFor(stage: BabyStage, sex: ChildSex): BabyClips | null {
   const who = sex === 'female' ? 'girl' : 'boy';
-  return babyClips[who][stage] ?? fallbackClips[who];
+  const at = ORDER.indexOf(stage);
+  const nearest = ORDER
+    .filter((s) => babyClips[who][s])
+    .sort((a, b) => Math.abs(ORDER.indexOf(a) - at) - Math.abs(ORDER.indexOf(b) - at) || ORDER.indexOf(a) - ORDER.indexOf(b))[0];
+  return (nearest ? babyClips[who][nearest] : null) ?? fallbackClips[who];
 }
 
 /**
