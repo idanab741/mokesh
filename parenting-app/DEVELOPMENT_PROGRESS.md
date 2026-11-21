@@ -301,3 +301,6 @@ summary for the doctor), משפחה, and הגדרות (character and colour, acc
   nothing learned shows only its track. Under the rings: one line with today's three totals. The day strip left Home.
 - Boys' lying clip replaced with the newborn version (thin hair, small body), cut from a new six-boy clip; boys and
   girls are now drawn at the same lying scale (0.82).
+- Girls' crawl: all six girls now crawl, cut from one new six-girl clip that matches the six skin tones. It replaces the
+  three clips from the first three-girl clip (which had other faces and blue eyes on the blonde) and fills the three
+  that had none. Standing clips exist only for the default boy and the default girl.
