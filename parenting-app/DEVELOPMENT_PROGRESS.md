@@ -160,3 +160,10 @@ in the top bar, the baby at 320 px with three "how long since" bubbles around it
 diaper), one line with what the family's routine expects next, four large gradient buttons that open the quick-log
 sheet, and today's totals as four small tiles. The pink-lavender wash is back; on Home it scrolls with the page and
 fades to the clip's backdrop colour before the baby begins.
+
+## Girl crawl clip (2026-11-21)
+
+One generated clip of three girls crawling side by side (three looks) was cut into three 668x720 loops (crop per
+character, backdrop lifted towards #F1F1EF, 12-frame crossfade to close the loop). The light-brown girl is live as the
+girl's crawl pose (8-10 months by default); the blonde and dark looks are kept in `tools/baby-motion/looks/` for the
+look picker. The boy still falls back to his standing clip in the crawl pose.

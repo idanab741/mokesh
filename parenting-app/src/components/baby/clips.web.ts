@@ -20,6 +20,11 @@ export const babyClips: BabyClipMap = {
       poster: require('../../../assets/baby/clips/girl-stand-poster.jpg'),
       wave: require('../../../assets/baby/clips/girl-stand-wave.mp4'),
     },
+    // Cut from one generated clip of three girls crawling side by side (tools/baby-motion/source/girls-crawl-three.mp4).
+    crawl: {
+      idle: require('../../../assets/baby/clips/girl-crawl-idle.mp4'),
+      poster: require('../../../assets/baby/clips/girl-crawl-poster.jpg'),
+    },
   },
 };
 
