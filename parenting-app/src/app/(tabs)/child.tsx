@@ -1,6 +1,6 @@
 import { useQueryClient } from '@tanstack/react-query';
 import { router } from 'expo-router';
-import { ChevronLeft, CloudOff, Download, LogOut, type LucideIcon, Pencil, Plus, RefreshCw, Ruler, Trash2, UserRound, Users } from 'lucide-react-native';
+import { ChevronLeft, CloudOff, Download, LogOut, type LucideIcon, Pencil, Plus, RefreshCw, Ruler, Sparkles, Trash2, UserRound, Users } from 'lucide-react-native';
 import { useState } from 'react';
 import { Pressable, StyleSheet, View } from 'react-native';
 import { Avatar } from '@/components/Avatar';
@@ -104,6 +104,11 @@ export default function ChildScreen() {
         {canManage ? <Button label="עריכת פרופיל" icon={Pencil} variant="secondary" size="md" style={{ alignSelf: 'stretch', marginTop: spacing.md, marginHorizontal: spacing.lg }}
           onPress={() => router.push({ pathname: '/child/edit', params: { id: child.id } })} /> : null}
       </View>
+
+      <SectionHeader title="רגעים" />
+      <Card style={styles.list}>
+        <Row icon={Sparkles} title="רגעים ואבני דרך" detail="חיוך ראשון, זחילה, מילה ראשונה" onPress={() => router.push('/milestones')} />
+      </Card>
 
       <SectionHeader title="גדילה" />
       <Card style={styles.list}>

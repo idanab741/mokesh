@@ -53,6 +53,13 @@ const SPECS: TableSpec[] = [
     timestamps: ['created_at', 'deleted_at'],
     serverOwned: ['created_by'],
   },
+  {
+    table: 'milestones',
+    columns: ['id', 'child_id', 'created_by', 'catalog_key', 'domain', 'title', 'achieved_on', 'notes', 'created_at', 'deleted_at'],
+    json: [],
+    timestamps: ['created_at', 'deleted_at'],
+    serverOwned: ['created_by'],
+  },
 ];
 
 /** Columns that never change after creation and therefore are not part of an update patch. */

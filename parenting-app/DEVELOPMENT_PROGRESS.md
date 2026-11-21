@@ -229,3 +229,13 @@ Client side of the sharing that the schema already had (families, family_members
 - `e2e/family-invite.js` runs against the real project with two test accounts: 11 checks.
 - Not built: listing or revoking pending invitations (select on `invitations` is revoked for clients; needs an RPC),
   transferring ownership, native deep links.
+
+## Moments and milestones (2026-11-21)
+
+- `/milestones` (from "הילד שלי"): a catalog of moments to remember in five groups, plus moments in the family's own
+  words, each with an optional date and note. No expected ages and no "late": it only records what happened.
+- Local table `milestones` (schema v3) synced with `public.milestones`. A catalog moment uses an id derived from the
+  child and the key, so two phones marking the same moment meet in one row instead of hitting the unique index.
+- The character's pose follows the furthest pose moment marked (sits / crawls / stands / first steps); the age is only
+  the fallback. Only parents can add moments (the server gates this table with the health permission).
+- Not built: a photo on a moment (comes with the photo journal).
