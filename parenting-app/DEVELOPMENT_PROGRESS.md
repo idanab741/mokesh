@@ -316,3 +316,16 @@ because the cards say the same things.
 - "דמות וצבע" now has a pose choice: automatic (it says which pose that gives and whether it comes from the age or
   from a marked moment), lying, crawling, standing, limited to the poses the chosen character has clips for. Before this
   a pose saved by the old look editor, or one implied by a marked moment, could not be seen or changed anywhere.
+
+## Lili the companion, sterilising, the album (2026-11-21)
+
+- `domain/advisor.ts` + `Companion`: Lili (a crescent-moon mascot in six poses, cut from the user's image into
+  `assets/mascot/`) opens the sheet on Home with one thing worth saying and a button that acts on it. Priority: empty app,
+  running sleep, empty day, what the family's own routine expects about now, sterilising, a fresh moment, an empty album,
+  today's sleep against the family's usual, still learning, all good. It only restates the diary and the learned
+  routine and suggests what to log; it gives no medical or care advice. 4 Jest tests.
+- Sterilising: logged as an "other" activity titled "עיקור ציוד" whose note says what was in the batch, so it syncs and
+  shows in the journal without a new table. Home shows when it was last done and how many bottles of that batch are
+  still clean (the batch minus every bottle feeding logged since). 1 Jest test.
+- The album on Home: up to five badges (caught moments in colour, the next ones locked) and the count, opening the
+  moments screen.
