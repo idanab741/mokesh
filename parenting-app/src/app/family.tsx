@@ -106,6 +106,7 @@ export default function FamilyScreen() {
         await db.run('DELETE FROM activity_events WHERE child_id IN (SELECT id FROM children WHERE family_id = ?)', [id]);
         await db.run('DELETE FROM measurements WHERE child_id IN (SELECT id FROM children WHERE family_id = ?)', [id]);
         await db.run('DELETE FROM milestones WHERE child_id IN (SELECT id FROM children WHERE family_id = ?)', [id]);
+        for (const t of ['health_records', 'medication_administrations', 'medications', 'appointments']) await db.run(`DELETE FROM ${t} WHERE child_id IN (SELECT id FROM children WHERE family_id = ?)`, [id]);
         await db.run('DELETE FROM children WHERE family_id = ?', [id]);
         useSession.getState().setActiveChildId(null);
         await qc.invalidateQueries();

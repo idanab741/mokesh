@@ -60,6 +60,35 @@ const SPECS: TableSpec[] = [
     timestamps: ['created_at', 'deleted_at'],
     serverOwned: ['created_by'],
   },
+  {
+    table: 'health_records',
+    columns: ['id', 'child_id', 'created_by', 'record_type', 'occurred_at', 'title', 'temperature_c', 'notes', 'created_at', 'deleted_at'],
+    json: [],
+    timestamps: ['occurred_at', 'created_at', 'deleted_at'],
+    serverOwned: ['created_by'],
+  },
+  // Medications before what was given, because of the foreign key.
+  {
+    table: 'medications',
+    columns: ['id', 'child_id', 'created_by', 'name', 'instructions', 'dose_text', 'prescribed_by', 'created_at', 'deleted_at'],
+    json: [],
+    timestamps: ['created_at', 'deleted_at'],
+    serverOwned: ['created_by'],
+  },
+  {
+    table: 'medication_administrations',
+    columns: ['id', 'medication_id', 'child_id', 'created_by', 'given_at', 'dose_text', 'notes', 'client_event_id', 'created_at', 'deleted_at'],
+    json: [],
+    timestamps: ['given_at', 'created_at', 'deleted_at'],
+    serverOwned: ['created_by'],
+  },
+  {
+    table: 'appointments',
+    columns: ['id', 'child_id', 'created_by', 'kind', 'title', 'scheduled_at', 'location', 'summary', 'created_at', 'deleted_at'],
+    json: [],
+    timestamps: ['scheduled_at', 'created_at', 'deleted_at'],
+    serverOwned: ['created_by'],
+  },
 ];
 
 /** Columns that never change after creation and therefore are not part of an update patch. */

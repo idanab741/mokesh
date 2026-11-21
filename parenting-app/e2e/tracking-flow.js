@@ -243,6 +243,39 @@ const check = (name, cond) => { results.push(`${cond ? 'PASS' : 'FAIL'} ${name}`
   check('the character follows the marked moment (standing)', await page.locator('[data-testid="baby-clip"]').last().locator('video').first().evaluate((v) => /girl-stand-idle.*\.mp4/.test(v.currentSrc || v.src)));
   await shot('25d-home-standing');
 
+  // --- the tastings list is built from the solids that were logged
+  await page.getByRole('tab', { name: 'הילד שלי' }).click(); await wait(600);
+  await btn('טעימות ואלרגנים').click(); await wait(1200);
+  t = await body();
+  check('tastings list shows the foods that were logged and the allergen mark', t.includes('בטטה') && t.includes('טחינה') && t.includes('אלרגני') && t.includes('מזונות שנוסו'));
+  await shot('25f-foods');
+  await page.getByRole('button', { name: 'חזרה' }).click(); await wait(500);
+
+  // --- health notes: a temperature, a medicine that was given, a vaccination, a visit
+  await page.getByRole('tab', { name: 'הילד שלי' }).click(); await wait(600);
+  await btn('בריאות').click(); await wait(1000);
+  await btn('מדידת חום').click(); await wait(500);
+  await page.getByLabel('חום (מעלות צלזיוס)').fill('99'); await btn('שמירה').click(); await wait(500);
+  check('an impossible temperature is refused', (await body()).includes('יש להזין חום במעלות צלזיוס'));
+  await page.getByLabel('חום (מעלות צלזיוס)').fill('38.4'); await btn('שמירה').click(); await wait(900);
+  await btn('תרופה שניתנה').click(); await wait(500);
+  await page.getByLabel('שם התרופה').fill('נובימול'); await page.getByLabel('כמה ניתן (לא חובה)').fill('לפי העלון'); await btn('שמירה').click(); await wait(900);
+  t = await body();
+  check('temperature and the given medicine are listed, with when it was last given', t.includes('38.4') && t.includes('נובימול') && t.includes('מתי ניתן לאחרונה') && t.includes('לא מחשבת מינון'));
+  await shot('25g-health');
+  await page.getByRole('tab', { name: 'חיסונים' }).click(); await wait(500);
+  await btn('הוספת חיסון').click(); await wait(500);
+  await page.getByLabel('שם החיסון').fill('מחומש, מנה ראשונה'); await btn('שמירה').click(); await wait(900);
+  check('a vaccination copied from the booklet is listed', (await body()).includes('מחומש, מנה ראשונה'));
+  await page.getByRole('tab', { name: 'ביקורים' }).click(); await wait(500);
+  await btn('הוספת ביקור').click(); await wait(500);
+  await page.getByLabel('תאריך, יום').fill('25'); await page.getByLabel('תאריך, חודש').fill('12'); await page.getByLabel('תאריך, שנה').fill('2026');
+  await page.getByLabel('שעה (לא חובה)').fill('10:30'); await btn('שמירה').click(); await wait(900);
+  t = await body();
+  check('a future visit is listed as upcoming', t.includes('ביקורים קרובים') && t.includes('טיפת חלב') && t.includes('10:30'));
+  await shot('25h-visits');
+  await page.getByRole('button', { name: 'חזרה' }).click(); await wait(500);
+
   // --- the one-page summary restates what was logged
   await page.getByRole('tab', { name: 'הילד שלי' }).click(); await wait(600);
   await btn('סיכום לרופא/ה').click(); await wait(1200);
