@@ -216,5 +216,5 @@ export function useHealth(childId: string | undefined) {
 /** The colour world of the child on screen (see domain/theme). */
 export function useAppTheme(): AppTheme {
   const { child } = useActiveChild();
-  return resolveTheme(child ? parseAvatar(child.avatar).theme : null, child?.sex ?? 'unspecified');
+  return resolveTheme(child ? parseAvatar(child.avatar).theme : null, child?.sex ?? 'female');
 }
