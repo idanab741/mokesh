@@ -175,3 +175,10 @@ look picker. The boy still falls back to his standing clip in the crawl pose.
   dark girls have a crawl clip only, so they crawl at every age until standing clips exist. The boy has one look.
 - Crawl clips are drawn at 0.85 of the box so the head matches the standing clip, and their backdrop is flattened to
   #F1F1EF with a fitted backdrop field (the generated clip had a vignette that showed as a faint box).
+
+## Six boys from one clip (2026-11-21)
+
+`tools/baby-motion/split.py` cuts a multi-character clip into one looping clip per character (crop, backdrop field,
+plain bright pixels pulled to #F1F1EF, 12-frame crossfade). Six boys in six skin tones crawl; the boy picker offers all
+six. Only the default boy has a standing clip, the others crawl at every age for now. All crawl clips (boys and girls)
+were re-cut with the same script. Eye colour is meant to be changed offline on the finished clips, not generated.

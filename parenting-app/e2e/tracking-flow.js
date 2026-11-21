@@ -213,6 +213,7 @@ const check = (name, cond) => { results.push(`${cond ? 'PASS' : 'FAIL'} ${name}`
   await btn('שמירה והמשך').click(); await wait(1200);
   t = await body();
   check('new child is active with empty data (no leak from sibling)', t.includes('נועם') && t.includes('בן שנתיים ו-3 חודשים') && t.includes('0 האכלות') && !t.includes('בטטה'));
+  await btn('החלפת דמות').click(); await wait(2500); await shot('24b-boy-picker'); await btn('סגירה').click(); await wait(500);
   check('a two-year-old boy stands', await clip.last().locator('video').first().evaluate((v) => /boy-stand-idle.*\.mp4/.test(v.currentSrc || v.src)));
   // the greeting wave plays by itself first; once it is over, a tap must start it again
   await page.waitForSelector('[data-testid="baby-clip"][data-waving="0"]', { timeout: 15000 }).catch(() => {});

@@ -8,6 +8,8 @@ export type { BabyClipMap, BabyClips, BabyLook } from './clips';
  */
 /** The crawl clips are framed tighter than the standing ones; this brings the head to the same size. */
 const CRAWL_SCALE = 0.85;
+/** The six boys were generated in one clip, each framed tighter still. */
+const BOY_CRAWL_SCALE = 0.7;
 
 export const babyClips: BabyClipMap = {
   boy: {
@@ -15,6 +17,12 @@ export const babyClips: BabyClipMap = {
       idle: require('../../../assets/baby/clips/boy-stand-idle.mp4'),
       poster: require('../../../assets/baby/clips/boy-stand-poster.jpg'),
       wave: require('../../../assets/baby/clips/boy-stand-wave.mp4'),
+    },
+    // Cut from one generated clip of six boys crawling (tools/baby-motion/source/boys-crawl-six.mp4).
+    crawl: {
+      idle: require('../../../assets/baby/clips/boy-crawl-idle.mp4'),
+      poster: require('../../../assets/baby/clips/boy-crawl-poster.jpg'),
+      scale: BOY_CRAWL_SCALE,
     },
   },
   girl: {
@@ -35,9 +43,15 @@ export const babyClips: BabyClipMap = {
 /** Shown for a pose that has no clip of its own yet: the standing character of the same sex. */
 export const fallbackClips: Record<'boy' | 'girl', BabyClips | null> = { boy: babyClips.boy.stand ?? null, girl: babyClips.girl.stand ?? babyClips.boy.stand ?? null };
 
-/** The other girls cut from the same three-character clip. They only crawl for now. */
+/** The other characters cut from the same multi-character clips. They only crawl for now. */
 export const babyLooks: Record<'boy' | 'girl', BabyLook[]> = {
-  boy: [],
+  boy: [
+    { key: 'porcelain', label: 'עור בהיר מאוד, שיער בלונדיני', clips: { crawl: { idle: require('../../../assets/baby/clips/boy-porcelain-crawl-idle.mp4'), poster: require('../../../assets/baby/clips/boy-porcelain-crawl-poster.jpg'), scale: BOY_CRAWL_SCALE } } },
+    { key: 'olive', label: 'עור שזוף־בהיר, שיער חום', clips: { crawl: { idle: require('../../../assets/baby/clips/boy-olive-crawl-idle.mp4'), poster: require('../../../assets/baby/clips/boy-olive-crawl-poster.jpg'), scale: BOY_CRAWL_SCALE } } },
+    { key: 'tan', label: 'עור שזוף, שיער חום כהה', clips: { crawl: { idle: require('../../../assets/baby/clips/boy-tan-crawl-idle.mp4'), poster: require('../../../assets/baby/clips/boy-tan-crawl-poster.jpg'), scale: BOY_CRAWL_SCALE } } },
+    { key: 'brown', label: 'עור חום, שיער שחור', clips: { crawl: { idle: require('../../../assets/baby/clips/boy-brown-crawl-idle.mp4'), poster: require('../../../assets/baby/clips/boy-brown-crawl-poster.jpg'), scale: BOY_CRAWL_SCALE } } },
+    { key: 'deep', label: 'עור כהה, שיער שחור', clips: { crawl: { idle: require('../../../assets/baby/clips/boy-deep-crawl-idle.mp4'), poster: require('../../../assets/baby/clips/boy-deep-crawl-poster.jpg'), scale: BOY_CRAWL_SCALE } } },
+  ],
   girl: [
     { key: 'blonde', label: 'בלונדינית, עיניים כחולות', clips: { crawl: { idle: require('../../../assets/baby/clips/girl-blonde-crawl-idle.mp4'), poster: require('../../../assets/baby/clips/girl-blonde-crawl-poster.jpg'), scale: CRAWL_SCALE } } },
     { key: 'dark', label: 'שיער כהה, עור כהה', clips: { crawl: { idle: require('../../../assets/baby/clips/girl-dark-crawl-idle.mp4'), poster: require('../../../assets/baby/clips/girl-dark-crawl-poster.jpg'), scale: CRAWL_SCALE } } },
