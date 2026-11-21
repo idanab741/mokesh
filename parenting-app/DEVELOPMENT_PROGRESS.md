@@ -167,3 +167,11 @@ One generated clip of three girls crawling side by side (three looks) was cut in
 character, backdrop lifted towards #F1F1EF, 12-frame crossfade to close the loop). The light-brown girl is live as the
 girl's crawl pose (8-10 months by default); the blonde and dark looks are kept in `tools/baby-motion/looks/` for the
 look picker. The boy still falls back to his standing clip in the crawl pose.
+
+## Character picker and crawl size (2026-11-21)
+
+- A pose without a clip takes the nearest pose that has one (a sitting-age girl crawls, not stands).
+- `AvatarConfig.look` + `babyLooks`: a parent picks between three girls ("החלפת דמות" under the baby). The blonde and
+  dark girls have a crawl clip only, so they crawl at every age until standing clips exist. The boy has one look.
+- Crawl clips are drawn at 0.85 of the box so the head matches the standing clip, and their backdrop is flattened to
+  #F1F1EF with a fitted backdrop field (the generated clip had a vignette that showed as a faint box).

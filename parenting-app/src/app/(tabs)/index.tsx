@@ -8,6 +8,7 @@ import { EventRow } from '@/components/activity/EventRow';
 import { Avatar } from '@/components/Avatar';
 import { BabyCustomizeSheet, useBabyLook } from '@/components/baby/BabyCard';
 import { BabyFigure, clipsFor } from '@/components/baby/BabyFigure';
+import { BabyLookPicker, looksFor } from '@/components/baby/BabyLookPicker';
 import { MobileIllustration } from '@/components/brand/Illustrations';
 import { Logo } from '@/components/brand/Logo';
 import { DayStrip } from '@/components/home/DayStrip';
@@ -44,6 +45,7 @@ export default function HomeScreen() {
   const unsynced = useUnsynced();
   const [lookOpen, setLookOpen] = useState(false);
   const [quick, setQuick] = useState<QuickKind | null>(null);
+  const [pickOpen, setPickOpen] = useState(false);
   // The baby only turns while Home is actually on screen.
   const [focused, setFocused] = useState(true);
   useFocusEffect(useCallback(() => { setFocused(true); return () => setFocused(false); }, []));
@@ -104,7 +106,8 @@ export default function HomeScreen() {
 
   const look = useBabyLook(child, now);
   // While the character is shown as video, the pose and outfit of the still pictures do not apply.
-  const clips = clipsFor(look.stage, child.sex);
+  const clips = clipsFor(look.stage, child.sex, look.config.look);
+  const canPick = looksFor(child.sex).length > 1;
   const onClip = clips !== null;
   // The baby's expression mirrors the diary: asleep, just fed, or waiting longer than usual.
   const mood = babyMood(month.data ?? [], now, child.sex);
@@ -138,7 +141,7 @@ export default function HomeScreen() {
           <Text variant="label" color={colors.textSecondary}>{`${formatDateLong(now)} · ${formatAgeWithSex(child.birthDate, child.sex, now) ?? ''}`}</Text>
         </View>
         <View style={styles.stageBaby}>
-          <BabyFigure active={focused && !lookOpen && quick === null} mood={mood.mood} stage={look.stage} config={look.config} sex={child.sex} height={320} label={onClip ? `הדמות של ${child.name}` : `הדמות של ${child.name}, ${stageLabel[look.stage]}`} />
+          <BabyFigure active={focused && !lookOpen && !pickOpen && quick === null} mood={mood.mood} stage={look.stage} config={look.config} sex={child.sex} height={320} label={onClip ? `הדמות של ${child.name}` : `הדמות של ${child.name}, ${stageLabel[look.stage]}`} />
           {onClip ? null : (
             <PressScale onPress={() => setLookOpen(true)} accessibilityRole="button" accessibilityLabel="התאמת המראה של הדמות" style={styles.lookBtn}>
               <Palette size={18} color={colors.primaryStrong} strokeWidth={2} />
@@ -148,6 +151,11 @@ export default function HomeScreen() {
         <Text variant="caption" color={colors.textSecondary} style={styles.moodLine} testID="baby-mood-reason">
           {mood.reason ?? (clips?.wave ? 'הקישו על הדמות לנפנוף' : onClip ? '' : 'גררו כדי לסובב')}
         </Text>
+        {canPick ? (
+          <Pressable onPress={() => setPickOpen(true)} accessibilityRole="button" accessibilityLabel="החלפת דמות" hitSlop={8} style={styles.pick}>
+            <Text variant="label" color={colors.primaryStrong} style={{ fontWeight: '600' }}>החלפת דמות</Text>
+          </Pressable>
+        ) : null}
         {/* How long since each thing: below the character, never over it. */}
         <View style={styles.sinceRow}>
           {bubbles.map((b) => {
@@ -257,6 +265,7 @@ export default function HomeScreen() {
         )}
       </Rise>
 
+      <BabyLookPicker child={child} open={pickOpen} onClose={() => setPickOpen(false)} />
       <QuickLog kind={quick} onClose={() => setQuick(null)} childId={child.id} routine={routine} activeSleep={activeSleep ?? null} />
       {onClip ? null : <BabyCustomizeSheet child={child} now={now} open={lookOpen} onClose={() => setLookOpen(false)} />}
     </Screen>
@@ -274,6 +283,7 @@ const styles = StyleSheet.create({
   stageBaby: { marginTop: -spacing.lg, alignItems: 'center', justifyContent: 'flex-end', height: 320 },
   bubbleIcon: { width: 32, height: 32, borderRadius: 12, alignItems: 'center', justifyContent: 'center' },
   lookBtn: { position: 'absolute', bottom: 0, end: 0, width: 44, height: 44, borderRadius: 16, backgroundColor: colors.surface, alignItems: 'center', justifyContent: 'center', ...shadow.card },
+  pick: { alignSelf: 'center', minHeight: 36, justifyContent: 'center' },
   moodLine: { alignSelf: 'center', marginTop: spacing.xs },
   sinceRow: { flexDirection: 'row', gap: spacing.sm, marginTop: spacing.md },
   since: { flex: 1, alignItems: 'center', gap: 2, backgroundColor: colors.surface, borderRadius: 20, paddingVertical: spacing.sm, paddingHorizontal: spacing.xs, ...shadow.card },

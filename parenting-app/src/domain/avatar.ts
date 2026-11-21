@@ -16,6 +16,8 @@ export interface AvatarConfig {
   hair: HairKey;
   eyes: EyeKey;
   cloth: ClothKey;
+  /** Which rendered character is shown; 'auto' is the default one for the child's sex. */
+  look: string;
 }
 
 /**
@@ -86,7 +88,7 @@ export const outfitName: Record<string, string> = {
 };
 const OUTFIT_KEYS = { '#A9D8DC': 'teal', '#A8C8F0': 'blue', '#F5A9BF': 'pink', '#C9B8F2': 'lilac', '#F6D58A': 'yellow', '#FFFFFF': 'white' } as const;
 
-export const DEFAULT_AVATAR: AvatarConfig = { outfit: 'auto', stage: 'auto', skin: 'peach', hair: 'golden', eyes: 'brown', cloth: 'mint' };
+export const DEFAULT_AVATAR: AvatarConfig = { outfit: 'auto', stage: 'auto', skin: 'peach', hair: 'golden', eyes: 'brown', cloth: 'mint', look: 'auto' };
 
 export const stageLabel: Record<BabyStage, string> = { tummy: 'שכיבה על הבטן', sit: 'ישיבה', crawl: 'זחילה', stand: 'עמידה' };
 
@@ -126,6 +128,7 @@ export function parseAvatar(raw: string | null | undefined): AvatarConfig {
       hair: keyIn(HAIR_COLORS, v.hair, 'golden'),
       eyes: keyIn(EYE_COLORS, v.eyes, 'brown'),
       cloth: keyIn(CLOTH_COLORS, v.cloth, 'mint'),
+      look: typeof v.look === 'string' && /^[a-z]{1,20}$/.test(v.look) ? v.look : 'auto',
     };
   } catch {
     return DEFAULT_AVATAR;

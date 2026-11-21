@@ -68,7 +68,7 @@ describe('avatar', () => {
   });
   it('falls back to defaults for missing or corrupt data, and ignores unknown outfit colours', () => {
     expect(parseAvatar('not json').stage).toBe('auto');
-    expect(parseAvatar('{"stage":"crawl","outfit":"#123456"}')).toEqual({ stage: 'crawl', outfit: 'auto', skin: 'peach', hair: 'golden', eyes: 'brown', cloth: 'mint' });
+    expect(parseAvatar('{"stage":"crawl","outfit":"#123456"}')).toEqual({ stage: 'crawl', outfit: 'auto', skin: 'peach', hair: 'golden', eyes: 'brown', cloth: 'mint', look: 'auto' });
     expect(parseAvatar('{"skin":"deep","hair":"purple","eyes":"blue","cloth":"sage"}')).toMatchObject({ skin: 'deep', hair: 'golden', eyes: 'blue', cloth: 'sage' });
     expect(lookColors(parseAvatar(null))).toEqual({ skin: null, hair: null, eyes: null, cloth: null });
     expect(lookColors(parseAvatar('{"cloth":"rose"}')).cloth).toHaveLength(4);
