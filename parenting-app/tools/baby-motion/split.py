@@ -17,7 +17,8 @@ while True:
     fr.append(f)
 N, F = len(fr), 12
 H, W = fr[0].shape[:2]
-TARGET = np.array([239, 241, 241], np.float32)  # BGR of #F1F1EF
+# One level above #F1F1EF (BGR): the encoded clip is drawn one level darker than what goes in.
+TARGET = np.array([240, 242, 242], np.float32)
 
 stack = np.stack(fr[::8]).astype(np.int16)
 plain = ((stack.max(3) - stack.min(3)) < 14).all(0) & (stack.min(3) > 195).all(0)
