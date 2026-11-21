@@ -11,7 +11,7 @@ const CRAWL_SCALE = 0.85;
 /** The six boys were generated in one clip, each framed tighter still. */
 const BOY_CRAWL_SCALE = 0.7;
 /** Lying on the back, for the youngest. */
-const LYING_SCALE = 0.9;
+const LYING_SCALE = 0.82;
 /** The girls' lying clip is framed tighter than the boys'. */
 const GIRL_LYING_SCALE = 0.82;
 
@@ -22,7 +22,7 @@ export const babyClips: BabyClipMap = {
       poster: require('../../../assets/baby/clips/boy-stand-poster.jpg'),
       wave: require('../../../assets/baby/clips/boy-stand-wave.mp4'),
     },
-    // Cut from one generated clip of six boys lying on their backs (tools/baby-motion/source/boys-lying-six.mp4).
+    // Cut from one generated clip of six newborn boys lying on their backs (tools/baby-motion/source/boys-lying-six.mp4).
     tummy: {
       idle: require('../../../assets/baby/clips/boy-tummy-idle.mp4'),
       poster: require('../../../assets/baby/clips/boy-tummy-poster.jpg'),
