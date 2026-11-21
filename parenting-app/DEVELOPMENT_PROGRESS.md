@@ -207,3 +207,10 @@ but the character and its contact shadow differs. Not confirmed on an iPhone.
 Six boys lying on their backs, cut from one clip, fill the youngest pose (stored under the `tummy` stage key, now
 labelled "שכיבה"). All six boy looks have lying + crawl; only the default has standing. On a tie the nearest-pose rule
 now takes the later pose, so a sitting-age child crawls rather than lies down.
+
+## Six newborn girls lying (2026-11-21)
+
+Six girls lying on their backs with a newborn look (thin hair, small body), cut from one clip. The girl looks now use
+the same six keys as the boys (porcelain, default, olive, tan, brown, deep); the earlier `blonde` and `dark` crawl clips
+became `porcelain` and `deep`, and saved configs with the old keys are mapped. Olive, tan and brown girls have the lying
+clip only. The boys' lying clip still has full hair; a newborn version would need a new clip.

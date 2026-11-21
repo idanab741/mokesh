@@ -12,6 +12,8 @@ const CRAWL_SCALE = 0.85;
 const BOY_CRAWL_SCALE = 0.7;
 /** Lying on the back, for the youngest. */
 const LYING_SCALE = 0.76;
+/** The girls' lying clip is framed tighter than the boys'. */
+const GIRL_LYING_SCALE = 0.68;
 
 export const babyClips: BabyClipMap = {
   boy: {
@@ -39,6 +41,12 @@ export const babyClips: BabyClipMap = {
       poster: require('../../../assets/baby/clips/girl-stand-poster.jpg'),
       wave: require('../../../assets/baby/clips/girl-stand-wave.mp4'),
     },
+    // Cut from one generated clip of six newborn girls lying on their backs (tools/baby-motion/source/girls-lying-six.mp4).
+    tummy: {
+      idle: require('../../../assets/baby/clips/girl-tummy-idle.mp4'),
+      poster: require('../../../assets/baby/clips/girl-tummy-poster.jpg'),
+      scale: GIRL_LYING_SCALE,
+    },
     // Cut from one generated clip of three girls crawling side by side (tools/baby-motion/source/girls-crawl-three.mp4).
     crawl: {
       idle: require('../../../assets/baby/clips/girl-crawl-idle.mp4'),
@@ -61,7 +69,10 @@ export const babyLooks: Record<'boy' | 'girl', BabyLook[]> = {
     { key: 'deep', label: 'עור כהה, שיער שחור', clips: { tummy: { idle: require('../../../assets/baby/clips/boy-deep-tummy-idle.mp4'), poster: require('../../../assets/baby/clips/boy-deep-tummy-poster.jpg'), scale: LYING_SCALE }, crawl: { idle: require('../../../assets/baby/clips/boy-deep-crawl-idle.mp4'), poster: require('../../../assets/baby/clips/boy-deep-crawl-poster.jpg'), scale: BOY_CRAWL_SCALE } } },
   ],
   girl: [
-    { key: 'blonde', label: 'בלונדינית, עיניים כחולות', clips: { crawl: { idle: require('../../../assets/baby/clips/girl-blonde-crawl-idle.mp4'), poster: require('../../../assets/baby/clips/girl-blonde-crawl-poster.jpg'), scale: CRAWL_SCALE } } },
-    { key: 'dark', label: 'שיער כהה, עור כהה', clips: { crawl: { idle: require('../../../assets/baby/clips/girl-dark-crawl-idle.mp4'), poster: require('../../../assets/baby/clips/girl-dark-crawl-poster.jpg'), scale: CRAWL_SCALE } } },
+    { key: 'porcelain', label: 'עור בהיר מאוד, שיער בלונדיני', clips: { tummy: { idle: require('../../../assets/baby/clips/girl-porcelain-tummy-idle.mp4'), poster: require('../../../assets/baby/clips/girl-porcelain-tummy-poster.jpg'), scale: GIRL_LYING_SCALE }, crawl: { idle: require('../../../assets/baby/clips/girl-porcelain-crawl-idle.mp4'), poster: require('../../../assets/baby/clips/girl-porcelain-crawl-poster.jpg'), scale: CRAWL_SCALE } } },
+    { key: 'olive', label: 'עור שזוף־בהיר, שיער חום', clips: { tummy: { idle: require('../../../assets/baby/clips/girl-olive-tummy-idle.mp4'), poster: require('../../../assets/baby/clips/girl-olive-tummy-poster.jpg'), scale: GIRL_LYING_SCALE } } },
+    { key: 'tan', label: 'עור שזוף, שיער חום כהה', clips: { tummy: { idle: require('../../../assets/baby/clips/girl-tan-tummy-idle.mp4'), poster: require('../../../assets/baby/clips/girl-tan-tummy-poster.jpg'), scale: GIRL_LYING_SCALE } } },
+    { key: 'brown', label: 'עור חום, שיער שחור', clips: { tummy: { idle: require('../../../assets/baby/clips/girl-brown-tummy-idle.mp4'), poster: require('../../../assets/baby/clips/girl-brown-tummy-poster.jpg'), scale: GIRL_LYING_SCALE } } },
+    { key: 'deep', label: 'עור כהה, שיער שחור', clips: { tummy: { idle: require('../../../assets/baby/clips/girl-deep-tummy-idle.mp4'), poster: require('../../../assets/baby/clips/girl-deep-tummy-poster.jpg'), scale: GIRL_LYING_SCALE }, crawl: { idle: require('../../../assets/baby/clips/girl-deep-crawl-idle.mp4'), poster: require('../../../assets/baby/clips/girl-deep-crawl-poster.jpg'), scale: CRAWL_SCALE } } },
   ],
 };

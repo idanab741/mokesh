@@ -14,7 +14,9 @@ const ORDER: BabyStage[] = ['tummy', 'sit', 'crawl', 'stand'];
  */
 export function clipsFor(stage: BabyStage, sex: ChildSex, look = 'auto'): BabyClips | null {
   const who = sex === 'female' ? 'girl' : 'boy';
-  const set = babyLooks[who].find((l) => l.key === look)?.clips ?? babyClips[who];
+  // Names the first two extra girls were saved under.
+  const key = look === 'blonde' ? 'porcelain' : look === 'dark' ? 'deep' : look;
+  const set = babyLooks[who].find((l) => l.key === key)?.clips ?? babyClips[who];
   const at = ORDER.indexOf(stage);
   const nearest = ORDER
     .filter((s) => set[s])

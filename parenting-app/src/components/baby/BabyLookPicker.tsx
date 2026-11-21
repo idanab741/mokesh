@@ -12,11 +12,11 @@ import { babyClips, babyLooks } from './clips';
 export function looksFor(sex: Child['sex']) {
   const who = sex === 'female' ? 'girl' : 'boy';
   const base = babyClips[who];
-  const first = base.crawl ?? base.stand ?? base.sit ?? base.tummy;
+  const first = base.tummy ?? base.crawl ?? base.stand ?? base.sit;
   if (!first || babyLooks[who].length === 0) return [];
   return [
-    { key: 'auto', label: who === 'girl' ? 'שיער חום־בהיר, עיניים חומות' : 'עור בהיר, שיער חום־בהיר', poster: first.poster, standing: !!base.stand },
-    ...babyLooks[who].map((l) => ({ key: l.key, label: l.label, poster: (l.clips.crawl ?? l.clips.stand ?? l.clips.sit ?? l.clips.tummy)!.poster, standing: !!l.clips.stand })),
+    { key: 'auto', label: 'עור בהיר, שיער חום־בהיר', poster: first.poster, standing: !!base.stand && !!base.crawl },
+    ...babyLooks[who].map((l) => ({ key: l.key, label: l.label, poster: (l.clips.tummy ?? l.clips.crawl ?? l.clips.stand ?? l.clips.sit)!.poster, standing: !!l.clips.stand && !!l.clips.crawl })),
   ];
 }
 
@@ -24,7 +24,8 @@ export function BabyLookPicker({ child, open, onClose }: { child: Child; open: b
   const { setAvatar } = useChildMutations();
   const config = parseAvatar(child.avatar);
   const looks = looksFor(child.sex);
-  const current = looks.some((l) => l.key === config.look) ? config.look : 'auto';
+  const saved = config.look === 'blonde' ? 'porcelain' : config.look === 'dark' ? 'deep' : config.look;
+  const current = looks.some((l) => l.key === saved) ? saved : 'auto';
   return (
     <Sheet visible={open} onClose={onClose} title={`הדמות של ${child.name}`}>
       <View style={styles.row} accessibilityRole="radiogroup">
@@ -37,12 +38,12 @@ export function BabyLookPicker({ child, open, onClose }: { child: Child; open: b
               <View style={styles.poster}><Image source={l.poster} style={styles.posterImage} resizeMode="cover" accessibilityIgnoresInvertColors /></View>
               {selected ? <View style={styles.check}><Check size={16} color={colors.white} strokeWidth={3} /></View> : null}
               <Text variant="caption" center color={colors.textSecondary} numberOfLines={2}>{l.label}</Text>
-              {l.standing ? null : <Text variant="caption" center color={colors.warning}>בלי עמידה בינתיים</Text>}
+              {l.standing ? null : <Text variant="caption" center color={colors.warning}>חסרות תנוחות</Text>}
             </Pressable>
           );
         })}
       </View>
-      <Text variant="caption" color={colors.textSecondary}>לדמויות שמסומנות "בלי עמידה" עוד אין סרטון עמידה, ולכן מגיל 11 חודשים הן ימשיכו להופיע בזחילה עד שנוסיף אותו.</Text>
+      <Text variant="caption" color={colors.textSecondary}>לדמות שמסומנת "חסרות תנוחות" עוד אין סרטון לכל גיל. עד שנוסיף, היא תופיע בתנוחה הקרובה ביותר שיש לה.</Text>
     </Sheet>
   );
 }
