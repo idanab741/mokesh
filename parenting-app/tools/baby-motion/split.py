@@ -15,7 +15,10 @@ while True:
     ok, f = cap.read()
     if not ok: break
     fr.append(f)
-N, F = len(fr), 12
+import os
+N = len(fr)
+# NOLOOP=1 keeps every frame as it is (for a one-shot clip, or a clip that already loops).
+F = 0 if os.environ.get('NOLOOP') else 12
 H, W = fr[0].shape[:2]
 # One level above #F1F1EF (BGR): the encoded clip is drawn one level darker than what goes in.
 TARGET = np.array([240, 242, 242], np.float32)
@@ -41,16 +44,26 @@ def clean(a):
     w = cv2.GaussianBlur(w, (0, 0), 1.2)[..., None]
     return a * (1 - w) + TARGET * w
 
+# The clip is shown with hard edges, so its outermost 3% is eased into the canvas colour: a soft
+# shadow or a strand of hair that reaches the border ends there instead of being cut by a line.
+def border(h, w, band=0.03):
+    y = np.minimum(np.arange(h), np.arange(h)[::-1]) / (h * band)
+    x = np.minimum(np.arange(w), np.arange(w)[::-1]) / (w * band)
+    e = np.clip(np.minimum(y[:, None], x[None, :]), 0, 1)
+    return (e * e * (3 - 2 * e))[..., None].astype(np.float32)
+EDGE = border(ch, cw)
+
 for name, cx, cy in cells:
     x0, y0 = cx - cw // 2, cy - ch // 2
     g = gain[y0:y0 + ch, x0:x0 + cw]
     out = []
     for i in range(F, N):
         a = fr[i][y0:y0 + ch, x0:x0 + cw].astype(np.float32)
-        if i >= N - F:
+        if F and i >= N - F:
             t = (i - (N - F) + 1) / (F + 1)
             a = a * (1 - t) + fr[i - (N - F)][y0:y0 + ch, x0:x0 + cw].astype(np.float32) * t
-        a = np.clip(clean(np.clip(a * g, 0, 255)), 0, 255).astype(np.uint8)
+        a = clean(np.clip(a * g, 0, 255))
+        a = np.clip(TARGET + (a - TARGET) * EDGE, 0, 255).astype(np.uint8)
         out.append(cv2.resize(a, (668, 720), interpolation=cv2.INTER_LANCZOS4))
     p = subprocess.Popen(['ffmpeg', '-v', 'error', '-y', '-f', 'rawvideo', '-pix_fmt', 'bgr24', '-s', '668x720', '-r', '24', '-i', '-',
                           '-c:v', 'libx264', '-crf', '22', '-preset', 'slow', '-pix_fmt', 'yuv420p', '-movflags', '+faststart', '-an',

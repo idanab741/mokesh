@@ -12,7 +12,6 @@ const ASPECT = 668 / 720;
 // `darken`, keeps per channel the darker of the two, so nothing in the clip is ever lighter than
 // the canvas and a backdrop that comes out too light simply disappears.
 const CANVAS = '#F1F1EF';
-const FEATHER = 'linear-gradient(to right, transparent 0, #000 16%, #000 84%, transparent 100%), linear-gradient(to bottom, transparent 0, #000 10%, #000 92%, transparent 100%)';
 const layer: CSSProperties = { position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', display: 'block', pointerEvents: 'none' };
 
 /**
@@ -66,7 +65,7 @@ export function BabyClip({ clips, height, label, active, greet = true }: BabyCli
 
   return (
     <div role="img" aria-label={label} data-testid="baby-clip" data-waving={waving ? '1' : '0'} onClick={playWave}
-      style={{ position: 'relative', overflow: 'hidden', width: Math.round(height * ASPECT), height, cursor: clips.wave ? 'pointer' : 'default', maskImage: FEATHER, WebkitMaskImage: FEATHER, maskComposite: 'intersect', WebkitMaskComposite: 'source-in' }}>
+      style={{ position: 'relative', overflow: 'hidden', width: Math.round(height * ASPECT), height, cursor: clips.wave ? 'pointer' : 'default' }}>
       <video ref={idle} src={Asset.fromModule(clips.idle).uri} poster={Asset.fromModule(clips.poster).uri} muted loop playsInline autoPlay preload="auto" style={layer} />
       {clips.wave ? (
         <video ref={wave} src={Asset.fromModule(clips.wave).uri} muted playsInline preload="auto" onEnded={backToIdle}

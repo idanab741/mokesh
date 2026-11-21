@@ -193,3 +193,11 @@ the canvas exactly); not confirmed on an iPhone from here.
   level darker, same as Chromium), so the box was not a lighter video. `split.py` now encodes the backdrop one level
   higher; drawn raw (no mask, no blend layer) in Chromium it is exactly 241,241,239 on all nine crawl clips. The older
   standing clips have an uneven backdrop (236-245) hidden only by the feathered edge; not yet re-cut.
+
+## No feathered edges on the clips (2026-11-21)
+
+The user's complaint was the feathered edge itself (16% each side), which faded hands, feet and shadows. The feather
+mask is removed from `BabyClip.web`. To make hard edges invisible, every clip (crawl and the four standing ones, whose
+originals are kept in `tools/baby-motion/source/stand/`) is run through `split.py`: backdrop field, plain pixels pulled
+to the canvas colour, and only the outermost 3% eased into it. Amplified 40x against the canvas in Chromium, nothing
+but the character and its contact shadow differs. Not confirmed on an iPhone.
