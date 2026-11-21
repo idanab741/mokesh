@@ -53,6 +53,14 @@ def border(h, w, band=0.03):
     return (e * e * (3 - 2 * e))[..., None].astype(np.float32)
 EDGE = border(ch, cw)
 
+# FROM/TO cut a part of the source (frames); SUFFIX names the output (idle, wave).
+# TAIL=n blends the last n frames toward the source's first frame, so a one-shot clip hands back to the idle loop.
+first = fr[0]
+fr = fr[int(os.environ.get('FROM', 0)):int(os.environ.get('TO', N))]
+N = len(fr)
+TAIL = int(os.environ.get('TAIL', 0))
+SUFFIX = os.environ.get('SUFFIX', 'idle')
+
 for name, cx, cy in cells:
     x0, y0 = cx - cw // 2, cy - ch // 2
     g = gain[y0:y0 + ch, x0:x0 + cw]
@@ -62,13 +70,16 @@ for name, cx, cy in cells:
         if F and i >= N - F:
             t = (i - (N - F) + 1) / (F + 1)
             a = a * (1 - t) + fr[i - (N - F)][y0:y0 + ch, x0:x0 + cw].astype(np.float32) * t
+        if TAIL and i >= N - TAIL:
+            t = (i - (N - TAIL) + 1) / TAIL
+            a = a * (1 - t) + first[y0:y0 + ch, x0:x0 + cw].astype(np.float32) * t
         a = clean(np.clip(a * g, 0, 255))
         a = np.clip(TARGET + (a - TARGET) * EDGE, 0, 255).astype(np.uint8)
         out.append(cv2.resize(a, (668, 720), interpolation=cv2.INTER_LANCZOS4))
     p = subprocess.Popen(['ffmpeg', '-v', 'error', '-y', '-f', 'rawvideo', '-pix_fmt', 'bgr24', '-s', '668x720', '-r', '24', '-i', '-',
                           '-c:v', 'libx264', '-crf', '22', '-preset', 'slow', '-pix_fmt', 'yuv420p', '-movflags', '+faststart', '-an',
-                          f'{prefix}{name}-idle.mp4'], stdin=subprocess.PIPE)
+                          f'{prefix}{name}-{SUFFIX}.mp4'], stdin=subprocess.PIPE)
     for f in out: p.stdin.write(f.tobytes())
     p.stdin.close(); p.wait()
-    cv2.imwrite(f'{prefix}{name}-poster.jpg', out[0], [cv2.IMWRITE_JPEG_QUALITY, 90])
+    if SUFFIX == 'idle': cv2.imwrite(f'{prefix}{name}-poster.jpg', out[0], [cv2.IMWRITE_JPEG_QUALITY, 90])
     print(name, [tuple(int(v) for v in out[0][y, x]) for y, x in ((8, 8), (360, 8), (712, 660), (100, 100))])
