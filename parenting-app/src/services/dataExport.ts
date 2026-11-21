@@ -3,10 +3,11 @@ import type { SqlDriver } from '@/data/db/driver';
 
 /** Everything stored about the family, as one JSON document the user can keep. */
 export async function buildExport(db: SqlDriver): Promise<string> {
-  const [children, events, measurements] = await Promise.all([
+  const [children, events, measurements, milestones] = await Promise.all([
     db.all('SELECT id, name, birth_date, sex, gestational_weeks, notes, created_at FROM children WHERE deleted_at IS NULL'),
     db.all('SELECT id, child_id, activity_type, occurred_at, started_at, ended_at, payload, notes FROM activity_events WHERE deleted_at IS NULL ORDER BY occurred_at'),
     db.all('SELECT id, child_id, measured_at, weight_g, length_mm, head_circumference_mm, notes FROM measurements WHERE deleted_at IS NULL ORDER BY measured_at'),
+    db.all('SELECT id, child_id, catalog_key, title, achieved_on, notes FROM milestones WHERE deleted_at IS NULL ORDER BY achieved_on'),
   ]);
   return JSON.stringify({
     exported_at: new Date().toISOString(),
@@ -14,6 +15,7 @@ export async function buildExport(db: SqlDriver): Promise<string> {
     children,
     activity_events: events.map((e) => ({ ...e, payload: JSON.parse(String(e.payload ?? '{}')) })),
     measurements,
+    milestones,
   }, null, 2);
 }
 

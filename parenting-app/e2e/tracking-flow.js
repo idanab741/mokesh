@@ -243,6 +243,15 @@ const check = (name, cond) => { results.push(`${cond ? 'PASS' : 'FAIL'} ${name}`
   check('the character follows the marked moment (standing)', await page.locator('[data-testid="baby-clip"]').last().locator('video').first().evaluate((v) => /girl-stand-idle.*\.mp4/.test(v.currentSrc || v.src)));
   await shot('25d-home-standing');
 
+  // --- the one-page summary restates what was logged
+  await page.getByRole('tab', { name: 'הילד שלי' }).click(); await wait(600);
+  await btn('סיכום לרופא/ה').click(); await wait(1200);
+  t = await body();
+  check('summary lists feeding, sleep, diapers and the marked moment', t.includes('סיכום תיעוד – עלמה') && t.includes('האכלות ביום') && t.includes('ביממה') && t.includes('החלפות ביום') && t.includes('עומדת'));
+  check('summary says it is not a medical document', t.includes('אינו מסמך רפואי'));
+  await shot('25e-report');
+  await page.getByRole('button', { name: 'חזרה' }).click(); await wait(500);
+
   // --- growth
   await page.getByRole('tab', { name: 'הילד שלי' }).click(); await wait(600);
   await btn('מדידות גדילה').click(); await wait(800);
