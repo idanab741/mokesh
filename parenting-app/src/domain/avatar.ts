@@ -90,7 +90,7 @@ const OUTFIT_KEYS = { '#A9D8DC': 'teal', '#A8C8F0': 'blue', '#F5A9BF': 'pink', '
 
 export const DEFAULT_AVATAR: AvatarConfig = { outfit: 'auto', stage: 'auto', skin: 'peach', hair: 'golden', eyes: 'brown', cloth: 'mint', look: 'auto' };
 
-export const stageLabel: Record<BabyStage, string> = { tummy: 'שכיבה על הבטן', sit: 'ישיבה', crawl: 'זחילה', stand: 'עמידה' };
+export const stageLabel: Record<BabyStage, string> = { tummy: 'שכיבה', sit: 'ישיבה', crawl: 'זחילה', stand: 'עמידה' };
 
 export function resolveOutfit(config: AvatarConfig, sex: ChildSex): string {
   if (config.outfit !== 'auto') return config.outfit;

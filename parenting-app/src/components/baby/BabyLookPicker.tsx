@@ -37,12 +37,12 @@ export function BabyLookPicker({ child, open, onClose }: { child: Child; open: b
               <View style={styles.poster}><Image source={l.poster} style={styles.posterImage} resizeMode="cover" accessibilityIgnoresInvertColors /></View>
               {selected ? <View style={styles.check}><Check size={16} color={colors.white} strokeWidth={3} /></View> : null}
               <Text variant="caption" center color={colors.textSecondary} numberOfLines={2}>{l.label}</Text>
-              {l.standing ? null : <Text variant="caption" center color={colors.warning}>זחילה בלבד בינתיים</Text>}
+              {l.standing ? null : <Text variant="caption" center color={colors.warning}>בלי עמידה בינתיים</Text>}
             </Pressable>
           );
         })}
       </View>
-      <Text variant="caption" color={colors.textSecondary}>לדמויות שמסומנות "זחילה בלבד" עוד אין סרטון עמידה, ולכן הן יופיעו בזחילה בכל גיל עד שנוסיף אותו.</Text>
+      <Text variant="caption" color={colors.textSecondary}>לדמויות שמסומנות "בלי עמידה" עוד אין סרטון עמידה, ולכן מגיל 11 חודשים הן ימשיכו להופיע בזחילה עד שנוסיף אותו.</Text>
     </Sheet>
   );
 }
