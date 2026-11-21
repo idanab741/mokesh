@@ -8,7 +8,6 @@ import { EventRow } from '@/components/activity/EventRow';
 import { Avatar } from '@/components/Avatar';
 import { BabyCustomizeSheet, useBabyLook } from '@/components/baby/BabyCard';
 import { BabyFigure, clipsFor } from '@/components/baby/BabyFigure';
-import { BabyLookPicker, looksFor } from '@/components/baby/BabyLookPicker';
 import { MobileIllustration } from '@/components/brand/Illustrations';
 import { Logo } from '@/components/brand/Logo';
 import { DayStrip } from '@/components/home/DayStrip';
@@ -45,7 +44,6 @@ export default function HomeScreen() {
   const unsynced = useUnsynced();
   const [lookOpen, setLookOpen] = useState(false);
   const [quick, setQuick] = useState<QuickKind | null>(null);
-  const [pickOpen, setPickOpen] = useState(false);
   const theme = useAppTheme();
   const health = useHealth(child?.id);
   const moments = useMilestones(child?.id);
@@ -95,13 +93,6 @@ export default function HomeScreen() {
     ...(nextVisit ? [{ key: 'visit', icon: CalendarClock, title: `${nextVisit.title} · ${formatDateShort(new Date(nextVisit.at))} ${formatTime(new Date(nextVisit.at))}`, detail: 'הביקור הקרוב', href: '/health' as const }] : []),
     ...(lastMoment ? [{ key: 'moment', icon: Sparkles, title: lastMoment.title, detail: 'הרגע האחרון שסימנתם', href: '/milestones' as const }] : []),
   ];
-  const shortcuts: { label: string; icon: LucideIcon; href: '/milestones' | '/health' | '/foods' | '/report' | '/family'; bg: string; ink: string }[] = [
-    { label: 'רגעים', icon: Sparkles, href: '/milestones', bg: '#FFE8EF', ink: '#BE2C55' },
-    { label: 'בריאות', icon: HeartPulse, href: '/health', bg: '#DDF6F0', ink: '#0A7767' },
-    { label: 'טעימות', icon: Utensils, href: '/foods', bg: '#FFF0D6', ink: '#955400' },
-    { label: 'סיכום לרופא', icon: ClipboardList, href: '/report', bg: '#E4F0FF', ink: '#1F6BC2' },
-    { label: 'משפחה', icon: Users, href: '/family', bg: '#ECEAFF', ink: '#4740C2' },
-  ];
   // The soonest thing the family's own routine expects.
   const next = predictions[0];
   const nextTitle = { feed: 'ההאכלה הבאה', sleep: 'השינה הבאה', wake: 'התעוררות', diaper: 'ההחלפה הבאה' } as const;
@@ -139,7 +130,6 @@ export default function HomeScreen() {
   const look = useBabyLook(child, now);
   // While the character is shown as video, the pose and outfit of the still pictures do not apply.
   const clips = clipsFor(look.stage, child.sex, look.config.look);
-  const canPick = looksFor(child.sex).length > 1;
   const onClip = clips !== null;
   // The baby's expression mirrors the diary: asleep, just fed, or waiting longer than usual.
   const mood = babyMood(month.data ?? [], now, child.sex);
@@ -173,7 +163,7 @@ export default function HomeScreen() {
         </View>
         <View style={styles.archRing}>
           <View style={styles.arch}>
-            <BabyFigure active={focused && !lookOpen && !pickOpen && quick === null} mood={mood.mood} stage={look.stage} config={look.config} sex={child.sex} height={320} label={onClip ? `הדמות של ${child.name}` : `הדמות של ${child.name}, ${stageLabel[look.stage]}`} />
+            <BabyFigure active={focused && !lookOpen && quick === null} mood={mood.mood} stage={look.stage} config={look.config} sex={child.sex} height={320} label={onClip ? `הדמות של ${child.name}` : `הדמות של ${child.name}, ${stageLabel[look.stage]}`} />
           </View>
           {onClip ? null : (
             <PressScale onPress={() => setLookOpen(true)} accessibilityRole="button" accessibilityLabel="התאמת המראה של הדמות" style={styles.lookBtn}>
@@ -212,35 +202,32 @@ export default function HomeScreen() {
           })}
         </Rise>
 
-      {/* Today in numbers */}
-      <Rise index={4} style={styles.stats}>
-        {todayStats.map((st) => (
-          <PressScale key={st.type} onPress={() => goJournal(st.filter)} accessibilityRole="button" accessibilityLabel={`${st.main}, ${st.sub}. מעבר ליומן`} style={styles.stat}>
-            <ActivityBadge type={st.type} size={36} soft />
-            <View style={{ flex: 1 }}>
-              <Text variant="bodyStrong" numberOfLines={1}>{st.main}</Text>
-              <Text variant="caption" color={colors.textSecondary} numberOfLines={1}>{st.sub}</Text>
-            </View>
-          </PressScale>
-        ))}
+      {/* Today: three totals and the day as a strip, in one card */}
+      <Rise index={4}>
+        <Card style={{ gap: spacing.md }}>
+          <View style={styles.todayHead}>
+            <Text variant="heading" accessibilityRole="header">היום</Text>
+            <Pressable onPress={() => router.push('/(tabs)/journal')} accessibilityRole="link" accessibilityLabel="ליומן של היום" hitSlop={12}>
+              <Text variant="label" color={colors.primaryStrong} style={{ fontWeight: '600' }}>ליומן</Text>
+            </Pressable>
+          </View>
+          <View style={styles.todayRow}>
+            {todayStats.slice(0, 3).map((st, i) => (
+              <Pressable key={st.type} onPress={() => goJournal(st.filter)} accessibilityRole="button" accessibilityLabel={`${st.main}, ${st.sub}. מעבר ליומן`}
+                style={[styles.todayCell, i > 0 && styles.todayDivider]}>
+                <Text variant="bodyStrong" color={activityTones[st.type].ink} numberOfLines={1} adjustsFontSizeToFit>{st.main}</Text>
+                <Text variant="caption" color={colors.textSecondary} numberOfLines={1}>{st.sub}</Text>
+              </Pressable>
+            ))}
+          </View>
+          <DayStrip events={today.data ?? []} now={now} />
+        </Card>
       </Rise>
 
-      {/* Everything beyond the daily tracking, one tap away */}
-      <Rise index={4} style={{ gap: spacing.md }}>
-        <SectionHeader title={`עוד על ${child.name}`} />
-        <View style={styles.shortcuts}>
-          <PressScale onPress={() => setPickOpen(true)} accessibilityRole="button" accessibilityLabel="החלפת דמות" scaleTo={0.94} style={styles.shortcut}>
-            <View style={[styles.shortcutIcon, { backgroundColor: colors.primaryLight }]}><Palette size={24} color={colors.primaryStrong} strokeWidth={1.9} /></View>
-            <Text variant="caption" center numberOfLines={2} style={{ fontWeight: '600' }}>דמות וצבע</Text>
-          </PressScale>
-          {shortcuts.map((sc) => (
-            <PressScale key={sc.href} onPress={() => router.push(sc.href)} accessibilityRole="button" accessibilityLabel={sc.label} scaleTo={0.94} style={styles.shortcut}>
-              <View style={[styles.shortcutIcon, { backgroundColor: sc.bg }]}><sc.icon size={24} color={sc.ink} strokeWidth={1.9} /></View>
-              <Text variant="caption" center numberOfLines={2} style={{ fontWeight: '600' }}>{sc.label}</Text>
-            </PressScale>
-          ))}
-        </View>
-        {highlights.length > 0 ? (
+      {/* Only when there is something current: a medicine given today, the next visit, the latest moment */}
+      {highlights.length > 0 ? (
+        <Rise index={5} style={{ gap: spacing.md }}>
+          <SectionHeader title="כדאי לדעת" />
           <Card style={{ paddingVertical: spacing.xs, gap: 0 }}>
             {highlights.map((hl) => (
               <Pressable key={hl.key} onPress={() => router.push(hl.href)} accessibilityRole="button" accessibilityLabel={`${hl.detail}: ${hl.title}`}
@@ -254,20 +241,15 @@ export default function HomeScreen() {
               </Pressable>
             ))}
           </Card>
-        ) : null}
-      </Rise>
+        </Rise>
+      ) : null}
 
-      <Rise index={4} style={{ gap: spacing.md }}>
-        <SectionHeader title="תובנות מהשגרה שלכם" />
-        <InsightsRow insights={insights} daysMissing={daysMissing} />
-      </Rise>
-
-      <Rise index={5}>
-        <Card style={{ gap: spacing.sm }}>
-          <Text variant="heading" accessibilityRole="header">היום במבט</Text>
-          <DayStrip events={today.data ?? []} now={now} />
-        </Card>
-      </Rise>
+      {insights.length > 0 ? (
+        <Rise index={5} style={{ gap: spacing.md }}>
+          <SectionHeader title="תובנות מהשגרה שלכם" />
+          <InsightsRow insights={insights} daysMissing={daysMissing} />
+        </Rise>
+      ) : null}
 
       {/* Recent activity */}
       <Rise index={6} style={{ gap: spacing.md }}>
@@ -297,7 +279,6 @@ export default function HomeScreen() {
 
       </View>
 
-      <BabyLookPicker child={child} open={pickOpen} onClose={() => setPickOpen(false)} />
       <QuickLog kind={quick} onClose={() => setQuick(null)} childId={child.id} routine={routine} activeSleep={activeSleep ?? null} />
       {onClip ? null : <BabyCustomizeSheet child={child} now={now} open={lookOpen} onClose={() => setLookOpen(false)} />}
     </Screen>
@@ -309,11 +290,6 @@ const styles = themed(() => StyleSheet.create({
   bellDot: { position: 'absolute', top: 10, end: 11, width: 9, height: 9, borderRadius: 5, backgroundColor: colors.danger, borderWidth: 1.5, borderColor: colors.white },
   topEnd: { flexDirection: 'row', alignItems: 'center', gap: spacing.sm },
   bell: { width: 44, height: 44, borderRadius: 22, backgroundColor: colors.surface, alignItems: 'center', justifyContent: 'center', ...shadow.card },
-  stats: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing.sm },
-  stat: { flexBasis: '47%', flexGrow: 1, flexDirection: 'row', alignItems: 'center', gap: spacing.sm, backgroundColor: colors.surface, borderRadius: 18, padding: spacing.sm, paddingEnd: spacing.md },
-  shortcuts: { flexDirection: 'row', flexWrap: 'wrap', rowGap: spacing.md },
-  shortcut: { flexBasis: '33.33%', alignItems: 'center', gap: 6 },
-  shortcutIcon: { width: 56, height: 56, borderRadius: 20, alignItems: 'center', justifyContent: 'center' },
   highlight: { flexDirection: 'row', alignItems: 'center', gap: spacing.md, minHeight: 60, paddingVertical: spacing.sm },
   highlightIcon: { width: 40, height: 40, borderRadius: 20, backgroundColor: colors.primaryLight, alignItems: 'center', justifyContent: 'center' },
   sky: { position: 'absolute', top: -120, start: -spacing.xl, end: -spacing.xl, height: 720 },
@@ -328,5 +304,9 @@ const styles = themed(() => StyleSheet.create({
   childBtn: { borderRadius: 24, padding: 3, backgroundColor: colors.surface, ...shadow.card },
   tiles: { flexDirection: 'row', gap: spacing.sm },
   tile: { flex: 1, alignItems: 'center', gap: 3, borderRadius: 24, paddingVertical: spacing.md, paddingHorizontal: 4 },
+  todayHead: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
+  todayRow: { flexDirection: 'row' },
+  todayCell: { flex: 1, alignItems: 'center', gap: 2, paddingHorizontal: 4 },
+  todayDivider: { borderStartWidth: StyleSheet.hairlineWidth, borderStartColor: colors.borderStrong },
   firstRun: { alignItems: 'center', gap: spacing.sm, paddingVertical: spacing.xl },
 }));

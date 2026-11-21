@@ -44,12 +44,12 @@ const check = (name, cond) => { results.push(`${cond ? 'PASS' : 'FAIL'} ${name}`
   const clip = page.locator('[data-testid="baby-clip"]');
   check('home shows the baby as video, for a girl too', (await clip.count()) === 1);
   check('a six-month-old girl is shown crawling, not standing', await clip.locator('video').first().evaluate((v) => /girl-crawl-idle.*\.mp4/.test(v.currentSrc || v.src)));
-  await btn('החלפת דמות').click(); await wait(2500); await shot('03d-look-picker');
-  await page.getByRole('radio', { name: 'עור בהיר מאוד, שיער בלונדיני' }).click(); await wait(1500);
+  await page.getByRole('tab', { name: 'הילד שלי' }).click(); await wait(600); await btn('דמות וצבע').click(); await wait(2500); await shot('03d-look-picker');
+  await page.getByRole('radio', { name: 'עור בהיר מאוד, שיער בלונדיני' }).click(); await wait(800); await page.getByRole('tab', { name: 'בית' }).click(); await wait(1500);
   check('picking another character changes the clip', await clip.locator('video').first().evaluate((v) => /girl-porcelain-crawl-idle.*\.mp4/.test(v.currentSrc || v.src)));
   await shot('03e-blonde');
-  await btn('החלפת דמות').click(); await wait(600);
-  await page.getByRole('radio', { name: 'עור בהיר, שיער חום־בהיר' }).click(); await wait(1200);
+  await page.getByRole('tab', { name: 'הילד שלי' }).click(); await wait(600); await btn('דמות וצבע').click(); await wait(600);
+  await page.getByRole('radio', { name: 'עור בהיר, שיער חום־בהיר' }).click(); await wait(800); await page.getByRole('tab', { name: 'בית' }).click(); await wait(1500);
   check('no look editor while the baby is a plain clip', (await page.getByRole('button', { name: 'התאמת המראה של הדמות' }).count()) === 0);
   await shot('03c-home-with-baby');
 
@@ -213,7 +213,7 @@ const check = (name, cond) => { results.push(`${cond ? 'PASS' : 'FAIL'} ${name}`
   await btn('שמירה והמשך').click(); await wait(1200);
   t = await body();
   check('new child is active with empty data (no leak from sibling)', t.includes('נועם') && t.includes('בן שנתיים ו-3 חודשים') && t.includes('0 האכלות') && !t.includes('בטטה'));
-  await btn('החלפת דמות').click(); await wait(2500); await shot('24b-boy-picker'); await btn('סגירה').click(); await wait(500);
+  await page.getByRole('tab', { name: 'הילד שלי' }).click(); await wait(600); await btn('דמות וצבע').click(); await wait(2500); await shot('24b-boy-picker'); await btn('סגירה').click(); await wait(500); await page.getByRole('tab', { name: 'בית' }).click(); await wait(1500);
   check('a two-year-old boy stands', await clip.last().locator('video').first().evaluate((v) => /boy-stand-idle.*\.mp4/.test(v.currentSrc || v.src)));
   // the greeting wave plays by itself first; once it is over, a tap must start it again
   await page.waitForSelector('[data-testid="baby-clip"][data-waving="0"]', { timeout: 15000 }).catch(() => {});
@@ -279,8 +279,8 @@ const check = (name, cond) => { results.push(`${cond ? 'PASS' : 'FAIL'} ${name}`
   // --- Home surfaces what is beyond the daily tracking
   await page.getByRole('tab', { name: 'בית' }).click(); await wait(1500);
   t = await body();
-  check('home links to moments, health, tastings, summary and family', ['עוד על עלמה', 'רגעים', 'בריאות', 'טעימות', 'סיכום לרופא', 'משפחה'].every((x) => t.includes(x)));
-  check('home shows the next visit, the medicine given today and the latest moment', t.includes('הביקור הקרוב') && t.includes('נובימול ניתן') && t.includes('הרגע האחרון שסימנתם'));
+  check('home stays simple: no grid of shortcuts, one card for today', !t.includes('עוד על') && t.includes('ליומן'));
+  check('home shows the next visit, the medicine given today and the latest moment', t.includes('כדאי לדעת') && t.includes('הביקור הקרוב') && t.includes('נובימול ניתן') && t.includes('הרגע האחרון שסימנתם'));
   await page.mouse.move(195, 400); await page.mouse.wheel(0, 620); await wait(900); await shot('25i-home-more'); await page.mouse.wheel(0, -3000); await wait(400);
 
   // --- the one-page summary restates what was logged
