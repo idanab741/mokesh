@@ -92,6 +92,15 @@ const check = (name, cond) => { results.push(`${cond ? 'PASS' : 'FAIL'} ${name}`
   await shot('05b-quick-feed');
   await btn('סגירה').click(); await wait(500);
 
+  // --- Lili and sterilising
+  t = await body();
+  check('the companion says something on Home', t.includes('לילי, המלווה שלכם'));
+  await btn('תיעוד עיקור').click(); await wait(600);
+  await shot('05d-sterilize');
+  await page.getByRole('button', { name: /^שמירה: 6 בקבוקים/ }).click(); await wait(900);
+  t = await body();
+  check('sterilising is saved and six clean bottles are counted', t.includes('6 בקבוקים נקיים') && t.includes('פטמות'));
+
   // --- quick diaper
   await btn('תיעוד חיתול').click(); await wait(600); await shot('05c-quick-diaper');
   await btn('חיתול רטוב').click(); await wait(900);
@@ -167,6 +176,8 @@ const check = (name, cond) => { results.push(`${cond ? 'PASS' : 'FAIL'} ${name}`
   await page.getByRole('tab', { name: 'יומן' }).click(); await wait(900);
   await shot('13-journal');
   t = await body();
+  // the list draws rows as they come near: read again after scrolling
+  await page.mouse.move(195, 500); await page.mouse.wheel(0, 900); await wait(700); t += await body(); await page.mouse.wheel(0, -3000); await wait(400);
   check('journal lists today events incl. cross-midnight sleep', t.includes('\u206621:00–05:30\u2069') && t.includes('התחילה ביום הקודם') && t.includes('בטטה, טחינה'));
   await page.getByRole('button', { name: 'האכלות', exact: true }).click(); await wait(400);
   t = await body();

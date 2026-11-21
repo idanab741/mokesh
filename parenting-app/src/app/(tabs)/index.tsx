@@ -13,6 +13,7 @@ import { Logo } from '@/components/brand/Logo';
 import { DayStrip } from '@/components/home/DayStrip';
 import { InsightsRow } from '@/components/home/InsightsRow';
 import { QuickLog, type QuickKind } from '@/components/home/QuickLog';
+import { Album, Companion, SterilizeCard, SterilizeSheet } from '@/components/home/Companion';
 import { Ring } from '@/components/home/Ring';
 import { activityIcons } from '@/components/ui/Icons';
 import { Float, PressScale, Rise } from '@/components/ui/motion';
@@ -25,7 +26,9 @@ import { stageLabel } from '@/domain/avatar';
 import { buildInsights, daysUntilInsights } from '@/domain/insights';
 import { babyMood } from '@/domain/mood';
 import { learnRoutine, predictNext } from '@/domain/routine';
+import { buildAdvice } from '@/domain/advisor';
 import { computeRangeStats } from '@/domain/stats';
+import { sterilizeState } from '@/domain/sterilize';
 import { summarizeDay } from '@/domain/summary';
 import { useActiveChild, useEventsBetween, useAppTheme, useHealth, useMilestones, useNow, useRecentEvents, useUnsynced } from '@/hooks/data';
 import { diaperKindLabel, sleepingWord } from '@/i18n/he';
@@ -47,6 +50,7 @@ export default function HomeScreen() {
   const [lookOpen, setLookOpen] = useState(false);
   const [quick, setQuick] = useState<QuickKind | null>(null);
   const theme = useAppTheme();
+  const [sterOpen, setSterOpen] = useState(false);
   const health = useHealth(child?.id);
   const moments = useMilestones(child?.id);
   // The baby only turns while Home is actually on screen.
@@ -170,6 +174,26 @@ export default function HomeScreen() {
     },
   ];
 
+  // Lili, the companion: one thing worth saying now, built only from the diary and this family's routine.
+  const sterilize = useMemo(() => sterilizeState(month.data ?? []), [month.data]);
+  const marked = moments.data ?? [];
+  const latestMoment = marked.find((m) => m.achievedOn) ?? null;
+  const advice = buildAdvice({
+    childName: child.name, sex: child.sex, now,
+    eventsToday: (today.data ?? []).length, totalEvents: (month.data ?? []).length,
+    asleepMin: activeSleep && sleepStart ? Math.max(0, (now.getTime() - sleepStart.getTime()) / 60_000) : null,
+    awakeMin: routine.sleep.lastWakeAt ? Math.max(0, (now.getTime() - routine.sleep.lastWakeAt.getTime()) / 60_000) : null,
+    routine, predictions, sterilize, usesBottles: routine.feed.bottleMl !== null,
+    moments: { count: marked.length, latestTitle: latestMoment?.title ?? null,
+      latestDaysAgo: latestMoment?.achievedOn ? Math.max(0, Math.round((now.getTime() - new Date(`${latestMoment.achievedOn}T12:00:00`).getTime()) / 86_400_000)) : null },
+    sleepTodayMin: s.minutes, usualSleepMin: usualDay?.sleepMinPerDay ?? null,
+  });
+  const onAdvice = () => {
+    const kind = advice.action?.kind;
+    if (kind === 'feed') setQuick('feed'); else if (kind === 'sleep') setQuick('sleep'); else if (kind === 'diaper') setQuick('diaper');
+    else if (kind === 'sterilize') setSterOpen(true); else if (kind === 'moments') router.push('/milestones');
+  };
+
   const isBrandNew = recent.data !== undefined && recent.data.length === 0;
 
   const look = useBabyLook(child, now);
@@ -221,6 +245,10 @@ export default function HomeScreen() {
       {/* The sheet that rises over the sky: what is going on now, and the four things to log. */}
       <View style={styles.sheet}>
         <Rise index={2}>
+          <Companion advice={advice} onAction={onAdvice} />
+        </Rise>
+
+        <Rise index={2}>
           <Text variant="title" color={colors.ink} accessibilityRole="header">{`היום של ${child.name}`}</Text>
           <Text variant="label" color={colors.textSecondary}>שלושת הדברים שהיום של תינוק בנוי מהם.</Text>
         </Rise>
@@ -256,6 +284,12 @@ export default function HomeScreen() {
           <Text variant="caption" color={colors.textSecondary} center>
             {anyLearned ? 'הטבעת מתמלאת ככל שמתקרבים לזמן הרגיל שלכם' : 'הטבעות יתחילו להתמלא אחרי כמה ימי תיעוד'}
           </Text>
+        </Rise>
+
+        {/* The gear, and the album of moments */}
+        <Rise index={4} style={{ gap: spacing.md }}>
+          <SterilizeCard state={sterilize} now={now} onLog={() => setSterOpen(true)} />
+          <Album marked={marked} sex={child.sex} name={child.name} onOpen={() => router.push('/milestones')} />
         </Rise>
 
       {/* Only when there is something current: a medicine given today, the next visit, the latest moment */}
@@ -313,6 +347,7 @@ export default function HomeScreen() {
 
       </View>
 
+      <SterilizeSheet open={sterOpen} onClose={() => setSterOpen(false)} childId={child.id} last={sterilize} />
       <QuickLog kind={quick} onClose={() => setQuick(null)} childId={child.id} routine={routine} activeSleep={activeSleep ?? null} />
       {onClip ? null : <BabyCustomizeSheet child={child} now={now} open={lookOpen} onClose={() => setLookOpen(false)} />}
     </Screen>
