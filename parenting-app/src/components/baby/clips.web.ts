@@ -11,7 +11,7 @@ const CRAWL_SCALE = 0.85;
 /** The six boys were generated in one clip, each framed tighter still. */
 const BOY_CRAWL_SCALE = 0.7;
 /** Lying on the back, for the youngest. */
-const LYING_SCALE = 0.9;
+const LYING_SCALE = 0.76;
 
 export const babyClips: BabyClipMap = {
   boy: {
