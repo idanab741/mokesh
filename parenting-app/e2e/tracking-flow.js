@@ -276,6 +276,13 @@ const check = (name, cond) => { results.push(`${cond ? 'PASS' : 'FAIL'} ${name}`
   await shot('25h-visits');
   await page.getByRole('button', { name: 'חזרה' }).click(); await wait(500);
 
+  // --- Home surfaces what is beyond the daily tracking
+  await page.getByRole('tab', { name: 'בית' }).click(); await wait(1500);
+  t = await body();
+  check('home links to moments, health, tastings, summary and family', ['עוד על עלמה', 'רגעים', 'בריאות', 'טעימות', 'סיכום לרופא', 'משפחה'].every((x) => t.includes(x)));
+  check('home shows the next visit, the medicine given today and the latest moment', t.includes('הביקור הקרוב') && t.includes('נובימול ניתן') && t.includes('הרגע האחרון שסימנתם'));
+  await page.mouse.move(195, 400); await page.mouse.wheel(0, 620); await wait(900); await shot('25i-home-more'); await page.mouse.wheel(0, -3000); await wait(400);
+
   // --- the one-page summary restates what was logged
   await page.getByRole('tab', { name: 'הילד שלי' }).click(); await wait(600);
   await btn('סיכום לרופא/ה').click(); await wait(1200);
