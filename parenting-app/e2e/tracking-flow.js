@@ -45,11 +45,11 @@ const check = (name, cond) => { results.push(`${cond ? 'PASS' : 'FAIL'} ${name}`
   check('home shows the baby as video, for a girl too', (await clip.count()) === 1);
   check('a six-month-old girl is shown crawling, not standing', await clip.locator('video').first().evaluate((v) => /girl-crawl-idle.*\.mp4/.test(v.currentSrc || v.src)));
   await btn('החלפת דמות').click(); await wait(2500); await shot('03d-look-picker');
-  await page.getByRole('radio', { name: 'בלונדינית, עיניים כחולות' }).click(); await wait(1500);
-  check('picking another character changes the clip', await clip.locator('video').first().evaluate((v) => /girl-blonde-crawl-idle.*\.mp4/.test(v.currentSrc || v.src)));
+  await page.getByRole('radio', { name: 'עור בהיר מאוד, שיער בלונדיני' }).click(); await wait(1500);
+  check('picking another character changes the clip', await clip.locator('video').first().evaluate((v) => /girl-porcelain-crawl-idle.*\.mp4/.test(v.currentSrc || v.src)));
   await shot('03e-blonde');
   await btn('החלפת דמות').click(); await wait(600);
-  await page.getByRole('radio', { name: 'שיער חום־בהיר, עיניים חומות' }).click(); await wait(1200);
+  await page.getByRole('radio', { name: 'עור בהיר, שיער חום־בהיר' }).click(); await wait(1200);
   check('no look editor while the baby is a plain clip', (await page.getByRole('button', { name: 'התאמת המראה של הדמות' }).count()) === 0);
   await shot('03c-home-with-baby');
 
