@@ -7,6 +7,11 @@ export type { BabyClipProps } from './BabyClip';
 /** The clips are this shape. */
 const ASPECT = 668 / 720;
 /** The edges fade out, so the clip's own backdrop melts into the screen (which has the same colour). */
+// A phone can draw video a touch lighter than the same colour in CSS (iPhone Safari does), which
+// shows the clip's backdrop as a pale box. A canvas-coloured layer over the clip, blended with
+// `darken`, keeps per channel the darker of the two, so nothing in the clip is ever lighter than
+// the canvas and a backdrop that comes out too light simply disappears.
+const CANVAS = '#F1F1EF';
 const FEATHER = 'linear-gradient(to right, transparent 0, #000 16%, #000 84%, transparent 100%), linear-gradient(to bottom, transparent 0, #000 10%, #000 92%, transparent 100%)';
 const layer: CSSProperties = { position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', display: 'block', pointerEvents: 'none' };
 
@@ -67,6 +72,7 @@ export function BabyClip({ clips, height, label, active, greet = true }: BabyCli
         <video ref={wave} src={Asset.fromModule(clips.wave).uri} muted playsInline preload="auto" onEnded={backToIdle}
           style={{ ...layer, visibility: waving ? 'visible' : 'hidden' }} />
       ) : null}
+      <div aria-hidden style={{ position: 'absolute', inset: 0, background: CANVAS, mixBlendMode: 'darken', pointerEvents: 'none' }} />
     </div>
   );
 }
