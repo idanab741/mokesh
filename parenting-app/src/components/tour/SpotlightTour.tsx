@@ -9,6 +9,8 @@ export interface TourStep {
   title: string;
   text: string;
   button?: string;
+  /** Corner radius of the spotlight, to match the control's own shape. */
+  radius?: number;
 }
 
 /** The spotlight tour runs on the web build; native shows nothing for now. */

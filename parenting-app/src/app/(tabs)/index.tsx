@@ -43,13 +43,13 @@ const tourTarget = (name: string) => ({ dataSet: { tour: name } }) as object;
 
 const tourSteps = (name: string): TourStep[] => [
   { hero: true, pose: 'wave', title: 'ברוכים הבאים!', text: `אני לילי. חצי דקה ואראה לכם מה יש כאן, ואז נתחיל לתעד את ${name}.`, button: 'יאללה, מתחילים' },
-  { target: 'baby', pose: 'heart', title: `הדמות של ${name}`, text: 'היא גדלה יחד עם הילד: שוכבת, זוחלת ועומדת. אפשר להחליף דמות וצבע בהגדרות.' },
+  { target: 'baby', radius: 52, pose: 'heart', title: `הדמות של ${name}`, text: 'היא גדלה יחד עם הילד: שוכבת, זוחלת ועומדת. אפשר להחליף דמות וצבע בהגדרות.' },
   { target: 'lili', pose: 'point', title: 'כאן אני מדברת', text: 'אגיד מה קורה עכשיו ומה שווה לתעד, ואציע כפתור אחד שעושה את זה.' },
-  { target: 'needs', pose: 'point', title: 'שינה, אוכל, חיתול', text: 'שלושת הדברים שהיום בנוי מהם. הפלוס מתעד בשתי לחיצות, והטבעת מתמלאת ככל שמתקרב הזמן הרגיל שלכם.' },
+  { target: 'needs', radius: 30, pose: 'point', title: 'שינה, אוכל, חיתול', text: 'כרטיס לכל אחד משלושת הדברים שהיום בנוי מהם, כמו זה של השינה. הפלוס מתעד בשתי לחיצות, והטבעת מתמלאת ככל שמתקרב הזמן הרגיל שלכם.' },
   { target: 'sterilizer', pose: 'think', title: 'סטריליזטור', text: 'רושמים מתי הופעל, ואני סופרת כמה בקבוקים נקיים נשארו.' },
   { target: 'album', pose: 'cheer', title: 'האלבום', text: 'חיוך ראשון, שן ראשונה, צעד ראשון. כל רגע שתופסים נשמר כאן.' },
-  { target: 'tab-add', pose: 'point', title: 'הפלוס הגדול', text: 'מכל מסך, פותח את כל סוגי התיעוד: גם הנקה, שאיבה ומוצקים.' },
-  { target: 'tabs', pose: 'point', title: 'הסרגל התחתון', text: 'בית, יומן היום, נתונים, וכל מה שנוגע לילד. אפשר גם לגרור עליו את האצבע.' },
+  { target: 'tab-add', radius: 40, pose: 'point', title: 'הפלוס הגדול', text: 'מכל מסך, פותח את כל סוגי התיעוד: גם הנקה, שאיבה ומוצקים.' },
+  { target: 'tabs', radius: 34, pose: 'point', title: 'הסרגל התחתון', text: 'בית, יומן היום, נתונים, וכל מה שנוגע לילד. אפשר גם לגרור עליו את האצבע.' },
   { hero: true, pose: 'cheer', title: 'זהו, אתם מוכנים', text: 'נתחיל מארבעה דברים קטנים שיעזרו לי להכיר אתכם. אני אלווה אתכם בכל אחד.', button: 'מתחילים' },
 ];
 
@@ -306,12 +306,12 @@ export default function HomeScreen() {
         </Rise>
 
         <Rise index={3} style={{ gap: spacing.md }}>
-          <View style={{ gap: spacing.md }} {...tourTarget('needs')}>
-          {needs.map((n) => {
+          <View style={{ gap: spacing.md }}>
+          {needs.map((n, idx) => {
             const tone = activityTones[n.type];
             const Icon = activityIcons[n.type];
             return (
-              <View key={n.type} style={[styles.need, { backgroundColor: tone.bg }]}>
+              <View key={n.type} style={[styles.need, { backgroundColor: tone.bg }]} {...(idx === 0 ? tourTarget('needs') : {})}>
                 <View style={styles.needHead}>
                   <Pressable onPress={() => goJournal(n.filter)} accessibilityRole="button" accessibilityLabel={`${n.title}: ${n.status}. מעבר ליומן`} style={styles.needInfo}>
                     <Ring size={60} progress={n.ring} color={tone.ink} track="#FFFFFF">
