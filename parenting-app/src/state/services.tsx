@@ -1,3 +1,4 @@
+import { type HealthRepository, createHealthRepository } from '@/data/repositories/health';
 import { type MilestonesRepository, createMilestonesRepository } from '@/data/repositories/milestones';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import * as Network from 'expo-network';
@@ -24,6 +25,7 @@ export interface Services {
   children: ChildrenRepository;
   measurements: MeasurementsRepository;
   milestones: MilestonesRepository;
+  health: HealthRepository;
   /** Null when no Supabase project is configured. */
   syncEngine: SyncEngine | null;
   /** Fire-and-forget: coalesces bursts of writes into one sync round. No-op when signed out. */
@@ -103,6 +105,7 @@ export function ServicesProvider({ children }: { children: ReactNode }) {
         children: createChildrenRepository(db),
         measurements: createMeasurementsRepository(db),
         milestones: createMilestonesRepository(db),
+        health: createHealthRepository(db),
       });
     } catch (err) {
       console.error('[boot] failed to open the local database', err);

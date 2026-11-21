@@ -36,6 +36,6 @@ export async function exportData(db: SqlDriver): Promise<void> {
 /** Removes every record from this device. Does not touch the server. */
 export async function wipeLocalData(db: SqlDriver): Promise<void> {
   await db.transaction(async () => {
-    for (const table of ['activity_events', 'measurements', 'milestones', 'children', 'kv']) await db.run(`DELETE FROM ${table}`);
+    for (const table of ['activity_events', 'measurements', 'milestones', 'health_records', 'medication_administrations', 'medications', 'appointments', 'children', 'kv']) await db.run(`DELETE FROM ${table}`);
   });
 }

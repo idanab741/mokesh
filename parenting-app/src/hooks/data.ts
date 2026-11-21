@@ -182,3 +182,31 @@ export function useMilestoneMutations(childId: string | undefined) {
   const remove = useMutation({ mutationFn: (id: string) => milestones.remove(id), onSuccess: done });
   return { mark, add, update, remove };
 }
+
+export function useFoodLog(childId: string | undefined) {
+  const { events } = useServices();
+  return useQuery({ queryKey: ['events', childId, 'food-log'], queryFn: () => events.foodLog(childId!), enabled: !!childId });
+}
+
+/** Health notes of one child: temperatures, medicines given, vaccinations and visits, with their writes. */
+export function useHealth(childId: string | undefined) {
+  const { health, requestSync } = useServices();
+  const qc = useQueryClient();
+  const q = <T,>(name: string, fn: () => Promise<T>) => useQuery({ queryKey: ['health', childId, name], queryFn: fn, enabled: !!childId });
+  const done = async () => { await qc.invalidateQueries({ queryKey: ['health'] }); requestSync(); };
+  const m = <A,>(fn: (arg: A) => Promise<void>) => useMutation({ mutationFn: fn, onSuccess: done });
+  return {
+    temperatures: q('temperatures', () => health.temperatures(childId!)),
+    vaccinations: q('vaccinations', () => health.vaccinations(childId!)),
+    medications: q('medications', () => health.medications(childId!)),
+    given: q('given', () => health.given(childId!)),
+    visits: q('visits', () => health.visits(childId!)),
+    addTemperature: m((d: Parameters<typeof health.addTemperature>[1]) => health.addTemperature(childId!, d)),
+    addVaccination: m((d: Parameters<typeof health.addVaccination>[1]) => health.addVaccination(childId!, d)),
+    give: m((d: Parameters<typeof health.give>[1]) => health.give(childId!, d)),
+    saveVisit: m((d: Parameters<typeof health.saveVisit>[1]) => health.saveVisit(childId!, d)),
+    removeRecord: m((id: string) => health.removeRecord(id)),
+    removeGiven: m((id: string) => health.removeGiven(id)),
+    removeVisit: m((id: string) => health.removeVisit(id)),
+  };
+}

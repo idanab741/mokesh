@@ -94,6 +94,51 @@ const MIGRATIONS: string[] = [
   );
   CREATE INDEX milestones_child ON milestones (child_id);
   `,
+  // v4: health notes. Columns match public.health_records, medications, medication_administrations, appointments.
+  `
+  CREATE TABLE health_records (
+    id TEXT PRIMARY KEY NOT NULL, child_id TEXT NOT NULL, created_by TEXT, record_type TEXT NOT NULL, occurred_at TEXT NOT NULL,
+    title TEXT, temperature_c REAL, notes TEXT,
+    created_at TEXT NOT NULL,
+    updated_at TEXT NOT NULL,
+    deleted_at TEXT,
+    version INTEGER NOT NULL DEFAULT 0,
+    sync_status TEXT NOT NULL DEFAULT 'pending',
+    conflict_remote TEXT
+  );
+  CREATE INDEX health_records_child ON health_records (child_id, occurred_at DESC);
+  CREATE TABLE medications (
+    id TEXT PRIMARY KEY NOT NULL, child_id TEXT NOT NULL, created_by TEXT, name TEXT NOT NULL, instructions TEXT, dose_text TEXT, prescribed_by TEXT,
+    created_at TEXT NOT NULL,
+    updated_at TEXT NOT NULL,
+    deleted_at TEXT,
+    version INTEGER NOT NULL DEFAULT 0,
+    sync_status TEXT NOT NULL DEFAULT 'pending',
+    conflict_remote TEXT
+  );
+  CREATE TABLE medication_administrations (
+    id TEXT PRIMARY KEY NOT NULL, medication_id TEXT NOT NULL, child_id TEXT NOT NULL, created_by TEXT, given_at TEXT NOT NULL,
+    dose_text TEXT, notes TEXT, client_event_id TEXT NOT NULL,
+    created_at TEXT NOT NULL,
+    updated_at TEXT NOT NULL,
+    deleted_at TEXT,
+    version INTEGER NOT NULL DEFAULT 0,
+    sync_status TEXT NOT NULL DEFAULT 'pending',
+    conflict_remote TEXT
+  );
+  CREATE INDEX med_admin_child ON medication_administrations (child_id, given_at DESC);
+  CREATE TABLE appointments (
+    id TEXT PRIMARY KEY NOT NULL, child_id TEXT NOT NULL, created_by TEXT, kind TEXT NOT NULL, title TEXT NOT NULL, scheduled_at TEXT NOT NULL,
+    location TEXT, summary TEXT,
+    created_at TEXT NOT NULL,
+    updated_at TEXT NOT NULL,
+    deleted_at TEXT,
+    version INTEGER NOT NULL DEFAULT 0,
+    sync_status TEXT NOT NULL DEFAULT 'pending',
+    conflict_remote TEXT
+  );
+  CREATE INDEX appointments_child ON appointments (child_id, scheduled_at);
+  `,
 ];
 
 export async function migrate(driver: SqlDriver): Promise<void> {

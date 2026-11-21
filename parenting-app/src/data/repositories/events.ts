@@ -71,6 +71,11 @@ export interface CreateOptions {
   now?: Date;
 }
 
+export interface FoodLogEntry {
+  name: string; isAllergen: boolean; count: number; firstAt: string; lastAt: string;
+  reactions: { at: string; text: string; with: string[] }[];
+}
+
 export function createEventsRepository(db: SqlDriver) {
   async function getById(id: string): Promise<ActivityEvent | null> {
     const rows = await db.all<EventRow>('SELECT * FROM activity_events WHERE id = ?', [id]);
@@ -222,6 +227,27 @@ export function createEventsRepository(db: SqlDriver) {
         }
       }
       return [...foods.values()].sort((a, b) => b.count - a.count);
+    },
+
+    /** Every food the child has tried, with when it was first and last given and what the family noted next to it. */
+    async foodLog(childId: string): Promise<FoodLogEntry[]> {
+      const rows = await db.all<EventRow>(
+        `SELECT * FROM activity_events WHERE child_id = ? AND activity_type = 'solids' AND deleted_at IS NULL ORDER BY occurred_at ASC LIMIT 2000`, [childId]);
+      const foods = new Map<string, FoodLogEntry>();
+      for (const e of mapRows(rows)) {
+        if (e.type !== 'solids') continue;
+        for (const f of e.payload.foods) {
+          const key = f.name.trim().toLowerCase();
+          let entry = foods.get(key);
+          if (!entry) { entry = { name: f.name.trim(), isAllergen: false, count: 0, firstAt: e.occurredAt, lastAt: e.occurredAt, reactions: [] }; foods.set(key, entry); }
+          entry.count += 1;
+          entry.lastAt = e.occurredAt;
+          entry.isAllergen = entry.isAllergen || f.isAllergen;
+          // A note is written for the whole meal; it is shown next to each food of that meal, with the others named.
+          if (e.payload.reaction) entry.reactions.push({ at: e.occurredAt, text: e.payload.reaction, with: e.payload.foods.filter((o) => o !== f).map((o) => o.name.trim()) });
+        }
+      }
+      return [...foods.values()].sort((a, b) => b.lastAt.localeCompare(a.lastAt));
     },
 
     async countUnsynced(): Promise<{ pending: number; conflicts: number }> {

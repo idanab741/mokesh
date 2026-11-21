@@ -10,6 +10,10 @@ export function createFakeRemote() {
     activity_events: new Map(),
     measurements: new Map(),
     milestones: new Map(),
+    health_records: new Map(),
+    medications: new Map(),
+    medication_administrations: new Map(),
+    appointments: new Map(),
   };
   let clock = Date.parse('2026-01-01T00:00:00.000Z');
   const tick = () => new Date((clock += 1000)).toISOString();

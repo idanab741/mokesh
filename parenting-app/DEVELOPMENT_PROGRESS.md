@@ -246,3 +246,17 @@ Client side of the sharing that the schema already had (families, family_members
 (night / day), diapers, solids and foods, measurements and marked moments. Averages are over days that have records.
 It can be shared as text, copied, or opened as a plain page for printing / saving as PDF (web). It states that it is
 not a medical document and draws no conclusions. The JSON export now includes moments.
+
+## Tastings, and health notes (2026-11-21)
+
+- `/foods`: every food the child tried, built from the logged solids: first and last time, how many times, the
+  family's own allergen mark and the notes written next to those meals. States that the mark is not a medical finding.
+- `/health` with three tabs. Fever and medicines: temperature readings and medicines given, one timeline, and "when it
+  was last given" per medicine. Vaccinations: name and date copied from the booklet, free text, no built-in schedule.
+  Visits: planned and past, with what was said. The app never computes a dose, never says when a medicine may be given
+  again and never interprets a temperature, and says so on the screen.
+- Local schema v4 mirrors `health_records`, `medications`, `medication_administrations`, `appointments`; all four sync.
+  Not synced: `symptoms`, `details`, `is_active`, `status` (left at the server defaults).
+- The server gates these tables with the health permission, so a caregiver neither sees nor adds them. That includes
+  "medicine given", which a caregiver would reasonably want; changing it is a server policy decision.
+- Checked against the real project: a second device sees the temperature, medicine, vaccination and visit.
