@@ -62,12 +62,13 @@ export const spacing = { xs: 4, sm: 8, md: 12, lg: 16, xl: 20, xxl: 24, xxxl: 32
 export const radius = { sm: 10, md: 16, lg: 22, xl: 28, pill: 999 } as const;
 
 /**
- * System typeface: San Francisco (incl. SF Hebrew) on iPhone, iPad and Mac, Roboto / Noto on
+ * Rubik on the web (loaded in app/_layout; rounded, friendly, full Hebrew), falling back to the
+ * system typeface: San Francisco (incl. SF Hebrew) on iPhone, iPad and Mac, Roboto / Noto on
  * Android, Segoe UI on Windows. Nothing is downloaded, and it is the face people's own
  * devices already use everywhere else.
  */
 const family = Platform.select({
-  web: '-apple-system, BlinkMacSystemFont, "SF Pro Text", "SF Hebrew", system-ui, "Segoe UI", Roboto, "Noto Sans Hebrew", Arial, sans-serif',
+  web: 'Rubik, -apple-system, BlinkMacSystemFont, "SF Pro Text", "SF Hebrew", system-ui, "Segoe UI", Roboto, "Noto Sans Hebrew", Arial, sans-serif',
   default: undefined,
 });
 const face = (fontWeight: '400' | '500' | '600' | '700') => ({ fontFamily: family, fontWeight });

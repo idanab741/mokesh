@@ -5,6 +5,8 @@ import type { ChildDraft, MeasurementDraft } from '@/domain/child';
 import type { MilestoneDraft } from '@/data/repositories/milestones';
 import { addDays, startOfDay } from '@/lib/time';
 import { useServices } from '@/state/services';
+import { parseAvatar } from '@/domain/avatar';
+import { type AppTheme, resolveTheme } from '@/domain/theme';
 import { loadFamilies } from '@/services/family';
 import { useSession } from '@/state/session';
 
@@ -209,4 +211,10 @@ export function useHealth(childId: string | undefined) {
     removeGiven: m((id: string) => health.removeGiven(id)),
     removeVisit: m((id: string) => health.removeVisit(id)),
   };
+}
+
+/** The colour world of the child on screen (see domain/theme). */
+export function useAppTheme(): AppTheme {
+  const { child } = useActiveChild();
+  return resolveTheme(child ? parseAvatar(child.avatar).theme : null, child?.sex ?? 'unspecified');
 }

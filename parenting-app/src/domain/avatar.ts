@@ -18,6 +18,8 @@ export interface AvatarConfig {
   cloth: ClothKey;
   /** Which rendered character is shown; 'auto' is the default one for the child's sex. */
   look: string;
+  /** The colour world of the child's screens; 'auto' follows the child's sex. See domain/theme. */
+  theme: string;
 }
 
 /**
@@ -88,7 +90,7 @@ export const outfitName: Record<string, string> = {
 };
 const OUTFIT_KEYS = { '#A9D8DC': 'teal', '#A8C8F0': 'blue', '#F5A9BF': 'pink', '#C9B8F2': 'lilac', '#F6D58A': 'yellow', '#FFFFFF': 'white' } as const;
 
-export const DEFAULT_AVATAR: AvatarConfig = { outfit: 'auto', stage: 'auto', skin: 'peach', hair: 'golden', eyes: 'brown', cloth: 'mint', look: 'auto' };
+export const DEFAULT_AVATAR: AvatarConfig = { outfit: 'auto', stage: 'auto', skin: 'peach', hair: 'golden', eyes: 'brown', cloth: 'mint', look: 'auto', theme: 'auto' };
 
 export const stageLabel: Record<BabyStage, string> = { tummy: 'שכיבה', sit: 'ישיבה', crawl: 'זחילה', stand: 'עמידה' };
 
@@ -129,6 +131,7 @@ export function parseAvatar(raw: string | null | undefined): AvatarConfig {
       eyes: keyIn(EYE_COLORS, v.eyes, 'brown'),
       cloth: keyIn(CLOTH_COLORS, v.cloth, 'mint'),
       look: typeof v.look === 'string' && /^[a-z]{1,20}$/.test(v.look) ? v.look : 'auto',
+      theme: v.theme === 'rose' || v.theme === 'sky' || v.theme === 'meadow' ? v.theme : 'auto',
     };
   } catch {
     return DEFAULT_AVATAR;
