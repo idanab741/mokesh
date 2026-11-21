@@ -363,3 +363,8 @@ The user pointed out that the previous bar and tour were not what Triplace has. 
   flashes); a control taller than the free space is lit only as far as the card; the needs step lights one card, not
   all three; the text slides in per step, with "N מתוך 9" and "חזרה". Checked at 390x844 and 375x667: on every step the
   spotlight is inside the screen and does not meet the card.
+
+## עמוד הפתיחה בעיצוב הקשת
+- `welcome.tsx` נבנה מחדש: שמיים ורודים, הדמות החיה בקשת (תינוקת ותינוק מתחלפים), לילי עם בועת דיבור, שורת פרצופים של הדמויות לבחירה, שלושה יתרונות קצרים והכפתורים הקיימים על גיליון לבן.
+- בלי ילד פעיל, ערכת הצבעים היא ורודה (לא ירוקה). במסך נמוך הקשת קטנה יותר.
+- נבדק ב-Chromium בגודל 390×844 ו-375×667 בלבד, לא על אייפון אמיתי.
