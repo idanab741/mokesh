@@ -27,6 +27,8 @@ import { stageLabel } from '@/domain/avatar';
 import { buildInsights, daysUntilInsights } from '@/domain/insights';
 import { babyMood } from '@/domain/mood';
 import { learnRoutine, predictNext } from '@/domain/routine';
+import { useReminders } from '@/hooks/reminders';
+import { ReminderRow } from '@/components/reminders/ReminderRow';
 import { type Advice, buildAdvice } from '@/domain/advisor';
 import { computeRangeStats } from '@/domain/stats';
 import { sterilizeState } from '@/domain/sterilize';
@@ -53,8 +55,15 @@ const tourSteps = (name: string): TourStep[] => [
   { hero: true, pose: 'cheer', title: 'זהו, אתם מוכנים', text: 'נתחיל מארבעה דברים קטנים שיעזרו לי להכיר אתכם. אני אלווה אתכם בכל אחד.', button: 'מתחילים' },
 ];
 
+/** Home needs a child. Without one (first run, or the family was just left) nothing below is mounted. */
 export default function HomeScreen() {
-  const { child, children } = useActiveChild();
+  const { child } = useActiveChild();
+  if (!child) return <Screen><View /></Screen>;
+  return <HomeBody child={child} />;
+}
+
+function HomeBody({ child }: { child: NonNullable<ReturnType<typeof useActiveChild>['child']> }) {
+  const { children } = useActiveChild();
   const openChildSheet = useUi((s) => s.openChildSheet);
   const openAddSheet = useUi((s) => s.openAddSheet);
   const user = useSession((s) => s.user);
@@ -70,6 +79,7 @@ export default function HomeScreen() {
   const [sterOpen, setSterOpen] = useState(false);
   // Shown once per device: the tour of the screen, and Lili's first steps (which ones were put off).
   const { kv } = useServices();
+  const reminders = useReminders(child.id);
   const [tourOpen, setTourOpen] = useState(false);
   const [skipped, setSkipped] = useState<string[] | null>(null);
   useEffect(() => {
@@ -99,7 +109,6 @@ export default function HomeScreen() {
     () => predictNext(routine, now, activeSleep ? new Date(activeSleep.startedAt ?? activeSleep.occurredAt) : null),
     [routine, now, activeSleep]);
   const tick = useNow(1000, !!activeSleep);
-  if (!child) return <Screen><View /></Screen>;
 
   const hasConflicts = (unsynced.data?.conflicts ?? 0) > 0;
   const goJournal = (filter: FilterKey) => router.push({ pathname: '/(tabs)/journal', params: { filter } });
@@ -300,6 +309,17 @@ export default function HomeScreen() {
           </View>
         </Rise>
 
+        {reminders.due.length > 0 ? (
+          <View style={styles.reminders} testID="home-reminders">
+            <Pressable onPress={() => router.push('/reminders')} accessibilityRole="button" accessibilityLabel="כל התזכורות" style={styles.remindersHead}>
+              <Bell size={16} color={colors.primaryStrong} strokeWidth={2.2} />
+              <Text variant="label" color={colors.primaryStrong} style={{ fontWeight: '700', flex: 1 }}>תזכורות</Text>
+              <ChevronLeft size={16} color={colors.primaryStrong} strokeWidth={2.2} />
+            </Pressable>
+            {reminders.due.slice(0, 3).map((x) => <ReminderRow key={x.key} reminder={x} now={now} due onDone={() => reminders.done(x.key)} />)}
+          </View>
+        ) : null}
+
         <Rise index={2}>
           <Text variant="title" color={colors.ink} accessibilityRole="header">{`היום של ${child.name}`}</Text>
           <Text variant="label" color={colors.textSecondary}>שלושת הדברים שהיום של תינוק בנוי מהם.</Text>
@@ -422,6 +442,8 @@ const styles = themed(() => StyleSheet.create({
   archRing: { alignSelf: 'center', marginTop: spacing.md, padding: 8, borderTopLeftRadius: 164, borderTopRightRadius: 164, borderBottomLeftRadius: 42, borderBottomRightRadius: 42, backgroundColor: 'rgba(255,255,255,0.55)' },
   arch: { width: 312, height: 336, alignItems: 'center', justifyContent: 'center', overflow: 'hidden', backgroundColor: colors.background, borderTopLeftRadius: 156, borderTopRightRadius: 156, borderBottomLeftRadius: 34, borderBottomRightRadius: 34 },
   lookBtn: { position: 'absolute', bottom: 14, end: 14, width: 44, height: 44, borderRadius: 16, backgroundColor: colors.surface, alignItems: 'center', justifyContent: 'center', ...shadow.card },
+  reminders: { backgroundColor: colors.white, borderRadius: 24, padding: spacing.lg, gap: spacing.md, borderWidth: 1, borderColor: colors.primaryLight },
+  remindersHead: { flexDirection: 'row', alignItems: 'center', gap: 6 },
   sheet: { marginHorizontal: -spacing.xl, paddingHorizontal: spacing.xl, paddingTop: spacing.xl, paddingBottom: 130, gap: spacing.lg, backgroundColor: '#FDFBFA', borderTopLeftRadius: 34, borderTopRightRadius: 34 },
   nowLine: { fontSize: 19, lineHeight: 28, fontWeight: '500' },
   nowStrong: { fontSize: 19, lineHeight: 28, fontWeight: '700' },

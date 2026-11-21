@@ -2,9 +2,10 @@ import { Pause, Play, Plus, X } from 'lucide-react-native';
 import { useState } from 'react';
 import { Pressable, StyleSheet, Switch, TextInput, View } from 'react-native';
 import { DateTimeField, FieldGroup, Stepper, TextField } from '@/components/ui/inputs';
+import { SheetCard } from '@/components/ui/SkyScreen';
 import { Button, Chip, ChipGroup, Notice, Segmented } from '@/components/ui/primitives';
 import { Text } from '@/components/ui/Text';
-import { activityTones, colors, fonts, radius, spacing } from '@/design/tokens';
+import { activityTones, colors, fonts, radius, spacing, themed } from '@/design/tokens';
 import { LIMITS } from '@/domain/activity';
 import { useNow } from '@/hooks/data';
 import { amountLabel, diaperColorLabel, diaperKindLabel, diaperTextureLabel, milkTypeLabel, solidsAmountLabel, solidsTextureLabel } from '@/i18n/he';
@@ -26,6 +27,7 @@ const Notes = ({ value, onChange }: { value: string; onChange: (v: string) => vo
 export function BottleForm({ state, set, lastAmount }: FormProps<'bottle'> & { lastAmount: number | null }) {
   return (
     <>
+      <SheetCard>
       <FieldGroup label="סוג החלב">
         <Segmented options={options(milkTypeLabel)} value={state.milkType} onChange={(milkType) => set({ milkType })} />
       </FieldGroup>
@@ -39,8 +41,11 @@ export function BottleForm({ state, set, lastAmount }: FormProps<'bottle'> & { l
           ))}
         </View>
       </FieldGroup>
+      </SheetCard>
+      <SheetCard>
       <DateTimeField label="מתי" value={state.at} onChange={(at) => set({ at })} />
       <Notes value={state.notes} onChange={(notes) => set({ notes })} />
+      </SheetCard>
     </>
   );
 }
@@ -82,6 +87,7 @@ export function NursingForm({ state, set }: FormProps<'nursing'>) {
 
   return (
     <>
+      <SheetCard>
       <FieldGroup label="טיימר לכל צד" hint="לחיצה על צד מפעילה אותו. לחיצה על הצד השני מעבירה אליו. הזמן נשמר גם אם האפליקציה נסגרת.">
         <View style={styles.sides}>
           {renderSide('right', 'ימין')}
@@ -106,8 +112,11 @@ export function NursingForm({ state, set }: FormProps<'nursing'>) {
           </View>
         </FieldGroup>
       ) : null}
+      </SheetCard>
+      <SheetCard>
       <DateTimeField label="מתי התחילה" value={state.at} onChange={(at) => set({ at })} />
       <Notes value={state.notes} onChange={(notes) => set({ notes })} />
+      </SheetCard>
     </>
   );
 }
@@ -116,6 +125,7 @@ export function NursingForm({ state, set }: FormProps<'nursing'>) {
 export function PumpingForm({ state, set }: FormProps<'pumping'>) {
   return (
     <>
+      <SheetCard>
       <FieldGroup label="כמות מכל צד">
         <View style={styles.twoCols}>
           <View style={styles.col}>
@@ -132,11 +142,14 @@ export function PumpingForm({ state, set }: FormProps<'pumping'>) {
         <Text variant="label" color={colors.textSecondary}>כמות כוללת</Text>
         <Text variant="heading">{state.leftMl + state.rightMl} מ״ל</Text>
       </View>
+      </SheetCard>
+      <SheetCard>
       <FieldGroup label="משך השאיבה (לא חובה)">
         <Stepper label="משך השאיבה" unit="דקות" value={state.durationMin} onChange={(durationMin) => set({ durationMin })} step={5} max={240} />
       </FieldGroup>
       <DateTimeField label="מתי" value={state.at} onChange={(at) => set({ at })} />
       <Notes value={state.notes} onChange={(notes) => set({ notes })} />
+      </SheetCard>
     </>
   );
 }
@@ -154,6 +167,7 @@ export function SleepForm({ state, set, isRunning, mode, onMode, isNew }: FormPr
   const duration = state.end ? Math.round((state.end.getTime() - state.start.getTime()) / 60_000) : null;
   return (
     <>
+      <SheetCard>
       {isNew ? (
         <Segmented value={mode} onChange={onMode} options={[{ value: 'timer', label: 'טיימר' }, { value: 'manual', label: 'הזנה בדיעבד' }]} />
       ) : null}
@@ -191,7 +205,10 @@ export function SleepForm({ state, set, isRunning, mode, onMode, isNew }: FormPr
           ) : null}
         </>
       )}
+      </SheetCard>
+      <SheetCard>
       <Notes value={state.notes} onChange={(notes) => set({ notes })} />
+      </SheetCard>
     </>
   );
 }
@@ -201,10 +218,13 @@ export function DiaperForm({ state, set }: FormProps<'diaper'>) {
   const hasStool = state.kind !== 'wet';
   return (
     <>
+      <SheetCard>
       <FieldGroup label="מה היה בחיתול">
         <Segmented options={options(diaperKindLabel)} value={state.kind} onChange={(kind) => set({ kind })} />
       </FieldGroup>
       <DateTimeField label="מתי" value={state.at} onChange={(at) => set({ at })} />
+      </SheetCard>
+      <SheetCard>
       {hasStool ? (
         <>
           <FieldGroup label="צבע (לא חובה)">
@@ -218,7 +238,10 @@ export function DiaperForm({ state, set }: FormProps<'diaper'>) {
       <FieldGroup label="כמות משוערת (לא חובה)">
         <ChipGroup options={options(amountLabel)} value={state.amount} onChange={(amount) => set({ amount })} allowClear />
       </FieldGroup>
+      </SheetCard>
+      <SheetCard>
       <Notes value={state.notes} onChange={(notes) => set({ notes })} />
+      </SheetCard>
     </>
   );
 }
@@ -241,6 +264,7 @@ export function SolidsForm({ state, set, history }: FormProps<'solids'> & { hist
 
   return (
     <>
+      <SheetCard>
       <FieldGroup label="מה אכלו">
         {state.foods.length > 0 ? (
           <View style={styles.presets}>
@@ -265,6 +289,8 @@ export function SolidsForm({ state, set, history }: FormProps<'solids'> & { hist
         </FieldGroup>
       ) : null}
 
+      </SheetCard>
+      <SheetCard>
       <FieldGroup label="הוספת מזון חדש">
         <View style={styles.addFood}>
           <TextInput value={name} onChangeText={setName} onSubmitEditing={add} placeholder="למשל: בטטה" placeholderTextColor="#A8959A"
@@ -278,17 +304,22 @@ export function SolidsForm({ state, set, history }: FormProps<'solids'> & { hist
         </View>
       </FieldGroup>
 
+      </SheetCard>
+      <SheetCard>
       <FieldGroup label="כמות משוערת (לא חובה)">
         <ChipGroup options={options(solidsAmountLabel)} value={state.amount} onChange={(amount) => set({ amount })} allowClear />
       </FieldGroup>
       <FieldGroup label="מרקם (לא חובה)">
         <ChipGroup options={options(solidsTextureLabel)} value={state.texture} onChange={(texture) => set({ texture })} allowClear />
       </FieldGroup>
+      </SheetCard>
+      <SheetCard>
       <DateTimeField label="מתי" value={state.at} onChange={(at) => set({ at })} />
       <TextField label="תגובה שנצפתה (לא חובה)" value={state.reaction} onChangeText={(reaction) => set({ reaction })} multiline maxLength={500}
         placeholder="מה ראיתם אחרי הארוחה" />
       <Notice text="הסימון והתיעוד נועדו לתיעוד בלבד. האפליקציה אינה קובעת אם קיימת אלרגיה. בכל חשש כדאי לפנות לרופא/ה." />
       <Notes value={state.notes} onChange={(notes) => set({ notes })} />
+      </SheetCard>
     </>
   );
 }
@@ -297,26 +328,30 @@ export function SolidsForm({ state, set, history }: FormProps<'solids'> & { hist
 export function OtherForm({ state, set }: FormProps<'other'>) {
   return (
     <>
+      <SheetCard>
       <TextField label="שם הפעילות" value={state.title} onChangeText={(title) => set({ title })} maxLength={80} placeholder="למשל: אמבטיה, זמן בטן, טיול" />
       <DateTimeField label="מתי" value={state.at} onChange={(at) => set({ at })} />
       <Notes value={state.notes} onChange={(notes) => set({ notes })} />
+      </SheetCard>
     </>
   );
 }
 
-const styles = StyleSheet.create({
-  bigValue: { backgroundColor: colors.surface, borderRadius: radius.lg, borderWidth: 1, borderColor: colors.border, paddingVertical: spacing.lg },
+const WELL = '#F8F3F5';
+
+const styles = themed(() => StyleSheet.create({
+  bigValue: { backgroundColor: activityTones.bottle.bg, borderRadius: 24, paddingVertical: spacing.lg },
   presets: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing.sm },
   sides: { flexDirection: 'row', gap: spacing.md },
-  side: { flex: 1, alignItems: 'center', gap: spacing.sm, paddingVertical: spacing.lg, borderRadius: radius.lg, backgroundColor: colors.surface, borderWidth: 1.5, borderColor: colors.border },
+  side: { flex: 1, alignItems: 'center', gap: spacing.sm, paddingVertical: spacing.lg, borderRadius: 24, backgroundColor: WELL, borderWidth: 1.5, borderColor: 'transparent' },
   sideClock: { ...fonts.bold, fontSize: 30, lineHeight: 38, writingDirection: 'ltr' },
   sideBtn: { width: 48, height: 48, borderRadius: 24, alignItems: 'center', justifyContent: 'center' },
-  totalRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', backgroundColor: colors.surfaceMuted, borderRadius: radius.md, paddingHorizontal: spacing.lg, minHeight: 52 },
+  totalRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', backgroundColor: WELL, borderRadius: 18, paddingHorizontal: spacing.lg, minHeight: 52 },
   twoCols: { gap: spacing.md },
-  col: { backgroundColor: colors.surface, borderRadius: radius.lg, borderWidth: 1, borderColor: colors.border, paddingVertical: spacing.md, gap: spacing.xs },
+  col: { backgroundColor: WELL, borderRadius: 22, paddingVertical: spacing.md, gap: spacing.xs },
   timerCard: { alignItems: 'center', borderRadius: radius.xl, paddingVertical: spacing.xxl, gap: spacing.xs },
   foodChip: { flexDirection: 'row', alignItems: 'center', gap: 6, minHeight: 42, paddingHorizontal: spacing.lg, borderRadius: radius.pill, borderWidth: 1 },
   addFood: { flexDirection: 'row', gap: spacing.sm, alignItems: 'center' },
-  addFoodInput: { flex: 1, flexBasis: 0, minWidth: 0, minHeight: 48, borderRadius: radius.md, borderWidth: 1, borderColor: colors.borderStrong, backgroundColor: colors.surface, paddingHorizontal: spacing.lg, ...fonts.regular, fontSize: 16, color: colors.textPrimary, textAlign: 'right' },
+  addFoodInput: { flex: 1, flexBasis: 0, minWidth: 0, minHeight: 48, borderRadius: 18, borderWidth: 1.5, borderColor: 'rgba(58,34,51,0.07)', backgroundColor: WELL, paddingHorizontal: spacing.lg, ...fonts.regular, fontSize: 16, color: colors.textPrimary, textAlign: 'right' },
   switchRow: { flexDirection: 'row', alignItems: 'center', minHeight: 44 },
-});
+}));

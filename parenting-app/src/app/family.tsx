@@ -1,11 +1,12 @@
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { router } from 'expo-router';
-import { ChevronRight, Copy, LogOut, Share2, UserMinus, UserPlus, Users } from 'lucide-react-native';
+import { Copy, LogOut, Share2, UserMinus, UserPlus, Users } from 'lucide-react-native';
 import { useState } from 'react';
 import { Platform, Pressable, StyleSheet, View } from 'react-native';
 import { TextField } from '@/components/ui/inputs';
 import { ConfirmDialog, Sheet, useToast } from '@/components/ui/overlays';
-import { Button, Card, EmptyState, IconButton, Notice, Screen, SectionHeader } from '@/components/ui/primitives';
+import { Button, EmptyState, IconButton, Notice, SectionHeader } from '@/components/ui/primitives';
+import { SheetCard as Card, SkyScreen } from '@/components/ui/SkyScreen';
 import { Text } from '@/components/ui/Text';
 import { colors, radius, spacing, themed } from '@/design/tokens';
 import {
@@ -42,17 +43,15 @@ export default function FamilyScreen() {
   const [myName, setMyNameText] = useState('');
 
   const refresh = async () => { await qc.invalidateQueries({ queryKey: ['families'] }); };
-  const back = <IconButton icon={ChevronRight} label="חזרה" onPress={() => (router.canGoBack() ? router.back() : router.replace('/(tabs)/child'))} tone="surface" />;
 
   if (!config.isCloudConfigured || !user) {
     return (
-      <Screen edges={['top', 'bottom']} contentStyle={{ padding: spacing.xl, gap: spacing.lg }}>
-        {back}
+      <SkyScreen title="משפחה ושיתוף" mascot="heart" onBack={() => (router.canGoBack() ? router.back() : router.replace('/(tabs)/child'))}>
         <EmptyState icon={Users} title="שיתוף משפחתי"
           body="כדי שבן או בת זוג, סבתא או מטפלת יראו ויתעדו יחד איתך, צריך חשבון. הנתונים שכבר תיעדת יישמרו ויעלו לחשבון."
           actionLabel={config.isCloudConfigured ? 'יצירת חשבון או כניסה' : undefined}
           onAction={config.isCloudConfigured ? () => router.push('/auth/sign-up') : undefined} />
-      </Screen>
+      </SkyScreen>
     );
   }
 
@@ -130,9 +129,7 @@ export default function FamilyScreen() {
   const closeInvite = () => { setInviteFor(null); setCode(null); setInviting(false); };
 
   return (
-    <Screen scroll edges={['top', 'bottom']}>
-      <View style={styles.head}>{back}<Text variant="title" accessibilityRole="header" style={{ flex: 1 }}>משפחה ושיתוף</Text></View>
-      <Text color={colors.textSecondary}>מי שמצטרף רואה את אותם ילדים ואותו תיעוד, בזמן אמת, מהטלפון שלו.</Text>
+    <SkyScreen title="משפחה ושיתוף" subtitle="מי שמצטרף רואה את אותם ילדים ואותו תיעוד, בזמן אמת, מהטלפון שלו." onBack={() => (router.canGoBack() ? router.back() : router.replace('/(tabs)/child'))}>
 
       {families.isLoading ? <Text color={colors.textSecondary}>טוען…</Text> : null}
       {families.isError ? <Notice tone="warning" text="לא הצלחנו לטעון את פרטי המשפחה. כדאי לבדוק את החיבור לאינטרנט." /> : null}
@@ -222,12 +219,11 @@ export default function FamilyScreen() {
         title={remove?.member.isMe ? `לצאת מ"${remove.family.name}"?` : `להסיר את ${remove?.member.name ?? 'בן/בת המשפחה'}?`}
         body={remove?.member.isMe ? 'הילדים והתיעוד של המשפחה הזו לא יוצגו יותר אצלך.' : 'הם לא יוכלו עוד לראות או לתעד. אפשר להזמין שוב בכל רגע.'}
         confirmLabel={remove?.member.isMe ? 'יציאה' : 'הסרה'} onCancel={() => setRemove(null)} onConfirm={() => void doRemove()} />
-    </Screen>
+    </SkyScreen>
   );
 }
 
 const styles = themed(() => StyleSheet.create({
-  head: { flexDirection: 'row', alignItems: 'center', gap: spacing.md, paddingTop: spacing.sm },
   list: { paddingVertical: spacing.xs, gap: 0 },
   row: { flexDirection: 'row', alignItems: 'center', gap: spacing.md, minHeight: 60, paddingVertical: spacing.sm },
   avatar: { width: 40, height: 40, borderRadius: 20, backgroundColor: colors.primaryLight, alignItems: 'center', justifyContent: 'center' },

@@ -1,11 +1,12 @@
 import { router } from 'expo-router';
-import { ChevronRight, Ruler, Trash2 } from 'lucide-react-native';
+import { Ruler, Trash2 } from 'lucide-react-native';
 import { useMemo, useState } from 'react';
 import { StyleSheet, View } from 'react-native';
 import { LineChart } from '@/components/charts/LineChart';
 import { DateField, TextField } from '@/components/ui/inputs';
 import { ConfirmDialog, Sheet, useToast } from '@/components/ui/overlays';
-import { Button, Card, EmptyState, IconButton, Notice, Screen, SectionHeader, Segmented } from '@/components/ui/primitives';
+import { Button, EmptyState, IconButton, Notice, SectionHeader, Segmented } from '@/components/ui/primitives';
+import { SheetCard, SkyScreen } from '@/components/ui/SkyScreen';
 import { Text } from '@/components/ui/Text';
 import { colors, spacing } from '@/design/tokens';
 import type { Measurement } from '@/domain/child';
@@ -64,22 +65,18 @@ export default function GrowthScreen() {
   };
 
   return (
-    <Screen scroll edges={['top', 'bottom']}>
-      <View style={styles.header}>
-        <IconButton icon={ChevronRight} label="חזרה" tone="surface" onPress={() => (router.canGoBack() ? router.back() : router.replace('/(tabs)/child'))} />
-        <Text variant="title" accessibilityRole="header" style={{ flex: 1 }}>גדילה</Text>
-      </View>
-      <Text color={colors.textSecondary}>{child ? `המדידות של ${child.name}, כפי שהוזנו.` : ''}</Text>
+    <SkyScreen title="גדילה" subtitle={child ? `המדידות של ${child.name}, כפי שהוזנו.` : undefined} mascot="point"
+      onBack={() => (router.canGoBack() ? router.back() : router.replace('/(tabs)/child'))}>
       {canManage
         ? <Button label="הוספת מדידה" onPress={() => { setError(null); setSheet(true); }} />
         : <Notice text="מדידות גדילה מוסיפים ההורים. ההרשאה שלך היא לתיעוד היומי." />}
 
       {(list.data?.length ?? 0) === 0 ? (
-        <Card><EmptyState icon={Ruler} title="עוד אין מדידות" body="אפשר להזין משקל, אורך והיקף ראש אחרי ביקור בטיפת חלב או אצל הרופא/ה." /></Card>
+        <SheetCard><EmptyState icon={Ruler} title="עוד אין מדידות" body="אפשר להזין משקל, אורך והיקף ראש אחרי ביקור בטיפת חלב או אצל הרופא/ה." /></SheetCard>
       ) : (
         <>
           <Segmented options={METRICS} value={metric} onChange={setMetric} />
-          <Card style={{ gap: spacing.sm }}>
+          <SheetCard style={{ gap: spacing.sm }}>
             <Text variant="label" color={colors.textSecondary}>{METRICS.find((m) => m.value === metric)!.label} ({unit(metric)})</Text>
             {points.length >= 2 ? (
               <LineChart points={points} color={colors.primaryStrong} formatValue={fmt}
@@ -87,11 +84,11 @@ export default function GrowthScreen() {
             ) : (
               <Notice text={points.length === 1 ? `מדידה אחת: ${fmt(points[0].value)} ${unit(metric)}. גרף יוצג אחרי שתי מדידות לפחות.` : 'אין מספיק נתונים לגרף עבור המדד הזה.'} />
             )}
-          </Card>
-          <Notice text="הגרף מציג רק את המדידות שהוזנו. עקומות גדילה ואחוזונים אינם מוצגים בגרסה הזו." />
+          </SheetCard>
+          <Text variant="caption" color={colors.textSecondary}>הגרף מציג רק את המדידות שהוזנו. עקומות גדילה ואחוזונים אינם מוצגים בגרסה הזו.</Text>
 
           <SectionHeader title="היסטוריית מדידות" />
-          <Card style={{ paddingVertical: spacing.xs }}>
+          <SheetCard style={{ paddingVertical: spacing.xs, gap: 0 }}>
             {(list.data ?? []).map((m) => {
               const d = parseDayKey(m.measuredAt);
               const parts = [m.weightG !== null ? `${fmt(m.weightG / 1000)} ק״ג` : null, m.lengthMm !== null ? `${fmt(m.lengthMm / 10)} ס״מ` : null,
@@ -99,14 +96,14 @@ export default function GrowthScreen() {
               return (
                 <View key={m.id} style={styles.row}>
                   <View style={{ flex: 1 }}>
-                    <Text variant="bodyStrong">{parts}</Text>
+                    <Text variant="bodyStrong" color={colors.ink}>{parts}</Text>
                     <Text variant="caption" color={colors.textSecondary}>{d ? formatDateFull(d) : m.measuredAt}</Text>
                   </View>
                   <IconButton icon={Trash2} label="מחיקת המדידה" onPress={() => setToDelete(m.id)} />
                 </View>
               );
             })}
-          </Card>
+          </SheetCard>
         </>
       )}
 
@@ -120,11 +117,10 @@ export default function GrowthScreen() {
       </Sheet>
       <ConfirmDialog visible={toDelete !== null} destructive title="למחוק את המדידה?" confirmLabel="מחיקה" loading={remove.isPending}
         onCancel={() => setToDelete(null)} onConfirm={() => toDelete && remove.mutate(toDelete, { onSuccess: () => { setToDelete(null); toast('המדידה נמחקה'); } })} />
-    </Screen>
+    </SkyScreen>
   );
 }
 
 const styles = StyleSheet.create({
-  header: { flexDirection: 'row', alignItems: 'center', gap: spacing.md, paddingTop: spacing.md },
   row: { flexDirection: 'row', alignItems: 'center', minHeight: 60, gap: spacing.md },
 });

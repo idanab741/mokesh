@@ -1,15 +1,15 @@
 import { router, useLocalSearchParams } from 'expo-router';
 import { GitCompareArrows, Trash2, X } from 'lucide-react-native';
 import { useEffect, useRef, useState } from 'react';
-import { ActivityIndicator, KeyboardAvoidingView, Platform, ScrollView, StyleSheet, View } from 'react-native';
+import { ActivityIndicator, KeyboardAvoidingView, Platform, StyleSheet, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { type FormState, initialState, stateFromEvent, toDraft } from '@/components/activity/formState';
 import { BottleForm, DiaperForm, NursingForm, OtherForm, PumpingForm, SleepForm, SolidsForm } from '@/components/activity/forms';
 import { ConfirmDialog, useToast } from '@/components/ui/overlays';
 import { ActivityBadge, Button, EmptyState, IconButton, Notice } from '@/components/ui/primitives';
 import { Text } from '@/components/ui/Text';
-import { LinearGradient } from 'expo-linear-gradient';
-import { activityTones, colors, radius, spacing } from '@/design/tokens';
+import { SheetCard, SkyScreen } from '@/components/ui/SkyScreen';
+import { activityTones, colors, spacing } from '@/design/tokens';
 import { ACTIVITY_TYPES, type ActivityType } from '@/domain/activity';
 import { useActiveChild, useActiveSleep, useEvent, useEventMutations, useFoodHistory, useLastBottle } from '@/hooks/data';
 import { activityLabel, errorMessage } from '@/i18n/he';
@@ -135,29 +135,39 @@ export default function ActivityScreen() {
     : isEdit ? 'שמירת שינויים' : 'שמירה';
   const onPrimary = () => (isRunningSleep && state?.type === 'sleep' && !state.end ? save({ end: new Date() }) : save());
 
+  const tone = activityTones[type];
   return (
-    <SafeAreaView style={styles.root} edges={['top', 'bottom']}>
-      <LinearGradient colors={[activityTones[type].bg, colors.background]} style={styles.wash} pointerEvents="none" />
-      <View style={styles.header}>
-        <IconButton icon={X} label="סגירה בלי לשמור" tone="surface" onPress={discard} />
-        <View style={styles.headerTitle}>
-          <ActivityBadge type={type} size={36} />
-          <Text variant="heading" accessibilityRole="header">{isEdit ? `עריכת ${activityLabel[type]}` : activityLabel[type]}</Text>
-        </View>
-        {isEdit ? <IconButton icon={Trash2} label="מחיקת הרשומה" tone="surface" onPress={() => setConfirmDelete(true)} /> : <View style={{ width: 44 }} />}
-      </View>
-
-      <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
+    <KeyboardAvoidingView style={styles.root} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
+      <SkyScreen
+        title={isEdit ? `עריכת ${activityLabel[type]}` : activityLabel[type]}
+        subtitle={child ? `התיעוד של ${child.name}` : undefined}
+        // The form's sky is the activity's own colour, soft enough for the title to read on it.
+        sky={[tone.bg, `${tone.grad[0]}55`, `${tone.solid}2E`]}
+        action={(
+          <View style={styles.actions}>
+            <ActivityBadge type={type} size={40} />
+            {isEdit ? <IconButton icon={Trash2} label="מחיקת הרשומה" tone="surface" onPress={() => setConfirmDelete(true)} /> : null}
+            <IconButton icon={X} label="סגירה בלי לשמור" tone="surface" onPress={discard} />
+          </View>
+        )}
+        footer={(
+          <View style={styles.footer}>
+            <Button label={primaryLabel} onPress={onPrimary} loading={busy} disabled={!state || conflict} />
+            {isRunningSleep && state?.type === 'sleep' && !state.end ? (
+              <Button label="שמירת שינויים בלי לסיים" variant="ghost" size="md" onPress={() => save()} disabled={busy} />
+            ) : null}
+          </View>
+        )}>
         {!state ? (
           <View style={styles.loading}><ActivityIndicator color={colors.primary} /></View>
         ) : (
-          <ScrollView contentContainerStyle={styles.content} keyboardShouldPersistTaps="handled" showsVerticalScrollIndicator={false}>
+          <>
             {conflict ? (
-              <View style={styles.conflict}>
+              <SheetCard style={{ gap: spacing.sm }}>
                 <Notice tone="warning" icon={GitCompareArrows} text="הרשומה הזו שונתה גם במכשיר אחר. שום דבר לא נדרס – צריך לבחור איזו גרסה להשאיר." />
                 <Button label="להשאיר את הגרסה שמוצגת כאן" size="md" onPress={() => void resolve('mine')} />
                 <Button label="לקחת את הגרסה מהמכשיר השני" size="md" variant="secondary" onPress={() => void resolve('theirs')} />
-              </View>
+              </SheetCard>
             ) : null}
             {state.type === 'bottle' ? <BottleForm state={state} set={set} lastAmount={isEdit ? null : lastBottle.data?.payload.amountMl ?? null} /> : null}
             {state.type === 'nursing' ? <NursingForm state={state} set={set} /> : null}
@@ -168,15 +178,9 @@ export default function ActivityScreen() {
             {state.type === 'solids' ? <SolidsForm state={state} set={set} history={foods.data ?? []} /> : null}
             {state.type === 'other' ? <OtherForm state={state} set={set} /> : null}
             {formError ? <Notice tone="danger" text={formError} /> : null}
-          </ScrollView>
+          </>
         )}
-        <View style={styles.footer}>
-          <Button label={primaryLabel} onPress={onPrimary} loading={busy} disabled={!state || conflict} />
-          {isRunningSleep && state?.type === 'sleep' && !state.end ? (
-            <Button label="שמירת שינויים בלי לסיים" variant="ghost" size="md" onPress={() => save()} disabled={busy} />
-          ) : null}
-        </View>
-      </KeyboardAvoidingView>
+      </SkyScreen>
 
       <ConfirmDialog visible={confirmDelete} destructive title="למחוק את הרשומה?" body="היא תוסר מהיומן ומכל הסיכומים."
         confirmLabel="מחיקה" loading={remove.isPending} onCancel={() => setConfirmDelete(false)}
@@ -184,17 +188,13 @@ export default function ActivityScreen() {
           onSuccess: () => { setConfirmDelete(false); toast('הרשומה נמחקה'); close(); },
           onError: (err) => { setConfirmDelete(false); fail(err); },
         })} />
-    </SafeAreaView>
+    </KeyboardAvoidingView>
   );
 }
 
 const styles = StyleSheet.create({
-  root: { flex: 1, backgroundColor: colors.background },
-  wash: { position: 'absolute', top: 0, start: 0, end: 0, height: 300 },
-  header: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: spacing.lg, paddingVertical: spacing.sm },
-  headerTitle: { flexDirection: 'row', alignItems: 'center', gap: spacing.sm },
-  loading: { flex: 1, alignItems: 'center', justifyContent: 'center' },
-  content: { paddingHorizontal: spacing.xl, paddingTop: spacing.md, paddingBottom: spacing.xxxl, gap: spacing.xl },
-  footer: { paddingHorizontal: spacing.xl, paddingTop: spacing.md, paddingBottom: spacing.md, gap: spacing.xs, backgroundColor: 'transparent' },
-  conflict: { gap: spacing.sm, backgroundColor: colors.surface, borderRadius: radius.lg, padding: spacing.md, borderWidth: 1, borderColor: colors.border },
+  root: { flex: 1, backgroundColor: '#FDFBFA' },
+  actions: { flexDirection: 'row', alignItems: 'center', gap: spacing.sm },
+  loading: { paddingVertical: spacing.xxxl, alignItems: 'center', justifyContent: 'center' },
+  footer: { gap: spacing.xs },
 });

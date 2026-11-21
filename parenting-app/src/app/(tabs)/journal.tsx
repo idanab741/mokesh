@@ -1,3 +1,4 @@
+import { LinearGradient } from 'expo-linear-gradient';
 import { useLocalSearchParams } from 'expo-router';
 import { CalendarDays, ChevronLeft, ChevronRight } from 'lucide-react-native';
 import { useEffect, useMemo, useState } from 'react';
@@ -12,7 +13,7 @@ import { activityTones, colors, radius, shadow, spacing, themed } from '@/design
 import { type ActivityType, type FilterKey, matchesFilter } from '@/domain/activity';
 import { learnRoutine, predictNext } from '@/domain/routine';
 import { eventsForDay, summarizeDay } from '@/domain/summary';
-import { useActiveChild, useEventsBetween, useNow } from '@/hooks/data';
+import { useActiveChild, useAppTheme, useEventsBetween, useNow } from '@/hooks/data';
 import { filterLabel } from '@/i18n/he';
 import { addDays, dayKey, formatDateFull, formatDayLabel, formatDuration, formatTime, isSameDay, startOfDay, weekdayShort } from '@/lib/time';
 import { useSession } from '@/state/session';
@@ -24,6 +25,7 @@ const partOfDay = (hour: number) => (hour >= 5 && hour < 12 ? 'בוקר' : hour 
 export default function JournalScreen() {
   const params = useLocalSearchParams<{ filter?: string }>();
   const { child } = useActiveChild();
+  const theme = useAppTheme();
   const user = useSession((s) => s.user);
   const openAddSheet = useUi((s) => s.openAddSheet);
   const now = useNow(30_000);
@@ -86,9 +88,11 @@ export default function JournalScreen() {
   ];
 
   return (
-    <Screen>
+    <Screen wash={false}>
+      {/* The same sky as Home behind the day picker; the day itself sits on the white sheet below. */}
+      <LinearGradient colors={theme.sky} locations={[0, 0.5, 1]} start={{ x: 0.3, y: 0 }} end={{ x: 0.7, y: 1 }} style={styles.sky} pointerEvents="none" />
       <View style={styles.header}>
-        <Text variant="title" accessibilityRole="header">יומן</Text>
+        <Text variant="title" color={colors.ink} accessibilityRole="header">יומן</Text>
         {!isToday ? (
           <Pressable onPress={() => setDay(startOfDay(new Date()))} accessibilityRole="button" style={styles.todayBtn} hitSlop={8}>
             <Text variant="label" color={colors.primaryStrong}>חזרה להיום</Text>
@@ -99,8 +103,8 @@ export default function JournalScreen() {
       <View style={styles.dateNav}>
         <IconButton icon={ChevronRight} label="היום הקודם" tone="surface" onPress={() => setDay(addDays(day, -1))} />
         <View style={{ flex: 1, alignItems: 'center' }} accessibilityLiveRegion="polite">
-          <Text variant="heading">{formatDayLabel(day, now)}</Text>
-          <Text variant="caption" color={colors.textSecondary}>{formatDateFull(day)}</Text>
+          <Text variant="heading" color={colors.ink}>{formatDayLabel(day, now)}</Text>
+          <Text variant="caption" color={theme.onSky}>{formatDateFull(day)}</Text>
         </View>
         <IconButton icon={ChevronLeft} label="היום הבא" tone="surface" onPress={() => setDay(addDays(day, 1))} disabled={isToday} />
       </View>
@@ -120,6 +124,7 @@ export default function JournalScreen() {
         })}
       </View>
 
+      <View style={styles.sheet}>
       <View>
         <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.filters}>
           {FILTERS.map((f) => <Chip key={f} label={filterLabel[f]} selected={filter === f} onPress={() => setFilter(f)} />)}
@@ -175,16 +180,19 @@ export default function JournalScreen() {
             actionLabel={isToday ? 'הוספת פעילות' : undefined} onAction={isToday ? openAddSheet : undefined} />
         )}
       />
+      </View>
     </Screen>
   );
 }
 
 const styles = themed(() => StyleSheet.create({
+  sky: { position: 'absolute', top: -120, start: 0, end: 0, height: 520 },
+  sheet: { flex: 1, paddingTop: spacing.lg, backgroundColor: '#FDFBFA', borderTopLeftRadius: 34, borderTopRightRadius: 34, overflow: 'hidden' },
   header: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: spacing.xl, paddingTop: spacing.md, minHeight: 52 },
   todayBtn: { backgroundColor: colors.primaryLight, paddingHorizontal: spacing.md, minHeight: 36, borderRadius: radius.pill, justifyContent: 'center' },
   dateNav: { flexDirection: 'row', alignItems: 'center', paddingHorizontal: spacing.xl, paddingVertical: spacing.sm, gap: spacing.md },
-  strip: { flexDirection: 'row', gap: spacing.xs, paddingHorizontal: spacing.xl, marginBottom: spacing.md },
-  stripDay: { flex: 1, alignItems: 'center', paddingVertical: spacing.sm, borderRadius: 18, backgroundColor: 'rgba(255,255,255,0.8)', minHeight: 60, justifyContent: 'center' },
+  strip: { flexDirection: 'row', gap: spacing.xs, paddingHorizontal: spacing.xl, marginBottom: spacing.lg },
+  stripDay: { flex: 1, alignItems: 'center', paddingVertical: spacing.sm, borderRadius: 18, backgroundColor: 'rgba(255,255,255,0.7)', minHeight: 60, justifyContent: 'center' },
   stripDaySelected: { backgroundColor: colors.primaryStrong, borderColor: colors.primaryStrong },
   filters: { paddingHorizontal: spacing.xl, gap: spacing.sm, paddingBottom: spacing.md },
   list: { paddingHorizontal: spacing.xl, paddingBottom: 140, flexGrow: 1 },

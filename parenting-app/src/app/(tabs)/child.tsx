@@ -1,17 +1,17 @@
 import { useQueryClient } from '@tanstack/react-query';
 import { router } from 'expo-router';
-import { ChevronLeft, CloudOff, ClipboardList, Download, HeartPulse, LogOut, type LucideIcon, Palette, Pencil, Plus, RefreshCw, Ruler, Sparkles, Trash2, UserRound, Users, Utensils } from 'lucide-react-native';
+import { ChevronLeft, CloudOff, BellRing, ClipboardList, Download, HeartPulse, LogOut, type LucideIcon, Palette, Pencil, Plus, RefreshCw, Ruler, Sparkles, Trash2, UserRound, Users, Utensils } from 'lucide-react-native';
 import { useState } from 'react';
 import { Pressable, StyleSheet, View } from 'react-native';
 import { Avatar } from '@/components/Avatar';
 import { BabyLookPicker } from '@/components/baby/BabyLookPicker';
 import { ConfirmDialog, useToast } from '@/components/ui/overlays';
-import { Button, Card, Notice, Screen, SectionHeader } from '@/components/ui/primitives';
+import { Button, Notice, Screen, SectionHeader } from '@/components/ui/primitives';
+import { SheetCard as Card, SkyScreen } from '@/components/ui/SkyScreen';
 import { Text } from '@/components/ui/Text';
-import { LinearGradient } from 'expo-linear-gradient';
-import { colors, gradients, shadow, spacing, themed } from '@/design/tokens';
+import { colors, shadow, spacing, themed } from '@/design/tokens';
 import { formatAgeWithSex } from '@/domain/age';
-import { useActiveChild, useCanManage, useMeasurements, useUnsynced } from '@/hooks/data';
+import { useActiveChild, useAppTheme, useCanManage, useMeasurements, useUnsynced } from '@/hooks/data';
 import { formatDateFull, formatRelative, parseDayKey } from '@/lib/time';
 import { config } from '@/services/config';
 import { exportData, wipeLocalData } from '@/services/dataExport';
@@ -51,6 +51,7 @@ export default function ChildScreen() {
   const [busy, setBusy] = useState(false);
   const [lookOpen, setLookOpen] = useState(false);
   const canManage = useCanManage(child?.familyId);
+  const theme = useAppTheme();
   if (!child) return <Screen><View /></Screen>;
 
   const birth = parseDayKey(child.birthDate);
@@ -92,20 +93,22 @@ export default function ChildScreen() {
   };
 
   return (
-    <Screen scroll>
-      <Text variant="title" accessibilityRole="header" style={{ paddingTop: spacing.md }}>הילד שלי</Text>
-
-      <View style={styles.profile}>
-        <LinearGradient colors={gradients.brand} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={styles.cover} />
-        <View style={styles.avatarRing}><Avatar name={child.name} uri={child.photoUri} size={92} /></View>
-        <Text variant="title" center>{child.name}</Text>
-        <Text color={colors.textSecondary} center>{formatAgeWithSex(child.birthDate, child.sex) ?? ''}</Text>
-        <Text variant="caption" color={colors.textSecondary} center>
-          {birth ? `תאריך לידה: ${formatDateFull(birth)}` : ''}{child.gestationalWeeks ? ` · נולד/ה בשבוע ${child.gestationalWeeks}` : ''}
-        </Text>
-        {canManage ? <Button label="עריכת פרופיל" icon={Pencil} variant="secondary" size="md" style={{ alignSelf: 'stretch', marginTop: spacing.md, marginHorizontal: spacing.lg }}
-          onPress={() => router.push({ pathname: '/child/edit', params: { id: child.id } })} /> : null}
-      </View>
+    <SkyScreen tabs title="הילד שלי" subtitle="הפרופיל, ההתפתחות וההגדרות"
+      hero={(
+        // The child on the sky: the picture in a white ring, the name and the age beside it.
+        <View style={styles.profile}>
+          <View style={styles.avatarRing}><Avatar name={child.name} uri={child.photoUri} size={84} /></View>
+          <View style={{ flex: 1, gap: 2 }}>
+            <Text variant="title" color={colors.ink} numberOfLines={1}>{child.name}</Text>
+            <Text variant="label" color={theme.onSky}>{formatAgeWithSex(child.birthDate, child.sex) ?? ''}</Text>
+            <Text variant="caption" color={theme.onSky}>
+              {birth ? `תאריך לידה: ${formatDateFull(birth)}` : ''}{child.gestationalWeeks ? ` · נולד/ה בשבוע ${child.gestationalWeeks}` : ''}
+            </Text>
+          </View>
+        </View>
+      )}>
+      {canManage ? <Button label="עריכת פרופיל" icon={Pencil} variant="secondary" size="md"
+        onPress={() => router.push({ pathname: '/child/edit', params: { id: child.id } })} /> : null}
 
       <SectionHeader title="התפתחות" />
       <Card style={styles.list}>
@@ -118,6 +121,7 @@ export default function ChildScreen() {
       <Card style={styles.list}>
         <Row icon={HeartPulse} title="בריאות" detail="חום ותרופות, חיסונים, ביקורים" onPress={() => router.push('/health')} />
         <Row icon={ClipboardList} title="סיכום לרופא/ה" detail="עמוד אחד עם האכלות, שינה, חיתולים ומדידות" onPress={() => router.push('/report')} />
+        <Row icon={BellRing} title="תזכורות" detail="אחרי האכלה או חיתול, לפני ביקור, וכל יום בשעה שתבחרו" onPress={() => router.push('/reminders')} />
       </Card>
 
       <SectionHeader title="הילדים שלנו" />
@@ -165,7 +169,7 @@ export default function ChildScreen() {
           <Row icon={LogOut} title="יציאה מהחשבון" detail="הנתונים יישארו שמורים במכשיר" onPress={() => void signOut()} />
         </Card>
       ) : (
-        <Card style={{ gap: spacing.md }}>
+        <Card>
           <Notice icon={CloudOff} text={config.isCloudConfigured
             ? 'כרגע הנתונים שמורים במכשיר הזה בלבד. חשבון מוסיף גיבוי וסנכרון בין מכשירים.'
             : 'הנתונים שמורים במכשיר הזה בלבד. בגרסה הזו עדיין לא חובר שרת, ולכן אין גיבוי או שיתוף משפחתי.'} />
@@ -186,14 +190,13 @@ export default function ChildScreen() {
         title={confirm === 'account' ? 'למחוק את החשבון וכל הנתונים?' : 'למחוק את כל הנתונים מהמכשיר?'}
         body="כל הילדים, התיעוד והמדידות יימחקו לצמיתות. מומלץ לייצא קודם."
         confirmLabel="מחיקה לצמיתות" onCancel={() => setConfirm(null)} onConfirm={() => void wipe()} />
-    </Screen>
+    </SkyScreen>
   );
 }
 
 const styles = themed(() => StyleSheet.create({
-  profile: { alignItems: 'center', gap: spacing.xs, paddingBottom: spacing.lg, backgroundColor: colors.surface, borderRadius: 30, overflow: 'hidden', ...shadow.card },
-  cover: { alignSelf: 'stretch', height: 96 },
-  avatarRing: { marginTop: -50, borderRadius: 52, borderWidth: 4, borderColor: colors.surface, backgroundColor: colors.surface },
+  profile: { flexDirection: 'row', alignItems: 'center', gap: spacing.lg },
+  avatarRing: { borderRadius: 50, borderWidth: 4, borderColor: 'rgba(255,255,255,0.8)', backgroundColor: colors.surface, ...shadow.card },
   list: { paddingVertical: spacing.xs, gap: 0 },
   row: { flexDirection: 'row', alignItems: 'center', gap: spacing.md, minHeight: 60, paddingVertical: spacing.sm },
   rowIcon: { width: 40, height: 40, borderRadius: 20, backgroundColor: colors.primaryLight, alignItems: 'center', justifyContent: 'center' },
