@@ -1,6 +1,6 @@
 const { chromium } = require('playwright');
-// The tour shows before the welcome screen; tests skip it.
-const skipTour = async (page) => { const b = page.getByRole('button', { name: 'דילוג על ההסבר' }); if (await b.count()) { await b.click(); await page.waitForTimeout(500); } };
+// The tour over Home is closed whenever it shows up.
+const skipTour = async (page) => { if (page.__tour) return; page.__tour = true; await page.addLocatorHandler(page.getByRole('button', { name: 'דילוג על ההסבר' }), async (b) => { await b.click(); }); };
 const S = (process.env.SHOTS_DIR || require('os').tmpdir()) + '/';
 const results = [];
 const check = (name, cond) => { results.push(`${cond ? 'PASS' : 'FAIL'} ${name}`); };
@@ -18,7 +18,7 @@ const check = (name, cond) => { results.push(`${cond ? 'PASS' : 'FAIL'} ${name}`
 
   await page.clock.install({ time: new Date('2026-11-19T20:00:00+02:00') });
   await page.goto('http://localhost:4173/');
-  await page.waitForTimeout(2500); await skipTour(page);
+  await page.waitForTimeout(2500);
   await page.getByText('מתחילים').click();
   await wait();
   // --- child profile
@@ -38,6 +38,10 @@ const check = (name, cond) => { results.push(`${cond ? 'PASS' : 'FAIL'} ${name}`
   await wait(1200);
   await shot('03-home-empty');
   let t = await body();
+  // the first visit to Home opens Lili's tour of the screen
+  check('first visit opens the tour of the screen', (await page.getByRole('dialog', { name: 'סיור באפליקציה' }).count()) === 1);
+  await shot('03a-tour');
+  await page.getByRole('button', { name: 'דילוג על ההסבר' }).click(); await wait(600); await skipTour(page);
   check('home shows child name and age', t.includes('עלמה') && t.includes('בת 6 חודשים'));
   check('home empty state, no invented data', t.includes('מתחילים לתעד את עלמה') && t.includes('0 האכלות'));
 
@@ -96,7 +100,7 @@ const check = (name, cond) => { results.push(`${cond ? 'PASS' : 'FAIL'} ${name}`
 
   // --- Lili and the steriliser
   t = await body();
-  check('the companion says something on Home', t.includes('לילי, המלווה שלכם'));
+  check('Lili leads the first steps and says why each one helps', t.includes('לילי · צעד') && t.includes('לא עכשיו'));
   await btn('תיעוד סטריליזטור').click(); await wait(600);
   await shot('05d-sterilize');
   await page.getByRole('button', { name: /^שמירה: 6 בקבוקים/ }).click(); await wait(900);

@@ -1,7 +1,7 @@
 import { router, useFocusEffect } from 'expo-router';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Bell, CalendarClock, ChevronDown, ChevronLeft, ClipboardList, HeartPulse, type LucideIcon, Moon, Palette, Pill, Sparkles, Square, Users, Utensils, Plus } from 'lucide-react-native';
-import { useCallback, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { Pressable, StyleSheet, View } from 'react-native';
 import { openActivityForm } from '@/components/AddActivitySheet';
 import { EventRow } from '@/components/activity/EventRow';
@@ -15,6 +15,7 @@ import { InsightsRow } from '@/components/home/InsightsRow';
 import { QuickLog, type QuickKind } from '@/components/home/QuickLog';
 import { Album, Companion, SterilizeCard, SterilizeSheet } from '@/components/home/Companion';
 import { Ring } from '@/components/home/Ring';
+import { SpotlightTour, type TourStep } from '@/components/tour/SpotlightTour';
 import { activityIcons } from '@/components/ui/Icons';
 import { Float, PressScale, Rise } from '@/components/ui/motion';
 import { ActivityBadge, Button, Card, Screen, SectionHeader } from '@/components/ui/primitives';
@@ -26,15 +27,31 @@ import { stageLabel } from '@/domain/avatar';
 import { buildInsights, daysUntilInsights } from '@/domain/insights';
 import { babyMood } from '@/domain/mood';
 import { learnRoutine, predictNext } from '@/domain/routine';
-import { buildAdvice } from '@/domain/advisor';
+import { type Advice, buildAdvice } from '@/domain/advisor';
 import { computeRangeStats } from '@/domain/stats';
 import { sterilizeState } from '@/domain/sterilize';
 import { summarizeDay } from '@/domain/summary';
 import { useActiveChild, useEventsBetween, useAppTheme, useHealth, useMilestones, useNow, useRecentEvents, useUnsynced } from '@/hooks/data';
 import { diaperKindLabel, sleepingWord } from '@/i18n/he';
 import { formatDateShort, formatRelative, addDays, formatClock, formatDateLong, formatDuration, formatTime, greetingForHour } from '@/lib/time';
+import { useServices } from '@/state/services';
 import { useSession } from '@/state/session';
 import { useUi } from '@/state/ui';
+
+/** Marks an element as a stop of the tour (the web build reads it as data-tour). */
+const tourTarget = (name: string) => ({ dataSet: { tour: name } }) as object;
+
+const tourSteps = (name: string): TourStep[] => [
+  { hero: true, pose: 'wave', title: 'ברוכים הבאים!', text: `אני לילי. חצי דקה ואראה לכם מה יש כאן, ואז נתחיל לתעד את ${name}.`, button: 'יאללה, מתחילים' },
+  { target: 'baby', pose: 'heart', title: `הדמות של ${name}`, text: 'היא גדלה יחד עם הילד: שוכבת, זוחלת ועומדת. אפשר להחליף דמות וצבע בהגדרות.' },
+  { target: 'lili', pose: 'point', title: 'כאן אני מדברת', text: 'אגיד מה קורה עכשיו ומה שווה לתעד, ואציע כפתור אחד שעושה את זה.' },
+  { target: 'needs', pose: 'point', title: 'שינה, אוכל, חיתול', text: 'שלושת הדברים שהיום בנוי מהם. הפלוס מתעד בשתי לחיצות, והטבעת מתמלאת ככל שמתקרב הזמן הרגיל שלכם.' },
+  { target: 'sterilizer', pose: 'think', title: 'סטריליזטור', text: 'רושמים מתי הופעל, ואני סופרת כמה בקבוקים נקיים נשארו.' },
+  { target: 'album', pose: 'cheer', title: 'האלבום', text: 'חיוך ראשון, שן ראשונה, צעד ראשון. כל רגע שתופסים נשמר כאן.' },
+  { target: 'tab-add', pose: 'point', title: 'הפלוס הגדול', text: 'מכל מסך, פותח את כל סוגי התיעוד: גם הנקה, שאיבה ומוצקים.' },
+  { target: 'tabs', pose: 'point', title: 'הסרגל התחתון', text: 'בית, יומן היום, נתונים, וכל מה שנוגע לילד. אפשר גם לגרור עליו את האצבע.' },
+  { hero: true, pose: 'cheer', title: 'זהו, אתם מוכנים', text: 'נתחיל מארבעה דברים קטנים שיעזרו לי להכיר אתכם. אני אלווה אתכם בכל אחד.', button: 'מתחילים' },
+];
 
 export default function HomeScreen() {
   const { child, children } = useActiveChild();
@@ -51,6 +68,21 @@ export default function HomeScreen() {
   const [quick, setQuick] = useState<QuickKind | null>(null);
   const theme = useAppTheme();
   const [sterOpen, setSterOpen] = useState(false);
+  // Shown once per device: the tour of the screen, and Lili's first steps (which ones were put off).
+  const { kv } = useServices();
+  const [tourOpen, setTourOpen] = useState(false);
+  const [skipped, setSkipped] = useState<string[] | null>(null);
+  useEffect(() => {
+    let live = true;
+    void Promise.all([kv.get('tour_home_done'), kv.get('lili_setup_skipped')]).then(([done, skip]) => {
+      if (!live) return;
+      setTourOpen(!done);
+      setSkipped(skip ? skip.split(',') : []);
+    });
+    return () => { live = false; };
+  }, [kv]);
+  const endTour = () => { setTourOpen(false); void kv.set('tour_home_done', '1'); };
+  const skipSetup = (id: string) => { const next = [...(skipped ?? []), id]; setSkipped(next); void kv.set('lili_setup_skipped', next.join(',')); };
   const health = useHealth(child?.id);
   const moments = useMilestones(child?.id);
   // The baby only turns while Home is actually on screen.
@@ -178,7 +210,23 @@ export default function HomeScreen() {
   const sterilize = useMemo(() => sterilizeState(month.data ?? []), [month.data]);
   const marked = moments.data ?? [];
   const latestMoment = marked.find((m) => m.achievedOn) ?? null;
-  const advice = buildAdvice({
+  // Lili's first steps with a new family: a photo, the last sleep, the last feeding, the last diaper.
+  // Each says why it helps. A step is done once its record exists, and can be put off.
+  const all = month.data ?? [];
+  const setupSteps: { id: string; done: boolean; pose: Advice['pose']; text: string; label: string; go: () => void }[] = [
+    { id: 'photo', done: !!child.photoUri, pose: 'wave', label: 'הוספת תמונה', go: () => router.push({ pathname: '/child/edit', params: { id: child.id } }),
+      text: `נעים מאוד, אני לילי! בואו נתחיל מתמונה של ${child.name}. היא תופיע ליד השם, וכל מי שמטפל יחד איתכם יזהה מיד על מי מדובר.` },
+    { id: 'sleep', done: all.some((e) => e.type === 'sleep'), pose: 'sleep', label: 'תיעוד השינה האחרונה', go: () => openActivityForm('sleep'),
+      text: `מתי ${child.name} ${child.sex === 'female' ? 'ישנה' : child.sex === 'male' ? 'ישן' : 'ישנו'} בפעם האחרונה? כשאדע, אספור כמה זמן עבר בערות ואלמד מתי מגיעה אצלכם השינה הבאה.` },
+    { id: 'feed', done: all.some((e) => e.type === 'bottle' || e.type === 'nursing'), pose: 'point', label: 'תיעוד ההאכלה האחרונה', go: () => setQuick('feed'),
+      text: 'ומתי הייתה ההאכלה האחרונה? מכאן אלמד כל כמה זמן אוכלים אצלכם וכמה, ואדע לומר מתי בדרך כלל מגיעה הבאה.' },
+    { id: 'diaper', done: all.some((e) => e.type === 'diaper'), pose: 'think', label: 'תיעוד החיתול האחרון', go: () => setQuick('diaper'),
+      text: 'ואחרון: החיתול. כך תמיד תדעו מתי הוחלף ומתי הייתה היציאה האחרונה, גם כשמישהו אחר החליף.' },
+  ];
+  const setupIndex = skipped === null ? -1 : setupSteps.findIndex((st) => !st.done && !skipped.includes(st.id));
+  const setup = setupIndex >= 0 ? setupSteps[setupIndex] : null;
+
+  const routineAdvice = buildAdvice({
     childName: child.name, sex: child.sex, now,
     eventsToday: (today.data ?? []).length, totalEvents: (month.data ?? []).length,
     asleepMin: activeSleep && sleepStart ? Math.max(0, (now.getTime() - sleepStart.getTime()) / 60_000) : null,
@@ -188,7 +236,9 @@ export default function HomeScreen() {
       latestDaysAgo: latestMoment?.achievedOn ? Math.max(0, Math.round((now.getTime() - new Date(`${latestMoment.achievedOn}T12:00:00`).getTime()) / 86_400_000)) : null },
     sleepTodayMin: s.minutes, usualSleepMin: usualDay?.sleepMinPerDay ?? null,
   });
+  const advice: Advice = setup ? { id: `setup-${setup.id}`, pose: setup.pose, text: setup.text, action: { label: setup.label, kind: 'feed' } } : routineAdvice;
   const onAdvice = () => {
+    if (setup) { setup.go(); return; }
     const kind = advice.action?.kind;
     if (kind === 'feed') setQuick('feed'); else if (kind === 'sleep') setQuick('sleep'); else if (kind === 'diaper') setQuick('diaper');
     else if (kind === 'sterilize') setSterOpen(true); else if (kind === 'moments') router.push('/milestones');
@@ -230,7 +280,7 @@ export default function HomeScreen() {
           <Text variant="display" color={colors.ink} accessibilityRole="header" numberOfLines={1} adjustsFontSizeToFit>{`${greetingForHour(now.getHours())}, ${child.name}`}</Text>
           <Text variant="label" color={theme.onSky}>{`${formatDateLong(now)} · ${formatAgeWithSex(child.birthDate, child.sex, now) ?? ''}`}</Text>
         </View>
-        <View style={styles.archRing}>
+        <View style={styles.archRing} {...tourTarget('baby')}>
           <View style={styles.arch}>
             <BabyFigure active={focused && !lookOpen && quick === null} mood={mood.mood} stage={look.stage} config={look.config} sex={child.sex} height={320} label={onClip ? `הדמות של ${child.name}` : `הדמות של ${child.name}, ${stageLabel[look.stage]}`} />
           </View>
@@ -245,7 +295,9 @@ export default function HomeScreen() {
       {/* The sheet that rises over the sky: what is going on now, and the four things to log. */}
       <View style={styles.sheet}>
         <Rise index={2}>
-          <Companion advice={advice} onAction={onAdvice} />
+          <View {...tourTarget('lili')}>
+            <Companion advice={advice} onAction={onAdvice} step={setup ? { index: setupIndex + 1, total: setupSteps.length, onSkip: () => skipSetup(setup.id) } : undefined} />
+          </View>
         </Rise>
 
         <Rise index={2}>
@@ -254,6 +306,7 @@ export default function HomeScreen() {
         </Rise>
 
         <Rise index={3} style={{ gap: spacing.md }}>
+          <View style={{ gap: spacing.md }} {...tourTarget('needs')}>
           {needs.map((n) => {
             const tone = activityTones[n.type];
             const Icon = activityIcons[n.type];
@@ -281,6 +334,7 @@ export default function HomeScreen() {
               </View>
             );
           })}
+          </View>
           <Text variant="caption" color={colors.textSecondary} center>
             {anyLearned ? 'הטבעת מתמלאת ככל שמתקרבים לזמן הרגיל שלכם' : 'הטבעות יתחילו להתמלא אחרי כמה ימי תיעוד'}
           </Text>
@@ -288,8 +342,8 @@ export default function HomeScreen() {
 
         {/* The gear, and the album of moments */}
         <Rise index={4} style={{ gap: spacing.md }}>
-          <SterilizeCard state={sterilize} now={now} onLog={() => setSterOpen(true)} />
-          <Album marked={marked} sex={child.sex} name={child.name} onOpen={() => router.push('/milestones')} />
+          <View {...tourTarget('sterilizer')}><SterilizeCard state={sterilize} now={now} onLog={() => setSterOpen(true)} /></View>
+          <View {...tourTarget('album')}><Album marked={marked} sex={child.sex} name={child.name} onOpen={() => router.push('/milestones')} /></View>
         </Rise>
 
       {/* Only when there is something current: a medicine given today, the next visit, the latest moment */}
@@ -347,6 +401,7 @@ export default function HomeScreen() {
 
       </View>
 
+      {tourOpen && focused ? <SpotlightTour steps={tourSteps(child.name)} onDone={endTour} /> : null}
       <SterilizeSheet open={sterOpen} onClose={() => setSterOpen(false)} childId={child.id} last={sterilize} />
       <QuickLog kind={quick} onClose={() => setQuick(null)} childId={child.id} routine={routine} activeSleep={activeSleep ?? null} />
       {onClip ? null : <BabyCustomizeSheet child={child} now={now} open={lookOpen} onClose={() => setLookOpen(false)} />}

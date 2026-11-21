@@ -1,5 +1,5 @@
 // Layout + interaction audit on an iPhone-sized touch screen, using real taps and key presses.
-const skipTour = async (page) => { const b = page.getByRole('button', { name: 'דילוג על ההסבר' }); if (await b.count()) { await b.tap(); await page.waitForTimeout(500); } };
+const skipTour = async (page) => { if (page.__tour) return; page.__tour = true; await page.addLocatorHandler(page.getByRole('button', { name: 'דילוג על ההסבר' }), async (b) => { await b.click(); }); };
 const { chromium, devices } = require('playwright');
 const problems = [];
 const note = (screen, msg) => { problems.push(`[${screen}] ${msg}`); };
