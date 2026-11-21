@@ -201,3 +201,9 @@ mask is removed from `BabyClip.web`. To make hard edges invisible, every clip (c
 originals are kept in `tools/baby-motion/source/stand/`) is run through `split.py`: backdrop field, plain pixels pulled
 to the canvas colour, and only the outermost 3% eased into it. Amplified 40x against the canvas in Chromium, nothing
 but the character and its contact shadow differs. Not confirmed on an iPhone.
+
+## Boys lying on the back (2026-11-21)
+
+Six boys lying on their backs, cut from one clip, fill the youngest pose (stored under the `tummy` stage key, now
+labelled "שכיבה"). All six boy looks have lying + crawl; only the default has standing. On a tie the nearest-pose rule
+now takes the later pose, so a sitting-age child crawls rather than lies down.

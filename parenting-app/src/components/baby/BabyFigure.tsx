@@ -10,7 +10,7 @@ const ORDER: BabyStage[] = ['tummy', 'sit', 'crawl', 'stand'];
 
 /**
  * The clips to show for a child: the boy or the girl in the child's pose. A pose that has no
- * clip yet takes the nearest pose that has one (a sitting-age baby crawls rather than stands).
+ * clip yet takes the nearest pose that has one (a sitting-age baby crawls rather than lies down or stands).
  */
 export function clipsFor(stage: BabyStage, sex: ChildSex, look = 'auto'): BabyClips | null {
   const who = sex === 'female' ? 'girl' : 'boy';
@@ -18,7 +18,7 @@ export function clipsFor(stage: BabyStage, sex: ChildSex, look = 'auto'): BabyCl
   const at = ORDER.indexOf(stage);
   const nearest = ORDER
     .filter((s) => set[s])
-    .sort((a, b) => Math.abs(ORDER.indexOf(a) - at) - Math.abs(ORDER.indexOf(b) - at) || ORDER.indexOf(a) - ORDER.indexOf(b))[0];
+    .sort((a, b) => Math.abs(ORDER.indexOf(a) - at) - Math.abs(ORDER.indexOf(b) - at) || ORDER.indexOf(b) - ORDER.indexOf(a))[0];
   return (nearest ? set[nearest] : null) ?? fallbackClips[who];
 }
 
