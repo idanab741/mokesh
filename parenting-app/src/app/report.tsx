@@ -1,9 +1,10 @@
 import { router } from 'expo-router';
-import { ChevronRight, Copy, Printer, Share2 } from 'lucide-react-native';
+import { Copy, Printer, Share2 } from 'lucide-react-native';
 import { useMemo, useState } from 'react';
 import { Platform, Share, StyleSheet, View } from 'react-native';
 import { useToast } from '@/components/ui/overlays';
-import { Button, Card, IconButton, Notice, Screen, Segmented } from '@/components/ui/primitives';
+import { Button, Notice, Screen, Segmented } from '@/components/ui/primitives';
+import { SheetCard, SkyScreen } from '@/components/ui/SkyScreen';
 import { Text } from '@/components/ui/Text';
 import { colors, spacing } from '@/design/tokens';
 import { buildReport, reportHtml, reportText } from '@/domain/report';
@@ -55,17 +56,12 @@ export default function ReportScreen() {
   };
 
   return (
-    <Screen scroll edges={['top', 'bottom']}>
-      <View style={styles.head}>
-        <IconButton icon={ChevronRight} label="חזרה" onPress={() => (router.canGoBack() ? router.back() : router.replace('/(tabs)/child'))} tone="surface" />
-        <Text variant="title" accessibilityRole="header" style={{ flex: 1 }}>סיכום לרופא/ה</Text>
-      </View>
-      <Text color={colors.textSecondary}>עמוד אחד עם מה שתיעדתם, להראות בטיפת חלב או אצל הרופא/ה.</Text>
-      <Segmented options={RANGES} value={range} onChange={setRange} />
-
-      <Card style={{ gap: spacing.md }}>
+    <SkyScreen title="סיכום לרופא/ה" subtitle="עמוד אחד עם מה שתיעדתם, להראות בטיפת חלב או אצל הרופא/ה." mascot="heart"
+      onBack={() => (router.canGoBack() ? router.back() : router.replace('/(tabs)/child'))}
+      hero={<Segmented options={RANGES} value={range} onChange={setRange} />}>
+      <SheetCard>
         <View style={{ gap: 2 }}>
-          <Text variant="heading" selectable>{report.title}</Text>
+          <Text variant="heading" color={colors.ink} selectable>{report.title}</Text>
           {report.subtitle.map((s) => <Text key={s} variant="caption" color={colors.textSecondary} selectable>{s}</Text>)}
         </View>
         {report.sections.map((s) => (
@@ -74,7 +70,7 @@ export default function ReportScreen() {
             {s.lines.map((l) => <Text key={l} variant="label" selectable>{l}</Text>)}
           </View>
         ))}
-      </Card>
+      </SheetCard>
       <Notice text={report.footer} />
 
       <Button label="שיתוף הסיכום" icon={Share2} onPress={() => void share()} />
@@ -82,12 +78,11 @@ export default function ReportScreen() {
         <Button label="העתקה" icon={Copy} variant="secondary" size="md" style={{ flex: 1 }} onPress={() => void copy()} />
         {Platform.OS === 'web' ? <Button label="הדפסה / PDF" icon={Printer} variant="secondary" size="md" style={{ flex: 1 }} onPress={print} /> : null}
       </View>
-    </Screen>
+    </SkyScreen>
   );
 }
 
 const styles = StyleSheet.create({
-  head: { flexDirection: 'row', alignItems: 'center', gap: spacing.md, paddingTop: spacing.sm },
   section: { gap: 2, paddingTop: spacing.sm, borderTopWidth: StyleSheet.hairlineWidth, borderTopColor: colors.borderStrong },
   actions: { flexDirection: 'row', gap: spacing.sm },
 });

@@ -1,7 +1,7 @@
 import { ChevronLeft, ChevronRight, Minus, Plus } from 'lucide-react-native';
 import { useEffect, useState } from 'react';
 import { StyleSheet, TextInput, type TextInputProps, View } from 'react-native';
-import { colors, fonts, radius, spacing, themed } from '@/design/tokens';
+import { colors, fonts, spacing, themed } from '@/design/tokens';
 import { addDays, dayKey, formatDayLabel, isSameDay } from '@/lib/time';
 import { IconButton } from './primitives';
 import { Text } from './Text';
@@ -10,7 +10,7 @@ import { Text } from './Text';
 export function FieldGroup({ label, hint, error, children }: { label: string; hint?: string; error?: string | null; children: React.ReactNode }) {
   return (
     <View style={styles.group}>
-      <Text variant="label" color={colors.textSecondary}>{label}</Text>
+      <Text variant="label" color={colors.ink} style={{ fontWeight: '600' }}>{label}</Text>
       {children}
       {error ? <Text variant="caption" color={colors.danger} accessibilityRole="alert">{error}</Text>
         : hint ? <Text variant="caption" color={colors.textSecondary}>{hint}</Text> : null}
@@ -207,29 +207,33 @@ export function isToday(d: Date) {
   return isSameDay(d, new Date());
 }
 
+/** Fields are soft tinted wells with no hard outline, so they read on a white card as well as on the sheet. */
+const WELL = '#F8F3F5';
+const WELL_BORDER = 'rgba(58,34,51,0.07)';
+
 const styles = themed(() => StyleSheet.create({
   group: { gap: spacing.sm },
   input: {
     // On web a text input has an intrinsic width; without minWidth 0 it refuses to shrink inside a row.
     minWidth: 0,
-    minHeight: 52, borderRadius: radius.md, borderWidth: 1, borderColor: colors.borderStrong, backgroundColor: colors.surface,
+    minHeight: 52, borderRadius: 18, borderWidth: 1.5, borderColor: WELL_BORDER, backgroundColor: WELL,
     paddingHorizontal: spacing.lg, ...fonts.regular, fontSize: 16, color: colors.textPrimary, textAlign: 'right',
   },
   multiline: { minHeight: 88, paddingTop: spacing.md, textAlignVertical: 'top' },
-  focused: { borderColor: colors.primary },
+  focused: { borderColor: colors.primary, backgroundColor: colors.white },
   errored: { borderColor: colors.danger },
   stepper: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: spacing.lg },
   stepperValue: { alignItems: 'center' },
-  stepperInput: { ...fonts.bold, fontSize: 28, color: colors.textPrimary, textAlign: 'center', width: 96, paddingVertical: 2 },
+  stepperInput: { ...fonts.bold, fontSize: 28, color: colors.ink, textAlign: 'center', width: 96, paddingVertical: 2 },
   stepperInputLarge: { fontSize: 44, width: 132 },
   dateTimeRow: { flexDirection: 'row', gap: spacing.sm, alignItems: 'center' },
   dayStepper: {
-    flex: 1, minHeight: 52, flexDirection: 'row', alignItems: 'center', borderRadius: radius.md, borderWidth: 1,
-    borderColor: colors.borderStrong, backgroundColor: colors.surface, paddingHorizontal: 4,
+    flex: 1, minHeight: 52, flexDirection: 'row', alignItems: 'center', borderRadius: 18, borderWidth: 1.5,
+    borderColor: WELL_BORDER, backgroundColor: WELL, paddingHorizontal: 4,
   },
   time: {
-    flexDirection: 'row', direction: 'ltr', alignItems: 'center', gap: 2, minHeight: 52, borderRadius: radius.md, borderWidth: 1,
-    borderColor: colors.borderStrong, backgroundColor: colors.surface, paddingHorizontal: spacing.sm,
+    flexDirection: 'row', direction: 'ltr', alignItems: 'center', gap: 2, minHeight: 52, borderRadius: 18, borderWidth: 1.5,
+    borderColor: WELL_BORDER, backgroundColor: WELL, paddingHorizontal: spacing.sm,
   },
   timeInput: { width: 40, ...fonts.semibold, fontSize: 18, color: colors.textPrimary, textAlign: 'center', paddingVertical: 8 },
   dateRow: { flexDirection: 'row', gap: spacing.sm },

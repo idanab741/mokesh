@@ -1,9 +1,10 @@
 import { router } from 'expo-router';
-import { BellOff, ChevronRight, CloudOff, GitCompareArrows } from 'lucide-react-native';
+import { BellOff, CloudOff, GitCompareArrows } from 'lucide-react-native';
 import { StyleSheet, View } from 'react-native';
 import { openActivityForm } from '@/components/AddActivitySheet';
 import { EventRow } from '@/components/activity/EventRow';
-import { ActivityBadge, Button, Card, EmptyState, IconButton, Notice, Screen, SectionHeader } from '@/components/ui/primitives';
+import { ActivityBadge, Button, Card, EmptyState, Notice, SectionHeader } from '@/components/ui/primitives';
+import { SkyScreen } from '@/components/ui/SkyScreen';
 import { Text } from '@/components/ui/Text';
 import { colors, spacing } from '@/design/tokens';
 import { useActiveChild, useActiveSleep, useConflicts, useNow, useUnsynced } from '@/hooks/data';
@@ -27,11 +28,7 @@ export default function UpdatesScreen() {
   const nothing = !sleep && (conflicts.data?.length ?? 0) === 0 && pending === 0;
 
   return (
-    <Screen scroll edges={['top', 'bottom']}>
-      <View style={styles.header}>
-        <IconButton icon={ChevronRight} label="חזרה" tone="surface" onPress={() => (router.canGoBack() ? router.back() : router.replace('/(tabs)'))} />
-        <Text variant="title" accessibilityRole="header">עדכונים</Text>
-      </View>
+    <SkyScreen title="עדכונים" subtitle="מה שמחכה לתשומת לב" onBack={() => (router.canGoBack() ? router.back() : router.replace('/(tabs)'))}>
 
       {nothing ? <Card><EmptyState icon={BellOff} title="אין עדכונים כרגע" body="כאן יופיעו טיימר שינה פעיל, רשומות שממתינות לסנכרון ושינויים שדורשים הכרעה." /></Card> : null}
 
@@ -71,11 +68,10 @@ export default function UpdatesScreen() {
           <Button label="לנסות לסנכרן עכשיו" size="md" variant="secondary" loading={sync.status === 'syncing'} onPress={() => void syncNow()} />
         </Card>
       ) : null}
-    </Screen>
+    </SkyScreen>
   );
 }
 
 const styles = StyleSheet.create({
-  header: { flexDirection: 'row', alignItems: 'center', gap: spacing.md, paddingTop: spacing.md },
   item: { flexDirection: 'row', alignItems: 'center', gap: spacing.md },
 });

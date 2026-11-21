@@ -1,10 +1,11 @@
 import { router } from 'expo-router';
-import { CalendarClock, ChevronRight, Pill, Plus, Syringe, Thermometer, Trash2 } from 'lucide-react-native';
+import { CalendarClock, Pill, Plus, Syringe, Thermometer, Trash2 } from 'lucide-react-native';
 import { useState } from 'react';
 import { Pressable, StyleSheet, View } from 'react-native';
 import { DateField, DateTimeField, TextField } from '@/components/ui/inputs';
 import { ConfirmDialog, Sheet, useToast } from '@/components/ui/overlays';
-import { Button, Card, Chip, EmptyState, IconButton, Notice, Screen, SectionHeader, Segmented } from '@/components/ui/primitives';
+import { Button, Chip, EmptyState, IconButton, Notice, Screen, SectionHeader, Segmented } from '@/components/ui/primitives';
+import { SheetCard as Card, SkyScreen } from '@/components/ui/SkyScreen';
 import { Text } from '@/components/ui/Text';
 import { colors, radius, spacing, themed } from '@/design/tokens';
 import { type Visit, type VisitKind, parseClock, parseTemperature, visitKindLabel } from '@/domain/health';
@@ -96,11 +97,7 @@ export default function HealthScreen() {
   const dateTime = (iso: string) => { const d = new Date(iso); return `${formatDateFull(d)} · ${ltr(formatTime(d))}`; };
 
   return (
-    <Screen scroll edges={['top', 'bottom']}>
-      <View style={styles.head}>
-        <IconButton icon={ChevronRight} label="חזרה" onPress={() => (router.canGoBack() ? router.back() : router.replace('/(tabs)/child'))} tone="surface" />
-        <Text variant="title" accessibilityRole="header" style={{ flex: 1 }}>בריאות</Text>
-      </View>
+    <SkyScreen title="בריאות" subtitle="חום ותרופות, חיסונים וביקורים" mascot="heart" onBack={() => (router.canGoBack() ? router.back() : router.replace('/(tabs)/child'))}>
       <Segmented options={TABS} value={tab} onChange={setTab} />
       {!canManage ? <Notice text="את המידע הרפואי רואים ומוסיפים ההורים. ההרשאה שלך היא לתיעוד היומי." /> : null}
 
@@ -239,12 +236,11 @@ export default function HealthScreen() {
 
       <ConfirmDialog visible={toDelete !== null} destructive title="למחוק את הרישום?" body="הרישום יוסר גם אצל שאר בני המשפחה."
         confirmLabel="מחיקה" onCancel={() => setToDelete(null)} onConfirm={doDelete} />
-    </Screen>
+    </SkyScreen>
   );
 }
 
 const styles = themed(() => StyleSheet.create({
-  head: { flexDirection: 'row', alignItems: 'center', gap: spacing.md, paddingTop: spacing.sm },
   actions: { flexDirection: 'row', gap: spacing.sm },
   list: { paddingVertical: spacing.xs, gap: 0 },
   row: { flexDirection: 'row', alignItems: 'center', gap: spacing.md, minHeight: 60, paddingVertical: spacing.sm },

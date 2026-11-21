@@ -1,10 +1,11 @@
 import { router } from 'expo-router';
-import { ChevronRight, Plus, Utensils } from 'lucide-react-native';
+import { Plus, Utensils } from 'lucide-react-native';
 import { useState } from 'react';
 import { Pressable, StyleSheet, View } from 'react-native';
 import { openActivityForm } from '@/components/AddActivitySheet';
 import { Sheet } from '@/components/ui/overlays';
-import { Button, Card, EmptyState, IconButton, Notice, Screen, SectionHeader, Segmented } from '@/components/ui/primitives';
+import { Button, EmptyState, Notice, Screen, SectionHeader, Segmented } from '@/components/ui/primitives';
+import { SheetCard as Card, SkyScreen } from '@/components/ui/SkyScreen';
 import { Text } from '@/components/ui/Text';
 import { activityTones, colors, radius, spacing } from '@/design/tokens';
 import type { FoodLogEntry } from '@/data/repositories/events';
@@ -27,12 +28,7 @@ export default function FoodsScreen() {
   const times = (n: number) => (n === 1 ? 'פעם אחת' : `${n} פעמים`);
 
   return (
-    <Screen scroll edges={['top', 'bottom']}>
-      <View style={styles.head}>
-        <IconButton icon={ChevronRight} label="חזרה" onPress={() => (router.canGoBack() ? router.back() : router.replace('/(tabs)/child'))} tone="surface" />
-        <Text variant="title" accessibilityRole="header" style={{ flex: 1 }}>טעימות ואלרגנים</Text>
-      </View>
-      <Text color={colors.textSecondary}>{`כל מה ש${child.name} כבר טעמ${child.sex === 'female' ? 'ה' : child.sex === 'male' ? '' : '/ה'}, מתי, וההערות שכתבתם ליד.`}</Text>
+    <SkyScreen title="טעימות ואלרגנים" subtitle={`כל מה ש${child.name} כבר טעמ${child.sex === 'female' ? 'ה' : child.sex === 'male' ? '' : '/ה'}, מתי, וההערות שכתבתם ליד.`} onBack={() => (router.canGoBack() ? router.back() : router.replace('/(tabs)/child'))}>
 
       {all.length === 0 ? (
         <Card><EmptyState icon={Utensils} title="עוד לא תועדו טעימות" body="כל ארוחת מוצקים שמתעדים מוסיפה לכאן את המזונות שלה." actionLabel="תיעוד ארוחה" onAction={() => openActivityForm('solids')} /></Card>
@@ -87,12 +83,11 @@ export default function FoodsScreen() {
           </>
         ) : null}
       </Sheet>
-    </Screen>
+    </SkyScreen>
   );
 }
 
 const styles = StyleSheet.create({
-  head: { flexDirection: 'row', alignItems: 'center', gap: spacing.md, paddingTop: spacing.sm },
   stats: { flexDirection: 'row', gap: spacing.sm },
   stat: { flex: 1, borderRadius: radius.lg, padding: spacing.md, alignItems: 'center', gap: 2 },
   list: { paddingVertical: spacing.xs, gap: 0 },

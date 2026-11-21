@@ -47,7 +47,8 @@ const results = []; const check = (n, c) => { results.push(`${c ? 'PASS' : 'FAIL
   await A.page.getByLabel('סיסמה').fill(PW);
   await A.btn('כניסה').click(); await A.wait(6000);
   let t = await A.body();
-  const fresh = t.includes('מתחילים');
+  // The home tour also says "מתחילים": only the welcome page (no tab bar yet) means there is no child.
+  const fresh = !(await A.page.getByRole('tab', { name: 'בית' }).count()) && t.includes('מתחילים');
   check('sign-in with email works', (fresh || t.includes('עלמה')) && !t.includes('כבר יש לי חשבון'));
   if (fresh) {
     await A.btn('מתחילים').click(); await A.wait();
@@ -57,6 +58,11 @@ const results = []; const check = (n, c) => { results.push(`${c ? 'PASS' : 'FAIL
     await A.page.getByLabel('תאריך לידה, שנה').fill('2026');
     await A.page.getByRole('tab', { name: 'בת', exact: true }).click();
     await A.btn('שמירה והמשך').click(); await A.wait(1500);
+    await A.btn('הוספת פעילות').click(); await A.wait();
+    await A.btn('בקבוק').click(); await A.wait(800);
+    await A.btn('שמירה').click(); await A.wait(1200);
+  } else if (!t.includes('מ״ל בבקבוק')) {
+    // An account from an earlier day: the checks below need a bottle logged today.
     await A.btn('הוספת פעילות').click(); await A.wait();
     await A.btn('בקבוק').click(); await A.wait(800);
     await A.btn('שמירה').click(); await A.wait(1200);

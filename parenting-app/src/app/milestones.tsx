@@ -1,10 +1,11 @@
 import { router } from 'expo-router';
-import { Check, ChevronRight, Plus, Sparkles, Trash2 } from 'lucide-react-native';
+import { Check, Plus, Sparkles, Trash2 } from 'lucide-react-native';
 import { useState } from 'react';
 import { Pressable, StyleSheet, View } from 'react-native';
 import { DateField, TextField } from '@/components/ui/inputs';
 import { Sheet, useToast } from '@/components/ui/overlays';
-import { Button, Card, IconButton, Notice, Screen, SectionHeader } from '@/components/ui/primitives';
+import { Button, Notice, Screen, SectionHeader } from '@/components/ui/primitives';
+import { SheetCard as Card, SkyScreen } from '@/components/ui/SkyScreen';
 import { Text } from '@/components/ui/Text';
 import { colors, radius, spacing, themed } from '@/design/tokens';
 import { stageLabel } from '@/domain/avatar';
@@ -69,11 +70,7 @@ export default function MilestonesScreen() {
   const sheetTitle = !editing ? '' : editing.kind === 'catalog' ? catalogTitle(editing.item, child.sex) : editing.existing ? 'עריכת רגע' : 'רגע משלכם';
 
   return (
-    <Screen scroll edges={['top', 'bottom']}>
-      <View style={styles.head}>
-        <IconButton icon={ChevronRight} label="חזרה" onPress={() => (router.canGoBack() ? router.back() : router.replace('/(tabs)/child'))} tone="surface" />
-        <Text variant="title" accessibilityRole="header" style={{ flex: 1 }}>{`הרגעים של ${child.name}`}</Text>
-      </View>
+    <SkyScreen title={`הרגעים של ${child.name}`} subtitle="שומרים את מה שכבר קרה" mascot="cheer" onBack={() => (router.canGoBack() ? router.back() : router.replace('/(tabs)/child'))}>
       <Notice text="כל ילד מתקדם בקצב שלו. כאן רק שומרים את מה שכבר קרה, בלי לוחות זמנים ובלי השוואות." />
       {!canManage ? <Notice text="רגעים מוסיפים ההורים. ההרשאה שלך היא לתיעוד היומי." /> : null}
 
@@ -134,12 +131,11 @@ export default function MilestonesScreen() {
         <Button label="שמירה" loading={busy} onPress={save} />
         {editing?.existing ? <Button label="הסרת הרגע" icon={Trash2} variant="ghost" size="md" onPress={unmark} /> : null}
       </Sheet>
-    </Screen>
+    </SkyScreen>
   );
 }
 
 const styles = themed(() => StyleSheet.create({
-  head: { flexDirection: 'row', alignItems: 'center', gap: spacing.md, paddingTop: spacing.sm },
   list: { paddingVertical: spacing.xs, gap: 0 },
   row: { flexDirection: 'row', alignItems: 'center', gap: spacing.md, minHeight: 60, paddingVertical: spacing.sm },
   dot: { width: 40, height: 40, borderRadius: 20, backgroundColor: colors.primaryLight, alignItems: 'center', justifyContent: 'center' },

@@ -12,7 +12,7 @@ const results = []; const check = (n, c) => { results.push(`${c ? 'PASS' : 'FAIL
   const device = async (name) => {
     const ctx = await browser.newContext({ viewport: { width: 390, height: 844 }, deviceScaleFactor: 2, locale: 'he-IL', timezoneId: 'Asia/Jerusalem', ignoreHTTPSErrors: true });
     const page = await ctx.newPage();
-    page.on('pageerror', (e) => errors.push(`${name} PAGEERROR ${e.message}`));
+    page.on('pageerror', (e) => errors.push(`${name} PAGEERROR ${e.message} @ ${page.url()} ${(e.stack || '').split('\n').slice(1, 4).join(' | ')}`));
     return { page, body: () => page.innerText('body'), btn: (n) => page.getByRole('button', { name: n, exact: true }).last(), wait: (ms = 700) => page.waitForTimeout(ms),
       shot: (n) => page.screenshot({ path: S + n + '.png' }),
       signIn: async (email) => {
@@ -27,7 +27,8 @@ const results = []; const check = (n, c) => { results.push(`${c ? 'PASS' : 'FAIL
   await A.page.goto('http://localhost:4173/'); await A.wait(3000); await skipTour(A.page);
   await A.signIn(OWNER);
   let t = await A.body();
-  if (t.includes('מתחילים')) {
+  // The home tour also says "מתחילים": only the welcome page's own button means there is no child yet.
+  if (!(await A.page.getByRole('tab', { name: 'בית' }).count()) && t.includes('מתחילים')) {
     await A.btn('מתחילים').click(); await A.wait();
     await A.page.getByLabel('שם', { exact: true }).fill('עלמה');
     await A.page.getByLabel('תאריך לידה, יום').fill('19'); await A.page.getByLabel('תאריך לידה, חודש').fill('5'); await A.page.getByLabel('תאריך לידה, שנה').fill('2026');
