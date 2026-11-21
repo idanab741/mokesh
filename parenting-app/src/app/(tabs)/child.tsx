@@ -1,6 +1,6 @@
 import { useQueryClient } from '@tanstack/react-query';
 import { router } from 'expo-router';
-import { ChevronLeft, CloudOff, Download, LogOut, type LucideIcon, Pencil, Plus, RefreshCw, Ruler, Sparkles, Trash2, UserRound, Users } from 'lucide-react-native';
+import { ChevronLeft, CloudOff, ClipboardList, Download, LogOut, type LucideIcon, Pencil, Plus, RefreshCw, Ruler, Sparkles, Trash2, UserRound, Users } from 'lucide-react-native';
 import { useState } from 'react';
 import { Pressable, StyleSheet, View } from 'react-native';
 import { Avatar } from '@/components/Avatar';
@@ -110,9 +110,10 @@ export default function ChildScreen() {
         <Row icon={Sparkles} title="רגעים ואבני דרך" detail="חיוך ראשון, זחילה, מילה ראשונה" onPress={() => router.push('/milestones')} />
       </Card>
 
-      <SectionHeader title="גדילה" />
+      <SectionHeader title="גדילה ובריאות" />
       <Card style={styles.list}>
         <Row icon={Ruler} title="מדידות גדילה" detail={latest ? `אחרונה: ${latestText}` : latestText} onPress={() => router.push('/growth')} />
+        <Row icon={ClipboardList} title="סיכום לרופא/ה" detail="עמוד אחד עם האכלות, שינה, חיתולים ומדידות" onPress={() => router.push('/report')} />
       </Card>
 
       <SectionHeader title="הילדים שלנו" />

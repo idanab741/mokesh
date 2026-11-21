@@ -239,3 +239,10 @@ Client side of the sharing that the schema already had (families, family_members
 - The character's pose follows the furthest pose moment marked (sits / crawls / stands / first steps); the age is only
   the fallback. Only parents can add moments (the server gates this table with the health permission).
 - Not built: a photo on a moment (comes with the photo journal).
+
+## Summary for the doctor (2026-11-21)
+
+`/report` (from "הילד שלי"): one page for a week, two weeks or a month that restates what was logged: feeding, sleep
+(night / day), diapers, solids and foods, measurements and marked moments. Averages are over days that have records.
+It can be shared as text, copied, or opened as a plain page for printing / saving as PDF (web). It states that it is
+not a medical document and draws no conclusions. The JSON export now includes moments.
