@@ -3,7 +3,7 @@ import type { ReactNode } from 'react';
 import { ActivityIndicator, Pressable, type PressableProps, ScrollView, type StyleProp, StyleSheet, View, type ViewStyle } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { HIT, activityTones, colors, gradients, radius, shadow, spacing } from '@/design/tokens';
+import { HIT, activityTones, colors, gradients, radius, shadow, spacing, themed } from '@/design/tokens';
 import type { ActivityType } from '@/domain/activity';
 import { activityIcons } from './Icons';
 import { useAppTheme } from '@/hooks/data';
@@ -257,7 +257,7 @@ export function Notice({ text, tone = 'info', icon: Icon }: { text: string; tone
   );
 }
 
-const styles = StyleSheet.create({
+const styles = themed(() => StyleSheet.create({
   screen: { flex: 1, backgroundColor: colors.background },
   wash: { position: 'absolute', top: 0, start: 0, end: 0, height: 360, opacity: 0.55 },
   screenContent: { paddingHorizontal: spacing.xl, paddingBottom: 120, gap: spacing.lg },
@@ -281,4 +281,4 @@ const styles = StyleSheet.create({
   empty: { alignItems: 'center', gap: spacing.sm, paddingVertical: spacing.xxl, paddingHorizontal: spacing.lg },
   emptyIcon: { width: 64, height: 64, borderRadius: 32, backgroundColor: colors.primaryLight, alignItems: 'center', justifyContent: 'center', marginBottom: spacing.xs },
   notice: { flexDirection: 'row', alignItems: 'flex-start', gap: spacing.sm, padding: spacing.md, borderRadius: radius.md },
-});
+}));

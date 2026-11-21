@@ -6,7 +6,7 @@ import { DateField, TextField } from '@/components/ui/inputs';
 import { Sheet, useToast } from '@/components/ui/overlays';
 import { Button, Card, IconButton, Notice, Screen, SectionHeader } from '@/components/ui/primitives';
 import { Text } from '@/components/ui/Text';
-import { colors, radius, spacing } from '@/design/tokens';
+import { colors, radius, spacing, themed } from '@/design/tokens';
 import { stageLabel } from '@/domain/avatar';
 import { CATALOG, type CatalogItem, GROUPS, type Milestone, catalogTitle, groupLabel, stageFromMilestones } from '@/domain/milestones';
 import { useActiveChild, useCanManage, useMilestoneMutations, useMilestones } from '@/hooks/data';
@@ -138,7 +138,7 @@ export default function MilestonesScreen() {
   );
 }
 
-const styles = StyleSheet.create({
+const styles = themed(() => StyleSheet.create({
   head: { flexDirection: 'row', alignItems: 'center', gap: spacing.md, paddingTop: spacing.sm },
   list: { paddingVertical: spacing.xs, gap: 0 },
   row: { flexDirection: 'row', alignItems: 'center', gap: spacing.md, minHeight: 60, paddingVertical: spacing.sm },
@@ -146,4 +146,4 @@ const styles = StyleSheet.create({
   chips: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing.sm },
   chip: { flexDirection: 'row', alignItems: 'center', gap: 6, minHeight: 44, paddingHorizontal: spacing.lg, borderRadius: radius.pill, borderWidth: 1.5, borderColor: colors.borderStrong, backgroundColor: colors.surface },
   chipOn: { borderColor: colors.primaryStrong, backgroundColor: colors.primaryLight },
-});
+}));

@@ -8,7 +8,7 @@ import { ConfirmDialog, useToast } from '@/components/ui/overlays';
 import { Button, Card, Notice, Screen, SectionHeader } from '@/components/ui/primitives';
 import { Text } from '@/components/ui/Text';
 import { LinearGradient } from 'expo-linear-gradient';
-import { colors, gradients, shadow, spacing } from '@/design/tokens';
+import { colors, gradients, shadow, spacing, themed } from '@/design/tokens';
 import { formatAgeWithSex } from '@/domain/age';
 import { useActiveChild, useCanManage, useMeasurements, useUnsynced } from '@/hooks/data';
 import { formatDateFull, formatRelative, parseDayKey } from '@/lib/time';
@@ -182,11 +182,11 @@ export default function ChildScreen() {
   );
 }
 
-const styles = StyleSheet.create({
+const styles = themed(() => StyleSheet.create({
   profile: { alignItems: 'center', gap: spacing.xs, paddingBottom: spacing.lg, backgroundColor: colors.surface, borderRadius: 30, overflow: 'hidden', ...shadow.card },
   cover: { alignSelf: 'stretch', height: 96 },
   avatarRing: { marginTop: -50, borderRadius: 52, borderWidth: 4, borderColor: colors.surface, backgroundColor: colors.surface },
   list: { paddingVertical: spacing.xs, gap: 0 },
   row: { flexDirection: 'row', alignItems: 'center', gap: spacing.md, minHeight: 60, paddingVertical: spacing.sm },
   rowIcon: { width: 40, height: 40, borderRadius: 20, backgroundColor: colors.primaryLight, alignItems: 'center', justifyContent: 'center' },
-});
+}));

@@ -7,14 +7,38 @@ import type { ActivityType } from '@/domain/activity';
  * cards, near-black text, one confident rose accent, and a distinct vivid hue per activity so
  * the day can be read by colour. Text/background pairs are measured for WCAG AA (ratios noted).
  */
+/**
+ * The accent follows the colour world of the child on screen (rose, sky or meadow; see domain/theme).
+ * `colors.primaryStrong`, `colors.primaryLight`, `colors.primary` and `gradients.primary` read it,
+ * so every button, link and selected mark changes with it. Style sheets that use them are wrapped
+ * in `themed()` so they are rebuilt per colour world.
+ */
+interface Accent { key: string; accent: string; accentSoft: string; button: readonly [string, string]; ink: string }
+let accent: Accent = { key: 'rose', accent: '#C7375F', accentSoft: '#FFE8EF', button: ['#F0628C', '#C7375F'], ink: '#3A2233' };
+export function setAccent(next: Accent): void { accent = next; }
+export function accentKey(): string { return accent.key; }
+/** A style sheet that depends on the accent: built once per colour world, read through at render time. */
+export function themed<T extends object>(make: () => T): T {
+  const cache = new Map<string, T>();
+  return new Proxy({} as T, {
+    get(_, name) {
+      let sheet = cache.get(accent.key);
+      if (!sheet) { sheet = make(); cache.set(accent.key, sheet); }
+      return sheet[name as keyof T];
+    },
+  });
+}
+
 export const colors = {
   /** The canvas takes the backdrop colour of the baby clips, so the character stands on the screen itself. */
   background: '#F1F1EF',
   surface: '#FFFFFF',
   surfaceMuted: '#F3F1EF',
-  primary: '#E4668A', // accents and icons
-  primaryStrong: '#C7375F', // filled buttons, links – white text 5.1:1
-  primaryLight: '#FFE8EF',
+  get primary() { return accent.button[0]; }, // accents and icons
+  get primaryStrong() { return accent.accent; }, // filled buttons, links – white text >= 4.5:1
+  get primaryLight() { return accent.accentSoft; },
+  /** Headings on the sky and in the sheet: a deep tone of the colour world, not plain black. */
+  get ink() { return accent.ink; },
   textPrimary: '#1C1A1F', // 15.8:1 on background
   textSecondary: '#6A6570', // 5.2:1 on background, 5.7:1 on white
   textOnPrimary: '#FFFFFF',
@@ -27,13 +51,13 @@ export const colors = {
   warningLight: '#FFF0D6',
   overlay: 'rgba(20, 18, 24, 0.42)',
   white: '#FFFFFF',
-} as const;
+};
 
 /** Gradients are part of the identity: warm rose into soft lilac, never flat fills for hero surfaces. */
 export const gradients = {
   /** Wash at the top of every screen, fading into the canvas. */
   wash: ['#FFE6EE', '#F1EBFF', '#F1F1EF'],
-  primary: ['#F0628C', '#C7375F'],
+  get primary(): readonly [string, string] { return accent.button; },
   brand: ['#FF8FB0', '#B45CF0'],
 } as const;
 

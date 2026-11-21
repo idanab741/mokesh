@@ -5,7 +5,7 @@ import { Avatar } from '@/components/Avatar';
 import { Sheet } from '@/components/ui/overlays';
 import { Button } from '@/components/ui/primitives';
 import { Text } from '@/components/ui/Text';
-import { colors, radius, spacing } from '@/design/tokens';
+import { colors, radius, spacing, themed } from '@/design/tokens';
 import { formatAgeWithSex } from '@/domain/age';
 import { useActiveChild } from '@/hooks/data';
 import { useUi } from '@/state/ui';
@@ -38,7 +38,7 @@ export function ChildSwitcherSheet() {
   );
 }
 
-const styles = StyleSheet.create({
+const styles = themed(() => StyleSheet.create({
   row: { flexDirection: 'row', alignItems: 'center', gap: spacing.md, padding: spacing.md, borderRadius: radius.lg, backgroundColor: colors.surface, borderWidth: 1, borderColor: colors.border },
   rowSelected: { borderColor: colors.primary, backgroundColor: colors.primaryLight },
-});
+}));

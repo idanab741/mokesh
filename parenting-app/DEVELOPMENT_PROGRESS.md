@@ -278,3 +278,11 @@ The user chose direction A of five sketches. Built so far, on Home and in the sh
 - Rubik on the web, loaded from Google Fonts at startup; the system face is the fallback.
 - Not yet restyled: primary buttons and selected chips are still rose in every colour world; journal, stats, forms and
   the other screens keep their layout.
+- Follow-up after the user's review: the character is centred in the arch in every pose (it used to sit on the bottom
+  edge, so the smaller lying and crawling clips looked dropped). Every accent in the app now follows the colour world:
+  `colors.primaryStrong`, `primaryLight`, `primary`, `ink` and `gradients.primary` are getters over the current accent,
+  style sheets that use them are wrapped in `themed()`, and the root remounts when the colour world changes. Home was
+  brought closer to the sketch: only the logo and the child's avatar in the top bar (the bell appears when something
+  needs attention), headings in the colour world's deep tone, two plain sentences in the sheet, and "דמות וצבע" moved
+  into the shortcuts. The `darken` layer over the clip was removed: with rounded clipping it drew black patches while
+  the wave clip played, and the backdrops are exact without it.
