@@ -397,3 +397,6 @@ The user pointed out that the previous bar and tour were not what Triplace has. 
 - מסך `app/album.tsx` בעיצוב אלבום מודבק (`components/album/Scrapbook.tsx`): כריכת ספר, דף נייר לכל חודש חיים, פולרוידים עם נייר דבק, כיתוב בגופן Amatic SC. כרטיס `PhotoStrip` בבית; כרטיס אבני הדרך נקרא עכשיו "הרגעים של".
 - `e2e/album.js` (שרת אמיתי, שני מכשירים). תסריטי הענן מחכים לסיום הסנכרון בפועל במקום זמן קבוע.
 - לא נבדק: בחירת תמונה באפליקציה נייטיב (שם אין תצוגה מקדימה קטנה), אייפון אמיתי.
+
+## עמוד הפתיחה: סרטון של שתי הדמויות ולילי
+- מקור `tools/baby-motion/source/welcome-duo.mp4`; `poster.py … 0` יצר `assets/welcome/poster.mp4` (לולאה, 850KB) ותמונת פתיחה. `CLIP` ב-`WelcomePoster.web` חזר להיות require, ו-`POSTER_SKY` עודכן מצבעי הסרטון.
