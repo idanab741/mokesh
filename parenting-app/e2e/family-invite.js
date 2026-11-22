@@ -36,7 +36,7 @@ const results = []; const check = (n, c) => { results.push(`${c ? 'PASS' : 'FAIL
     await A.btn('שמירה והמשך').click(); await A.wait(5000);
   }
   await A.page.getByRole('tab', { name: 'הילד שלי', exact: true }).click(); await A.wait();
-  await A.btn('סנכרון עכשיו').click(); await A.wait(5000);
+  await A.btn('סנכרון עכשיו').click(); await A.wait(1500); await A.page.waitForFunction(() => !document.body.innerText.includes('מסנכרן'), null, { timeout: 40000 }).catch(() => undefined); await A.wait(1500);
   await A.btn('משפחה ושיתוף').click(); await A.wait(4000);
   t = await A.body();
   check('owner sees the family with themself as manager', t.includes('מנהל/ת המשפחה') && t.includes('(אני)'));
@@ -58,7 +58,7 @@ const results = []; const check = (n, c) => { results.push(`${c ? 'PASS' : 'FAIL
   check('the code is removed from the address bar', !B.page.url().includes('join='));
   await B.shot('f4-invited');
   await B.signIn(OTHER);
-  await B.wait(3000);
+  await B.page.waitForFunction(() => document.body.innerText.includes('עלמה'), null, { timeout: 30000 }).catch(() => undefined);
   t = await B.body();
   check('after signing in, the invited person sees the owner\'s child', t.includes('עלמה'));
   await B.shot('f5-joined');

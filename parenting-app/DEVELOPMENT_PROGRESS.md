@@ -390,3 +390,10 @@ The user pointed out that the previous bar and tour were not what Triplace has. 
 - תזכורות: `domain/reminders.ts` (+ בדיקות), `hooks/reminders.ts`, `services/notify(.web).ts`, מסך `app/reminders.tsx`, שורה ב"הילד שלי", כרטיס בעמוד הבית למה שהגיע זמנו עם "בוצע". ההורה קובע מרווח/שעה; האפליקציה לא מחליטה מתי משהו נדרש. נשמר במכשיר בלבד (kv). בווב התראה קופצת רק כשהאפליקציה פתוחה; התראות נייטיב נכתבו ולא נבדקו על מכשיר.
 - באג שתוקן: בעמוד הבית היו hooks אחרי return מוקדם; כשהילד נעלם (עזיבת משפחה) React קרס (#300). הבית פוצל לעוטף + גוף.
 - תסריטי e2e: `family-invite.js` ו-`cloud-sync.js` כבר לא מתבלבלים מהמילה "מתחילים" בסיור, ו-cloud-sync מתעד בקבוק אם אין אחד מהיום.
+
+## יומן תמונות ואלבום
+- שרת (MOKESH, דרך ה-MCP, מיגרציה `parenting_photos_and_storage`): טבלת `public.photos` עם RLS (קריאה can_read_child, כתיבה can_write_tracking) ובאקט פרטי `family-media` (JPEG עד 3MB) עם שלוש מדיניות. הקובץ ב-`supabase/migrations/20261121000100_photos.sql`; `teardown.sql` עודכן.
+- מקומי: סכמה v5 (`photos`, `photo_files`), `domain/photos.ts` (+בדיקות), `data/repositories/photos.ts`, SPEC חדש במנוע הסנכרון, `services/photoFiles.ts` (העלאה אחרי סנכרון, הורדה בפתיחה, מחיקה), `lib/pickPhoto(.web).ts` (בווב הקטנה ל-1280 ותצוגה מקדימה 320), `hooks/photos.ts`.
+- מסך `app/album.tsx` בעיצוב אלבום מודבק (`components/album/Scrapbook.tsx`): כריכת ספר, דף נייר לכל חודש חיים, פולרוידים עם נייר דבק, כיתוב בגופן Amatic SC. כרטיס `PhotoStrip` בבית; כרטיס אבני הדרך נקרא עכשיו "הרגעים של".
+- `e2e/album.js` (שרת אמיתי, שני מכשירים). תסריטי הענן מחכים לסיום הסנכרון בפועל במקום זמן קבוע.
+- לא נבדק: בחירת תמונה באפליקציה נייטיב (שם אין תצוגה מקדימה קטנה), אייפון אמיתי.

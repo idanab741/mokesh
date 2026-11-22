@@ -28,6 +28,8 @@ import { buildInsights, daysUntilInsights } from '@/domain/insights';
 import { babyMood } from '@/domain/mood';
 import { learnRoutine, predictNext } from '@/domain/routine';
 import { useReminders } from '@/hooks/reminders';
+import { usePhotos } from '@/hooks/photos';
+import { PhotoStrip } from '@/components/home/PhotoStrip';
 import { ReminderRow } from '@/components/reminders/ReminderRow';
 import { type Advice, buildAdvice } from '@/domain/advisor';
 import { computeRangeStats } from '@/domain/stats';
@@ -49,7 +51,7 @@ const tourSteps = (name: string): TourStep[] => [
   { target: 'lili', pose: 'point', title: 'כאן אני מדברת', text: 'אגיד מה קורה עכשיו ומה שווה לתעד, ואציע כפתור אחד שעושה את זה.' },
   { target: 'needs', radius: 30, pose: 'point', title: 'שינה, אוכל, חיתול', text: 'כרטיס לכל אחד משלושת הדברים שהיום בנוי מהם, כמו זה של השינה. הפלוס מתעד בשתי לחיצות, והטבעת מתמלאת ככל שמתקרב הזמן הרגיל שלכם.' },
   { target: 'sterilizer', pose: 'think', title: 'סטריליזטור', text: 'רושמים מתי הופעל, ואני סופרת כמה בקבוקים נקיים נשארו.' },
-  { target: 'album', pose: 'cheer', title: 'האלבום', text: 'חיוך ראשון, שן ראשונה, צעד ראשון. כל רגע שתופסים נשמר כאן.' },
+  { target: 'album', pose: 'cheer', title: 'האלבום והרגעים', text: 'תמונות שמסתדרות לפי חודשים, והרגעים הגדולים: חיוך ראשון, שן ראשונה, צעד ראשון.' },
   { target: 'tab-add', radius: 40, pose: 'point', title: 'הפלוס הגדול', text: 'מכל מסך, פותח את כל סוגי התיעוד: גם הנקה, שאיבה ומוצקים.' },
   { target: 'tabs', radius: 34, pose: 'point', title: 'הסרגל התחתון', text: 'בית, יומן היום, נתונים, וכל מה שנוגע לילד. אפשר גם לגרור עליו את האצבע.' },
   { hero: true, pose: 'cheer', title: 'זהו, אתם מוכנים', text: 'נתחיל מארבעה דברים קטנים שיעזרו לי להכיר אתכם. אני אלווה אתכם בכל אחד.', button: 'מתחילים' },
@@ -80,6 +82,7 @@ function HomeBody({ child }: { child: NonNullable<ReturnType<typeof useActiveChi
   // Shown once per device: the tour of the screen, and Lili's first steps (which ones were put off).
   const { kv } = useServices();
   const reminders = useReminders(child.id);
+  const photos = usePhotos(child.id);
   const [tourOpen, setTourOpen] = useState(false);
   const [skipped, setSkipped] = useState<string[] | null>(null);
   useEffect(() => {
@@ -363,7 +366,10 @@ function HomeBody({ child }: { child: NonNullable<ReturnType<typeof useActiveChi
         {/* The gear, and the album of moments */}
         <Rise index={4} style={{ gap: spacing.md }}>
           <View {...tourTarget('sterilizer')}><SterilizeCard state={sterilize} now={now} onLog={() => setSterOpen(true)} /></View>
-          <View {...tourTarget('album')}><Album marked={marked} sex={child.sex} name={child.name} onOpen={() => router.push('/milestones')} /></View>
+          <View {...tourTarget('album')} style={{ gap: spacing.md }}>
+            <PhotoStrip photos={photos.data ?? []} name={child.name} familyId={child.familyId} onOpen={() => router.push('/album')} />
+            <Album marked={marked} sex={child.sex} name={child.name} onOpen={() => router.push('/milestones')} />
+          </View>
         </Rise>
 
       {/* Only when there is something current: a medicine given today, the next visit, the latest moment */}

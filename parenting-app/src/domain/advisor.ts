@@ -60,7 +60,7 @@ export function buildAdvice(i: AdviceInput): Advice {
     return { id: 'moment-new', pose: 'cheer', text: `${i.moments.latestTitle}${i.moments.latestDaysAgo === 0 ? ' היום' : i.moments.latestDaysAgo === 1 ? ' אתמול' : ` לפני ${i.moments.latestDaysAgo} ימים`}! איזה רגע. יש עוד משהו חדש לאלבום?`, action: { label: 'הוספת רגע', kind: 'moments' } };
   }
   if (i.moments.count === 0) {
-    return { id: 'moment-first', pose: 'heart', text: `האלבום של ${name} עוד ריק. מה היה הרגע האחרון שהתרגשתם ממנו?`, action: { label: 'הוספת רגע', kind: 'moments' } };
+    return { id: 'moment-first', pose: 'heart', text: `עוד לא סימנתם רגעים של ${name}. מה היה הרגע האחרון שהתרגשתם ממנו?`, action: { label: 'הוספת רגע', kind: 'moments' } };
   }
   if (now.getHours() >= 17 && i.usualSleepMin !== null && Math.abs(i.sleepTodayMin - i.usualSleepMin) >= 45) {
     const less = i.sleepTodayMin < i.usualSleepMin;

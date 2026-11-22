@@ -26,9 +26,11 @@ const results = []; const check = (n, c) => { results.push(`${c ? 'PASS' : 'FAIL
         await page.getByLabel('אימייל').fill(OWNER);
         await page.getByLabel('סיסמה').fill(PW);
         await d.btn('כניסה').click();
-        await page.waitForTimeout(6000);
+        // Signing in and the first pull take a few seconds, and how many varies.
+        await page.getByRole('tab', { name: 'בית', exact: true }).waitFor({ timeout: 25000 }).catch(() => undefined);
+        await page.waitForTimeout(3000);
       },
-      sync: async () => { await d.tab('הילד שלי'); await d.btn('סנכרון עכשיו').click(); await page.waitForTimeout(5000); },
+      sync: async () => { await d.tab('הילד שלי'); await d.btn('סנכרון עכשיו').click(); await page.waitForTimeout(1500); await page.waitForFunction(() => !document.body.innerText.includes('מסנכרן'), null, { timeout: 40000 }).catch(() => undefined); await page.waitForTimeout(1500); },
     };
     return d;
   };
@@ -45,7 +47,9 @@ const results = []; const check = (n, c) => { results.push(`${c ? 'PASS' : 'FAIL
   check('wrong password shows a clear Hebrew error', (await A.body()).includes('האימייל או הסיסמה אינם נכונים'));
   await A.shot('02-signin-error');
   await A.page.getByLabel('סיסמה').fill(PW);
-  await A.btn('כניסה').click(); await A.wait(6000);
+  await A.btn('כניסה').click();
+  await Promise.race([A.page.getByRole('tab', { name: 'בית', exact: true }).waitFor({ timeout: 25000 }), A.page.getByRole('button', { name: 'מתחילים', exact: true }).waitFor({ timeout: 25000 })]).catch(() => undefined);
+  await A.wait(3000);
   let t = await A.body();
   // The home tour also says "מתחילים": only the welcome page (no tab bar yet) means there is no child.
   const fresh = !(await A.page.getByRole('tab', { name: 'בית' }).count()) && t.includes('מתחילים');
