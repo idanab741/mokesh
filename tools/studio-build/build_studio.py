@@ -40,6 +40,8 @@ T = {
   work_h='עבודות.', work_g='מוצרים חיים.', work_p='',
   tp_sub='הדרך החדשה לתכנן טיול', tp_desc='מחליקים על מקומות, רואים מה החברים המליצו, ומקבלים מסלול מוכן יום אחרי יום.',
   tp_alt1='Triplace: המפה של החברים', tp_alt2='Triplace: מסך הבית',
+  lb_sub='היום של התינוק, רגוע וברור', lb_desc='שינה, אוכל וחיתול בשתי לחיצות, דמות שגדלה יחד עם התינוק, ואלבום שנבנה מעצמו חודש אחרי חודש.',
+  lb_alt1='Lilbaby: עמוד הפתיחה', lb_alt2='Lilbaby: מסך הבית', lb_try='לנסות בדפדפן',
   mk_name='מוקש!', mk_sub='משחק המסיבות שכולם צועקים בו', mk_desc='מסבירים מילה לקבוצה, והיריבים טומנים שלוש מילים שאסור להגיד. אונליין, בטלפון אחד או מול המחשב.',
   mk_img1='/studio-assets/m_boom.webp', mk_img2='/studio-assets/m_home.webp', mk_alt1='מוקש!: מסך הבום', mk_alt2='מוקש!: מסך הבית',
   mk_play='לשחק בדפדפן', mk_url='https://mokesh-psi.vercel.app/app', hl='he', apple_tp='https://apps.apple.com/il/app/triplace/id6757530943', apple_mk='https://apps.apple.com/il/app/id6829290776',
@@ -86,6 +88,8 @@ T = {
   work_h='Work.', work_g='Live products.', work_p='',
   tp_sub='A new way to plan a trip', tp_desc='Swipe through places, see what your friends recommend, and get a ready-made itinerary, day by day.',
   tp_alt1='Triplace: the friends map', tp_alt2='Triplace: home screen',
+  lb_sub='A baby\'s day, calm and clear', lb_desc='Sleep, food and diapers in two taps, a character that grows with the baby, and an album that builds itself month by month. In Hebrew.',
+  lb_alt1='Lilbaby: welcome page', lb_alt2='Lilbaby: home screen', lb_try='Try it in the browser',
   mk_name='Blast!', mk_sub='The party game everyone ends up shouting at', mk_desc='Explain a word to your team while your rivals plant three words you can’t say. Online, on one phone, or against the computer.',
   mk_img1='/app-assets/en/boom.webp', mk_img2='/app-assets/en/home.webp', mk_alt1='Blast!: the boom screen', mk_alt2='Blast!: home screen',
   mk_play='Play in the browser', mk_url='https://mokesh-psi.vercel.app/app-en', hl='en', apple_tp='https://apps.apple.com/app/triplace/id6757530943', apple_mk='https://apps.apple.com/app/id6829290776',
@@ -215,7 +219,8 @@ body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset
 .sh p{color:var(--ink2);font-size:17.5px;max-width:32em}
 
 /* work */
-.work{margin-top:clamp(20px,2.8vw,34px);display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:clamp(16px,2.2vw,28px)}
+.work{margin-top:clamp(20px,2.8vw,34px);display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:clamp(16px,2.2vw,28px)}
+@media (max-width:1100px){.work{grid-template-columns:repeat(2,minmax(0,1fr))}}
 .wk{display:flex;flex-direction:column;gap:13px;min-width:0}
 .wk .shot{border-radius:clamp(20px,2.4vw,30px);aspect-ratio:4/3.3;overflow:hidden;display:flex;align-items:flex-end;justify-content:center;gap:5%;padding-top:8%}
 .wk .shot img{width:35%;border-radius:22px 22px 0 0;box-shadow:0 0 0 5px #000,0 0 0 6px #2a2a2e;transition:transform .8s var(--ease)}
@@ -572,6 +577,12 @@ def build(L):
           <div class="meta"><img loading="lazy" decoding="async" src="/studio-assets/mk_icon.webp" alt=""><div><b>{t['mk_name']}</b><small>{t['mk_sub']}</small></div><span class="tag">GAME</span></div>
           <p>{t['mk_desc']}</p>
           <div class="acts">{store(t['apple_mk'], APPLE, 'Download on the', 'App Store')}{store(mk_play, PLAY, 'GET IT ON', 'Google Play')}<a class="lnk" href="{t['mk_url']}" target="_blank" rel="noopener">{t['mk_play']}</a></div>
+        </article>
+        <article class="wk rv">
+          <div class="shot" style="background:radial-gradient(ellipse at 50% 100%,rgba(255,143,174,.42),transparent 65%),var(--coal)"><img loading="lazy" decoding="async" src="/studio-assets/lb_welcome.webp" alt="{t['lb_alt1']}"><img loading="lazy" decoding="async" src="/studio-assets/lb_home.webp" alt="{t['lb_alt2']}"></div>
+          <div class="meta"><img loading="lazy" decoding="async" src="/studio-assets/lb_icon.webp" alt=""><div><b><span class="lat">Lilbaby</span></b><small>{t['lb_sub']}</small></div><span class="tag">PARENTING</span></div>
+          <p>{t['lb_desc']}</p>
+          <div class="acts"><a class="lnk" href="https://mokesh-psi.vercel.app/parents" target="_blank" rel="noopener">{t['lb_try']}</a></div>
         </article>
       </div>
     </section>
