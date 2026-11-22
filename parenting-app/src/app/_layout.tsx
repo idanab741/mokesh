@@ -21,7 +21,7 @@ if (Platform.OS === 'web') {
     // The app's typeface. If it cannot be fetched, the system face from the font stack is used.
     const font = document.createElement('link');
     font.rel = 'stylesheet';
-    font.href = 'https://fonts.googleapis.com/css2?family=Rubik:wght@400;500;600;700&display=swap';
+    font.href = 'https://fonts.googleapis.com/css2?family=Rubik:wght@400;500;600;700&family=Amatic+SC:wght@700&display=swap';
     document.head.appendChild(font);
     document.documentElement.setAttribute('dir', 'rtl');
     document.documentElement.setAttribute('lang', 'he');

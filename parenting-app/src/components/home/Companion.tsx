@@ -115,9 +115,9 @@ export function Album({ marked, sex, name, onOpen }: { marked: readonly Mileston
   const keys = new Set(marked.map((m) => m.catalogKey));
   const waiting = CATALOG.filter((c) => !keys.has(c.key)).slice(0, Math.max(0, 5 - got.length)).map((c) => ({ key: c.key, title: catalogTitle(c, sex), on: false }));
   return (
-    <Pressable onPress={onOpen} accessibilityRole="button" accessibilityLabel={`האלבום של ${name}: ${marked.length} רגעים. פתיחה`} style={[styles.card, { flexDirection: 'column', alignItems: 'stretch' }]}>
+    <Pressable onPress={onOpen} accessibilityRole="button" accessibilityLabel={`הרגעים של ${name}: ${marked.length} רגעים. פתיחה`} style={[styles.card, { flexDirection: 'column', alignItems: 'stretch' }]}>
       <View style={styles.albumHead}>
-        <Text variant="bodyStrong" color={colors.ink}>{`האלבום של ${name}`}</Text>
+        <Text variant="bodyStrong" color={colors.ink}>{`הרגעים של ${name}`}</Text>
         <Text variant="label" color={colors.primaryStrong} style={{ fontWeight: '600' }}>{marked.length === 0 ? 'הרגע הראשון' : marked.length === 1 ? 'רגע אחד' : `${marked.length} רגעים`}</Text>
       </View>
       <View style={styles.album}>

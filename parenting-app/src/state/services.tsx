@@ -1,5 +1,7 @@
 import { type HealthRepository, createHealthRepository } from '@/data/repositories/health';
 import { type MilestonesRepository, createMilestonesRepository } from '@/data/repositories/milestones';
+import { type PhotosRepository, createPhotosRepository } from '@/data/repositories/photos';
+import { uploadPhotoFiles } from '@/services/photoFiles';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import * as Network from 'expo-network';
 import { type ReactNode, createContext, useCallback, useContext, useEffect, useRef, useState } from 'react';
@@ -25,6 +27,7 @@ export interface Services {
   children: ChildrenRepository;
   measurements: MeasurementsRepository;
   milestones: MilestonesRepository;
+  photos: PhotosRepository;
   health: HealthRepository;
   /** Null when no Supabase project is configured. */
   syncEngine: SyncEngine | null;
@@ -62,6 +65,7 @@ export function ServicesProvider({ children }: { children: ReactNode }) {
       const db = await getDb();
       const kv = createKvStore(db);
       const supabase = getSupabase();
+      const photos = createPhotosRepository(db);
       const syncEngine = supabase ? createSyncEngine({ db, kv, remote: createSupabaseGateway(supabase) }) : null;
 
       const syncNow = async () => {
@@ -77,6 +81,8 @@ export function ServicesProvider({ children }: { children: ReactNode }) {
           new Promise<SyncResult>((resolve) =>
             setTimeout(() => resolve({ pushed: 0, pulled: 0, conflicts: 0, failed: 1, lastError: 'sync timeout' }), 45_000)),
         ]);
+        // The picture files follow their rows; a file that did not go up is tried again next round.
+        if (result.failed === 0) await uploadPhotoFiles(getSupabase()!, photos).catch(() => undefined);
         setSync({
           status: result.failed > 0 ? 'error' : 'idle',
           lastError: result.lastError,
@@ -105,6 +111,7 @@ export function ServicesProvider({ children }: { children: ReactNode }) {
         children: createChildrenRepository(db),
         measurements: createMeasurementsRepository(db),
         milestones: createMilestonesRepository(db),
+        photos,
         health: createHealthRepository(db),
       });
     } catch (err) {

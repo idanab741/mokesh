@@ -88,7 +88,14 @@ const SPECS: TableSpec[] = [
     json: [],
     timestamps: ['scheduled_at', 'created_at', 'deleted_at'],
     serverOwned: ['created_by'],
+  },  {
+    table: 'photos',
+    columns: ['id', 'child_id', 'created_by', 'taken_on', 'caption', 'storage_path', 'thumb', 'created_at', 'deleted_at'],
+    json: [],
+    timestamps: ['created_at', 'deleted_at'],
+    serverOwned: ['created_by'],
   },
+
 ];
 
 /** Columns that never change after creation and therefore are not part of an update patch. */

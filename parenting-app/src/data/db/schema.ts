@@ -139,6 +139,22 @@ const MIGRATIONS: string[] = [
   );
   CREATE INDEX appointments_child ON appointments (child_id, scheduled_at);
   `,
+  // v5: the photo journal. `photos` matches public.photos (with a small thumbnail as a data URL);
+  // the full picture stays on the device in `photo_files` and goes to Storage on its own.
+  `
+  CREATE TABLE photos (
+    id TEXT PRIMARY KEY NOT NULL, child_id TEXT NOT NULL, created_by TEXT, taken_on TEXT NOT NULL, caption TEXT,
+    storage_path TEXT NOT NULL, thumb TEXT,
+    created_at TEXT NOT NULL,
+    updated_at TEXT NOT NULL,
+    deleted_at TEXT,
+    version INTEGER NOT NULL DEFAULT 0,
+    sync_status TEXT NOT NULL DEFAULT 'pending',
+    conflict_remote TEXT
+  );
+  CREATE INDEX photos_child ON photos (child_id, taken_on DESC);
+  CREATE TABLE photo_files (photo_id TEXT PRIMARY KEY NOT NULL, data TEXT NOT NULL, uploaded INTEGER NOT NULL DEFAULT 0);
+  `,
 ];
 
 export async function migrate(driver: SqlDriver): Promise<void> {
