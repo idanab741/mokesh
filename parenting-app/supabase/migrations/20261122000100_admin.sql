@@ -7,3 +7,5 @@
 -- public.admin_overview(), public.admin_accounts(integer, integer) [authenticated; the last two raise 42501 for a non-admin].
 -- The full definitions are in the project's migration history under that name; when moving to a
 -- dedicated project, copy them from there (Supabase > Database > Migrations) into this file.
+-- "parenting_admin_insights" (same place): public.admin_insights(), public.admin_search_accounts(text, integer, integer),
+-- public.admin_account(uuid). All three are security definer and raise 42501 for a non-admin.

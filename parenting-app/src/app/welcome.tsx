@@ -16,6 +16,8 @@ import { track } from '@/services/analytics';
 import { useServices } from '@/state/services';
 import { useSession } from '@/state/session';
 import { useState } from 'react';
+import { useQuery } from '@tanstack/react-query';
+import { isAdmin } from '@/services/admin';
 
 /** The logo and the headline above the poster. */
 const TOP = 104;
@@ -26,6 +28,7 @@ export default function WelcomeScreen() {
   const { width, height } = useWindowDimensions();
   const { enterDemo } = useServices();
   const [peeking, setPeeking] = useState(false);
+  const admin = useQuery({ queryKey: ['admin', 'is', user?.id], queryFn: isAdmin, enabled: !!user, staleTime: 600_000 });
   // A sync that finishes while this screen is open may bring the family's children with it.
   const cloud = config.isCloudConfigured && !user;
   if (!cloud && children.data && children.data.length > 0) return <Redirect href="/(tabs)" />;
@@ -65,6 +68,7 @@ export default function WelcomeScreen() {
         ) : (
           <>
             <Button label="מתחילים" onPress={() => router.push('/child/edit')} />
+            {admin.data === true ? <Button label="ניהול" variant="ghost" size="md" onPress={() => router.push('/admin')} /> : null}
             {!config.isCloudConfigured ? (
               <Notice text="בגרסה הזו הנתונים נשמרים במכשיר בלבד. גיבוי ושיתוף משפחתי יופעלו לאחר חיבור שרת." />
             ) : null}
