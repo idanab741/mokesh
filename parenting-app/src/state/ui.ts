@@ -1,4 +1,5 @@
 import { create } from 'zustand';
+import { track } from '@/services/analytics';
 
 interface UiState {
   addSheetOpen: boolean;
@@ -17,7 +18,7 @@ export const useUi = create<UiState>((set) => ({
   addSheetOpen: false,
   childSheetOpen: false,
   accountPromptOpen: false,
-  openAccountPrompt: () => set({ accountPromptOpen: true }),
+  openAccountPrompt: () => { track('account_prompt'); set({ accountPromptOpen: true }); },
   closeAccountPrompt: () => set({ accountPromptOpen: false }),
   openAddSheet: () => set({ addSheetOpen: true }),
   closeAddSheet: () => set({ addSheetOpen: false }),

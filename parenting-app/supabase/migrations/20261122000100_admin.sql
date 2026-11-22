@@ -1,0 +1,9 @@
+-- Admin of the parenting app: numbers and an accounts list, never a family's content.
+-- Applied on the shared MOKESH project through the Supabase MCP as "parenting_admin".
+-- An admin is added by hand: insert into public.app_admins (user_id) select id from auth.users where email = '<the owner's email>';
+--
+-- Objects: tables public.app_admins, public.app_events (RLS on, no client access);
+-- functions public.track_event(text, uuid) [anon + authenticated], public.is_app_admin(),
+-- public.admin_overview(), public.admin_accounts(integer, integer) [authenticated; the last two raise 42501 for a non-admin].
+-- The full definitions are in the project's migration history under that name; when moving to a
+-- dedicated project, copy them from there (Supabase > Database > Migrations) into this file.

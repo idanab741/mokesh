@@ -6,6 +6,8 @@ import { useEffect } from 'react';
 import { I18nManager, Platform, View } from 'react-native';
 import { ToastHost } from '@/components/ui/overlays';
 import { AccountPrompt } from '@/components/AccountPrompt';
+import { trackPath } from '@/services/analytics';
+import { usePathname } from 'expo-router';
 import { colors, setAccent } from '@/design/tokens';
 import { useAppTheme } from '@/hooks/data';
 import { initAuth } from '@/state/auth';
@@ -32,6 +34,13 @@ if (Platform.OS === 'web') {
   if (!I18nManager.isRTL) I18nManager.forceRTL(true);
 }
 
+/** Counts which screen was opened (anonymous, see services/analytics). */
+function ScreenCounter() {
+  const path = usePathname();
+  useEffect(() => { trackPath(path); }, [path]);
+  return null;
+}
+
 function AuthBridge() {
   const { syncNow } = useServices();
   useEffect(() => initAuth(() => void syncNow()), [syncNow]);
@@ -53,6 +62,7 @@ export default function RootLayout() {
   return (
     <ServicesProvider>
       <AuthBridge />
+      <ScreenCounter />
       <StatusBar style="dark" />
       <Themed>
       <Stack screenOptions={{ headerShown: false, contentStyle: { backgroundColor: colors.background } }}>

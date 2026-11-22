@@ -8,6 +8,7 @@ import { Button, EmptyState, Notice } from '@/components/ui/primitives';
 import { SheetCard, SkyScreen } from '@/components/ui/SkyScreen';
 import { THEMES } from '@/domain/theme';
 import { signIn, signUp } from '@/state/auth';
+import { track } from '@/services/analytics';
 import { useServices } from '@/state/services';
 
 const EMAIL = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
@@ -28,6 +29,7 @@ export function AuthForm({ mode }: { mode: 'sign-in' | 'sign-up' }) {
     setError(null);
     setBusy(true);
     const result = isSignUp ? await signUp(email, password, name) : await signIn(email, password);
+    if (result.ok) track(isSignUp ? 'signup_done' : 'signin_done');
     if (!result.ok) {
       setBusy(false);
       return setError(result.message);
