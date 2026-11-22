@@ -1,5 +1,5 @@
 // Layout + interaction audit on an iPhone-sized touch screen, using real taps and key presses.
-const skipTour = async (page) => { if (page.__tour) return; page.__tour = true; await page.addLocatorHandler(page.getByRole('button', { name: 'דילוג על ההסבר' }), async (b) => { await b.click(); }); };
+const skipTour = async (page) => { if (page.__tour) return; page.__tour = true; await page.addLocatorHandler(page.getByRole('button', { name: 'דילוג על ההסבר' }), async (b) => { await b.evaluate((el) => el.click()); }); };
 const { chromium, devices } = require('playwright');
 const problems = [];
 const note = (screen, msg) => { problems.push(`[${screen}] ${msg}`); };
@@ -73,8 +73,9 @@ const scan = () => {
   await type('sign-up', 'השם שלך', 'דנה'); await type('sign-up', 'אימייל', 'someone@example.com'); await type('sign-up', 'סיסמה', 'abcd1234');
   await tapBtn('חזרה'); await w(800);
   // --- child form
-  await page.goto('http://localhost:4173/'); await w(2500); await skipTour(page);
-  await page.getByText('להתחיל בלי חשבון').tap(); await w(900);
+  // Without an account the app is read-only, so the rest runs on the build that has no accounts at all (port 4174).
+  await page.goto('http://localhost:4174/'); await w(2500); await skipTour(page);
+  await page.getByText('מתחילים').tap(); await w(900);
   await scrollAll('child-form');
   await page.evaluate(() => { for (const d of document.querySelectorAll('div')) d.scrollTop = 0; });
   await type('child-form', 'שם', 'עלמה'); await type('child-form', 'תאריך לידה, יום', '19'); await type('child-form', 'תאריך לידה, חודש', '5'); await type('child-form', 'תאריך לידה, שנה', '2026');
@@ -138,7 +139,7 @@ const scan = () => {
   await tapBtn('שמירה'); await w(900);
   if (!(await page.innerText('body')).includes('7.25 ק״ג')) note('growth', 'measurement was not saved');
   await audit('growth-with-data');
-  await page.goto('http://localhost:4173/updates'); await w(2500); await audit('updates');
+  await page.goto('http://localhost:4174/updates'); await w(2500); await audit('updates');
 
   console.log(problems.length ? [...new Set(problems)].join('\n') : 'NO PROBLEMS FOUND');
   await browser.close();

@@ -1,6 +1,6 @@
 const { chromium } = require('playwright');
 // The tour over Home is closed whenever it shows up.
-const skipTour = async (page) => { if (page.__tour) return; page.__tour = true; await page.addLocatorHandler(page.getByRole('button', { name: 'דילוג על ההסבר' }), async (b) => { await b.click(); }); };
+const skipTour = async (page) => { if (page.__tour) return; page.__tour = true; await page.addLocatorHandler(page.getByRole('button', { name: 'דילוג על ההסבר' }), async (b) => { await b.evaluate((el) => el.click()); }); };
 // Needs a cloud build served on :4173 and an existing, confirmed account:
 //   TEST_EMAIL=... TEST_PW=... node e2e/cloud-sync.js   (HTTPS_PROXY is used when set)
 const PW = process.env.TEST_PW, OWNER = process.env.TEST_EMAIL;

@@ -2,6 +2,7 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useEffect, useMemo } from 'react';
 import { type Reminder, type ReminderSettings, isDue, listReminders, parseReminders, pruneDismissed } from '@/domain/reminders';
 import { scheduleReminders } from '@/services/notify';
+import { useGuest } from '@/state/guest';
 import { useServices } from '@/state/services';
 import { useActiveSleep, useHealth, useNow, useRecentEvents } from './data';
 
@@ -13,6 +14,7 @@ const FEEDS = new Set(['bottle', 'nursing', 'solids']);
  */
 export function useReminders(childId: string | undefined) {
   const { kv } = useServices();
+  const { guard } = useGuest();
   const qc = useQueryClient();
   const now = useNow(30_000);
   const settingsQ = useQuery({ queryKey: ['reminders', childId, 'settings'], queryFn: async () => parseReminders(await kv.get(`reminders:${childId}`)), enabled: !!childId });
@@ -65,7 +67,8 @@ export function useReminders(childId: string | undefined) {
     settings: settings ?? parseReminders(null),
     due: list.filter((r) => isDue(r, now)),
     upcoming: list.filter((r) => !isDue(r, now)),
-    save: (next: ReminderSettings) => save.mutate(next),
-    done: (key: string) => dismiss.mutate(key),
+    // Reminders live in the app's own settings, which a visitor's writes are not blocked from: block them here.
+    save: guard((next: ReminderSettings) => save.mutate(next)),
+    done: guard((key: string) => dismiss.mutate(key)),
   };
 }

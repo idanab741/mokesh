@@ -5,6 +5,7 @@ import { colors } from '@/design/tokens';
 import { useChildren } from '@/hooks/data';
 import { acceptPendingInvite, pendingInvite } from '@/services/family';
 import { useServices } from '@/state/services';
+import { isGuest } from '@/state/guest';
 import { useSession } from '@/state/session';
 
 /** Entry gate: a family with a child goes to the app, everyone else to the welcome flow. */
@@ -30,5 +31,7 @@ export default function Index() {
       </View>
     );
   }
+  // A visitor always starts at the welcome page: the way in is an account, and a look around is one tap from there.
+  if (isGuest()) return <Redirect href="/welcome" />;
   return <Redirect href={children.data && children.data.length > 0 ? '/(tabs)' : '/welcome'} />;
 }

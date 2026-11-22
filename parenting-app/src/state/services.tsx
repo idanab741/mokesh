@@ -18,6 +18,10 @@ import { createSupabaseGateway } from '@/data/sync/supabaseGateway';
 import type { SyncResult } from '@/data/sync/types';
 import { colors, spacing } from '@/design/tokens';
 import { getSupabase } from '@/services/supabase';
+import { guardDriver } from '@/data/db/guest';
+import { isGuest } from '@/state/guest';
+import { seedDemo, wipeDemo } from '@/services/demo';
+import { useUi } from '@/state/ui';
 import { useSession } from './session';
 
 export interface Services {
@@ -34,6 +38,8 @@ export interface Services {
   /** Fire-and-forget: coalesces bursts of writes into one sync round. No-op when signed out. */
   requestSync: () => void;
   syncNow: () => Promise<void>;
+  /** Puts the example child on this device for a visitor without an account. */
+  enterDemo: () => Promise<void>;
   /** A full sync after joining a family, whose rows are older than this device's pull cursors. */
   syncAfterJoin: () => Promise<void>;
 }
@@ -62,11 +68,13 @@ export function ServicesProvider({ children }: { children: ReactNode }) {
   const boot = useCallback(async () => {
     setError(null);
     try {
-      const db = await getDb();
-      const kv = createKvStore(db);
+      // `raw` writes freely (the sync engine, the example child); `db` is what the screens get, and it refuses a visitor's writes.
+      const raw = await getDb();
+      const kv = createKvStore(raw);
+      const db = guardDriver(raw, isGuest, () => useUi.getState().openAccountPrompt());
       const supabase = getSupabase();
       const photos = createPhotosRepository(db);
-      const syncEngine = supabase ? createSyncEngine({ db, kv, remote: createSupabaseGateway(supabase) }) : null;
+      const syncEngine = supabase ? createSyncEngine({ db: raw, kv, remote: createSupabaseGateway(supabase) }) : null;
 
       const syncNow = async () => {
         const { setSync } = useSession.getState();
@@ -74,6 +82,8 @@ export function ServicesProvider({ children }: { children: ReactNode }) {
         // Ask Supabase directly: right after sign-in the store may not have the user yet.
         const { data } = await getSupabase()!.auth.getSession();
         if (!data.session) return;
+        // The example child a visitor looked at never reaches an account.
+        if (await wipeDemo(raw, kv)) { useSession.getState().setActiveChildId(null); await queryClient.invalidateQueries(); }
         setSync({ status: 'syncing' });
         // Hard ceiling: whatever the network does, the UI must never be left on "syncing".
         const result = await Promise.race([
@@ -107,6 +117,13 @@ export function ServicesProvider({ children }: { children: ReactNode }) {
       useSession.getState().setActiveChildId(stored);
       setServices({
         db, kv, syncEngine, requestSync, syncNow, syncAfterJoin,
+        enterDemo: async () => {
+          // Someone who already has a diary on this device (from before accounts were required) looks at their own.
+          const own = await raw.all<{ id: string }>('SELECT id FROM children WHERE deleted_at IS NULL LIMIT 1');
+          const id = own[0]?.id ?? await seedDemo(raw, kv);
+          if (!useSession.getState().activeChildId) { useSession.getState().setActiveChildId(id); await kv.set('active_child_id', id); }
+          await queryClient.invalidateQueries();
+        },
         events: createEventsRepository(db),
         children: createChildrenRepository(db),
         measurements: createMeasurementsRepository(db),

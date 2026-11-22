@@ -1,6 +1,6 @@
 const { chromium } = require('playwright');
 // The tour over Home is closed whenever it shows up.
-const skipTour = async (page) => { if (page.__tour) return; page.__tour = true; await page.addLocatorHandler(page.getByRole('button', { name: 'דילוג על ההסבר' }), async (b) => { await b.click(); }); };
+const skipTour = async (page) => { if (page.__tour) return; page.__tour = true; await page.addLocatorHandler(page.getByRole('button', { name: 'דילוג על ההסבר' }), async (b) => { await b.evaluate((el) => el.click()); }); };
 // Needs a cloud build served on :4173 and two existing, confirmed accounts:
 //   TEST_EMAIL=owner TEST_EMAIL_2=other TEST_PW=... node e2e/family-invite.js
 const PW = process.env.TEST_PW, OWNER = process.env.TEST_EMAIL, OTHER = process.env.TEST_EMAIL_2;

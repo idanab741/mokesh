@@ -11,6 +11,7 @@ import { Text } from '@/components/ui/Text';
 import { colors, spacing, themed } from '@/design/tokens';
 import { CAPTION_MAX, type Photo, groupByMonth } from '@/domain/photos';
 import { useActiveChild } from '@/hooks/data';
+import { useGuest } from '@/state/guest';
 import { usePhotoFile, usePhotoMutations, usePhotos } from '@/hooks/photos';
 import { errorMessage } from '@/i18n/he';
 import { type PickedPhoto, pickPhoto } from '@/lib/pickPhoto';
@@ -24,6 +25,7 @@ export default function AlbumScreen() {
   const list = usePhotos(child?.id);
   const { add, update, remove } = usePhotoMutations(child?.id, child?.familyId);
   const toast = useToast((s) => s.show);
+  const { guard } = useGuest();
   const months = useMemo(() => (child ? groupByMonth(list.data ?? [], child.birthDate) : []), [list.data, child]);
 
   const [picked, setPicked] = useState<PickedPhoto | null>(null);
@@ -72,7 +74,7 @@ export default function AlbumScreen() {
     <SkyScreen title={child ? `האלבום של ${child.name}` : 'האלבום'} subtitle="דף לכל חודש בחיים"
       onBack={() => (router.canGoBack() ? router.back() : router.replace('/(tabs)'))}>
       <AlbumCover name={child?.name ?? ''} latest={list.data?.[0] ?? null} familyId={child?.familyId} photos={total} months={months.length} />
-      <Button label="הוספת תמונה" icon={ImagePlus} onPress={() => void choose()} />
+      <Button label="הוספת תמונה" icon={ImagePlus} onPress={guard(() => void choose())} />
 
       {total === 0 ? (
         <AlbumPage title="הדף הראשון" count="">

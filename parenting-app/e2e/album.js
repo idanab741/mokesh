@@ -3,7 +3,7 @@
 // Needs a cloud build served on :4173 and TEST_EMAIL / TEST_PW.
 const { chromium } = require('playwright');
 const path = require('path');
-const skipTour = async (page) => { await page.addLocatorHandler(page.getByRole('button', { name: 'דילוג על ההסבר' }), async (b) => { await b.click(); }); };
+const skipTour = async (page) => { await page.addLocatorHandler(page.getByRole('button', { name: 'דילוג על ההסבר' }), async (b) => { await b.evaluate((el) => el.click()); }); };
 const OWNER = process.env.TEST_EMAIL; const PW = process.env.TEST_PW;
 const S = (process.env.SHOTS_DIR || require('os').tmpdir()) + '/';
 const PICTURE = path.join(__dirname, '..', 'assets', 'welcome', 'poster.jpg');
