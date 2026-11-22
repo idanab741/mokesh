@@ -3,7 +3,7 @@ import { useEffect, useRef } from 'react';
 import { POSTER_ASPECT, POSTER_LABEL, POSTER_STILL } from './welcomePosterMeta';
 
 /** The looping clip of the poster; null while there is only the still picture. */
-const CLIP: number | null = null;
+const CLIP: number | null = require('../../../assets/welcome/poster.mp4');
 
 /** The side edges melt into the page, which paints the same sky beside the clip on a wide or short screen. */
 const MASK = 'linear-gradient(to right, transparent 0, #000 7%, #000 93%, transparent 100%)';
