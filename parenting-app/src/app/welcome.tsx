@@ -12,7 +12,9 @@ import { colors, spacing, themed } from '@/design/tokens';
 import { THEMES } from '@/domain/theme';
 import { useChildren } from '@/hooks/data';
 import { config } from '@/services/config';
+import { useServices } from '@/state/services';
 import { useSession } from '@/state/session';
+import { useState } from 'react';
 
 /** The logo and the headline above the poster. */
 const TOP = 104;
@@ -21,9 +23,11 @@ export default function WelcomeScreen() {
   const user = useSession((s) => s.user);
   const children = useChildren();
   const { width, height } = useWindowDimensions();
+  const { enterDemo } = useServices();
+  const [peeking, setPeeking] = useState(false);
   // A sync that finishes while this screen is open may bring the family's children with it.
-  if (children.data && children.data.length > 0) return <Redirect href="/(tabs)" />;
   const cloud = config.isCloudConfigured && !user;
+  if (!cloud && children.data && children.data.length > 0) return <Redirect href="/(tabs)" />;
   // The poster takes what the way in leaves free, so the main button is on screen without scrolling.
   const room = height - TOP - (cloud ? 236 : 150);
   const posterHeight = Math.round(Math.max(300, Math.min(room / (1 - POSTER_HEADROOM), Math.min(width, 520) / POSTER_ASPECT)));
@@ -54,8 +58,8 @@ export default function WelcomeScreen() {
           <>
             <Button label="יצירת חשבון" onPress={() => router.push('/auth/sign-up')} />
             <Button label="כבר יש לי חשבון" variant="secondary" onPress={() => router.push('/auth/sign-in')} />
-            <Button label="להתחיל בלי חשבון" variant="ghost" size="md" onPress={() => router.push('/child/edit')}
-              accessibilityHint="הנתונים יישמרו במכשיר הזה בלבד. אפשר לפתוח חשבון בהמשך." />
+            <Button label="להציץ בלי חשבון" variant="ghost" size="md" loading={peeking} onPress={() => { setPeeking(true); void enterDemo().then(() => router.replace('/(tabs)')).finally(() => setPeeking(false)); }}
+              accessibilityHint="תינוקת לדוגמה, לצפייה בלבד. כדי לתעד צריך חשבון." />
           </>
         ) : (
           <>

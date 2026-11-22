@@ -1,6 +1,6 @@
 const { chromium } = require('playwright');
 // The tour over Home is closed whenever it shows up.
-const skipTour = async (page) => { if (page.__tour) return; page.__tour = true; await page.addLocatorHandler(page.getByRole('button', { name: 'דילוג על ההסבר' }), async (b) => { await b.click(); }); };
+const skipTour = async (page) => { if (page.__tour) return; page.__tour = true; await page.addLocatorHandler(page.getByRole('button', { name: 'דילוג על ההסבר' }), async (b) => { await b.evaluate((el) => el.click()); }); };
 const S = (process.env.SHOTS_DIR || require('os').tmpdir()) + '/';
 const results = [];
 const check = (name, cond) => { results.push(`${cond ? 'PASS' : 'FAIL'} ${name}`); };

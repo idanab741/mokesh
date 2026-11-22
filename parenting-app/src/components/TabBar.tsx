@@ -6,6 +6,7 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 import { Animated, Easing, I18nManager, PanResponder, Platform, Pressable, StyleSheet, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { colors, gradients, shadow, themed } from '@/design/tokens';
+import { useGuest } from '@/state/guest';
 import { useUi } from '@/state/ui';
 
 const TABS: Record<string, { label: string; icon: LucideIcon }> = {
@@ -27,7 +28,8 @@ const PAD = 6;
  */
 export function TabBar({ state, emitter, navigateToTab }: BottomTabBarProps) {
   const insets = useSafeAreaInsets();
-  const openAddSheet = useUi((s) => s.openAddSheet);
+  const { guard } = useGuest();
+  const openAddSheet = guard(useUi((s) => s.openAddSheet));
   const [width, setWidth] = useState(0);
   const slot = Math.max(0, (width - PAD * 2) / SLOTS);
   const rtl = I18nManager.isRTL || Platform.OS === 'web';

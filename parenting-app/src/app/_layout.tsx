@@ -5,6 +5,7 @@ import { StatusBar } from 'expo-status-bar';
 import { useEffect } from 'react';
 import { I18nManager, Platform, View } from 'react-native';
 import { ToastHost } from '@/components/ui/overlays';
+import { AccountPrompt } from '@/components/AccountPrompt';
 import { colors, setAccent } from '@/design/tokens';
 import { useAppTheme } from '@/hooks/data';
 import { initAuth } from '@/state/auth';
@@ -59,6 +60,7 @@ export default function RootLayout() {
         <Stack.Screen name="child/edit" options={{ presentation: 'modal' }} />
       </Stack>
       </Themed>
+      <AccountPrompt />
       <ToastHost />
     </ServicesProvider>
   );

@@ -1,4 +1,5 @@
-import { router, useFocusEffect } from 'expo-router';
+import { useQuery } from '@tanstack/react-query';
+import { Redirect, router, useFocusEffect } from 'expo-router';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Bell, CalendarClock, ChevronDown, ChevronLeft, ClipboardList, HeartPulse, type LucideIcon, Moon, Palette, Pill, Sparkles, Square, Users, Utensils, Plus } from 'lucide-react-native';
 import { useCallback, useEffect, useMemo, useState } from 'react';
@@ -28,6 +29,7 @@ import { buildInsights, daysUntilInsights } from '@/domain/insights';
 import { babyMood } from '@/domain/mood';
 import { learnRoutine, predictNext } from '@/domain/routine';
 import { useReminders } from '@/hooks/reminders';
+import { useGuest } from '@/state/guest';
 import { usePhotos } from '@/hooks/photos';
 import { PhotoStrip } from '@/components/home/PhotoStrip';
 import { ReminderRow } from '@/components/reminders/ReminderRow';
@@ -35,7 +37,7 @@ import { type Advice, buildAdvice } from '@/domain/advisor';
 import { computeRangeStats } from '@/domain/stats';
 import { sterilizeState } from '@/domain/sterilize';
 import { summarizeDay } from '@/domain/summary';
-import { useActiveChild, useEventsBetween, useAppTheme, useHealth, useMilestones, useNow, useRecentEvents, useUnsynced } from '@/hooks/data';
+import { useActiveChild, useChildren, useEventsBetween, useAppTheme, useHealth, useMilestones, useNow, useRecentEvents, useUnsynced } from '@/hooks/data';
 import { diaperKindLabel, sleepingWord } from '@/i18n/he';
 import { formatDateShort, formatRelative, addDays, formatClock, formatDateLong, formatDuration, formatTime, greetingForHour } from '@/lib/time';
 import { useServices } from '@/state/services';
@@ -60,6 +62,9 @@ const tourSteps = (name: string): TourStep[] => [
 /** Home needs a child. Without one (first run, or the family was just left) nothing below is mounted. */
 export default function HomeScreen() {
   const { child } = useActiveChild();
+  const all = useChildren();
+  // The last child is gone (the example child after signing in, or a family that was left): back to the gate.
+  if (all.data && all.data.length === 0) return <Redirect href="/" />;
   if (!child) return <Screen><View /></Screen>;
   return <HomeBody child={child} />;
 }
@@ -82,6 +87,9 @@ function HomeBody({ child }: { child: NonNullable<ReturnType<typeof useActiveChi
   // Shown once per device: the tour of the screen, and Lili's first steps (which ones were put off).
   const { kv } = useServices();
   const reminders = useReminders(child.id);
+  const { guest, guard, ask } = useGuest();
+  const demoId = useQuery({ queryKey: ['demo-child'], queryFn: () => kv.get('demo_child_id') });
+  const isDemo = demoId.data === child.id;
   const photos = usePhotos(child.id);
   const [tourOpen, setTourOpen] = useState(false);
   const [skipped, setSkipped] = useState<string[] | null>(null);
@@ -157,9 +165,9 @@ function HomeBody({ child }: { child: NonNullable<ReturnType<typeof useActiveChi
     { type: 'diaper', filter: 'diaper', label: 'מאז חיתול', value: sinceText(routine.diaper.lastAt) },
   ];
   const dock: { type: ActivityType; label: string; a11y: string; onPress: () => void }[] = [
-    { type: 'bottle', label: 'האכלה', a11y: 'תיעוד האכלה', onPress: () => setQuick('feed') },
-    { type: 'sleep', label: activeSleep ? 'סיום שינה' : 'שינה', a11y: activeSleep ? 'סיום שינה' : 'התחלת שינה', onPress: () => setQuick('sleep') },
-    { type: 'diaper', label: 'חיתול', a11y: 'תיעוד חיתול', onPress: () => setQuick('diaper') },
+    { type: 'bottle', label: 'האכלה', a11y: 'תיעוד האכלה', onPress: guard(() => setQuick('feed')) },
+    { type: 'sleep', label: activeSleep ? 'סיום שינה' : 'שינה', a11y: activeSleep ? 'סיום שינה' : 'התחלת שינה', onPress: guard(() => setQuick('sleep')) },
+    { type: 'diaper', label: 'חיתול', a11y: 'תיעוד חיתול', onPress: guard(() => setQuick('diaper')) },
     { type: 'solids', label: 'ארוחה', a11y: 'תיעוד ארוחה', onPress: () => openActivityForm('solids') },
   ];
 
@@ -169,9 +177,9 @@ function HomeBody({ child }: { child: NonNullable<ReturnType<typeof useActiveChi
     : awakeFor ? (child.sex === 'female' ? 'ערה כבר' : child.sex === 'male' ? 'ער כבר' : 'זמן ערות:') : null;
   const nowValue = activeSleep && sleepStart ? formatClock((tick.getTime() - sleepStart.getTime()) / 1000) : awakeFor;
   const tiles: { type: ActivityType; label: string; a11y: string; status: string; onPress: () => void }[] = [
-    { type: 'bottle', label: 'האכלה', a11y: 'תיעוד האכלה', status: bubbles[0].value ? (bubbles[0].value === 'עכשיו' ? 'עכשיו' : `לפני ${bubbles[0].value}`) : 'עוד לא היום', onPress: () => setQuick('feed') },
-    { type: 'sleep', label: activeSleep ? 'סיום שינה' : 'שינה', a11y: activeSleep ? 'סיום שינה' : 'התחלת שינה', status: activeSleep ? 'בשינה עכשיו' : s.minutes > 0 ? `${formatDuration(s.minutes)} היום` : 'עוד לא היום', onPress: () => setQuick('sleep') },
-    { type: 'diaper', label: 'חיתול', a11y: 'תיעוד חיתול', status: bubbles[2].value ? (bubbles[2].value === 'עכשיו' ? 'עכשיו' : `לפני ${bubbles[2].value}`) : 'עוד לא היום', onPress: () => setQuick('diaper') },
+    { type: 'bottle', label: 'האכלה', a11y: 'תיעוד האכלה', status: bubbles[0].value ? (bubbles[0].value === 'עכשיו' ? 'עכשיו' : `לפני ${bubbles[0].value}`) : 'עוד לא היום', onPress: guard(() => setQuick('feed')) },
+    { type: 'sleep', label: activeSleep ? 'סיום שינה' : 'שינה', a11y: activeSleep ? 'סיום שינה' : 'התחלת שינה', status: activeSleep ? 'בשינה עכשיו' : s.minutes > 0 ? `${formatDuration(s.minutes)} היום` : 'עוד לא היום', onPress: guard(() => setQuick('sleep')) },
+    { type: 'diaper', label: 'חיתול', a11y: 'תיעוד חיתול', status: bubbles[2].value ? (bubbles[2].value === 'עכשיו' ? 'עכשיו' : `לפני ${bubbles[2].value}`) : 'עוד לא היום', onPress: guard(() => setQuick('diaper')) },
     { type: 'solids', label: 'ארוחה', a11y: 'תיעוד ארוחה', status: so.count === 0 ? 'עוד לא היום' : so.count === 1 ? 'אחת היום' : `${so.count} היום`, onPress: () => openActivityForm('solids') },
   ];
 
@@ -198,20 +206,20 @@ function HomeBody({ child }: { child: NonNullable<ReturnType<typeof useActiveChi
   // The three things a baby's day is made of. Each says where things stand, what the day adds up to, and how that compares with this family's own usual day.
   const needs: { type: ActivityType; title: string; a11y: string; status: string; facts: string[]; ring: number | null; onPress: () => void; filter: FilterKey }[] = [
     {
-      type: 'sleep', title: 'שינה', a11y: activeSleep ? 'סיום שינה' : 'התחלת שינה', filter: 'sleep', ring: ringOf.sleep, onPress: () => setQuick('sleep'),
+      type: 'sleep', title: 'שינה', a11y: activeSleep ? 'סיום שינה' : 'התחלת שינה', filter: 'sleep', ring: ringOf.sleep, onPress: guard(() => setQuick('sleep')),
       status: activeSleep && sleepStart ? `${child.name} ${sleepingWord(child.sex)} כבר ${formatClock((tick.getTime() - sleepStart.getTime()) / 1000)}${nextAt('wake') ? ` · התעוררות בסביבות ${nextAt('wake')}` : ''}`
         : awakeFor ? `${child.sex === 'female' ? 'ערה' : child.sex === 'male' ? 'ער' : 'ערות'} ${awakeFor}${nextAt('sleep') ? ` · השינה הבאה בסביבות ${nextAt('sleep')}` : ''}` : 'עוד לא תועדה שינה',
       facts: [`${s.minutes > 0 ? formatDuration(s.minutes) : '0 ד׳'} היום`, ...(usualDay?.sleepMinPerDay ? [`אצלכם בדרך כלל ${formatDuration(usualDay.sleepMinPerDay)}`] : [])],
     },
     {
-      type: 'bottle', title: 'אוכל', a11y: 'תיעוד האכלה', filter: 'feeding', ring: ringOf.bottle, onPress: () => setQuick('feed'),
+      type: 'bottle', title: 'אוכל', a11y: 'תיעוד האכלה', filter: 'feeding', ring: ringOf.bottle, onPress: guard(() => setQuick('feed')),
       status: bubbles[0].value ? `${bubbles[0].value === 'עכשיו' ? (child.sex === 'female' ? 'אכלה עכשיו' : child.sex === 'male' ? 'אכל עכשיו' : 'האכלה עכשיו') : `האכלה אחרונה לפני ${bubbles[0].value}`}${nextAt('feed') ? ` · הבאה בסביבות ${nextAt('feed')}` : ''}` : 'עוד לא תועדה האכלה',
       facts: [`${f.count === 1 ? 'האכלה אחת' : `${f.count} האכלות`} היום`, ...(f.totalMl > 0 ? [`${f.totalMl} מ״ל בבקבוק`] : []),
         ...(so.count > 0 ? [so.count === 1 ? 'ארוחת מוצקים אחת' : `${so.count} ארוחות מוצקים`] : []),
         ...(routine.feed.gapMin ? [`אצלכם כל ${formatDuration(routine.feed.gapMin)} בערך`] : [])],
     },
     {
-      type: 'diaper', title: 'חיתול', a11y: 'תיעוד חיתול', filter: 'diaper', ring: ringOf.diaper, onPress: () => setQuick('diaper'),
+      type: 'diaper', title: 'חיתול', a11y: 'תיעוד חיתול', filter: 'diaper', ring: ringOf.diaper, onPress: guard(() => setQuick('diaper')),
       status: bubbles[2].value ? `${bubbles[2].value === 'עכשיו' ? 'הוחלף עכשיו' : `הוחלף לפני ${bubbles[2].value}`}${nextAt('diaper') ? ` · הבא בסביבות ${nextAt('diaper')}` : ''}` : 'עוד לא תועדה החלפה',
       facts: [`${d.count === 1 ? 'החלפה אחת' : `${d.count} החלפות`} היום`, ...(lastDirty ? [`יציאה אחרונה: ${formatRelative(new Date(lastDirty.occurredAt), now)}`] : []),
         ...(usualDay?.diapersPerDay ? [`אצלכם בדרך כלל ${Math.round(usualDay.diapersPerDay)} ביום`] : [])],
@@ -306,9 +314,21 @@ function HomeBody({ child }: { child: NonNullable<ReturnType<typeof useActiveChi
 
       {/* The sheet that rises over the sky: what is going on now, and the four things to log. */}
       <View style={styles.sheet}>
+        {guest ? (
+          <View style={styles.guest} testID="guest-banner">
+            <View style={{ flex: 1 }}>
+              <Text variant="bodyStrong" color={colors.ink}>{isDemo ? 'מצב הצצה' : 'צפייה בלבד'}</Text>
+              <Text variant="caption" color={colors.textSecondary}>{isDemo ? `${child.name} כאן היא דוגמה, לצפייה בלבד. כדי לתעד את התינוק שלכם פותחים חשבון.` : `אתם לא מחוברים לחשבון. כדי להמשיך לתעד את ${child.name} נכנסים לחשבון או פותחים אחד.`}</Text>
+            </View>
+            <PressScale onPress={ask} accessibilityRole="button" accessibilityLabel="לחשבון" style={styles.guestBtn}>
+              <Text variant="label" color={colors.white} style={{ fontWeight: '700' }}>לחשבון</Text>
+            </PressScale>
+          </View>
+        ) : null}
+
         <Rise index={2}>
           <View {...tourTarget('lili')}>
-            <Companion advice={advice} onAction={onAdvice} step={setup ? { index: setupIndex + 1, total: setupSteps.length, onSkip: () => skipSetup(setup.id) } : undefined} />
+            <Companion advice={advice} onAction={guard(onAdvice)} step={setup ? { index: setupIndex + 1, total: setupSteps.length, onSkip: () => skipSetup(setup.id) } : undefined} />
           </View>
         </Rise>
 
@@ -365,7 +385,7 @@ function HomeBody({ child }: { child: NonNullable<ReturnType<typeof useActiveChi
 
         {/* The gear, and the album of moments */}
         <Rise index={4} style={{ gap: spacing.md }}>
-          <View {...tourTarget('sterilizer')}><SterilizeCard state={sterilize} now={now} onLog={() => setSterOpen(true)} /></View>
+          <View {...tourTarget('sterilizer')}><SterilizeCard state={sterilize} now={now} onLog={guard(() => setSterOpen(true))} /></View>
           <View {...tourTarget('album')} style={{ gap: spacing.md }}>
             <PhotoStrip photos={photos.data ?? []} name={child.name} familyId={child.familyId} onOpen={() => router.push('/album')} />
             <Album marked={marked} sex={child.sex} name={child.name} onOpen={() => router.push('/milestones')} />
@@ -448,6 +468,8 @@ const styles = themed(() => StyleSheet.create({
   archRing: { alignSelf: 'center', marginTop: spacing.md, padding: 8, borderTopLeftRadius: 164, borderTopRightRadius: 164, borderBottomLeftRadius: 42, borderBottomRightRadius: 42, backgroundColor: 'rgba(255,255,255,0.55)' },
   arch: { width: 312, height: 336, alignItems: 'center', justifyContent: 'center', overflow: 'hidden', backgroundColor: colors.background, borderTopLeftRadius: 156, borderTopRightRadius: 156, borderBottomLeftRadius: 34, borderBottomRightRadius: 34 },
   lookBtn: { position: 'absolute', bottom: 14, end: 14, width: 44, height: 44, borderRadius: 16, backgroundColor: colors.surface, alignItems: 'center', justifyContent: 'center', ...shadow.card },
+  guest: { flexDirection: 'row', alignItems: 'center', gap: spacing.md, backgroundColor: colors.primaryLight, borderRadius: 24, padding: spacing.lg },
+  guestBtn: { backgroundColor: colors.primaryStrong, borderRadius: 999, paddingHorizontal: spacing.lg, minHeight: 40, justifyContent: 'center' },
   reminders: { backgroundColor: colors.white, borderRadius: 24, padding: spacing.lg, gap: spacing.md, borderWidth: 1, borderColor: colors.primaryLight },
   remindersHead: { flexDirection: 'row', alignItems: 'center', gap: 6 },
   sheet: { marginHorizontal: -spacing.xl, paddingHorizontal: spacing.xl, paddingTop: spacing.xl, paddingBottom: 130, gap: spacing.lg, backgroundColor: '#FDFBFA', borderTopLeftRadius: 34, borderTopRightRadius: 34 },
