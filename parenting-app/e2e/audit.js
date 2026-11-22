@@ -41,7 +41,8 @@ const scan = () => {
   const ctx = await browser.newContext({ ...devices['iPhone 13'], locale: 'he-IL', timezoneId: 'Asia/Jerusalem' });
   const page = await ctx.newPage();
   page.on('pageerror', (e) => note('runtime', 'PAGEERROR ' + e.message.slice(0, 160)));
-  page.on('console', (m) => { if (m.type() === 'error') note('runtime', 'CONSOLE ' + m.text().slice(0, 160)); });
+  // The audit build points at a server that does not exist, so the anonymous usage counter's request fails by design.
+  page.on('console', (m) => { if (m.type() === 'error' && !/ERR_(TUNNEL_CONNECTION_FAILED|NAME_NOT_RESOLVED|CONNECTION_REFUSED)/.test(m.text())) note('runtime', 'CONSOLE ' + m.text().slice(0, 160)); });
   await page.clock.install({ time: new Date('2026-11-19T20:00:00+02:00') });
   const w = (ms = 600) => page.waitForTimeout(ms);
   const audit = async (screen) => { for (const p of await page.evaluate(scan)) note(screen, p); await page.screenshot({ path: `${process.env.SHOTS_DIR || require('os').tmpdir()}/${screen.replace(/[^a-z0-9-]/gi, '_')}.png` }); };

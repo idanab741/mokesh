@@ -12,6 +12,7 @@ import { colors, spacing, themed } from '@/design/tokens';
 import { THEMES } from '@/domain/theme';
 import { useChildren } from '@/hooks/data';
 import { config } from '@/services/config';
+import { track } from '@/services/analytics';
 import { useServices } from '@/state/services';
 import { useSession } from '@/state/session';
 import { useState } from 'react';
@@ -58,7 +59,7 @@ export default function WelcomeScreen() {
           <>
             <Button label="יצירת חשבון" onPress={() => router.push('/auth/sign-up')} />
             <Button label="כבר יש לי חשבון" variant="secondary" onPress={() => router.push('/auth/sign-in')} />
-            <Button label="להציץ בלי חשבון" variant="ghost" size="md" loading={peeking} onPress={() => { setPeeking(true); void enterDemo().then(() => router.replace('/(tabs)')).finally(() => setPeeking(false)); }}
+            <Button label="להציץ בלי חשבון" variant="ghost" size="md" loading={peeking} onPress={() => { track('peek_start'); setPeeking(true); void enterDemo().then(() => router.replace('/(tabs)')).finally(() => setPeeking(false)); }}
               accessibilityHint="תינוקת לדוגמה, לצפייה בלבד. כדי לתעד צריך חשבון." />
           </>
         ) : (

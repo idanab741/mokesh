@@ -1,6 +1,6 @@
-import { useQueryClient } from '@tanstack/react-query';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { router } from 'expo-router';
-import { ChevronLeft, CloudOff, BellRing, ClipboardList, Images, Download, HeartPulse, LogOut, type LucideIcon, Palette, Pencil, Plus, RefreshCw, Ruler, Sparkles, Trash2, UserRound, Users, Utensils } from 'lucide-react-native';
+import { ChevronLeft, CloudOff, BellRing, ClipboardList, Images, ShieldCheck, Download, HeartPulse, LogOut, type LucideIcon, Palette, Pencil, Plus, RefreshCw, Ruler, Sparkles, Trash2, UserRound, Users, Utensils } from 'lucide-react-native';
 import { useState } from 'react';
 import { Pressable, StyleSheet, View } from 'react-native';
 import { Avatar } from '@/components/Avatar';
@@ -18,6 +18,7 @@ import { exportData, wipeLocalData } from '@/services/dataExport';
 import { getSupabase } from '@/services/supabase';
 import { signOut } from '@/state/auth';
 import { useServices } from '@/state/services';
+import { isAdmin } from '@/services/admin';
 import { useSession } from '@/state/session';
 
 function Row({ icon: Icon, title, detail, onPress, danger }: { icon: LucideIcon; title: string; detail?: string; onPress: () => void; danger?: boolean }) {
@@ -52,6 +53,7 @@ export default function ChildScreen() {
   const [lookOpen, setLookOpen] = useState(false);
   const canManage = useCanManage(child?.familyId);
   const theme = useAppTheme();
+  const admin = useQuery({ queryKey: ['admin', 'is', user?.id], queryFn: isAdmin, enabled: !!user, staleTime: 600_000 });
   if (!child) return <Screen><View /></Screen>;
 
   const birth = parseDayKey(child.birthDate);
@@ -166,6 +168,7 @@ export default function ChildScreen() {
             </View>
           </View>
           {sync.status === 'error' ? <Notice tone="warning" icon={CloudOff} text="הסנכרון האחרון לא הושלם. הנתונים שמורים במכשיר ויועלו בניסיון הבא." /> : null}
+          {admin.data === true ? <Row icon={ShieldCheck} title="ניהול" detail="מספרים וחשבונות של האפליקציה" onPress={() => router.push('/admin')} /> : null}
           <Row icon={RefreshCw} title="סנכרון עכשיו" onPress={() => void syncNow()} />
           <Row icon={LogOut} title="יציאה מהחשבון" detail="הנתונים יישארו שמורים במכשיר" onPress={() => void signOut()} />
         </Card>
