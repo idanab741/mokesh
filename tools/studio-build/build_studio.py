@@ -582,7 +582,7 @@ def build(L):
           <div class="shot" style="background:radial-gradient(ellipse at 50% 100%,rgba(255,143,174,.42),transparent 65%),var(--coal)"><img loading="lazy" decoding="async" src="/studio-assets/lb_welcome.webp" alt="{t['lb_alt1']}"><img loading="lazy" decoding="async" src="/studio-assets/lb_home.webp" alt="{t['lb_alt2']}"></div>
           <div class="meta"><img loading="lazy" decoding="async" src="/studio-assets/lb_icon.webp" alt=""><div><b><span class="lat">Lilbaby</span></b><small>{t['lb_sub']}</small></div><span class="tag">PARENTING</span></div>
           <p>{t['lb_desc']}</p>
-          <div class="acts"><a class="lnk" href="https://mokesh-psi.vercel.app/parents" target="_blank" rel="noopener">{t['lb_try']}</a></div>
+          <div class="acts"><a class="lnk" href="https://lilbaby.vercel.app" target="_blank" rel="noopener">{t['lb_try']}</a></div>
         </article>
       </div>
     </section>
