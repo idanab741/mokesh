@@ -82,7 +82,7 @@ body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset
 
 /* framed wordmark */
 .frame{background:var(--coal);border-radius:clamp(22px,3vw,36px);padding:clamp(20px,3.5vw,45px) clamp(22px,5vw,64px) clamp(14px,2.1vw,24px);overflow:hidden}
-.frame .wfill{width:100%;aspect-ratio:2000/348;background:url(/studio-assets/collage.webp) 0 50%/auto 115% repeat-x;-webkit-mask:url(/studio-assets/word-mask.png) center/100% 100% no-repeat;mask:url(/studio-assets/word-mask.png) center/100% 100% no-repeat;animation:pan var(--dur,60s) linear infinite}
+.frame .wfill{width:100%;aspect-ratio:2000/348;background:url(/studio-assets/collage.webp?v=2) 0 50%/auto 115% repeat-x;-webkit-mask:url(/studio-assets/word-mask.png) center/100% 100% no-repeat;mask:url(/studio-assets/word-mask.png) center/100% 100% no-repeat;animation:pan var(--dur,60s) linear infinite}
 @keyframes pan{to{background-position:var(--pw,-3000px) 50%}}
 .frame .cap{display:flex;justify-content:space-between;gap:16px;margin-top:clamp(14px,2.1vw,24px);padding-top:12px;border-top:1px solid rgba(255,255,255,.1);color:var(--cfg2);font-size:13.5px}
 .frame .cap .lat{letter-spacing:.16em;font-size:12px}
