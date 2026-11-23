@@ -9,24 +9,6 @@
           "value": "nosniff"
         }
       ]
-    },
-    {
-      "source": "/parents/(.*)",
-      "headers": [
-        {
-          "key": "X-Robots-Tag",
-          "value": "noindex, nofollow"
-        }
-      ]
-    },
-    {
-      "source": "/parents",
-      "headers": [
-        {
-          "key": "X-Robots-Tag",
-          "value": "noindex, nofollow"
-        }
-      ]
     }
   ],
   "git": {
@@ -34,10 +16,16 @@
       "claude/**": false
     }
   },
-  "rewrites": [
+  "redirects": [
+    {
+      "source": "/parents",
+      "destination": "https://lilbaby.vercel.app/",
+      "permanent": true
+    },
     {
       "source": "/parents/:path*",
-      "destination": "/parents"
+      "destination": "https://lilbaby.vercel.app/:path*",
+      "permanent": true
     }
   ]
 }
